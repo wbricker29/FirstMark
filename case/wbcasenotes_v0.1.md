@@ -143,9 +143,32 @@ https://github.com/camel-ai/camel
 
 Intro
 - How I think about attacking transformation in venture
+  - How we would ideally get to this use case
+    - Expected ROI
+
+  - part of process
+    - What do you want
+    - Do we do it <-- Epected roi
+    - How do we do it 
+    - How do we know we are on track 
+
+  - Generally loooking for
+    - portfolio value
+    - 
+
 
 The Case
 - The Requirements and Components
+  - Recall over precision
+    - rather not miss a great match vs see some dudes
+
+  - Goal is not to make the decision, its to filter and focus review
+    - Needs to sufficiently filter who is reviewed
+    - needs to inform review of an individual (pop key info, enable quick action)
+    - needs to enable investigation
+
+  - target is augmentation not replacement
+
 - The key complexity points and decisions
 
 Top-level approach breakdown to show thinking and contextualize the
