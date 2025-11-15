@@ -50,6 +50,80 @@ The main focus is building a "Talent Signal Agent" - an AI-powered system that h
 - 5 days in-office in Flatiron, NYC
 - Targeting hire by end of year
 
+## Development Principles
+
+### Constraints
+- **Time allowance:** 48 hours to execute the case
+- **Priority:** Demonstrate quality of thinking first and foremost
+- **Technical approach:** All components must be minimal and quick to stand up
+
+### Decision Matrix
+```
+always          → explain → code → verify
+ambiguous?      → clarify
+existing_code?  → change_minimum
+new_feature?    → MVP → test → expand
+```
+
+### Prioritization Framework
+```
+Simple Features, Working > Perfect
+Clear > Clever
+Request > BestPractice
+Smaller > Larger
+```
+
+### Core Development Process
+
+**Understand → Plan → Code → Test → Validate**
+
+1. **Understand:** requirements, context, dependencies
+2. **Plan:** consider multiple approaches, select optimal approach, define implementation plan and atomic steps
+3. **Execute:** Implement code according to plan, follow best practices
+4. **Validate:** verify functionality, validate acceptance criteria
+5. **Document:** Update task status, provide required completion information
+
+**Key Rules:**
+
+- **SIMPLICITY (KISS & YAGNI)**
+  - New Code → Targeted + Elegant + Simple
+  - Code Change → Minimal changes to code and files possible
+  - No feature creep & unrelated refactoring
+  - Deliver the smallest working increment
+  - Minimal files and complete code
+
+- **QUALITY (Complete & documented)**
+  - Types, docstrings, comments for complex logic
+  - No placeholders
+  - Code Change → Target <100 LOC per change
+
+- **COMMUNICATION**
+  - Request clarification or ask questions if ambiguous
+  - Never assume; always verify
+
+### Strategic Context (from development_principles.md)
+
+When building the case study prototype, apply these key principles:
+
+1. **Domain Calibration Before Solution Design**
+   - Deep understanding of VC/talent workflows must precede technical architecture
+   - Value definition is stakeholder-specific: what FirstMark's talent team needs vs. what's technically impressive
+
+2. **Incremental Value Delivery**
+   - Deliver complete value units iteratively rather than building infrastructure first
+   - Each development increment should provide independently useful functionality
+   - Build foundational capabilities through practical applications, not speculation
+
+3. **Maximize Expected Value**
+   - Balance business impact (solving real talent matching problems), technical leverage (reusable components), and learning (validating assumptions)
+   - Think in portfolios: quick wins + foundational bets + learning experiments
+   - Given 48-hour constraint, bias toward quick wins that demonstrate thinking quality
+
+4. **Context Engineering for AI Effectiveness**
+   - AI performance depends on information quality and relevance
+   - Identify what information matters when, inject domain-specific knowledge, provide relevant examples
+   - Generic AI fails in specialized domains; contextualized AI excels
+
 ## Working on This Repository
 
 Since this is a research and case study repository (not a code project with build/test commands), work typically involves:
@@ -57,9 +131,11 @@ Since this is a research and case study repository (not a code project with buil
 - Creating case study deliverables (code, documentation, presentations)
 - Organizing research materials about FirstMark, the role, and interview preparation
 
-When building the case study prototype, you'll likely need to:
+When building the case study prototype:
 - Set up a Python environment with LangChain/LlamaIndex or similar agent frameworks
 - Create mock data (CSVs for structured data, text files for unstructured data)
 - Build data ingestion, vector storage, and retrieval components
 - Implement ranking/matching logic with reasoning trails
 - Document architecture and design decisions
+
+**Remember:** The goal is demonstrating quality of thinking through a minimal, working prototype—not building production-ready infrastructure.
