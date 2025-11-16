@@ -8,54 +8,72 @@ This is a working directory for Will Bricker's evaluation for the AI Lead role a
 
 ## Current Project Status
 
-**Phase:** Implementation planning for Talent Signal Agent prototype
+**Phase:** Planning Complete → Ready for Implementation
 **Framework Selected:** Agno (Python-based agentic AI framework)
+**Presentation:** Tuesday, Nov 19, 2025 at 5 PM
+
 **Progress:**
-- ✅ Requirements defined
-- ✅ Solution strategy documented
-- ✅ Technical specification complete
+- ✅ Requirements defined (case_requirements.md)
+- ✅ Solution strategy documented (solution_strategy.md)
+- ✅ Technical specification complete (technical_spec.md)
+- ✅ Product Requirements Document (spec/prd.md)
+- ✅ Technical Specification (spec/spec.md)
+- ✅ Project Constitution (spec/constitution.md)
 - ✅ Implementation refinement proposal created
 - ✅ Presentation plan drafted
-- ✅ Mock data design complete
-- 🚧 Prototype implementation in progress
+- ✅ Mock data design complete (data_design.md)
+- ✅ Complete Airtable schema designed (airtable_schema.md - 9 tables)
+- ✅ Screening workflow specification (screening_workflow_spec.md)
+- ✅ Deep Research findings documented (deep_research_findings.md)
+- ❌ Python implementation NOT STARTED (0%)
+- ❌ Airtable base setup NOT STARTED (0%)
+- ❌ Demo pre-runs NOT STARTED (0%)
+
+**Estimated Remaining:** 34-38 hours total
 
 ## Directory Structure
 
 ```
 .
 ├── case/                         # Case study deliverables and planning
-│   ├── case_requirements.md      # Case study requirements
+│   ├── case_requirements.md      # Original case study requirements
 │   ├── solution_strategy.md      # High-level approach and strategy
-│   ├── technical_spec.md         # Technical architecture and design
-│   ├── implementation_refinement_proposal.md  # Implementation details
-│   ├── presentation_plan.md      # Presentation structure
-│   ├── tracking.md               # Progress tracking
+│   ├── technical_spec.md         # Initial technical architecture
+│   ├── implementation_refinement_proposal.md  # Implementation roadmap
+│   ├── presentation_plan.md      # Presentation structure (Nov 19)
+│   ├── tracking.md               # Detailed task tracking (CHECK HERE FIRST)
 │   └── archive/                  # Previous iterations
-├── demo_planning/                # Prototype planning and design
-│   ├── data_design.md            # Mock data structure design
-│   ├── role_spec_design.md       # Role specification design
-│   └── AGNO_REFERENCE_GUIDE.md   # Agno framework reference
-├── demo_files/                   # Prototype implementation files
-├── spec/                         # Technical specifications
+├── spec/                         # ⭐ Current authoritative specifications
+│   ├── prd.md                    # Product Requirements Document (CURRENT)
+│   ├── spec.md                   # Technical Specification (CURRENT)
+│   ├── constitution.md           # Project governance & principles
 │   └── units/                    # Component specifications
-├── research/                     # Research and preparation materials
-│   ├── Firm_DeepResearch.md
-│   ├── member_research/          # Individual partner research
-│   └── interview_research/       # Interview preparation
-├── reference/                    # Reference materials and examples
+├── demo_planning/                # ⭐ Implementation design documents
+│   ├── airtable_schema.md        # Complete 9-table Airtable schema
+│   ├── data_design.md            # Mock data structures & Pydantic models
+│   ├── role_spec_design.md       # CFO/CTO role spec templates
+│   ├── screening_workflow_spec.md # Module 4 workflow specification
+│   ├── deep_research_findings.md # OpenAI Deep Research API research
+│   ├── airtable_ai_spec.md       # Airtable AI automation spec
+│   ├── alignment_issues_and_fixes.md # Alignment documentation
+│   └── AGNO_REFERENCE.md         # Agno framework reference
+├── reference/                    # Reference materials
+│   ├── guildmember_scrape.csv    # ⭐ 64 executives for demo (PRE-LOADED)
 │   ├── role_overview.md          # AI Builder role description
 │   └── docs_and_examples/        # Framework docs and code examples
-│       ├── agno/                 # Agno framework documentation (~2,000 files)
-│       └── alternative_architectures/  # Other agent frameworks for reference
+│       └── agno/                 # Agno framework documentation
 ├── scripts/                      # Node.js automation scripts
 │   ├── scrape_companies.js       # Portfolio scraping
 │   ├── process_portfolio.js      # Data processing
 │   └── create_summary.js         # Summary generation
+├── non_code/                     # Research and notes (ignored by git)
+├── main.py                       # ⚠️ Stub only - implementation pending
+├── pyproject.toml                # ⚠️ No dependencies yet
+├── .env                          # API keys (gitignored)
 └── .claude/                      # Claude Code configuration
-    ├── skills/                   # Custom skills (crawl4ai, ai-agent-architect, etc.)
+    ├── skills/                   # Custom skills
     ├── commands/                 # Slash commands (/work, /plan, /spec, etc.)
-    ├── hooks/                    # Git hooks and automation
-    └── templates/                # Document templates (PRD, SPEC, PLAN, etc.)
+    └── templates/                # Document templates
 ```
 
 ## Case Study Overview
@@ -82,41 +100,64 @@ This is a working directory for Will Bricker's evaluation for the AI Lead role a
 
 ## Technology Stack
 
-**Framework:** Agno - Python-based agentic AI framework
+**AI Framework:** Agno (Python-based agentic AI framework)
 - Selected for rapid development, built-in agent patterns, and strong examples
-- See `AGNO_QUICK_START.md` for quick reference
+- See `demo_planning/AGNO_REFERENCE.md` for case-specific guidance
 - See `reference/docs_and_examples/agno/` for comprehensive documentation
-- See `demo_planning/AGNO_REFERENCE_GUIDE.md` for case-specific guidance
+
+**LLM Models:**
+- GPT-5, GPT-5-mini (assessment/evaluation)
+- o4-mini-deep-research (research phase via OpenAI Deep Research API)
+- Web Search builtin tool (web_search_preview) for supplemental research
+
+**Infrastructure:**
+- Flask webhook server + ngrok for Airtable automation triggers
+- Airtable as primary data store (9 tables with complete schema)
+- pyairtable for Airtable API integration
+- Pydantic for data validation and structured outputs
 
 **Python Environment:**
 - Python 3.11+ managed with `uv` (see `.python-version`)
-- Minimal dependencies approach (see `pyproject.toml`)
 - Virtual environment in `.venv/`
+- Dependencies: flask, pyairtable, openai, python-dotenv, pydantic (NOT YET INSTALLED)
+
+**Demo Data:**
+- 64 executives from `reference/guildmember_scrape.csv`
+- 4 demo portcos: Pigment (CFO), Mockingbird (CFO), Synthesia (CTO), Estuary (CTO)
+- 3 pre-run scenarios + 1 live demo scenario
 
 **Supporting Tools:**
-- Node.js scripts for portfolio data scraping and processing
-- Git hooks for type checking and state tracking (`.claude/hooks/`)
+- Node.js scripts for portfolio research (not part of deliverable)
 - Slash commands for workflow automation (`.claude/commands/`)
+- Custom skills for agent design (`.claude/skills/`)
 
 ## Key Documentation
 
-### Primary Case Documents (in `case/`)
-- **case_requirements.md** - Start here for case overview
-- **solution_strategy.md** - High-level approach and design decisions
-- **technical_spec.md** - Detailed technical architecture
-- **implementation_refinement_proposal.md** - Implementation roadmap
-- **presentation_plan.md** - Structure for final deliverable
-- **tracking.md** - Current progress and task tracking
+### ⭐ START HERE - Current Authoritative Documents
+- **case/tracking.md** - Detailed task tracking and current status (CHECK HERE FIRST!)
+- **spec/prd.md** - Product Requirements Document (authoritative requirements)
+- **spec/spec.md** - Technical Specification (authoritative technical design)
+- **spec/constitution.md** - Project governance and development principles
 
-### Planning Documents (in `demo_planning/`)
-- **data_design.md** - Mock data structures for executives, roles, companies
-- **role_spec_design.md** - Role specification design
-- **AGNO_REFERENCE_GUIDE.md** - Framework patterns relevant to this case
+### Implementation Design (in `demo_planning/`)
+- **airtable_schema.md** - Complete 9-table Airtable schema with all field definitions
+- **data_design.md** - Pydantic models and data structures
+- **role_spec_design.md** - CFO/CTO role spec templates (fully designed)
+- **screening_workflow_spec.md** - Module 4 workflow specification
+- **deep_research_findings.md** - OpenAI Deep Research API findings
+- **airtable_ai_spec.md** - Airtable AI automation specification
+- **AGNO_REFERENCE.md** - Agno framework patterns for this case
+
+### Case Planning Documents (in `case/`)
+- **case_requirements.md** - Original case study requirements
+- **solution_strategy.md** - High-level approach and strategy
+- **technical_spec.md** - Initial technical architecture
+- **implementation_refinement_proposal.md** - Implementation roadmap
+- **presentation_plan.md** - Presentation structure (Nov 19, 5 PM)
 
 ### Supporting Documents
 - **AGENTS.md** - Repository-level guidelines and conventions
 - **REQUIREMENTS.md** - Core development requirements and principles
-- **AGNO_QUICK_START.md** - Quick reference for Agno framework
 - **README.md** - Repository overview
 
 ## Context
@@ -126,6 +167,40 @@ This is a working directory for Will Bricker's evaluation for the AI Lead role a
 - Focus areas: deal memos, valuation analysis, event management, content repurposing, portfolio analytics
 - 5 days in-office in Flatiron, NYC
 - Targeting hire by end of year
+
+## Key Technical Decisions (RESOLVED)
+
+All major technical decisions have been finalized. Implementation can proceed without further design work.
+
+**Architecture:**
+- ✅ Module scope: Module 4 (Screen workflow) ONLY - Modules 1-3 pre-populated manually
+- ✅ Data store: Airtable (9 tables with complete schema defined)
+- ✅ Integration: Flask webhook + ngrok for Airtable automation triggers
+- ✅ Execution: Synchronous/sequential processing (async deferred to post-demo)
+
+**AI/LLM Stack:**
+- ✅ Research: OpenAI Deep Research API (o4-mini-deep-research) + Web Search builtin
+- ✅ Assessment: GPT-5 or GPT-5-mini with structured outputs
+- ✅ No third-party search APIs: LinkedIn/web research via Deep Research API only
+- ✅ Citation handling: URLs + key quotes from API (no separate scraping)
+
+**Assessment Approach:**
+- ✅ Single evaluation method: Spec-guided assessment with evidence-aware scoring
+- ✅ Confidence levels: LLM self-assessment + evidence count threshold
+- ✅ Counterfactuals: "Why candidate might NOT be ideal" + key assumptions
+- ✅ AI-generated rubric: Explicitly deferred to Phase 2+ (not in demo)
+
+**Demo Strategy:**
+- ✅ Execution modes: Deep Research (comprehensive) + Web Search (fast fallback)
+- ✅ Pre-runs: 3 scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
+- ✅ Live demo: 1 scenario (Estuary CTO) with smaller candidate set or Web Search mode
+- ✅ Data source: 64 executives from `reference/guildmember_scrape.csv`
+
+**Simplifications (Demo v1.0):**
+- ✅ Candidate Profiles: OUT OF SCOPE - bespoke research per role instead
+- ✅ Deduplication: Skip (assume clean data)
+- ✅ Apollo enrichment: Stub/mock only (not real integration)
+- ✅ Custom Airtable UI: Standard views only (no custom interfaces)
 
 ## Development Principles
 
@@ -203,48 +278,67 @@ When building the case study prototype, apply these key principles:
 
 ## Working on This Repository
 
-### Current Focus: Prototype Implementation
+### Current Focus: READY FOR IMPLEMENTATION
 
-The case planning is complete. Current work involves:
-- Implementing the Talent Signal Agent prototype in Python using Agno
-- Creating mock data based on designs in `demo_planning/data_design.md`
-- Building agent components per `case/technical_spec.md`
-- Testing and validating the prototype
-- Documenting implementation and preparing presentation
+**Status:** All planning is complete. Implementation has NOT started yet.
 
-### Key Reference Materials
+**Critical Path (34-38 hours remaining):**
+1. **Airtable Base Setup** (7 hours) - Create base, tables, import executives
+2. **Python Dependencies** (1 hour) - Install flask, pyairtable, openai, pydantic
+3. **Core Implementation** (20-24 hours) - Research agent, assessment agent, Flask webhook
+4. **Webhook Setup** (1 hour) - ngrok + Airtable automation
+5. **Pre-Run Executions** (4-6 hours) - Run 3 pre-run scenarios
+6. **Demo Prep & Polish** (3-4 hours) - Test, practice, write-up
 
-**For Agno Framework:**
-- Quick start: `AGNO_QUICK_START.md`
-- Case-specific guide: `demo_planning/AGNO_REFERENCE_GUIDE.md`
-- Full documentation: `reference/docs_and_examples/agno/00_INDEX.md`
-- Recruiter patterns: `reference/docs_and_examples/agno/agno_recruiter.md`
-- Working example: `reference/docs_and_examples/agno/candidate_analyser/`
+**See `case/tracking.md` for detailed task breakdown and next steps.**
 
-**For Case Strategy:**
-- Requirements: `case/case_requirements.md`
-- Approach: `case/solution_strategy.md`
-- Architecture: `case/technical_spec.md`
-- Implementation plan: `case/implementation_refinement_proposal.md`
+### Key Implementation References
+
+**Authoritative Specifications:**
+- Product requirements: `spec/prd.md` (current)
+- Technical design: `spec/spec.md` (current)
+- Project governance: `spec/constitution.md`
+
+**Implementation Design:**
+- Airtable schema: `demo_planning/airtable_schema.md` (9 tables, all fields defined)
+- Data models: `demo_planning/data_design.md` (Pydantic schemas)
+- Workflow spec: `demo_planning/screening_workflow_spec.md` (Module 4)
+- Role templates: `demo_planning/role_spec_design.md` (CFO/CTO)
+
+**Agno Framework:**
+- Case-specific guide: `demo_planning/AGNO_REFERENCE.md`
+- Full documentation: `reference/docs_and_examples/agno/`
+- Recruiter example: `reference/docs_and_examples/agno/agno_recruiter.md`
 
 ### Python Development
 
 **Environment Setup:**
 ```bash
-# Python version managed by uv
+# Python 3.11+ managed by uv
 python --version  # Should be 3.11+
 
-# Install dependencies (when added to pyproject.toml)
+# Install dependencies (REQUIRED - not yet done)
+# First add to pyproject.toml: flask, pyairtable, openai, python-dotenv, pydantic
 uv pip install -e .
 
 # Activate virtual environment
 source .venv/bin/activate
+
+# Set up environment variables
+# Create .env file with: OPENAI_API_KEY, AIRTABLE_API_KEY, AIRTABLE_BASE_ID
 ```
 
-**Code Location:**
-- Prototype code goes in `demo_files/` or root-level Python files
-- Mock data generation scripts in `demo_files/` or `scripts/`
-- Keep implementation minimal and focused on demonstrating the concept
+**Implementation Location:**
+- Main application: `main.py` (currently stub only)
+- Pydantic models: Create `models.py`
+- Agent implementations: Create `agents.py` or separate files
+- Flask routes: Add to `main.py` or create `routes.py`
+- Keep implementation minimal and focused on Module 4 (Screen workflow)
+
+**Data Location:**
+- Executive data: `reference/guildmember_scrape.csv` (64 executives - ALREADY EXISTS)
+- Airtable: Primary data store (9 tables - NOT YET CREATED)
+- Generated results: Stored in Airtable tables
 
 ### Node.js Scripts
 
@@ -272,24 +366,48 @@ These are supporting tools for research; not part of main deliverable.
 **Templates** (in `.claude/templates/`):
 - PRD, SPEC, PLAN, DESIGN, CONSTITUTION templates for structured documentation
 
-### Repository Context Tool
+## Next Steps - Immediate Actions
 
-You can use the repomix file to help understand the repo structure:
-```bash
-# Generate updated repository context (if repomix is installed)
-repomix
+### Critical Path to Demo (34-38 hours remaining)
 
-# View repository context
-cat repomix-output.xml
-```
+**1. Airtable Base Setup (7 hours) - DO FIRST**
+- Create new base: "FirstMark Talent Signal Agent Demo"
+- Create all 9 tables from `demo_planning/airtable_schema.md`
+- Import 64 executives from `reference/guildmember_scrape.csv`
+- Create 4 portco records, 4 role records, 6 role specs
+- Create 4 search records and 4 screen records
 
-## Next Steps
+**2. Python Environment Setup (1 hour)**
+- Add dependencies to `pyproject.toml`: flask, pyairtable, openai, python-dotenv, pydantic
+- Run `uv pip install -e .`
+- Create `.env` with API keys (OpenAI, Airtable)
+- Test basic API connectivity
 
-1. **Implement prototype** - Build the Talent Signal Agent using Agno framework
-2. **Create mock data** - Generate synthetic data per `demo_planning/data_design.md`
-3. **Test functionality** - Validate matching, ranking, and reasoning outputs
-4. **Document implementation** - Create README or prepare Loom walkthrough
-5. **Prepare presentation** - Follow structure in `case/presentation_plan.md`
-6. **Final review** - Ensure all deliverables meet evaluation criteria
+**3. Core Python Implementation (20-24 hours)**
+- Create Pydantic models (ExecutiveResearchResult, AssessmentResult, etc.)
+- Implement research agent (Deep Research API + parser)
+- Implement assessment agent (spec-guided evaluation)
+- Implement Flask webhook server with `/screen` endpoint
+- Implement Airtable integration
+- End-to-end testing
 
-**Remember:** The goal is demonstrating quality of thinking through a minimal, working prototype—not building production-ready infrastructure.
+**4. Webhook & Automation (1 hour)**
+- Start Flask + ngrok
+- Create Airtable automation trigger
+- Test automation flow
+
+**5. Pre-Run Executions (4-6 hours)**
+- Run Pigment CFO screening
+- Run Mockingbird CFO screening
+- Run Synthesia CTO screening
+- Verify all results in Airtable
+
+**6. Demo Prep & Polish (3-4 hours)**
+- Test Estuary live demo flow
+- Create Airtable demo views
+- Practice presentation
+- Write 1-2 page deliverable
+
+**See `case/tracking.md` for complete detailed breakdown.**
+
+**Remember:** The goal is demonstrating quality of thinking through a minimal, working prototype focused on Module 4 (Screen workflow) only.

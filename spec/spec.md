@@ -1123,7 +1123,7 @@ Complete Airtable schema is in `demo_planning/airtable_schema.md`.
 
 ### Phase 1: Setup (4 hours)
 - [x] Create project structure
-- [ ] Set up Python environment (uv, .python-version)
+- [x] Set up Python environment (uv, .python-version)
 - [ ] Install dependencies (pyproject.toml)
 - [ ] Configure environment variables (.env)
 - [ ] Create Pydantic models (models/)
