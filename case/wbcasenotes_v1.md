@@ -1,5 +1,6 @@
 # WB Case Working Doc
 
+> Document for planning and developing case study response and demo for FirstMark (FMC)
 Version: 0.1
 
 ## Background
@@ -155,6 +156,7 @@ Optional
 <https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/candidate_analyser>
 
 Tools
+https://github.com/Alibaba-NLP/DeepResearch
 
 <https://huggingface.co/spaces?q=Web&sort=likes>
 
@@ -274,11 +276,23 @@ Top-level approach breakdown to show thinking and contextualize the demo
 
 ##### My Demo method
 
-- My process and decisions
+- What I know about fmc
+  - I Know you use airtable
+  - I Know when i ask about data, you dont say a lot
+  - i know that i need to demonstrate value quick
+    - Add functionality, get buy in, inform the roadmap
+  - I know that i need to start by meeting you where you are
+    - adding to you stack needs critical mass and value
+    - Ryan is adding value but no one is using it
+    - can build the beautiful thing, but without cred, its not going to get used
+  - We have to prototype quick to get to value
 
-  - Bet is that OpenaI deepresearch is a sufficient base when paired with subagents
-  - GPT for basic calls because its cheap
-  - Fake apollo
+- My process and decisions
+  - Bets
+    - I can meet you in airtable
+    - OpenaI deepresearch is a sufficient base when paired with subagents
+  - Trades
+    - Cheap - GPT for basic llm usage, Fake apollo
 - How the process led to demo
 - demo
 
@@ -313,7 +327,7 @@ Ultimate design depends on Time, Value, and security concerns
 Distinguish demo from other scenarios
 
 - Ideal would already have x, and would approach by doing y
-- MVP Would have x, woudl spend more time to do 
+- MVP Would have x, woudl spend more time to do
 
 We are creating frameworks to help gudie LLM and standardize and compound what we do
 
@@ -441,6 +455,8 @@ Ideal/Target design open questions:
 - WOuld addfinity be ideal source of truth?
 - Where and how is guild managed now?
 
+## Tech Design
+
 ### Key Decisions
 
 #### Open
@@ -492,6 +508,7 @@ Ideal/Target design open questions:
     - if use deep agents , they have ui
     - streamlit
     - Jupyter notebook?
+    - DECISION: AIRTABLE
 
 - IF agent, what framework?
   - Options
@@ -500,10 +517,22 @@ Ideal/Target design open questions:
 
 - Demo DB platform
   - Local sqlite or supabase
+  - Airtable
+  - DECISION: AIRTABLE
+
+- Data schema
+  - People will always have linked in associated with them
 
 - What does the mock data look like?
   - totally fake
   - some reality
+
+- Airtable
+  - DB & UI features quickly
+  - Meet them in their stack
+  - Requirements
+    - Ability to kickoff workflow from airtable
+    - Ability to use Python for Data ops and Agent work
 
 - Enrichment
   - Optoins
@@ -538,11 +567,17 @@ Ideal/Target design open questions:
 
 ### Open Questions
 
+#### Case + Demo spcific
+
 What is the right level of granularity to express the ideal state of the DB?
 
 - Ideally rationalized schema
 
 - but not going to come in and try to rationalize full world and transform all the data once
+
+#### Other
+
+- How do they currently serve materials to the portcos
 
 ### Artifacts
 
@@ -554,7 +589,6 @@ What is the right level of granularity to express the ideal state of the DB?
 | **Structured data**   | "Exec_Network.csv", could be an example of a Partner's connections to fill out additional potential candidates | Columns: name, current title, company, role type (CTO, CRO, etc.), location, LinkedIn URL. |
 | **Unstructured data** | Executive bios or press snippets                             | ~10–20 bios (mock or real) in text format.                   |
 | **Unstructured data** | Job descriptions                                             | Text of 3–5 open portfolio roles for CFO and CTO.            |
-
 
 bios and job descriptions will come via txt files.
 
@@ -657,6 +691,217 @@ OUT OF SCOPE FOR DEMO
 - requirements
   - provide
 
+### Airtable Design
+
+#### Architecture Pattern
+
+**All Airtable modules use the same Flask + ngrok webhook pattern:**
+
+```
+Airtable UI Action (button/automation)
+  → Webhook trigger
+  → Flask endpoint (/upload, /screen, /new-role, etc.)
+  → Python processing logic
+  → Write results back to Airtable
+  → Update status/completion
+```
+
+**Benefits:**
+- Consistent architecture across all modules
+- Single Python codebase with multiple endpoints
+- All modules benefit from same logging/monitoring
+- Easy to extend with new modules
+- Demo shows scalable pattern
+
+**Flask Endpoints:**
+- `/upload` - Data ingestion (CSV → clean → load)
+- `/screen` - Run candidate screening workflow
+- `/new-role` - Process new role creation
+- `/research` - Trigger deep research on candidate
+
+#### Notes
+
+- Q - For file upload, Do we do dedupe for demo?
+- Q - Do we have title Table in demo
+  - I think not for now, just standard dropdowns
+
+- Demo - Only upload people
+
+- Q - What is a role spec?
+  - Is it role or role+company type specific?
+  - Is it dynamically generated based on job description?
+  - What are its dimensions
+    - Skill specific
+    - Generalized ( Skill, Experience, )
+- Q - Do we allow for custom Specs?
+  - Note: Dependent on what role spec definition is
+  - How do we have (in UI) Select existing spec, duplicate, and chabnge
+  - Could Have Spec Hub that either
+    - Is selected and copied into Open role spec fields (allow customization)
+      - Downside, Mixing of concerns, a bit messy
+    - Is selected and and has customize option that duplicates and links it
+      - Unclear how would use airtable automations and ui to do that
+
+- Q - How do we store a spec
+  - Do we have spec as individual record with standardized fields with sets of attribute, defininition, Scale, Weight (EG Attribute 1, def 1 , scale 1, weigh 1, attribute 2, def 2...)
+  - Do we have it as a Text field that is rich text and is copied over w/ ability to edit
+    - and ability to draft
+- Specs always have wildcard spot for custom description
+
+- Will need generalized search rules
+  - Reduce score depending on tenure of current role
+
+- Q - Is research also linkedin scrape?
+
+#### Tables
+
+People Table
+
+- needs bio field + other normal descriptors
+Company Table
+Portco Table
+Platform - Hiring - Portco Roles (Where all open roles live)
+Platform - Hiring - Search (Roles where we are actively assisting with the search)
+- Contains Search Custom Info
+- Allows for tracking of work and stastus
+- Contains spec info that can then be used for Eval
+Platform - Hiring - Screen (Batch of screens done)
+Operations - Audit & Logging
+Operations - Workflows (Stabdardized set of fields that contain execution trail and reporting info that can be linked to other items like Screen)
+
+Role Spec Table
+Research Table - Holds all granular research sprint info (could fold into role eval temporarily)
+Role Eval Table - Holds all Assessments
+
+- Linked to Operation, Role, People
+- linked to
+
+#### Modules
+
+##### Data Uploading
+
+**Pattern:** Airtable Button → Webhook → Flask `/upload` endpoint
+
+**Flow (via Airtable Interface UI):**
+- Upload file via Airtable attachment field
+- Select File type dropdown (person, company)
+  - No role uploads for demo
+- Click "Process Upload" button
+  - can either be webflow trigger button if ui allows, or can be an action that changes a field value to trigger webhook
+- **Webhook triggers Flask `/upload` endpoint**
+  - Python: Download file from Airtable
+  - Python: Clean, normalize, dedupe
+  - Python: Load into proper table
+  - Python: Update status field with results
+
+**Demo**
+- Add new people CSV
+  - Could add bios in text field too
+
+**Implementation:**
+```python
+@app.route('/upload', methods=['POST'])
+def process_upload():
+    # Get file from Airtable
+    # Clean and normalize
+    # Load to appropriate table
+    # Return status
+```
+
+##### New Open role
+
+**Defs and Notes**
+
+- Open roles exist for many portcos. not all of them we will be actively assisting with
+- Portcos can provide us open roles that we provide in careers portal extnernally
+- note: - can have portcos submit + Aging mechanism
+
+**Flow (via Airtable Interface UI)**
+
+- Select Portco
+- Select Role type
+- Optional notes for candidate parameters
+- Optional add spec
+  - Select Existing
+    - Ability to add bespoke requirmentsL
+  - Create Own
+  - Maybe create new version of existing
+**Demo**
+- Create new Role live
+##### New Search
+
+**Defs and Notes**
+- Search is an role we are actively assisting with. Will have role spec
+- have as distinct item so we can attach other items to it ( like notes)
+
+**Flow (via Airtable Interface UI)**
+- Link Role
+- link spec ?
+- Add notes
+- Add timeline date
+
+**Demo**
+- Create new search live
+
+##### New Screen
+
+**Pattern:** Airtable Button → Webhook → Flask `/screen` endpoint
+
+**Definition:**
+- Perform screening on a set of people for a search
+- Main demo workflow for talent matching
+
+**Requirements:**
+- Process one or more candidates at a time
+- Bulk selection via linked records
+- Multiple screens per search allowed
+- Can redo evals with new guidance
+
+**Flow (via Airtable Interface UI)**
+- Create new Screen record in Airtable
+- Link to Search (which links to Role + Spec)
+- Add custom guidance/specifications (optional)
+- Link one or more candidates from People table
+  - Use Airtable multi-select
+- Click "Start Screening" button
+  - can either be webflow trigger button if ui allows, or can be an action that changes a field value to trigger webhook
+- **Webhook triggers Flask `/screen` endpoint**
+  - For each linked candidate:
+    - Create Workflow record (audit trail)
+    - Run Deep Research via OpenAI API
+    - Store research results in Workflow record
+    - Run Assessment against role spec
+    - Store assessment in Workflow record
+      - Overall score + confidence
+      - Dimension-level scores
+      - Reasoning + counterfactuals
+    - Update candidate status
+    - Mark Workflow as complete
+  - Update Screen status to "Complete"
+  - Terminal shows real-time progress
+
+**Implementation:**
+```python
+@app.route('/screen', methods=['POST'])
+def run_screening():
+    screen_id = request.json['screen_id']
+
+    # Get screen details + linked candidates
+    # For each candidate:
+    #   - Create workflow record
+    #   - run_deep_research()
+    #   - run_assessment()
+    #   - write results to Airtable
+    # Update screen status
+
+    return {'status': 'success', 'candidates_processed': n}
+```
+**Demo**
+- demo ui and kick off flow
+- use pre-run example for discussion and can check in periodically to see the live run is porgressing
+
+
+
 ### Tech Notes
 
 - must have confidence alongside any evaluation score
@@ -665,9 +910,6 @@ OUT OF SCOPE FOR DEMO
 - Counterfactuals
 - All ins and outs will use structured outputs
 - Will use gpt 5 ( A NEW MODEL)
-- Think about storage
-  - sqlite easier
-  - supabase better search options
 - Demo db schemas will be MVP, not beautiful thing
 - will do two evaluations
   - llm guided via spec and rubric

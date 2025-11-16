@@ -1,0 +1,46 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|Create|Rename|Delete",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/format.sh",
+            "timeout": 25
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/state-tracker.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/test.sh",
+            "timeout": 120
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/type-check.sh",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/git-commit.sh",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "if command -v osascript >/dev/null 2>&1; then osascript -e 'display notification \"Claude finished working\" with title \"Claude Code\"'; elif command -v notify-send >/dev/null 2>&1; then notify-send 'Claude Code' 'Claude finished working'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
