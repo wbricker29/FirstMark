@@ -20,7 +20,7 @@ This document provides clarifications and recommended updates to `spec/v1_minima
 3. **Raw Deep Research Markdown** - Need explicit retention strategy
 4. **Potential Conflict** - "No SQLite" guidance conflicts with Agno Workflow DB requirements
 
-**Recommended Action:** Apply the clarifications below to resolve ambiguities and document optional enhancements.
+**Recommended Action:** Apply the clarifications below, standardize on Agno's `SqliteDb` for quick local session review, and document optional enhancements.
 
 ---
 
@@ -353,7 +353,7 @@ demo/
 ├── models.py              # Pydantic models (ExecutiveResearchResult, AssessmentResult)
 ├── airtable_client.py     # Thin Airtable wrapper
 ├── settings.py            # Config/env loading (optional)
-└── tmp/                   # Optional: agno_sessions.db (if using SqliteDb)
+└── tmp/                   # Stores agno_sessions.db (gitignored Agno session state)
 ```
 
 **Database files (if any):**

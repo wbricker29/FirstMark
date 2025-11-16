@@ -321,6 +321,7 @@ tests/
 ### 3.7 Score Calculation Simplification
 
 **Current:** Spec describes a complex evidence-aware weighted scoring algorithm with multiple steps:
+
 - Filter scored dimensions
 - Check minimum threshold (≥2 dimensions)
 - Restrict and renormalize weights to scored dimensions
@@ -358,6 +359,7 @@ def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[
 ```
 
 **Rationale:**
+
 - Demonstrates evidence-aware scoring concept without complexity
 - Simple average proves the matching logic
 - Spec-defined weights remain in AssessmentResult for reference but don't affect score calculation in v1
@@ -419,6 +421,7 @@ These changes keep the implementation aligned with `case/technical_spec_V2.md` w
 ### ✅ All Required Changes Implemented (95%+ Alignment)
 
 **PRD Changes (Section 2):**
+
 - ✅ 2.1: Scope & Modes - Deep Research only, incremental search optional
 - ✅ 2.2: Concurrency - Synchronous execution specified
 - ✅ 2.3: SQLite - Removed from v1, marked Phase 2+
@@ -426,6 +429,7 @@ These changes keep the implementation aligned with `case/technical_spec_V2.md` w
 - ✅ 2.5: Observability - Simplified to Airtable + terminal logs
 
 **SPEC Changes (Section 3):**
+
 - ✅ 3.1: Project structure - 5-file layout implemented
 - ✅ 3.2: SQLite WorkflowEvent - Removed, marked Phase 2+
 - ✅ 3.3: Single research mode - Deep Research primary
