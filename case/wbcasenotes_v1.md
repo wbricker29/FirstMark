@@ -2,7 +2,6 @@
 
 Version: 0.1
 
-
 ## Background
 
 ### Case
@@ -98,6 +97,7 @@ Details: 1 Hour presentation - 15 minute intro about me; 30 minute presentation 
 ## TRACKING
 
 High Priority
+
 - [ ] design generate mock data
   - [ ] Mock_Guilds.csv
   - [ ] Exec_Network.csv
@@ -117,7 +117,6 @@ High Priority
   - [ ] Agno or lang chain/graph
   - [ ] firecrawl
   - [ ]
-
 
 Mid Priority
 
@@ -178,27 +177,37 @@ Tools
 - How I think about attacking transformation in venture
   - How we would ideally get to this use case
     - Expected ROI
-
   - part of process
     - What do you want
     - Do we do it <-- Epected roi
     - How do we do it
     - How do we know we are on track
-
   - Generally loooking for
-    - portfolio value
-    -
-
+    - portfolio value - business + tech
+  - What i do know is that there are countless things i dont know
+    - there will be nuances that matter
+    - there will be failure and bumps
   - i dont really know
     - current what is, project frequency, relative trade
+    - how are oyu using affinity?
 
-
+- The biggest determining factors  will be
+  - Understanding the what is - what are current systems like, where does data live, what does it look like - and the why!
+  - Paying all my sponsors - investors, coo, platform
+  - While trying to make headway on foundation
+  - Organizational dynamics
+    - who do i need to convert
+    - who do i need to accomodate
+  - understanding fmc
+    - how do you invest
+    - what are your frustrations, hills you will die on, ideas
+  
 ##### The Case
+
 - The business context
   - Differentiation helps, have guild, use it
   - Case of thing that is done many times in peoples minds in different ways --> Get value from rationalizing and augmenting
   - People evaluation is a fundamental pillar of vc, especialyl early stage
-
 
 - The Requirements and Components
   - Recall over precision
@@ -238,8 +247,13 @@ Tools
   - How do we optimize human engagement?
   - Where do we build vs buy?
     - and where start from scratch vs leverage existing methods
+  - Know messy corners
+    - titles will be non-normalized
+    - there will be a need for disambiguation
+    - This happens to often to be centralized
 
 ##### Approach Context
+
 Top-level approach breakdown to show thinking and contextualize the demo
 
 - Distinction and articulation of
@@ -270,20 +284,25 @@ Top-level approach breakdown to show thinking and contextualize the demo
 
 ##### Demo
 
-
 **The Setup:**
+
 - Portco Roles: Have list of portco roles (company, role, optional note)
 - Open Role: CFO for Series B SaaS company preparing for growth stage
 - Candidate Pool: 8 executives (mix of Guild members, network connections)
 - The Challenge: 3 look similar on paper; AI must surface differentiating signals
 
 **The Story Arc:**
+
 1. Role spec gets generated/refined
 2. Candidates get researched (show 2-3 in depth)
 3. Ranking emerges with reasoning trails
 4. User can "drill down" into why #1 beat #2
 
 **Success Metric:** Evaluators should say "I'd actually use this ranking"
+LOGISTICAL NOTE
+
+- demo will be run live on my computer
+- we will need to have a pre-run example for the research section with full audit trails that i can walk them through
 
 #### Talking Points (Items to cover in response)
 
@@ -294,13 +313,14 @@ Ultimate design depends on Time, Value, and security concerns
 Distinguish demo from other scenarios
 
 - Ideal would already have x, and would approach by doing y
-- MVP Would have x, woudl spend more time to do Y
+- MVP Would have x, woudl spend more time to do 
+
 We are creating frameworks to help gudie LLM and standardize and compound what we do
+
 The ideal model for FirstMArk AI path is a guild
 
 - There are forward-deployed development use cases
 - centralized foundation and standards building
--
 
 In ideal and MVP, Would start by identifying what solutions are in the market.
 
@@ -316,6 +336,7 @@ In ideal and MVP, Would start by identifying what solutions are in the market.
     - research as api
     - open source approaches
     - custom
+
 Decision to skip candidate profile
 
 - There is a world where we have a standardardized set of informaiotn that we collect, synthesize and maintain for certain people
@@ -344,7 +365,7 @@ Response
 - thinking and perspective
 - Defining the problem
 - The solution generation process
-- the solution (demo
+- the solution (demo)
   - How it works
   - What it does and doesn't address
 
@@ -355,6 +376,7 @@ Response
 **DATA PLATFORM (NO BUILD, JUST DESCRIBE)**
 **Scope:** Enterprise-grade talent intelligence platform
 Ideally, have centralized and universal foundation
+
 - TLDR: Rationalized Schema, Central Storage, Standard Operation and orchestration
 
 - Centralized data platform (Affinity integration, immutable event log)
@@ -362,35 +384,24 @@ Ideally, have centralized and universal foundation
 - Standardized LLM Web search
 - Foundational Artifact pieces (Role spec, Assessment method)
 
-- IN an ideal scenario, data ingestion and storage is a distinct evergreen component of the broader system
+IN an ideal scenario, data ingestion and storage is a distinct evergreen component of the broader system
 
-  - There is a central table storing core information for all use cases
-
-    - Including people, roles (title + company), companies, relationships
-    - Also Canonical title mapping table and mechanism
-
-  - There are standardized ETL pipelines for ingestion
-
-    - Extract, Normalize, Reconcile Entity (Person, Company, etc) with existing data and appends new records
-
-  - Ideally, the system is immutable
-
-    - ability only to add new records and identify and relate active items
-
-  - The system will have a parallel operations storage system
-
-    - standardized logging of all events
-
-  - There are standardized operations that can be run on records that are also ever green
-
-    - including enriching people/companies via  Apollo
-    - that return  the raw enrichment request response, the cleaned response content, and the enrichement data
-    - enrich the record
-    - store enrichment results, betfore and after
-
-  - When new people need to be added, they are imported, cleaned, mapped
-
-    - Where mapping is unclear, HITL loop
+- There is a central table storing core information for all use cases
+  - Including people, roles (title + company), companies, relationships
+  - Also Canonical title mapping table and mechanism
+- There are standardized ETL pipelines for ingestion
+  - Extract, Normalize, Reconcile Entity (Person, Company, etc) with existing data and appends new records
+- Ideally, the system is immutable
+  - ability only to add new records and identify and relate active items
+- The system will have a parallel operations storage system
+  - standardized logging of all events
+- There are standardized operations that can be run on records that are also ever green
+  - including enriching people/companies via  Apollo
+  - that return  the raw enrichment request response, the cleaned response content, and the enrichement data
+  - enrich the record
+  - store enrichment results, betfore and after
+- When new people need to be added, they are imported, cleaned, mapped
+  - Where mapping is unclear, HITL loop
 
 Platform would also include
 
@@ -403,6 +414,7 @@ Ideal/Target design open questions:
 - Can we use affinity as Central source of people truth? what does affinity design look like
 
 #### TIER 2: MVP for Hypothesis Validation (1-month sprint)
+
 **Scope:** Prove value before infrastructure investment
 
 - use whatever apis you have - harmonic, apollo, etc
@@ -420,11 +432,14 @@ Ideal/Target design open questions:
 - generalized enrichment
 - Historical Role analysis ( profileing, fit estimate)
 
-- Mock interview
-- generalized enrichment
-- Could do an assessment of previous people in the role
-  - Profiling them
-  - input of fit## Tech Planning
+#### Future questions
+
+- What does affinity api look like? What is data schema like?
+- what is current hygiene
+- who are biggest slackers
+- What does apollo api look like?
+- WOuld addfinity be ideal source of truth?
+- Where and how is guild managed now?
 
 ### Key Decisions
 
@@ -436,17 +451,15 @@ Ideal/Target design open questions:
       - Open AI Deepresearch API
       - Other deep research API
       - Hugging Face Model
-
     - Open Source Approach/Framwork
       - Open Deep research
       - Caml
       - owl
-
     - Custom Agentic
-
   - **Decision**
     - OpenAI Deep research API + ability to do incremental search
     - REason: Good enough
+
 - Where and how do we provide granularity
   - Do we need granularity in seeing all sources (aka scraping all source content)
   - Are we ok with synthesized report and sources or need to see how put tgoether (aka full internal agent)
@@ -465,7 +478,6 @@ Ideal/Target design open questions:
     - enrichment
     - assessment
     - reporting
-
   - **DECISION**
     - Enrichment is going to be fake ( because will be Apollo anyway)
       - Not doing real apollo because havent used it
@@ -474,12 +486,11 @@ Ideal/Target design open questions:
       - API Tool
       - Subagent for search and extract
     - distinct Agent for assessment and reportomg
-    -
 
 - UI or not?
   - Options
     - if use deep agents , they have ui
-    -  streamlit
+    - streamlit
     - Jupyter notebook?
 
 - IF agent, what framework?
@@ -493,6 +504,7 @@ Ideal/Target design open questions:
 - What does the mock data look like?
   - totally fake
   - some reality
+
 - Enrichment
   - Optoins
     - Bright data
@@ -502,26 +514,27 @@ Ideal/Target design open questions:
     - For now, nothing - Enrichment tool will be stub
       - Will mock api response data from Apollo
     - backup:Can use crawl4ai if needed
+
 - Mock Data
   - Mock People
     - Real people for canadiates?
     - If real, are they portco members? people in the room?
-
+    - **DECISION**: REAL PEOPLE, Part from scrape, others we can search
   - Mock Companies
     - Real companies?
       - I think yes, some portcos
-
+      - **DECISION**: Yes, subset of portcos
+  - Mock Roles
+    - 4 roles, 2 cto + 2 cfo
+      - real portcos
+      - series a - d
+      - easy portcos to characterize and find cto and cfo for
   - Data Edge cases
     - Non-normalized names, field names
     - bios just one text file
+
 - Do we skip creating profile and jsut have bespoke research anchored on spec for now?
   - I think yes and can say "probably takes some more refinement on what a profile is, if we keep standardized profiles or auto-gen when create new person (of x y z type)
-
-#### Made
-
-- mock data
-  - real people + maybe fake
-  - data will shwo normalization issues (non-standard convventions, names, etc )
 
 ### Open Questions
 
@@ -542,11 +555,14 @@ What is the right level of granularity to express the ideal state of the DB?
 | **Unstructured data** | Executive bios or press snippets                             | ~10–20 bios (mock or real) in text format.                   |
 | **Unstructured data** | Job descriptions                                             | Text of 3–5 open portfolio roles for CFO and CTO.            |
 
+
+bios and job descriptions will come via txt files.
+
 #### Output
 
-
 Search - Config & Trail
-- Logging of Search 
+
+- Logging of Search
   - All agent steps, messages, reasoning
   - OpenAI Depp research full response and parsing
   - response citation source links
@@ -558,6 +574,7 @@ Search - Config & Trail
   - Result Scorecard
   - Result Justification
   - Indovodial component drill down of some type
+- everything needs to have a markdown copy, since some people will not care about ui
 
 #### Key Artifacts to generate
 
@@ -641,6 +658,7 @@ OUT OF SCOPE FOR DEMO
   - provide
 
 ### Tech Notes
+
 - must have confidence alongside any evaluation score
 - Rubrics are dimensions, weights, definition, and scale
 - Need quotation level detail somehwere
@@ -651,3 +669,6 @@ OUT OF SCOPE FOR DEMO
   - sqlite easier
   - supabase better search options
 - Demo db schemas will be MVP, not beautiful thing
+- will do two evaluations
+  - llm guided via spec and rubric
+  - llm generating own rubric
