@@ -310,7 +310,52 @@ tests/
 
 - Remove any implication that a large, granular test suite is mandatory for the demo.
 
-### 3.7 Recommended Native AGNO Features for v1
+### 3.7 Score Calculation Simplification
+
+**Current:** Spec describes a complex evidence-aware weighted scoring algorithm with multiple steps:
+- Filter scored dimensions
+- Check minimum threshold (≥2 dimensions)
+- Restrict and renormalize weights to scored dimensions
+- Compute weighted average on 1-5 scale
+- Optional boost for High evidence dimensions
+- Scale to 0-100 and round to 1 decimal
+
+**Change (v1-minimal):**
+
+- Replace with a **simple average algorithm** that still handles evidence-aware scoring (None for Unknown):
+
+```python
+def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[float]:
+    """Calculate simple average score from dimensions with scores.
+
+    Args:
+        dimension_scores: List of DimensionScore objects from assessment
+
+    Returns:
+        Overall score (0-100) or None if no dimensions scored
+
+    Example:
+        >>> scores = [
+        ...     DimensionScore(dimension="Fundraising", score=4, ...),
+        ...     DimensionScore(dimension="Operations", score=3, ...),
+        ...     DimensionScore(dimension="Strategy", score=None, ...),  # Unknown
+        ... ]
+        >>> calculate_overall_score(scores)
+        70.0  # (4 + 3) / 2 * 20
+    """
+    scored = [d.score for d in dimension_scores if d.score is not None]
+    if not scored:
+        return None
+    return (sum(scored) / len(scored)) * 20
+```
+
+**Rationale:**
+- Demonstrates evidence-aware scoring concept without complexity
+- Simple average proves the matching logic
+- Spec-defined weights remain in AssessmentResult for reference but don't affect score calculation in v1
+- Future enhancement: implement weighted algorithm in Phase 2+ if needed
+
+### 3.8 Recommended Native AGNO Features for v1
 
 To keep the implementation simple while leveraging AGNO effectively, v1.0-minimal should:
 
