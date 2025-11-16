@@ -6,23 +6,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a working directory for Will Bricker's evaluation for the AI Lead role at FirstMark Capital. The repository contains research, preparation materials, and case study work for the interview process.
 
+## Current Project Status
+
+**Phase:** Implementation planning for Talent Signal Agent prototype
+**Framework Selected:** Agno (Python-based agentic AI framework)
+**Progress:**
+- ✅ Requirements defined
+- ✅ Solution strategy documented
+- ✅ Technical specification complete
+- ✅ Implementation refinement proposal created
+- ✅ Presentation plan drafted
+- ✅ Mock data design complete
+- 🚧 Prototype implementation in progress
+
 ## Directory Structure
 
 ```
 .
-├── case/                    # Case study deliverables
-│   ├── FirstMark_case.md   # Case study requirements and specifications
-│   └── FirstMark AI Product Case Study.pdf  # Original case study brief
-├── research/               # Research and preparation materials
+├── case/                         # Case study deliverables and planning
+│   ├── case_requirements.md      # Case study requirements
+│   ├── solution_strategy.md      # High-level approach and strategy
+│   ├── technical_spec.md         # Technical architecture and design
+│   ├── implementation_refinement_proposal.md  # Implementation details
+│   ├── presentation_plan.md      # Presentation structure
+│   ├── tracking.md               # Progress tracking
+│   └── archive/                  # Previous iterations
+├── demo_planning/                # Prototype planning and design
+│   ├── data_design.md            # Mock data structure design
+│   ├── role_spec_design.md       # Role specification design
+│   └── AGNO_REFERENCE_GUIDE.md   # Agno framework reference
+├── demo_files/                   # Prototype implementation files
+├── spec/                         # Technical specifications
+│   └── units/                    # Component specifications
+├── research/                     # Research and preparation materials
 │   ├── Firm_DeepResearch.md
-│   ├── interviewprep_111325.md
-│   └── member_research/    # Individual partner/team member research
-└── role_overview.md        # AI Builder role description and requirements
+│   ├── member_research/          # Individual partner research
+│   └── interview_research/       # Interview preparation
+├── reference/                    # Reference materials and examples
+│   ├── role_overview.md          # AI Builder role description
+│   └── docs_and_examples/        # Framework docs and code examples
+│       ├── agno/                 # Agno framework documentation (~2,000 files)
+│       └── alternative_architectures/  # Other agent frameworks for reference
+├── scripts/                      # Node.js automation scripts
+│   ├── scrape_companies.js       # Portfolio scraping
+│   ├── process_portfolio.js      # Data processing
+│   └── create_summary.js         # Summary generation
+└── .claude/                      # Claude Code configuration
+    ├── skills/                   # Custom skills (crawl4ai, ai-agent-architect, etc.)
+    ├── commands/                 # Slash commands (/work, /plan, /spec, etc.)
+    ├── hooks/                    # Git hooks and automation
+    └── templates/                # Document templates (PRD, SPEC, PLAN, etc.)
 ```
 
 ## Case Study Overview
 
-The main focus is building a "Talent Signal Agent" - an AI-powered system that helps FirstMark's talent team match executives from their network (portfolio companies, guilds, LinkedIn) to open roles across their portfolio companies.
+**Project:** Talent Signal Agent - an AI-powered system that helps FirstMark's talent team match executives from their network to open roles across portfolio companies.
 
 **Key Requirements:**
 - Integrate structured data (CSVs with company/role data) and unstructured data (bios, job descriptions, LinkedIn profiles)
@@ -32,7 +70,7 @@ The main focus is building a "Talent Signal Agent" - an AI-powered system that h
 
 **Deliverables:**
 1. Write-up or slide deck (1-2 pages) covering problem framing, agent design, architecture, and production considerations
-2. Lightweight Python prototype (using LangChain/LlamaIndex/similar) that ingests data, identifies matches, outputs ranked recommendations with reasoning
+2. Lightweight Python prototype using modern agent frameworks that ingests data, identifies matches, outputs ranked recommendations with reasoning
 3. README or Loom video explaining implementation
 
 **Evaluation Criteria:**
@@ -41,6 +79,45 @@ The main focus is building a "Talent Signal Agent" - an AI-powered system that h
 - Data Integration (20%): Structured + unstructured data handling (vector stores, metadata joins)
 - Insight Generation (20%): Useful, explainable, ranked outputs with reasoning
 - Communication & Clarity (10%): Clear explanation of approach and next steps
+
+## Technology Stack
+
+**Framework:** Agno - Python-based agentic AI framework
+- Selected for rapid development, built-in agent patterns, and strong examples
+- See `AGNO_QUICK_START.md` for quick reference
+- See `reference/docs_and_examples/agno/` for comprehensive documentation
+- See `demo_planning/AGNO_REFERENCE_GUIDE.md` for case-specific guidance
+
+**Python Environment:**
+- Python 3.11+ managed with `uv` (see `.python-version`)
+- Minimal dependencies approach (see `pyproject.toml`)
+- Virtual environment in `.venv/`
+
+**Supporting Tools:**
+- Node.js scripts for portfolio data scraping and processing
+- Git hooks for type checking and state tracking (`.claude/hooks/`)
+- Slash commands for workflow automation (`.claude/commands/`)
+
+## Key Documentation
+
+### Primary Case Documents (in `case/`)
+- **case_requirements.md** - Start here for case overview
+- **solution_strategy.md** - High-level approach and design decisions
+- **technical_spec.md** - Detailed technical architecture
+- **implementation_refinement_proposal.md** - Implementation roadmap
+- **presentation_plan.md** - Structure for final deliverable
+- **tracking.md** - Current progress and task tracking
+
+### Planning Documents (in `demo_planning/`)
+- **data_design.md** - Mock data structures for executives, roles, companies
+- **role_spec_design.md** - Role specification design
+- **AGNO_REFERENCE_GUIDE.md** - Framework patterns relevant to this case
+
+### Supporting Documents
+- **AGENTS.md** - Repository-level guidelines and conventions
+- **REQUIREMENTS.md** - Core development requirements and principles
+- **AGNO_QUICK_START.md** - Quick reference for Agno framework
+- **README.md** - Repository overview
 
 ## Context
 
@@ -101,7 +178,7 @@ Smaller > Larger
   - Request clarification or ask questions if ambiguous
   - Never assume; always verify
 
-### Strategic Context (from development_principles.md)
+### Strategic Context
 
 When building the case study prototype, apply these key principles:
 
@@ -126,16 +203,93 @@ When building the case study prototype, apply these key principles:
 
 ## Working on This Repository
 
-Since this is a research and case study repository (not a code project with build/test commands), work typically involves:
-- Adding or updating markdown documentation in `case/` and `research/`
-- Creating case study deliverables (code, documentation, presentations)
-- Organizing research materials about FirstMark, the role, and interview preparation
+### Current Focus: Prototype Implementation
 
-When building the case study prototype:
-- Set up a Python environment with LangChain/LlamaIndex or similar agent frameworks
-- Create mock data (CSVs for structured data, text files for unstructured data)
-- Build data ingestion, vector storage, and retrieval components
-- Implement ranking/matching logic with reasoning trails
-- Document architecture and design decisions
+The case planning is complete. Current work involves:
+- Implementing the Talent Signal Agent prototype in Python using Agno
+- Creating mock data based on designs in `demo_planning/data_design.md`
+- Building agent components per `case/technical_spec.md`
+- Testing and validating the prototype
+- Documenting implementation and preparing presentation
+
+### Key Reference Materials
+
+**For Agno Framework:**
+- Quick start: `AGNO_QUICK_START.md`
+- Case-specific guide: `demo_planning/AGNO_REFERENCE_GUIDE.md`
+- Full documentation: `reference/docs_and_examples/agno/00_INDEX.md`
+- Recruiter patterns: `reference/docs_and_examples/agno/agno_recruiter.md`
+- Working example: `reference/docs_and_examples/agno/candidate_analyser/`
+
+**For Case Strategy:**
+- Requirements: `case/case_requirements.md`
+- Approach: `case/solution_strategy.md`
+- Architecture: `case/technical_spec.md`
+- Implementation plan: `case/implementation_refinement_proposal.md`
+
+### Python Development
+
+**Environment Setup:**
+```bash
+# Python version managed by uv
+python --version  # Should be 3.11+
+
+# Install dependencies (when added to pyproject.toml)
+uv pip install -e .
+
+# Activate virtual environment
+source .venv/bin/activate
+```
+
+**Code Location:**
+- Prototype code goes in `demo_files/` or root-level Python files
+- Mock data generation scripts in `demo_files/` or `scripts/`
+- Keep implementation minimal and focused on demonstrating the concept
+
+### Node.js Scripts
+
+Located in `scripts/`:
+- `scrape_companies.js` - Scrape FirstMark portfolio data
+- `process_portfolio.js` - Process scraped data into structured format
+- `create_summary.js` - Generate summaries and exports
+
+These are supporting tools for research; not part of main deliverable.
+
+### Using Claude Code Features
+
+**Slash Commands** (in `.claude/commands/`):
+- `/work` - Execute tasks following UPEVD pattern
+- `/plan` - Generate implementation plans
+- `/spec` - Create technical specifications
+- `/verify` - Run verification gates
+- `/check` - Validate project alignment
+
+**Skills** (in `.claude/skills/`):
+- `ai-agent-architect` - Framework-agnostic agent design patterns
+- `crawl4ai` - Web scraping and data extraction
+- `brainstorming` - Ideation and design refinement
+
+**Templates** (in `.claude/templates/`):
+- PRD, SPEC, PLAN, DESIGN, CONSTITUTION templates for structured documentation
+
+### Repository Context Tool
+
+You can use the repomix file to help understand the repo structure:
+```bash
+# Generate updated repository context (if repomix is installed)
+repomix
+
+# View repository context
+cat repomix-output.xml
+```
+
+## Next Steps
+
+1. **Implement prototype** - Build the Talent Signal Agent using Agno framework
+2. **Create mock data** - Generate synthetic data per `demo_planning/data_design.md`
+3. **Test functionality** - Validate matching, ranking, and reasoning outputs
+4. **Document implementation** - Create README or prepare Loom walkthrough
+5. **Prepare presentation** - Follow structure in `case/presentation_plan.md`
+6. **Final review** - Ensure all deliverables meet evaluation criteria
 
 **Remember:** The goal is demonstrating quality of thinking through a minimal, working prototype—not building production-ready infrastructure.
