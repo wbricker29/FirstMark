@@ -214,13 +214,14 @@ All major technical decisions have been finalized. Implementation can proceed wi
 always          → explain → code → verify
 ambiguous?      → clarify
 existing_code?  → change_minimum
-new_feature?    → MVP → test → expand
+new_feature?    → MVP → validate → expand
 ```
 
 ### Prioritization Framework
 ```
-Simple Features, Working > Perfect
+Simple > Perfect
 Clear > Clever
+Working > Optimal
 Request > BestPractice
 Smaller > Larger
 ```
