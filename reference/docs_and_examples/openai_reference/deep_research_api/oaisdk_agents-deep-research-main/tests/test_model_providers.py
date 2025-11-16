@@ -5,6 +5,7 @@ These tests check that:
 - The model providers correctly return a response when run by a simple agent
 - The model returns the expected content in its output
 """
+
 import pytest
 from deep_researcher.agents.writer_agent import init_writer_agent
 from deep_researcher import ResearchRunner
@@ -27,7 +28,9 @@ async def test_model_provider(provider, model):
     agent = init_writer_agent(config)
 
     query = "What is the temperature in London today?"
-    findings = "The temperature in London today is 36 degrees Celsius. Source: weather.com"
+    findings = (
+        "The temperature in London today is 36 degrees Celsius. Source: weather.com"
+    )
 
     input_str = f"""
     QUERY: {query}
@@ -39,6 +42,12 @@ async def test_model_provider(provider, model):
 
     print(f"Testing {provider}/{model}:\n{output_str}\n")
 
-    assert isinstance(output_str, str), f"The model {provider}/{model} failed to return a string"
-    assert len(output_str) > 0, f"The model {provider}/{model} failed to return any output"
-    assert "36" in output_str, f"The model {provider}/{model} failed to return the correct output"
+    assert isinstance(output_str, str), (
+        f"The model {provider}/{model} failed to return a string"
+    )
+    assert len(output_str) > 0, (
+        f"The model {provider}/{model} failed to return any output"
+    )
+    assert "36" in output_str, (
+        f"The model {provider}/{model} failed to return the correct output"
+    )

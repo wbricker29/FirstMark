@@ -1,6 +1,5 @@
 import streamlit as st
 from agents import DeepResearcherAgent
-import time
 import base64
 import re
 
@@ -26,7 +25,6 @@ with open("./assets/scrapegraph.png", "rb") as scrapegraph_file:
     st.markdown(title_html, unsafe_allow_html=True)
 
 with st.sidebar:
-
     st.image("./assets/nebius.png", width=150)
     nebius_api_key = st.text_input("Enter your Nebius API key", type="password")
     st.divider()

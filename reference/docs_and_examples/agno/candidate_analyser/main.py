@@ -22,6 +22,7 @@ from agno.tools.reasoning import ReasoningTools
 # Set wide layout
 st.set_page_config(layout="wide")
 
+
 # Load YAML prompts
 @st.cache_data
 def load_yaml(file_path):
@@ -35,6 +36,7 @@ def load_yaml(file_path):
         st.error(f"❌ YAML parsing error: {e}")
         st.stop()
 
+
 data = load_yaml("hiring_prompts.yaml")
 description_multi = data.get("description_for_multi_candidates", "")
 instructions_multi = data.get("instructions_for_multi_candidates", "")
@@ -42,27 +44,40 @@ description_single = data.get("description_for_single_candidate", "")
 instructions_single = data.get("instructions_for_single_candidate", "")
 
 # Header
-st.markdown("""
+st.markdown(
+    """
     <div style="text-align:center;">
         <h1 style="font-size: 2.8rem;">🧠 Candilyzer</h1>
         <p style="font-size:1.1rem;">Elite GitHub + LinkedIn Candidate Analyzer for Tech Hiring</p>
     </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # Session state init
-for key in ["Nebius_api_key",  "model_id", "github_api_key", "exa_api_key"]:
+for key in ["Nebius_api_key", "model_id", "github_api_key", "exa_api_key"]:
     if key not in st.session_state:
         st.session_state[key] = ""
 
 # Sidebar
 st.sidebar.title("🔑 API Keys & Navigation")
 st.sidebar.markdown("### Enter API Keys")
-st.session_state.Nebius_api_key = st.sidebar.text_input("Nebius API Key", value=st.session_state.Nebius_api_key, type="password")
-st.session_state.model_id = st.sidebar.text_input("Model ID", value=st.session_state.model_id)
-st.session_state.github_api_key = st.sidebar.text_input("GitHub API Key", value=st.session_state.github_api_key, type="password")
-st.session_state.exa_api_key = st.sidebar.text_input("Exa API Key", value=st.session_state.exa_api_key, type="password")
+st.session_state.Nebius_api_key = st.sidebar.text_input(
+    "Nebius API Key", value=st.session_state.Nebius_api_key, type="password"
+)
+st.session_state.model_id = st.sidebar.text_input(
+    "Model ID", value=st.session_state.model_id
+)
+st.session_state.github_api_key = st.sidebar.text_input(
+    "GitHub API Key", value=st.session_state.github_api_key, type="password"
+)
+st.session_state.exa_api_key = st.sidebar.text_input(
+    "Exa API Key", value=st.session_state.exa_api_key, type="password"
+)
 st.sidebar.markdown("---")
-page = st.sidebar.radio("Select Page", ("Multi-Candidate Analyzer", "Single Candidate Analyzer"))
+page = st.sidebar.radio(
+    "Select Page", ("Multi-Candidate Analyzer", "Single Candidate Analyzer")
+)
 
 # ---------------- Multi-Candidate Analyzer ---------------- #
 if page == "Multi-Candidate Analyzer":
@@ -70,14 +85,23 @@ if page == "Multi-Candidate Analyzer":
     st.markdown("Enter multiple GitHub usernames (one per line) and a target job role.")
 
     with st.form("multi_candidate_form"):
-        github_usernames = st.text_area("GitHub Usernames (one per line)", placeholder="username1\nusername2\n...")
+        github_usernames = st.text_area(
+            "GitHub Usernames (one per line)", placeholder="username1\nusername2\n..."
+        )
         job_role = st.text_input("Target Job Role", placeholder="e.g. Backend Engineer")
         submit = st.form_submit_button("Analyze Candidates")
 
     if submit:
         if not github_usernames or not job_role:
             st.error("❌ Please enter both usernames and job role.")
-        elif not all([st.session_state.Nebius_api_key, st.session_state.github_api_key, st.session_state.exa_api_key, st.session_state.model_id]):
+        elif not all(
+            [
+                st.session_state.Nebius_api_key,
+                st.session_state.github_api_key,
+                st.session_state.exa_api_key,
+                st.session_state.model_id,
+            ]
+        ):
             st.error("❌ Please enter all API keys and model info in the sidebar.")
         else:
             usernames = [u.strip() for u in github_usernames.split("\n") if u.strip()]
@@ -93,13 +117,20 @@ if page == "Multi-Candidate Analyzer":
                     ),
                     name="StrictCandidateEvaluator",
                     tools=[
-                        ThinkingTools(think=True, instructions="Strict GitHub candidate evaluation"),
+                        ThinkingTools(
+                            think=True,
+                            instructions="Strict GitHub candidate evaluation",
+                        ),
                         GithubTools(access_token=st.session_state.github_api_key),
-                        ExaTools(api_key=st.session_state.exa_api_key, include_domains=["github.com"], type="keyword"),
-                        ReasoningTools(add_instructions=True)
+                        ExaTools(
+                            api_key=st.session_state.exa_api_key,
+                            include_domains=["github.com"],
+                            type="keyword",
+                        ),
+                        ReasoningTools(add_instructions=True),
                     ],
                     markdown=True,
-                    show_tool_calls=True
+                    show_tool_calls=True,
                 )
 
                 st.markdown("### 🔎 Evaluation in Progress...")
@@ -122,8 +153,12 @@ elif page == "Single Candidate Analyzer":
     with st.form("single_candidate_form"):
         col1, col2 = st.columns(2)
         with col1:
-            github_username = st.text_input("GitHub Username", placeholder="e.g. Toufiq")
-            linkedin_url = st.text_input("LinkedIn Profile (Optional)", placeholder="https://linkedin.com/in/...")
+            github_username = st.text_input(
+                "GitHub Username", placeholder="e.g. Toufiq"
+            )
+            linkedin_url = st.text_input(
+                "LinkedIn Profile (Optional)", placeholder="https://linkedin.com/in/..."
+            )
         with col2:
             job_role = st.text_input("Job Role", placeholder="e.g. ML Engineer")
         submit_button = st.form_submit_button("Analyze Candidate 🔥")
@@ -131,7 +166,14 @@ elif page == "Single Candidate Analyzer":
     if submit_button:
         if not github_username or not job_role:
             st.error("GitHub username and job role are required.")
-        elif not all([st.session_state.Nebius_api_key, st.session_state.github_api_key, st.session_state.exa_api_key, st.session_state.model_id]):
+        elif not all(
+            [
+                st.session_state.Nebius_api_key,
+                st.session_state.github_api_key,
+                st.session_state.exa_api_key,
+                st.session_state.model_id,
+            ]
+        ):
             st.error("❌ Please enter all API keys and model info.")
         else:
             try:
@@ -149,15 +191,15 @@ elif page == "Single Candidate Analyzer":
                             include_domains=["linkedin.com", "github.com"],
                             type="keyword",
                             text_length_limit=2000,
-                            show_results=True
+                            show_results=True,
                         ),
-                        ReasoningTools(add_instructions=True)
+                        ReasoningTools(add_instructions=True),
                     ],
                     description=description_single,
                     instructions=instructions_single,
                     markdown=True,
                     show_tool_calls=True,
-                    add_datetime_to_instructions=True
+                    add_datetime_to_instructions=True,
                 )
 
                 st.markdown("### 🤖 AI Evaluation in Progress...")
@@ -168,7 +210,7 @@ elif page == "Single Candidate Analyzer":
 
                     response_stream = agent.run(
                         f"Analyze candidate for {job_role}. {input_text}. Provide score and detailed report.",
-                        stream=True
+                        stream=True,
                     )
 
                     full_response = ""
@@ -188,4 +230,3 @@ elif page == "Single Candidate Analyzer":
             except Exception as e:
                 st.error("❌ Unexpected error occurred.")
                 st.exception(e)
-

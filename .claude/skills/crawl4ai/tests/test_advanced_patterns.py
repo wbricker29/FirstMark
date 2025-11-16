@@ -2,8 +2,10 @@
 """
 Test advanced patterns from SKILL.md
 """
+
 import asyncio
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
+
 
 async def test_session_management():
     """Test session management"""
@@ -24,7 +26,8 @@ async def test_session_management():
 
         assert result2.success, f"Second crawl failed: {result2.error_message}"
 
-        print(f"✅ Session management works")
+        print("✅ Session management works")
+
 
 async def test_proxy_config():
     """Test proxy configuration in BrowserConfig"""
@@ -36,11 +39,12 @@ async def test_proxy_config():
         proxy_config={
             "server": "http://proxy.example.com:8080",
             "username": "user",
-            "password": "pass"
-        }
+            "password": "pass",
+        },
     )
 
-    print(f"✅ Proxy config structure correct (in BrowserConfig)")
+    print("✅ Proxy config structure correct (in BrowserConfig)")
+
 
 async def test_batch_crawling():
     """Test arun_many for batch crawling"""
@@ -49,10 +53,7 @@ async def test_batch_crawling():
     urls = ["https://example.com", "https://example.org"]
 
     async with AsyncWebCrawler() as crawler:
-        results = await crawler.arun_many(
-            urls=urls,
-            max_concurrent=2
-        )
+        results = await crawler.arun_many(urls=urls, max_concurrent=2)
 
         assert len(results) == 2, f"Expected 2 results, got {len(results)}"
 
@@ -62,10 +63,12 @@ async def test_batch_crawling():
             else:
                 print(f"⚠️ {result.url}: {result.error_message}")
 
+
 async def main():
     await test_session_management()
     await test_proxy_config()
     await test_batch_crawling()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

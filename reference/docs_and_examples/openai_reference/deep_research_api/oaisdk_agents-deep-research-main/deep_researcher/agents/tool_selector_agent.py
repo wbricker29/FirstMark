@@ -31,15 +31,23 @@ from .utils.parse_output import create_type_parser
 
 class AgentTask(BaseModel):
     """A task for a specific agent to address knowledge gaps"""
-    gap: Optional[str] = Field(description="The knowledge gap being addressed", default=None)
+
+    gap: Optional[str] = Field(
+        description="The knowledge gap being addressed", default=None
+    )
     agent: str = Field(description="The name of the agent to use")
     query: str = Field(description="The specific query for the agent")
-    entity_website: Optional[str] = Field(description="The website of the entity being researched, if known", default=None)
+    entity_website: Optional[str] = Field(
+        description="The website of the entity being researched, if known", default=None
+    )
 
 
 class AgentSelectionPlan(BaseModel):
     """Plan for which agents to use for knowledge gaps"""
-    tasks: List[AgentTask] = Field(description="List of agent tasks to address knowledge gaps")
+
+    tasks: List[AgentTask] = Field(
+        description="List of agent tasks to address knowledge gaps"
+    )
 
 
 INSTRUCTIONS = f"""
@@ -71,6 +79,7 @@ Only output JSON. Follow the JSON schema below. Do not output anything else. I w
 {AgentSelectionPlan.model_json_schema()}
 """
 
+
 def init_tool_selector_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.reasoning_model
 
@@ -78,6 +87,10 @@ def init_tool_selector_agent(config: LLMConfig) -> ResearchAgent:
         name="ToolSelectorAgent",
         instructions=INSTRUCTIONS,
         model=selected_model,
-        output_type=AgentSelectionPlan if model_supports_structured_output(selected_model) else None,
-        output_parser=create_type_parser(AgentSelectionPlan) if not model_supports_structured_output(selected_model) else None
+        output_type=AgentSelectionPlan
+        if model_supports_structured_output(selected_model)
+        else None,
+        output_parser=create_type_parser(AgentSelectionPlan)
+        if not model_supports_structured_output(selected_model)
+        else None,
     )

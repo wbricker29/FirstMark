@@ -119,7 +119,6 @@ supported_search_providers = ["serper", "searchxng", "openai"]
 
 
 class LLMConfig:
-
     def __init__(
         self,
         search_provider: str,

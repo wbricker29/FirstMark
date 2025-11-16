@@ -1,7 +1,10 @@
 import os
 from typing import Optional
 
-def get_env_with_prefix(base_name: str, prefix: str = "DR_", default: Optional[str] = None) -> Optional[str]:
+
+def get_env_with_prefix(
+    base_name: str, prefix: str = "DR_", default: Optional[str] = None
+) -> Optional[str]:
     """
     Retrieves an environment variable, checking for a prefixed version first.
 

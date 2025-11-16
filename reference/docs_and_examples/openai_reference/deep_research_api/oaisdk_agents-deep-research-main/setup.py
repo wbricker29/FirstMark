@@ -6,9 +6,11 @@ exclude_packages = []
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-    
+
 with open("requirements.txt", "r") as f:
-    reqs = [line.strip() for line in f if not any(pkg in line for pkg in exclude_packages)]
+    reqs = [
+        line.strip() for line in f if not any(pkg in line for pkg in exclude_packages)
+    ]
 
 setup(
     name="deep-researcher",
@@ -19,7 +21,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/qx-labs/agents-deep-research",
-    package_dir={'deep_researcher': 'deep_researcher'},
+    package_dir={"deep_researcher": "deep_researcher"},
     packages=find_packages(),
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
@@ -32,15 +34,10 @@ setup(
     ],
     python_requires=">=3.10",
     install_requires=reqs,
-    extras_require={
-        'dev': [
-            'pytest',
-            'pytest-asyncio'
-        ]
-    },
+    extras_require={"dev": ["pytest", "pytest-asyncio"]},
     entry_points={
-        'console_scripts': [
-            'deep-researcher=deep_researcher.main:cli_entry',
+        "console_scripts": [
+            "deep-researcher=deep_researcher.main:cli_entry",
         ],
     },
 )

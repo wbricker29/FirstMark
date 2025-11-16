@@ -21,13 +21,17 @@ from datetime import datetime
 
 class ReportDraftSection(BaseModel):
     """A section of the report that needs to be written"""
+
     section_title: str = Field(description="The title of the section")
     section_content: str = Field(description="The content of the section")
 
 
 class ReportDraft(BaseModel):
     """Output from the Report Planner Agent"""
-    sections: List[ReportDraftSection] = Field(description="List of sections that are in the report")
+
+    sections: List[ReportDraftSection] = Field(
+        description="List of sections that are in the report"
+    )
 
 
 INSTRUCTIONS = f"""
@@ -57,11 +61,10 @@ Guidelines:
 - Include all sources and references that are present in the final report
 """
 
+
 def init_proofreader_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.fast_model
 
     return ResearchAgent(
-        name="ProofreaderAgent",
-        instructions=INSTRUCTIONS,
-        model=selected_model
+        name="ProofreaderAgent", instructions=INSTRUCTIONS, model=selected_model
     )

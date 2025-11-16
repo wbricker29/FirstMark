@@ -1,5 +1,5 @@
 """
-Agent used to evaluate the state of the research report (typically done in a loop) and identify knowledge gaps that still 
+Agent used to evaluate the state of the research report (typically done in a loop) and identify knowledge gaps that still
 need to be addressed.
 
 The Agent takes as input a string in the following format:
@@ -22,10 +22,16 @@ from ..llm_config import LLMConfig, model_supports_structured_output
 from datetime import datetime
 from .utils.parse_output import create_type_parser
 
+
 class KnowledgeGapOutput(BaseModel):
     """Output from the Knowledge Gap Agent"""
-    research_complete: bool = Field(description="Whether the research and findings are complete enough to end the research loop")
-    outstanding_gaps: List[str] = Field(description="List of knowledge gaps that still need to be addressed")
+
+    research_complete: bool = Field(
+        description="Whether the research and findings are complete enough to end the research loop"
+    )
+    outstanding_gaps: List[str] = Field(
+        description="List of knowledge gaps that still need to be addressed"
+    )
 
 
 INSTRUCTIONS = f"""
@@ -48,6 +54,7 @@ Only output JSON and follow the JSON schema below. Do not output anything else. 
 {KnowledgeGapOutput.model_json_schema()}
 """
 
+
 def init_knowledge_gap_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.fast_model
 
@@ -55,6 +62,10 @@ def init_knowledge_gap_agent(config: LLMConfig) -> ResearchAgent:
         name="KnowledgeGapAgent",
         instructions=INSTRUCTIONS,
         model=selected_model,
-        output_type=KnowledgeGapOutput if model_supports_structured_output(selected_model) else None,
-        output_parser=create_type_parser(KnowledgeGapOutput) if not model_supports_structured_output(selected_model) else None
+        output_type=KnowledgeGapOutput
+        if model_supports_structured_output(selected_model)
+        else None,
+        output_parser=create_type_parser(KnowledgeGapOutput)
+        if not model_supports_structured_output(selected_model)
+        else None,
     )

@@ -18,10 +18,11 @@ user_query = "Provide a detailed overview of the company Quantera (quantera.io) 
 
 plan = asyncio.run(run_report_planner(user_query))
 
-print(f"BACKGROUND CONTEXT:\n{plan.background_context if plan.background_context else 'No background context'}")
+print(
+    f"BACKGROUND CONTEXT:\n{plan.background_context if plan.background_context else 'No background context'}"
+)
 
 print("\nREPORT OUTLINE:\n")
 for section in plan.report_outline:
     print(f"Section: {section.title}")
     print(f"Key question: {section.key_question}\n")
-    

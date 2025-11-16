@@ -13,13 +13,14 @@ The Agent then:
 2. Includes proper citations for sources in the format [1], [2], etc.
 3. Returns a string containing the markdown formatted report
 """
+
 from .baseclass import ResearchAgent
 from ..llm_config import LLMConfig
 from datetime import datetime
 
 INSTRUCTIONS = f"""
 You are a senior researcher tasked with comprehensively answering a research query. 
-Today's date is {datetime.now().strftime('%Y-%m-%d')}.
+Today's date is {datetime.now().strftime("%Y-%m-%d")}.
 You will be provided with the original query along with research findings put together by a research assistant.
 Your objective is to generate the final response in markdown format.
 The response should be as lengthy and detailed as possible with the information provided, focusing on answering the original query.
@@ -39,6 +40,7 @@ GUIDELINES:
 * Adhere to any instructions on the length of your final response if provided in the user prompt.
 * If any additional guidelines are provided in the user prompt, follow them exactly and give them precedence over these system instructions.
 """
+
 
 def init_writer_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.main_model

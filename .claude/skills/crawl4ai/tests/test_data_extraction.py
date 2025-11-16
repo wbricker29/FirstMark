@@ -2,10 +2,15 @@
 """
 Test data extraction examples from SKILL.md
 """
+
 import asyncio
 import json
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
-from crawl4ai.extraction_strategy import JsonCssExtractionStrategy, LLMExtractionStrategy
+from crawl4ai.extraction_strategy import (
+    JsonCssExtractionStrategy,
+    LLMExtractionStrategy,
+)
+
 
 async def test_manual_schema_extraction():
     """Test manual CSS/JSON schema extraction"""
@@ -17,8 +22,8 @@ async def test_manual_schema_extraction():
         "baseSelector": "body",  # Using body since example.com is simple
         "fields": [
             {"name": "title", "selector": "h1", "type": "text"},
-            {"name": "paragraphs", "selector": "p", "type": "text", "all": True}
-        ]
+            {"name": "paragraphs", "selector": "p", "type": "text", "all": True},
+        ],
     }
 
     extraction_strategy = JsonCssExtractionStrategy(schema=schema)
@@ -31,10 +36,13 @@ async def test_manual_schema_extraction():
         assert result.extracted_content, "No extracted content"
 
         data = json.loads(result.extracted_content)
-        assert isinstance(data, list) or isinstance(data, dict), "Invalid extraction format"
+        assert isinstance(data, list) or isinstance(data, dict), (
+            "Invalid extraction format"
+        )
 
-        print(f"✅ Manual schema extraction works")
+        print("✅ Manual schema extraction works")
         print(f"   Extracted data type: {type(data)}")
+
 
 async def test_llm_extraction():
     """Test LLM-based extraction (requires API key in env)"""
@@ -43,19 +51,20 @@ async def test_llm_extraction():
     try:
         # Just test that the strategy can be created
         extraction_strategy = LLMExtractionStrategy(
-            provider="openai/gpt-4o-mini",
-            instruction="Extract key financial metrics"
+            provider="openai/gpt-4o-mini", instruction="Extract key financial metrics"
         )
 
         config = CrawlerRunConfig(extraction_strategy=extraction_strategy)
-        print(f"✅ LLMExtractionStrategy created successfully")
+        print("✅ LLMExtractionStrategy created successfully")
 
-    except Exception as e:
-        print(f"✅ LLMExtractionStrategy structure verified (API key not tested)")
+    except Exception:
+        print("✅ LLMExtractionStrategy structure verified (API key not tested)")
+
 
 async def main():
     await test_manual_schema_extraction()
     await test_llm_extraction()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

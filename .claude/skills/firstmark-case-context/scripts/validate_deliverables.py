@@ -33,7 +33,7 @@ def check_writeup(project_dir: Path) -> bool:
         "writeup.pdf",
         "case_study.pdf",
         "slides.pdf",
-        "slides.pptx"
+        "slides.pptx",
     ]
 
     found_files = []
@@ -45,16 +45,18 @@ def check_writeup(project_dir: Path) -> bool:
         print(f"  ✓ Found writeup: {found_files[0]}")
 
         # Check file size/length for markdown
-        if found_files[0].suffix == '.md':
+        if found_files[0].suffix == ".md":
             content = found_files[0].read_text()
-            num_lines = len(content.split('\n'))
+            num_lines = len(content.split("\n"))
             word_count = len(content.split())
 
             print(f"    Lines: {num_lines}, Words: {word_count}")
 
             if word_count > 1500:
-                print(f"    ⚠️  Warning: {word_count} words might be too long for 1-2 pages")
-                print(f"        Target: ~500-1000 words for 1-2 pages")
+                print(
+                    f"    ⚠️  Warning: {word_count} words might be too long for 1-2 pages"
+                )
+                print("        Target: ~500-1000 words for 1-2 pages")
 
         return True
     else:
@@ -70,9 +72,11 @@ def check_prototype(project_dir: Path) -> bool:
     checks = []
 
     # Check for main entry point
-    main_files = list(project_dir.glob("**/main.py")) + \
-                 list(project_dir.glob("**/app.py")) + \
-                 list(project_dir.glob("**/agent.py"))
+    main_files = (
+        list(project_dir.glob("**/main.py"))
+        + list(project_dir.glob("**/app.py"))
+        + list(project_dir.glob("**/agent.py"))
+    )
 
     if main_files:
         print(f"  ✓ Found main script: {main_files[0]}")
@@ -111,15 +115,16 @@ def check_readme(project_dir: Path) -> bool:
     """Check for README."""
     print("\n3. README (Optional but Recommended)")
 
-    readme_files = list(project_dir.glob("**/README.md")) + \
-                   list(project_dir.glob("**/README.txt"))
+    readme_files = list(project_dir.glob("**/README.md")) + list(
+        project_dir.glob("**/README.txt")
+    )
 
     if readme_files:
         print(f"  ✓ Found README: {readme_files[0]}")
 
         content = readme_files[0].read_text()
-        has_usage = 'run' in content.lower() or 'install' in content.lower()
-        has_explanation = 'implement' in content.lower() or 'design' in content.lower()
+        has_usage = "run" in content.lower() or "install" in content.lower()
+        has_explanation = "implement" in content.lower() or "design" in content.lower()
 
         if has_usage:
             print("    ✓ Contains usage instructions")
@@ -142,10 +147,10 @@ def check_mock_data(project_dir: Path) -> bool:
     print("\n4. Mock Data Files")
 
     required_files = {
-        'mock_guilds.csv': 'Guild members CSV',
-        'exec_network.csv': 'Extended network CSV',
-        'open_roles.csv': 'Open roles CSV',
-        'executive_bios.json': 'Executive bios JSON'
+        "mock_guilds.csv": "Guild members CSV",
+        "exec_network.csv": "Extended network CSV",
+        "open_roles.csv": "Open roles CSV",
+        "executive_bios.json": "Executive bios JSON",
     }
 
     checks = []
@@ -175,23 +180,24 @@ def check_rubric_coverage(project_dir: Path) -> bool:
     """Check if writeup addresses rubric criteria."""
     print("\n5. Rubric Coverage Check")
 
-    writeup_files = list(project_dir.glob("**/*.md")) + \
-                    list(project_dir.glob("**/*writeup*.pdf"))
+    writeup_files = list(project_dir.glob("**/*.md")) + list(
+        project_dir.glob("**/*writeup*.pdf")
+    )
 
     if not writeup_files:
         print("  ⚠️  Cannot check rubric coverage - no writeup found")
         return False
 
     # For markdown files, do simple keyword checking
-    if writeup_files[0].suffix == '.md':
+    if writeup_files[0].suffix == ".md":
         content = writeup_files[0].read_text().lower()
 
         criteria = {
-            'Product Thinking': ['guild', 'firstmark', 'talent team', 'workflow'],
-            'Technical Design': ['architecture', 'design', 'pattern', 'llm'],
-            'Data Integration': ['structured', 'unstructured', 'data', 'csv'],
-            'Insight Generation': ['ranking', 'score', 'reasoning', 'match'],
-            'Communication': ['tradeoff', 'decision', 'production']
+            "Product Thinking": ["guild", "firstmark", "talent team", "workflow"],
+            "Technical Design": ["architecture", "design", "pattern", "llm"],
+            "Data Integration": ["structured", "unstructured", "data", "csv"],
+            "Insight Generation": ["ranking", "score", "reasoning", "match"],
+            "Communication": ["tradeoff", "decision", "production"],
         }
 
         print("  Checking for rubric criteria keywords:")
@@ -205,13 +211,13 @@ def check_rubric_coverage(project_dir: Path) -> bool:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Validate FirstMark case study deliverables'
+        description="Validate FirstMark case study deliverables"
     )
     parser.add_argument(
-        '--project',
+        "--project",
         type=Path,
-        default=Path('.'),
-        help='Project directory to validate (default: current directory)'
+        default=Path("."),
+        help="Project directory to validate (default: current directory)",
     )
 
     args = parser.parse_args()
@@ -258,5 +264,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

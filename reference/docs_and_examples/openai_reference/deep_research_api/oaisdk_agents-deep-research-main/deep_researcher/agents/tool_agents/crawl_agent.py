@@ -33,6 +33,7 @@ Only output JSON. Follow the JSON schema below. Do not output anything else. I w
 {ToolAgentOutput.model_json_schema()}
 """
 
+
 def init_crawl_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.fast_model
 
@@ -41,6 +42,10 @@ def init_crawl_agent(config: LLMConfig) -> ResearchAgent:
         instructions=INSTRUCTIONS,
         tools=[crawl_website],
         model=selected_model,
-        output_type=ToolAgentOutput if model_supports_structured_output(selected_model) else None,
-        output_parser=create_type_parser(ToolAgentOutput) if not model_supports_structured_output(selected_model) else None
+        output_type=ToolAgentOutput
+        if model_supports_structured_output(selected_model)
+        else None,
+        output_parser=create_type_parser(ToolAgentOutput)
+        if not model_supports_structured_output(selected_model)
+        else None,
     )

@@ -9,33 +9,32 @@ if [ -f "$TOGGLES_FILE" ]; then
 fi
 
 if [ "${ENABLE_TYPE_CHECK:-1}" != "1" ]; then
-  echo "🟡 Type checking disabled via toggles"
-  exit 0
+  exit 0  # Silent exit when disabled
+fi
+
+# Only run if src directory exists
+if [ ! -d "$ROOT/src" ]; then
+  exit 0  # Silent exit - no Python code to check yet
 fi
 
 # Try pyright first (faster), fallback to mypy
+# Only output on errors to prevent feedback loops
 if command -v pyright >/dev/null 2>&1; then
-  if pyright 2>&1; then
-    echo "✅ Type check passed (pyright)"
-  else
-    echo "❌ Type check failed (pyright)"
+  pyright >/dev/null 2>&1 || {
+    echo "❌ Type check failed (pyright)" >&2
     exit 2
-  fi
+  }
 elif command -v uv >/dev/null 2>&1; then
-  # Try mypy via UV
-  if uv run mypy src 2>&1; then
-    echo "✅ Type check passed (mypy)"
-  else
-    echo "❌ Type check failed (mypy)"
+  uv run mypy src >/dev/null 2>&1 || {
+    echo "❌ Type check failed (mypy)" >&2
     exit 2
-  fi
+  }
 elif command -v mypy >/dev/null 2>&1; then
-  if mypy src 2>&1; then
-    echo "✅ Type check passed (mypy)"
-  else
-    echo "❌ Type check failed (mypy)"
+  mypy src >/dev/null 2>&1 || {
+    echo "❌ Type check failed (mypy)" >&2
     exit 2
-  fi
-else
-  echo "🟡 No type checker available (install with: uv pip install mypy or pyright)"
+  }
 fi
+
+# Silent success - no output
+exit 0

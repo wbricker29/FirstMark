@@ -20,6 +20,7 @@ The Agent then:
 3. Produces an updated draft of the new section to fit the flow of the report
 4. Returns the updated draft of the new section along with references/citations
 """
+
 from .baseclass import ResearchAgent, ResearchRunner
 from ..llm_config import LLMConfig, model_supports_structured_output
 from .utils.parse_output import create_type_parser
@@ -31,13 +32,17 @@ import re
 
 
 class LongWriterOutput(BaseModel):
-    next_section_markdown: str = Field(description="The final draft of the next section in markdown format")
-    references: List[str] = Field(description="A list of URLs and their corresponding reference numbers for the section")
+    next_section_markdown: str = Field(
+        description="The final draft of the next section in markdown format"
+    )
+    references: List[str] = Field(
+        description="A list of URLs and their corresponding reference numbers for the section"
+    )
 
 
 INSTRUCTIONS = f"""
 You are an expert report writer tasked with iteratively writing each section of a report. 
-Today's date is {datetime.now().strftime('%Y-%m-%d')}.
+Today's date is {datetime.now().strftime("%Y-%m-%d")}.
 You will be provided with:
 1. The original research query
 3. A final draft of the report containing the table of contents and all sections written up until this point (in the first iteration there will be no sections written yet)
@@ -68,6 +73,7 @@ Only output JSON. Follow the JSON schema below. Do not output anything else. I w
 {LongWriterOutput.model_json_schema()}
 """
 
+
 def init_long_writer_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.fast_model
 
@@ -75,8 +81,12 @@ def init_long_writer_agent(config: LLMConfig) -> ResearchAgent:
         name="LongWriterAgent",
         instructions=INSTRUCTIONS,
         model=selected_model,
-        output_type=LongWriterOutput if model_supports_structured_output(selected_model) else None,
-        output_parser=create_type_parser(LongWriterOutput) if not model_supports_structured_output(selected_model) else None
+        output_type=LongWriterOutput
+        if model_supports_structured_output(selected_model)
+        else None,
+        output_parser=create_type_parser(LongWriterOutput)
+        if not model_supports_structured_output(selected_model)
+        else None,
     )
 
 
@@ -124,30 +134,44 @@ async def write_report(
     """Write the final report by iteratively writing each section"""
 
     # Initialize the final draft of the report with the title and table of contents
-    final_draft = f"# {report_title}\n\n" + "## Table of Contents\n\n" + "\n".join([f"{i+1}. {section.section_title}" for i, section in enumerate(report_draft.sections)]) + "\n\n"
+    final_draft = (
+        f"# {report_title}\n\n"
+        + "## Table of Contents\n\n"
+        + "\n".join(
+            [
+                f"{i + 1}. {section.section_title}"
+                for i, section in enumerate(report_draft.sections)
+            ]
+        )
+        + "\n\n"
+    )
     all_references = []
 
     for section in report_draft.sections:
         # Produce the final draft of each section and add it to the report with corresponding references
-        next_section_draft = await write_next_section(long_writer_agent, original_query, final_draft, section.section_title, section.section_content)
+        next_section_draft = await write_next_section(
+            long_writer_agent,
+            original_query,
+            final_draft,
+            section.section_title,
+            section.section_content,
+        )
         section_markdown, all_references = reformat_references(
-            next_section_draft.next_section_markdown, 
+            next_section_draft.next_section_markdown,
             next_section_draft.references,
-            all_references
+            all_references,
         )
         section_markdown = reformat_section_headings(section_markdown)
-        final_draft += section_markdown + '\n\n'
+        final_draft += section_markdown + "\n\n"
 
     # Add the final references to the end of the report
-    final_draft += '## References:\n\n' + '  \n'.join(all_references)
+    final_draft += "## References:\n\n" + "  \n".join(all_references)
     return final_draft
 
 
 def reformat_references(
-        section_markdown: str, 
-        section_references: List[str], 
-        all_references: List[str] 
-    ) -> Tuple[str, List[str]]:
+    section_markdown: str, section_references: List[str], all_references: List[str]
+) -> Tuple[str, List[str]]:
     """
     This method gracefully handles the re-numbering, de-duplication and re-formatting of references as new sections are added to the report draft.
     It takes as input:
@@ -159,12 +183,13 @@ def reformat_references(
     1. The updated markdown content of the new section with the references re-numbered and de-duplicated, such that they increment from the previous references
     2. The updated list of references for the full report, to include the new section's references
     """
+
     def convert_ref_list_to_map(ref_list: List[str]) -> Dict[str, str]:
         ref_map = {}
         for ref in ref_list:
             try:
-                ref_num = int(ref.split(']')[0].strip('['))
-                url = ref.split(']', 1)[1].strip()
+                ref_num = int(ref.split("]")[0].strip("["))
+                url = ref.split("]", 1)[1].strip()
                 ref_map[url] = ref_num
             except ValueError:
                 print(f"Invalid reference format: {ref}")
@@ -192,11 +217,11 @@ def reformat_references(
         # Look up the new reference number
         mapped_ref_num = section_to_report_ref_map.get(ref_num)
         if mapped_ref_num:
-            return f'[{mapped_ref_num}]'
-        return ''
-    
+            return f"[{mapped_ref_num}]"
+        return ""
+
     # Replace all references in a single pass using a replacement function
-    section_markdown = re.sub(r'\[(\d+)\]', replace_reference, section_markdown)
+    section_markdown = re.sub(r"\[(\d+)\]", replace_reference, section_markdown)
 
     return section_markdown, all_references
 
@@ -220,7 +245,7 @@ def reformat_section_headings(section_markdown: str) -> str:
         return section_markdown
 
     # Find the first heading level
-    first_heading_match = re.search(r'^(#+)\s', section_markdown, re.MULTILINE)
+    first_heading_match = re.search(r"^(#+)\s", section_markdown, re.MULTILINE)
     if not first_heading_match:
         return section_markdown
 
@@ -232,7 +257,9 @@ def reformat_section_headings(section_markdown: str) -> str:
         hashes = match.group(1)
         content = match.group(2)
         new_level = max(2, len(hashes) + level_adjustment)
-        return '#' * new_level + ' ' + content
+        return "#" * new_level + " " + content
 
     # Apply the heading adjustment to all headings in one pass
-    return re.sub(r'^(#+)\s(.+)$', adjust_heading_level, section_markdown, flags=re.MULTILINE)
+    return re.sub(
+        r"^(#+)\s(.+)$", adjust_heading_level, section_markdown, flags=re.MULTILINE
+    )

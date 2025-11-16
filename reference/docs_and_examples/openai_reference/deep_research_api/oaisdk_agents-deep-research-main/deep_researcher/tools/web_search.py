@@ -305,7 +305,7 @@ async def fetch_and_process_url(
             url=item.url,
             title=item.title,
             description=item.description,
-            text=f"Error fetching content: URL contains restricted file extension",
+            text="Error fetching content: URL contains restricted file extension",
         )
 
     try:

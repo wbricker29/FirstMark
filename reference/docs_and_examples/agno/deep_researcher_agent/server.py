@@ -1,4 +1,3 @@
-import asyncio
 from mcp.server.fastmcp import FastMCP
 from agents import run_research
 
@@ -16,7 +15,7 @@ def deep_researcher_agent(query: str) -> str:
     Returns:
         str: The research response from the Deep Researcher Agent.
     """
-    
+
     return run_research(query)
 
 

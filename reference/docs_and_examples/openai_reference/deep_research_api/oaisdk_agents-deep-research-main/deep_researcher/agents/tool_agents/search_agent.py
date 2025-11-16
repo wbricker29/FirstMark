@@ -42,12 +42,15 @@ Only output JSON. Follow the JSON schema below. Do not output anything else. I w
 {ToolAgentOutput.model_json_schema()}
 """
 
+
 def init_search_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.fast_model
     provider_base_url = get_base_url(selected_model)
 
-    if config.search_provider == "openai" and 'openai.com' not in provider_base_url:
-        raise ValueError(f"You have set the SEARCH_PROVIDER to 'openai', but are using the model {str(selected_model.model)} which is not an OpenAI model")
+    if config.search_provider == "openai" and "openai.com" not in provider_base_url:
+        raise ValueError(
+            f"You have set the SEARCH_PROVIDER to 'openai', but are using the model {str(selected_model.model)} which is not an OpenAI model"
+        )
     elif config.search_provider == "openai":
         web_search_tool = WebSearchTool()
     else:
@@ -58,6 +61,10 @@ def init_search_agent(config: LLMConfig) -> ResearchAgent:
         instructions=INSTRUCTIONS,
         tools=[web_search_tool],
         model=selected_model,
-        output_type=ToolAgentOutput if model_supports_structured_output(selected_model) else None,
-        output_parser=create_type_parser(ToolAgentOutput) if not model_supports_structured_output(selected_model) else None
+        output_type=ToolAgentOutput
+        if model_supports_structured_output(selected_model)
+        else None,
+        output_parser=create_type_parser(ToolAgentOutput)
+        if not model_supports_structured_output(selected_model)
+        else None,
     )

@@ -1,0 +1,15 @@
+Priority,File/Directory,Type,Relevance to Talent Signal Agent,Key Topics,Time to Review
+1,agno_recruiter.md,Documentation,CRITICAL - Direct talent matching patterns,Recruiter agent design; candidate matching; ranking logic,20 min
+1,candidate_analyser/,Code Example,CRITICAL - Working candidate analysis implementation,Data integration; scoring; reasoning output,30 min
+2,multi_agent_researcher/,Code Example,HIGH - Multi-agent orchestration patterns,Agent coordination; data flow; workflow orchestration,25 min
+2,agno_investmentalx.md,Documentation,HIGH - VC/Investment context alignment,Portfolio company context; investment workflows; FirstMark alignment,15 min
+2,cookbook/,Code Examples,HIGH - Reusable patterns across multiple use cases,Data loading; agent setup; common patterns,varies
+3,agno_deepknowledge.md,Documentation,MEDIUM - Knowledge base integration,Structured + unstructured data; embedding; retrieval,15 min
+3,deep_researcher_agent/,Code Example,MEDIUM - Research and enrichment patterns,Data enrichment; research workflows; information gathering,20 min
+3,agno_reasoningteam.md,Documentation,MEDIUM - Multi-step reasoning,Team coordination; reasoning trails; multi-step workflows,10 min
+4,agno_deepresearch.md,Documentation,MEDIUM - Research agent patterns,Research capabilities; information synthesis,10 min
+4,agno_research.md,Documentation,LOW-MEDIUM - General research patterns,Basic research setup; retrieval patterns,10 min
+4,agno_crawl4ai.md,Documentation,LOW-MEDIUM - Web scraping/enrichment,Data enrichment from web; scraping tools,5 min
+4,agno_companyresearchworkflow.md,Documentation,MEDIUM - Company research workflow,Company information gathering; portfolio context,10 min
+5,agno_ui_agent/,Code Example,LOW - UI integration (only if building interface),Dashboard; visualization; Airtable integration,15 min
+5,ai_domain_deep_research_agent/,Code Example,LOW - Specialized domain research,Domain-specific research patterns,varies

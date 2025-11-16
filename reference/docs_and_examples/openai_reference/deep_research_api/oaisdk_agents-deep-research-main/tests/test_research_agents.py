@@ -5,23 +5,39 @@ These tests check that:
 - The agents correctly format their output as the correct type (e.g. structured outputs where applicable)
 - The agents produce the expected output content
 """
+
 import pytest
-from .config import \
-    SEARCH_PROVIDER, \
-    REASONING_MODEL_PROVIDER, \
-    REASONING_MODEL, \
-    MAIN_MODEL_PROVIDER, \
-    MAIN_MODEL, \
-    FAST_MODEL_PROVIDER, \
-    FAST_MODEL
+from .config import (
+    SEARCH_PROVIDER,
+    REASONING_MODEL_PROVIDER,
+    REASONING_MODEL,
+    MAIN_MODEL_PROVIDER,
+    MAIN_MODEL,
+    FAST_MODEL_PROVIDER,
+    FAST_MODEL,
+)
 from deep_researcher import LLMConfig, ResearchRunner
-from deep_researcher.agents.knowledge_gap_agent import init_knowledge_gap_agent, KnowledgeGapOutput
-from deep_researcher.agents.long_writer_agent import init_long_writer_agent, LongWriterOutput, write_report, ReportDraft
+from deep_researcher.agents.knowledge_gap_agent import (
+    init_knowledge_gap_agent,
+    KnowledgeGapOutput,
+)
+from deep_researcher.agents.long_writer_agent import (
+    init_long_writer_agent,
+    LongWriterOutput,
+    ReportDraft,
+)
 from deep_researcher.agents.planner_agent import init_planner_agent, ReportPlan
-from deep_researcher.agents.proofreader_agent import init_proofreader_agent, ReportDraft, ReportDraftSection
+from deep_researcher.agents.proofreader_agent import (
+    init_proofreader_agent,
+    ReportDraft,
+    ReportDraftSection,
+)
 from deep_researcher.agents.writer_agent import init_writer_agent
 from deep_researcher.agents.thinking_agent import init_thinking_agent
-from deep_researcher.agents.tool_selector_agent import init_tool_selector_agent, AgentSelectionPlan, AgentTask
+from deep_researcher.agents.tool_selector_agent import (
+    init_tool_selector_agent,
+    AgentSelectionPlan,
+)
 
 # Configuration for LLMs
 config = LLMConfig(
@@ -31,7 +47,7 @@ config = LLMConfig(
     main_model_provider=MAIN_MODEL_PROVIDER,
     main_model=MAIN_MODEL,
     fast_model_provider=FAST_MODEL_PROVIDER,
-    fast_model=FAST_MODEL
+    fast_model=FAST_MODEL,
 )
 
 
@@ -50,10 +66,16 @@ async def test_knowledge_gap_agent():
     result = await ResearchRunner.run(agent, initial_user_input)
     agent_output = result.final_output_as(KnowledgeGapOutput)
 
-    assert isinstance(agent_output, KnowledgeGapOutput), "The KnowledgeGapAgent is not correctly formatting its structured output"
-    assert agent_output.research_complete is False, "The KnowledgeGapAgent is not correctly evaluating research as incomplete"
-    assert len(agent_output.outstanding_gaps) > 0, "The KnowledgeGapAgent is not correctly identifying knowledge gaps"
-    
+    assert isinstance(agent_output, KnowledgeGapOutput), (
+        "The KnowledgeGapAgent is not correctly formatting its structured output"
+    )
+    assert agent_output.research_complete is False, (
+        "The KnowledgeGapAgent is not correctly evaluating research as incomplete"
+    )
+    assert len(agent_output.outstanding_gaps) > 0, (
+        "The KnowledgeGapAgent is not correctly identifying knowledge gaps"
+    )
+
     # Example of a user input that doesn't require further research to complete (i.e. no knowledge gaps exist)
     final_user_input = """
     ORIGINAL QUERY: What is the capital of France?
@@ -66,9 +88,15 @@ async def test_knowledge_gap_agent():
     result = await ResearchRunner.run(agent, final_user_input)
     agent_output = result.final_output_as(KnowledgeGapOutput)
 
-    assert isinstance(agent_output, KnowledgeGapOutput), "The KnowledgeGapAgent is not correctly formatting its structured output"
-    assert agent_output.research_complete is True, "The KnowledgeGapAgent is not correctly evaluating research as complete"
-    assert len(agent_output.outstanding_gaps) == 0, "The KnowledgeGapAgent is not correctly identifying knowledge gaps"
+    assert isinstance(agent_output, KnowledgeGapOutput), (
+        "The KnowledgeGapAgent is not correctly formatting its structured output"
+    )
+    assert agent_output.research_complete is True, (
+        "The KnowledgeGapAgent is not correctly evaluating research as complete"
+    )
+    assert len(agent_output.outstanding_gaps) == 0, (
+        "The KnowledgeGapAgent is not correctly identifying knowledge gaps"
+    )
 
 
 @pytest.mark.asyncio
@@ -89,10 +117,18 @@ async def test_long_writer_agent():
     result = await ResearchRunner.run(agent, user_input)
     agent_output = result.final_output_as(LongWriterOutput)
 
-    assert isinstance(agent_output, LongWriterOutput), "The LongWriterAgent is not correctly formatting its structured output"
-    assert "golden retrievers" in agent_output.next_section_markdown.lower(), "The LongWriterAgent is not correctly writing markdown content"
-    assert len(agent_output.references) >= 1, "No references are present in the output of the LongWriterAgent"
-    assert "goldies.com" in agent_output.references[0], "The correct reference is not present in the output of the LongWriterAgent"
+    assert isinstance(agent_output, LongWriterOutput), (
+        "The LongWriterAgent is not correctly formatting its structured output"
+    )
+    assert "golden retrievers" in agent_output.next_section_markdown.lower(), (
+        "The LongWriterAgent is not correctly writing markdown content"
+    )
+    assert len(agent_output.references) >= 1, (
+        "No references are present in the output of the LongWriterAgent"
+    )
+    assert "goldies.com" in agent_output.references[0], (
+        "The correct reference is not present in the output of the LongWriterAgent"
+    )
 
 
 @pytest.mark.asyncio
@@ -107,9 +143,15 @@ async def test_planner_agent():
     result = await ResearchRunner.run(agent, user_input)
     agent_output = result.final_output_as(ReportPlan)
 
-    assert isinstance(agent_output, ReportPlan), "The PlannerAgent is not correctly formatting its structured output"
-    assert len(agent_output.report_outline) > 0, "The PlannerAgent is not producing a report outline"
-    assert "python" in agent_output.report_title.lower(), "The PlannerAgent is not correctly naming the report"
+    assert isinstance(agent_output, ReportPlan), (
+        "The PlannerAgent is not correctly formatting its structured output"
+    )
+    assert len(agent_output.report_outline) > 0, (
+        "The PlannerAgent is not producing a report outline"
+    )
+    assert "python" in agent_output.report_title.lower(), (
+        "The PlannerAgent is not correctly naming the report"
+    )
 
 
 @pytest.mark.asyncio
@@ -119,9 +161,18 @@ async def test_proofreader_agent():
     query = "Write a short summary of the sun."
     draft = ReportDraft(
         sections=[
-            ReportDraftSection(section_title="Introduction", section_content="The sun is a star. It is big [1]."),
-            ReportDraftSection(section_title="Details", section_content="The sun provides light [2]. It is very hot."),
-            ReportDraftSection(section_title="References", section_content="[1] https://example.com/sun [2] https://example.com/light")
+            ReportDraftSection(
+                section_title="Introduction",
+                section_content="The sun is a star. It is big [1].",
+            ),
+            ReportDraftSection(
+                section_title="Details",
+                section_content="The sun provides light [2]. It is very hot.",
+            ),
+            ReportDraftSection(
+                section_title="References",
+                section_content="[1] https://example.com/sun [2] https://example.com/light",
+            ),
         ]
     )
     user_input = f"""
@@ -136,8 +187,12 @@ async def test_proofreader_agent():
     result = await ResearchRunner.run(agent, user_input)
     final_report = result.final_output
 
-    assert isinstance(final_report, str), "The ProofreaderAgent is not correctly formatting its output as a string"
-    assert "## Introduction" in final_report, "The ProofreaderAgent is not correctly adding section headings"
+    assert isinstance(final_report, str), (
+        "The ProofreaderAgent is not correctly formatting its output as a string"
+    )
+    assert "## Introduction" in final_report, (
+        "The ProofreaderAgent is not correctly adding section headings"
+    )
 
 
 @pytest.mark.asyncio
@@ -157,11 +212,17 @@ async def test_writer_agent():
     ===========================================================
     """
     result = await ResearchRunner.run(agent, user_input)
-    final_report = result.final_output # Writer outputs raw markdown
+    final_report = result.final_output  # Writer outputs raw markdown
 
-    assert isinstance(final_report, str), "The WriterAgent is not correctly formatting its output as a string"
-    assert "jai" in final_report.lower(), "The WriterAgent is not producing the expected markdown content"
-    assert "qxlabs.com" in final_report, "The WriterAgent is not correctly citing references"
+    assert isinstance(final_report, str), (
+        "The WriterAgent is not correctly formatting its output as a string"
+    )
+    assert "jai" in final_report.lower(), (
+        "The WriterAgent is not producing the expected markdown content"
+    )
+    assert "qxlabs.com" in final_report, (
+        "The WriterAgent is not correctly citing references"
+    )
 
 
 @pytest.mark.asyncio
@@ -182,11 +243,26 @@ async def test_thinking_agent():
         - Findings: QX Labs was founded in 2023 by Jai Juneja and is based in London.
     """
     result = await ResearchRunner.run(agent, user_input)
-    thoughts = result.final_output # Thinking agent outputs raw text
+    thoughts = result.final_output  # Thinking agent outputs raw text
 
-    assert isinstance(thoughts, str), "The ThinkingAgent is not correctly formatting its output as a string"
+    assert isinstance(thoughts, str), (
+        "The ThinkingAgent is not correctly formatting its output as a string"
+    )
     assert len(thoughts) > 0, "The ThinkingAgent is not producing any output"
-    assert any([keyword in thoughts.lower() for keyword in ['jai', 'iteration', 'qx', 'london', '2023', 'found', 'automation']]), "The ThinkingAgent is not producing any relevant thoughts"
+    assert any(
+        [
+            keyword in thoughts.lower()
+            for keyword in [
+                "jai",
+                "iteration",
+                "qx",
+                "london",
+                "2023",
+                "found",
+                "automation",
+            ]
+        ]
+    ), "The ThinkingAgent is not producing any relevant thoughts"
 
 
 @pytest.mark.asyncio
@@ -205,6 +281,12 @@ async def test_tool_selector_agent():
     result = await ResearchRunner.run(agent, user_input)
     agent_output = result.final_output_as(AgentSelectionPlan)
 
-    assert isinstance(agent_output, AgentSelectionPlan), "The ToolSelectorAgent is not correctly formatting its output as an AgentSelectionPlan"
-    assert len(agent_output.tasks) > 0, "The ToolSelectorAgent is not producing any tasks"
-    assert agent_output.tasks[0].agent in ["WebSearchAgent", "SiteCrawlerAgent"], "The ToolSelectorAgent is not correctly specifying an agent to hand off to"
+    assert isinstance(agent_output, AgentSelectionPlan), (
+        "The ToolSelectorAgent is not correctly formatting its output as an AgentSelectionPlan"
+    )
+    assert len(agent_output.tasks) > 0, (
+        "The ToolSelectorAgent is not producing any tasks"
+    )
+    assert agent_output.tasks[0].agent in ["WebSearchAgent", "SiteCrawlerAgent"], (
+        "The ToolSelectorAgent is not correctly specifying an agent to hand off to"
+    )

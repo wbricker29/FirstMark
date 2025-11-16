@@ -7,11 +7,12 @@ class OutputParserError(Exception):
     """
     Exception raised when the output parser fails to parse the output.
     """
+
     def __init__(self, message, output=None):
         self.message = message
         self.output = output
         super().__init__(self.message)
-        
+
     def __str__(self):
         if self.output:
             return f"{self.message}\nProblematic output: {self.output}"
@@ -31,15 +32,15 @@ def find_json_in_string(string: str) -> str:
     start_index = None
 
     for i, c in enumerate(string):
-        if c == '{':
+        if c == "{":
             if stack == 0:
                 start_index = i  # Start index of the first '{'
             stack += 1  # Push to stack
-        elif c == '}':
+        elif c == "}":
             stack -= 1  # Pop stack
             if stack == 0:
                 # Return the substring from the start of the first '{' to the current '}'
-                return string[start_index:i + 1] if start_index is not None else ""
+                return string[start_index : i + 1] if start_index is not None else ""
 
     # If no complete set of braces is found, return an empty string
     return ""
@@ -50,7 +51,7 @@ def parse_json_output(output: str) -> Any:
     # First try to load the string as JSON
     try:
         return json.loads(output)
-    except json.JSONDecodeError as e:
+    except json.JSONDecodeError:
         pass
 
     # If that fails, assume that the output is in a code block - remove the code block markers and try again
@@ -70,10 +71,10 @@ def parse_json_output(output: str) -> Any:
         try:
             return json.loads(parsed_output)
         except json.JSONDecodeError:
-            raise OutputParserError(f"Failed to parse output as JSON", output)
+            raise OutputParserError("Failed to parse output as JSON", output)
 
     # If all fails, raise an error
-    raise OutputParserError(f"Failed to parse output as JSON", output)
+    raise OutputParserError("Failed to parse output as JSON", output)
 
 
 def create_type_parser(type: BaseModel) -> Callable[[str], BaseModel]:

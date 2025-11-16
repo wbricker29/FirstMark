@@ -12,6 +12,7 @@ HISTORY OF ACTIONS, FINDINGS AND THOUGHTS: <a log of prior iterations of the res
 
 The Agent then outputs a string containing its latest thoughts on the research process.
 """
+
 from .baseclass import ResearchAgent
 from ..llm_config import LLMConfig
 from datetime import datetime
@@ -40,6 +41,7 @@ Guidelines:
 - DO NOT produce a draft of the final report. This is not your job.
 - If this is the first iteration (i.e. no data from prior iterations), provide thoughts on what info we need to gather in the first iteration to get started
 """
+
 
 def init_thinking_agent(config: LLMConfig) -> ResearchAgent:
     selected_model = config.reasoning_model
