@@ -1,6 +1,6 @@
 # Role Spec Feature Design Document
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2025-11-16
 **Author:** Will Bricker
 **Project:** FirstMark Talent Signal Agent
@@ -17,6 +17,7 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 - Enable AI to produce explainable, dimension-level assessments
 - Balance reusability (templates) with customization (role-specific needs)
 - Integrate seamlessly with Airtable-based workflow
+- Keep evaluations grounded in realistically observable, web-available signals
 
 ### Non-Goals (for demo)
 - Version control system
@@ -35,6 +36,7 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 - **FR4:** Link specs to active searches for candidate evaluation
 - **FR5:** Support 4-6 weighted evaluation dimensions per spec
 - **FR6:** Include must-haves, nice-to-haves, and red flags
+- **FR7:** For each dimension, define how observable it is from public/web data and allow the system to return “unknown/insufficient evidence” rather than forcing a score
 
 ### Technical Requirements
 - **TR1:** Store in Airtable (no additional database)
@@ -80,12 +82,16 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 
 ### 1. [Dimension Name] (Weight: X%)
 **Definition:** [What this measures]
+**Evidence Level:** [High / Medium / Low]  <!-- How reliably this dimension can be assessed from public/web data -->
+**Evidence Hints:** [1–2 examples of signals to look for (e.g., funding rounds led, team size, public talks)]
 **Scale:**
-- 5 (Exceptional): [Criteria]
-- 4 (Strong): [Criteria]
-- 3 (Adequate): [Criteria]
-- 2 (Weak): [Criteria]
-- 1 (Poor): [Criteria]
+- 5 (Exceptional): [Criteria using observable signals]
+- 4 (Strong): [Criteria using observable signals]
+- 3 (Adequate): [Criteria using observable signals]
+- 2 (Weak): [Criteria using observable signals]
+- 1 (Poor): [Criteria using observable signals]
+- _Leave blank (null/None) if insufficient public evidence to score_
+- _DO NOT use 0, NaN, or empty string - use null/None for unknown_
 
 [Repeat for 4-6 dimensions, weights sum to 100%]
 
@@ -105,20 +111,64 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 ### 3.3 Standard Dimensions
 
 #### CFO Roles (6 dimensions)
-1. **Fundraising & Investor Relations (25%)** - Capital raising, board experience
-2. **Operational Finance Capability (25%)** - FP&A, unit economics, systems
-3. **Strategic Business Partnership (20%)** - Cross-functional influence, CEO partnership
-4. **Financial Leadership Experience (15%)** - Team building, process maturity
-5. **Sector/Domain Expertise (10%)** - Industry relevance, GTM familiarity
-6. **Growth Stage Readiness (5%)** - Scaling experience, change management
+Below are standard CFO dimensions with their intended weight in the *human* spec and an **Evidence Level** indicating how reliably they can be scored from public/web data.
+
+1. **Fundraising & Investor Relations (25%, Evidence: High)**  
+   - Capital raising track record, board experience, investor-facing role.  
+   - Web signals: funding announcements, IPO/M&A news, press quotes about “led financing,” board memberships.
+2. **Operational Finance & Systems (20%, Evidence: Medium)**  
+   - FP&A, unit economics, finance systems and processes.  
+   - Web signals: mentions of “built FP&A function,” “implemented ERP/BI systems,” transformation case studies. Likely sparse; often “Unknown.”
+3. **Strategic Business Partnership (15%, Evidence: Low)**  
+   - Cross-functional influence, CEO partnership, strategic decision-making.  
+   - Web signals: occasional quotes about being a “trusted partner,” but mostly internal. Use primarily for qualitative commentary; automated scoring may often be 0/Unknown.
+4. **Financial Leadership Scope (15%, Evidence: Medium)**  
+   - Team size, org-building, process maturity.  
+   - Web signals: “built finance team from X→Y,” “first finance hire,” “global team,” leadership awards.
+5. **Sector / Domain Expertise (15%, Evidence: High)**  
+   - Industry relevance, GTM familiarity.  
+   - Web signals: company/sector, recurring themes across roles (e.g., B2B SaaS, consumer, fintech).
+6. **Growth Stage Exposure (10%, Evidence: High)**  
+   - Scaling experience (B→D, pre-IPO, etc.), change management.  
+   - Web signals: stage labels in press (Series A/B/C, growth equity), “took company from X to Y ARR,” IPO/M&A timing.
 
 #### CTO Roles (6 dimensions)
-1. **Technical Leadership & Architecture (30%)** - Technical depth, architecture decisions
-2. **Team Building & Engineering Culture (25%)** - Hiring, retention, culture
-3. **Execution & Delivery (20%)** - Shipping velocity, technical debt management
-4. **Product Partnership (10%)** - PM collaboration, customer empathy
-5. **Scalability Experience (10%)** - Handled 10x growth, infrastructure scaling
-6. **Domain/Tech Stack Fit (5%)** - Relevant technologies, industry knowledge
+Similarly, CTO dimensions are defined with Evidence Levels:
+
+1. **Technical Leadership & Architecture (25%, Evidence: Medium)**  
+   - Technical depth, architecture decisions, technical vision.  
+   - Web signals: talks, blog posts, open-source work, architecture write-ups; may be thin for some candidates.
+2. **Team Building & Engineering Culture (20%, Evidence: Low)**  
+   - Hiring, retention, culture-building.  
+   - Web signals: references to “scaled team from X→Y,” hiring campaigns; most rich signals are internal → expect many Unknowns and rely on human judgment.
+3. **Execution & Delivery (15%, Evidence: Low)**  
+   - Shipping velocity, quality of delivery, tech debt tradeoffs.  
+   - Web signals: release notes, case studies, but usually not enough for precise scoring → primarily qualitative commentary.
+4. **Product Partnership (10%, Evidence: Low)**  
+   - Partnership with PM, customer empathy, product thinking.  
+   - Web signals: interviews, talks referencing customer work; mostly a human-interview dimension.
+5. **Scalability & Growth Experience (15%, Evidence: High)**  
+   - Handling scale (users, data, global footprint), infra scaling.  
+   - Web signals: “grew platform from X to Y,” global traffic claims, scale-focused case studies.
+6. **Domain / Tech Stack Fit (15%, Evidence: High)**  
+   - Alignment with tech stack and domain (ML, infra, SaaS, etc.).  
+   - Web signals: company’s product, stated stack, open-source repos, personal profiles.
+
+> Note: We keep the full, richer spec for humans, but the automated scoring pipeline may reweight dimensions to emphasize **High** and **Medium** evidence dimensions and treat **Low** evidence dimensions as “qualitative, often Unknown.”
+
+### 3.5 Grounding in Web-Available Evidence
+
+- Each dimension should explicitly call out:
+  - **Evidence Level** (High/Medium/Low) as above.
+  - **Evidence Hints** that reference concrete web signals.
+- The LLM is instructed to:
+  - Use only evidence it can actually infer (or quote) from the provided research and context.
+  - Return `null` (JSON) / `None` (Python) when there is insufficient public evidence, rather than guessing.
+  - **DO NOT use:** NaN, 0, or empty values - use `null`/`None` exclusively for unknown scores.
+- The scoring engine:
+  - Aggregates dimension scores but ignores or down-weights `None`/`null` dimensions in the numeric total.
+  - Still surfaces those dimensions in the explanation so humans know where additional internal data or references are needed.
+  - Only dimensions with non-None scores contribute to the overall weighted average.
 
 ### 3.4 User Flows
 
@@ -207,9 +257,10 @@ def parse_role_spec(markdown_text: str) -> dict:
             'dimensions': [
                 {
                     'name': str,
-                    'weight': float,
+                    'weight': float,           # Human-design weight
+                    'evidence_level': str,     # "High" | "Medium" | "Low"
                     'definition': str,
-                    'scale': {5: str, 4: str, 3: str, 2: str, 1: str}
+                    'scale': {5: str, 4: str, 3: str, 2: str, 1: str, 0: str}
                 }
             ],
             'must_haves': list[str],
@@ -229,8 +280,8 @@ def build_assessment_prompt(spec: dict, research_data: str) -> str:
 
     Returns formatted prompt with:
     - Role context
-    - Each dimension with definition and scale
-    - Instructions for scoring, confidence, reasoning
+    - Each dimension with definition, evidence level, and scale
+    - Instructions for scoring, including how to handle unknown/insufficient evidence
     """
     prompt = f"""
 You are evaluating a candidate for the following role:
@@ -244,11 +295,12 @@ Assess the candidate on each dimension below using the provided research.
         prompt += f"""
 ### {dim['name']} (Weight: {dim['weight']}%)
 Definition: {dim['definition']}
+Evidence Level: {dim['evidence_level']} (how reliably this can be assessed from public/web data)
 
 Scale:
 {format_scale(dim['scale'])}
 
-Score (1-5):
+Score (0-5, where 0 = Unknown / Not enough public evidence):
 Confidence (High/Medium/Low):
 Reasoning:
 Evidence quotes:
@@ -366,39 +418,53 @@ def run_screening():
 
 ### 4.5 Structured Output Schema
 
-```python
-# schemas.py
+**NOTE:** All structured output schemas have been migrated to Pydantic models in `demo_planning/data_design.md` (lines 256-427).
 
-ASSESSMENT_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "dimension_scores": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "dimension": {"type": "string"},
-                    "score": {"type": "integer", "minimum": 1, "maximum": 5},
-                    "confidence": {"type": "string", "enum": ["High", "Medium", "Low"]},
-                    "reasoning": {"type": "string"},
-                    "evidence": {"type": "array", "items": {"type": "string"}}
-                },
-                "required": ["dimension", "score", "confidence", "reasoning", "evidence"]
-            }
-        },
-        "must_haves_check": {
-            "type": "object",
-            "additionalProperties": {"type": "boolean"}
-        },
-        "red_flags_detected": {
-            "type": "array",
-            "items": {"type": "string"}
-        },
-        "summary": {"type": "string"}
-    },
-    "required": ["dimension_scores", "must_haves_check", "red_flags_detected", "summary"]
-}
+**Key Models for Role Spec Integration:**
+
+```python
+# From demo_planning/data_design.md
+
+from pydantic import BaseModel, Field
+from typing import Optional, Literal
+
+class DimensionScore(BaseModel):
+    """Evidence-aware dimension score."""
+    dimension: str
+    score: Optional[int] = Field(None, ge=1, le=5)
+    # None (Python) / null (JSON) = Unknown / Insufficient evidence
+    # DO NOT use NaN, 0, or empty values
+    evidence_level: Literal["High", "Medium", "Low"]  # From spec
+    confidence: Literal["High", "Medium", "Low"]
+    reasoning: str
+    evidence_quotes: list[str]
+    citation_urls: list[str]
+
+class AssessmentResult(BaseModel):
+    """Structured assessment from gpt-5-mini."""
+    overall_score: Optional[float] = Field(None, ge=0, le=100)
+    overall_confidence: Literal["High", "Medium", "Low"]
+    dimension_scores: list[DimensionScore]
+    must_haves_check: list[MustHaveCheck]
+    red_flags_detected: list[str]
+    green_flags: list[str]
+    summary: str
+    counterfactuals: list[str]
 ```
+
+**Usage with Agno:**
+```python
+from agno import Agent, OpenAIResponses
+
+assessment_agent = Agent(
+    model=OpenAIResponses(id="gpt-5-mini"),
+    tools=[{"type": "web_search_preview"}],
+    instructions="Evaluate candidate against role spec...",
+    response_model=AssessmentResult,  # Pydantic model
+)
+```
+
+**See full schema definitions in:** `demo_planning/data_design.md`
 
 ---
 
