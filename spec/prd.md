@@ -1,7 +1,7 @@
 ---
-version: "1.0"
+version: "1.0-minimal"
 created: "2025-01-16"
-updated: "2025-01-16"
+updated: "2025-01-17"
 project: "Talent Signal Agent"
 context: "FirstMark Capital AI Lead Case Study"
 ---
@@ -102,7 +102,7 @@ An AI-powered system that:
 
 ## Scope
 
-### In Scope (Demo v1)
+### In Scope (Demo v1.0-minimal)
 
 **Module 1: Data Upload**
 - ✅ CSV ingestion via Airtable webhook
@@ -121,13 +121,13 @@ An AI-powered system that:
 
 **Module 4: Candidate Screening (PRIMARY DEMO)**
 - ✅ Webhook-triggered screening workflow
-- ✅ Deep research using OpenAI Deep Research API
-- ✅ Quality gate with conditional supplemental search
+- ✅ **Deep Research – primary and only required mode for v1.0-minimal** (OpenAI Deep Research API)
+- ✅ **Incremental Search – optional single-pass supplement when quality is low** (up to two web/search calls)
 - ✅ Spec-guided assessment with evidence-aware scoring
 - ✅ Dimension-level scores (1-5 scale with None for Unknown)
 - ✅ Overall score calculation (0-100 scale)
 - ✅ Reasoning, counterfactuals, confidence tracking
-- ✅ Citation tracking and audit trail
+- ✅ Citation tracking
 - ✅ Markdown report generation
 
 **Data & Infrastructure:**
@@ -135,7 +135,7 @@ An AI-powered system that:
 - ✅ 4 portfolio scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO)
 - ✅ Airtable database with 9 tables (People, Companies, Portcos, Roles, Searches, Screens, Workflows, Role Specs, Assessments)
 - ✅ Flask webhook server with ngrok tunnel
-- ✅ Synchronous execution for demo simplicity
+- ✅ Synchronous execution for demo simplicity (single-process)
 
 **Technical Stack:**
 - ✅ Agno agent framework
@@ -156,6 +156,10 @@ An AI-powered system that:
 - ❌ Production deployment (Docker, cloud hosting)
 - ❌ Rate limiting, retry logic beyond basic exponential backoff
 - ❌ Vector stores for semantic search (using deterministic filters)
+- ❌ **Fast Mode** – future optimization (Phase 2+), not required for demo
+- ❌ **Multi-iteration supplemental search loops** – Phase 2+ enhancement
+- ❌ **SQLite workflow events database** – Phase 2+ audit trail enhancement
+- ❌ **Concurrent workers and parallel processing** – Phase 2+ performance optimization
 
 **Explicitly Deferred:**
 - Alternative evaluation path (model-generated dimensions)
@@ -164,15 +168,18 @@ An AI-powered system that:
 - Advanced deduplication (fuzzy matching)
 - Multi-tenant support
 - External API integrations beyond OpenAI
+- SQLite-backed workflow audit trail (Phase 2+)
+- Rich observability stack (metrics, events DB) – Phase 2+
 
 ### Future Considerations
 
 **Phase 2 Enhancements:**
-1. **Adaptive Quality Thresholds:** Role-specific sufficiency criteria
-2. **Research Caching:** Avoid re-researching same candidates
-3. **Parallel Processing:** Concurrent candidate screening
-4. **Custom Quality Metrics:** Domain-aware quality gates
-5. **Production Deployment:** Cloud hosting, monitoring, observability
+1. **Fast Mode:** Web search fallback for quicker candidate screening
+2. **Multi-iteration supplemental search:** Adaptive quality thresholds with iterative research
+3. **Research Caching:** Avoid re-researching same candidates
+4. **Parallel Processing:** Concurrent candidate screening with multiple workers
+5. **SQLite Audit Trail:** Persistent workflow event storage
+6. **Production Deployment:** Cloud hosting, monitoring, observability
 
 **Phase 3+ Vision:**
 - Two-way sync with portfolio company ATS systems
@@ -253,30 +260,33 @@ An AI-powered system that:
 
 ---
 
-## Python-Specific Considerations@
+## Python-Specific Considerations
 
 ### Performance Requirements
 
 **Throughput:**
-- Process 1 candidate screening request per Flask worker
-- Support 3-5 concurrent screenings (multiple workers)
+- For v1.0-minimal:
+  - Process candidates sequentially per Screen
+  - One Flask worker is sufficient
+  - Demo expectation: up to ~10 candidates per Screen in <10 minutes total (dominated by Deep Research API latency)
 - Not a high-throughput system (talent use case, not consumer product)
 
 **Latency:**
-- **Deep Research Mode:** 3-6 minutes per candidate (acceptable for demo)
-- **Fast Mode:** 1-2 minutes per candidate (web search fallback)
+- **Deep Research (Primary Mode):** 3-6 minutes per candidate (acceptable for v1.0-minimal demo)
+- **Incremental Search (Optional):** +30-60 seconds when quality check triggers (up to two web/search calls)
+- **Fast Mode:** Phase 2+ optimization (1-2 minutes per candidate using web search fallback)
 - **Batch Processing:** 10 candidates in 30-60 minutes (synchronous demo implementation)
-- **Target:** <10 seconds for full pipeline (excluding LLM API calls)
+- **Target:** <10 seconds for quality check and assessment logic (excluding LLM API calls)
 
 **Memory:**
 - <512MB per Flask worker (small dataset, no heavy computation)
-- SQLite database for workflow events (<100MB for demo)
 - Airtable handles primary data storage
+- No SQLite database needed for v1.0-minimal
 
 **Concurrency:**
-- Synchronous execution for demo (simpler implementation)
-- Async/await for Phase 2 optimization (concurrent candidate processing)
-- No multiprocessing needed for 48-hour demo scope
+- Synchronous execution for v1.0-minimal (simpler implementation)
+- Single-process, single Flask worker
+- Concurrent workers and async/await are Phase 2+ optimizations
 
 ### Integration Points
 
@@ -287,12 +297,12 @@ An AI-powered system that:
 
 **Databases:**
 - Airtable (primary database for all tables)
-- SQLite (workflow event storage for audit trail)
+- No SQLite needed for v1.0-minimal (Phase 2+ enhancement for workflow events)
 - No PostgreSQL/MongoDB needed for demo
 
 **Message Queues:**
 - Not needed for demo (synchronous execution)
-- Phase 2: Consider Celery/RQ for async background jobs
+- Phase 2+: Consider Celery/RQ for async background jobs
 
 **External Services:**
 - ngrok (local tunnel for webhook testing)
@@ -318,7 +328,7 @@ An AI-powered system that:
 
 **Data Retention:**
 - All data persists in Airtable indefinitely
-- Workflow events stored in SQLite (demo scope)
+- Terminal logs provide execution audit trail for v1.0-minimal
 - No automated cleanup/archival for demo
 
 ---
@@ -345,12 +355,12 @@ An AI-powered system that:
 
 **Dev/Test:**
 - `pytest` - Testing framework
-- `pytest-cov` - Coverage reporting (50% target)
+- `pytest-cov` - Coverage reporting (basic tests, no strict threshold)
 - `ruff` - Formatting and linting
 - `mypy` - Type checking (standard mode)
 
 **Optional:**
-- `structlog` - Structured logging (if time permits)
+- `structlog` - Structured logging (Phase 2+, not required for v1.0-minimal)
 - `requests` - HTTP client (pyairtable dependency)
 
 ### Deployment
@@ -364,13 +374,13 @@ An AI-powered system that:
 **Configuration:**
 - Environment variables via `.env` file
 - API keys: OpenAI, Airtable
-- Feature flags: USE_DEEP_RESEARCH (true/false)
+- Feature flags: USE_DEEP_RESEARCH (default: true)
 - Quality gate thresholds (MIN_EXPERIENCES, MIN_CITATIONS, etc.)
 
 **Monitoring:**
-- Terminal logs with emoji indicators (🔍, ✅, ❌)
-- SQLite event storage for workflow audit trail
-- Airtable status fields for workflow state
+- Terminal logs (stdout) for execution visibility
+- Airtable status fields for workflow state (Status, error message)
+- No SQLite event storage for v1.0-minimal (Phase 2+ enhancement)
 - No production monitoring/alerting for demo
 
 ---
@@ -383,24 +393,24 @@ An AI-powered system that:
    **Likelihood:** Low-Medium
    **Impact:** High (breaks primary demo flow)
    **Mitigation:**
-   - Implement fast mode fallback (gpt-5 + web_search)
    - Pre-run 3 of 4 scenarios before demo
    - Test thoroughly day before presentation
+   - Have incremental search as fallback if needed
 
 2. **Risk:** Quality gate triggers excessive supplemental searches (time overrun)
    **Likelihood:** Medium
    **Impact:** Medium (demo feels slow)
    **Mitigation:**
    - Tune quality gate thresholds based on test runs
-   - Set max 3 iterations with early exit conditions
-   - Use fast mode for live demo if needed
+   - Limit to single incremental search pass (up to two web/search calls)
+   - Skip incremental search in live demo if time-constrained
 
 3. **Risk:** Evidence-aware scoring produces too many Unknown dimensions
    **Likelihood:** Medium
    **Impact:** Low-Medium (reduces ranking confidence)
    **Mitigation:**
    - Design role specs with High evidence dimensions weighted heavily
-   - Supplemental search specifically targets scorable dimensions
+   - Incremental search specifically targets scorable dimensions
    - Explain Unknown scores as feature, not bug (transparency)
 
 4. **Risk:** Airtable webhook reliability issues during live demo
@@ -415,7 +425,7 @@ An AI-powered system that:
    **Likelihood:** Medium
    **Impact:** High (incomplete demo)
    **Mitigation:**
-   - Strict scope discipline (MVP only)
+   - Strict scope discipline (v1.0-minimal only)
    - Pre-populate Airtable data manually
    - Focus dev time on Module 4 (core screening)
    - Skip Modules 1-3 automation if needed
@@ -454,15 +464,15 @@ An AI-powered system that:
 
 **Agent Implementation (6 hours):**
 - Implement ExecutiveResearchResult and AssessmentResult Pydantic models
-- Build deep research agent (o4-mini-deep-research + parser)
+- Build deep research agent (o4-mini-deep-research + structured outputs)
 - Build assessment agent (gpt-5-mini with structured outputs)
-- Implement quality check and supplemental search logic
+- Implement quality check and optional incremental search logic
 - Build research merging function
 
 **Workflow Implementation (4 hours):**
-- Assemble Agno workflow with condition + loop
+- Assemble Agno workflow (linear: deep research → quality check → optional incremental search → assessment)
 - Implement custom step functions (quality check, merge, coordination)
-- Add event streaming and audit trail capture
+- Add event streaming for logging (stdout only, no SQLite storage)
 - Test workflow end-to-end with mock data
 
 **Flask Integration (4 hours):**
@@ -474,9 +484,9 @@ An AI-powered system that:
 ### Phase 3: Testing & Pre-Run Scenarios (Hours 25-32)
 
 **Testing (4 hours):**
+- Basic tests for core scoring logic (calculate_overall_score)
 - Unit tests for quality check logic
-- Integration tests for workflow execution
-- Test both deep research and fast modes
+- Happy-path workflow smoke test with mocks (if time permits)
 - Validate structured output schemas
 
 **Pre-Run Scenarios (4 hours):**
@@ -533,13 +543,13 @@ An AI-powered system that:
 - ✅ Webhook triggers Flask /screen endpoint
 - ✅ Deep research executes and returns ExecutiveResearchResult
 - ✅ Quality gate correctly evaluates research sufficiency
-- ✅ Supplemental search triggers when needed (max 3 iterations)
+- ✅ Optional incremental search triggers when quality check flags missing evidence (up to two web/search calls)
 - ✅ Assessment produces dimension scores, overall score, reasoning
-- ✅ Results written to Airtable with full audit trail
+- ✅ Results written to Airtable with status updates and key summary fields
 
 **AC-PRD-04: Assessment Quality**
 - ✅ Dimension scores use 1-5 scale with None for Unknown
-- ✅ Overall score calculated in Python (0-100 scale)
+- ✅ Overall score calculated in Python (0-100 scale, simple average of scored dimensions)
 - ✅ Evidence quotes and citations captured
 - ✅ Counterfactuals and confidence levels provided
 - ✅ Reasoning is clear and evidence-based
@@ -547,21 +557,25 @@ An AI-powered system that:
 ### Non-Functional
 
 **AC-PRD-05: Performance**
-- ✅ Deep research completes in 2-5 minutes per candidate
-- ✅ Fast mode completes in 1-2 minutes per candidate
+- ✅ Deep research completes in 2-6 minutes per candidate
 - ✅ Quality check executes in <1 second
+- ✅ Incremental search (when triggered) adds 30-60 seconds
 - ✅ Full workflow (research + assessment) completes in <10 minutes per candidate
+- ✅ Synchronous, single-process execution is sufficient for v1.0-minimal
 
 **AC-PRD-06: Code Quality**
 - ✅ All public functions have type hints
-- ✅ Core matching logic achieves 50%+ test coverage
-- ✅ Code passes ruff format and ruff check
-- ✅ mypy type checking passes (standard mode)
+- ✅ Core matching and scoring logic is covered by smoke tests
+- ✅ Type hints are present on public functions
+- ✅ Code is reasonably linted/typed (ruff, mypy goals, not hard gates)
+- ✅ No strict coverage threshold required for 48-hour demo
 
 **AC-PRD-07: Reliability**
-- ✅ Agent retry logic handles transient API errors
+- ✅ Agent retry logic handles transient API errors (basic exponential backoff)
 - ✅ Failed workflows marked in Airtable with error messages
-- ✅ Workflow events captured for complete audit trail
+- ✅ Minimal audit trail via:
+  - Status and summary fields in Airtable
+  - Terminal logs during execution
 - ✅ Ngrok tunnel remains stable during demo
 
 ### Documentation
@@ -602,7 +616,7 @@ An AI-powered system that:
 - [ ] Explain role spec framework (CFO/CTO templates)
 - [ ] Walk through pre-run results (dimension scores, reasoning, rankings)
 - [ ] Trigger live screening for Estuary CTO (2-3 candidates)
-- [ ] Show audit trail and workflow events
+- [ ] Show terminal logs and Airtable status updates
 - [ ] Export markdown report and discuss
 
 **Post-Demo:**
@@ -613,10 +627,12 @@ An AI-powered system that:
 ### Next Steps (Phase 2+)
 
 **Immediate Priorities:**
-1. Production deployment (Docker, cloud hosting)
-2. Async processing for faster batch screening
-3. Research caching to avoid redundant API calls
-4. Enhanced error handling and observability
+1. Fast Mode fallback (web search for quicker screening)
+2. Multi-iteration supplemental search with adaptive quality thresholds
+3. SQLite workflow audit trail for persistent event storage
+4. Async processing for faster batch screening (concurrent workers)
+5. Research caching to avoid redundant API calls
+6. Enhanced error handling and observability
 
 **Medium-Term Enhancements:**
 1. Vector stores for semantic candidate search
@@ -651,6 +667,7 @@ This PRD succeeds if:
 
 **Related Documents:**
 - `spec/constitution.md` - Project governance and principles
+- `spec/v1_minimal_spec.md` - v1.0-minimal scope definition and required changes
 - `case/technical_spec_V2.md` - Detailed technical architecture
 - `demo_planning/data_design.md` - Data models and schemas
 - `demo_planning/role_spec_design.md` - Role specification framework
@@ -659,5 +676,6 @@ This PRD succeeds if:
 
 **Approval:**
 - Created: 2025-01-16
-- Status: Approved for implementation
+- Updated: 2025-01-17 (v1.0-minimal scope alignment)
+- Status: Approved for v1.0-minimal implementation
 - Next Review: Post-demo retrospective

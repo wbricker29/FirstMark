@@ -1,12 +1,12 @@
 ---
-version: "1.0"
+version: "1.0-minimal"
 created: "2025-01-16"
-updated: "2025-01-16"
+updated: "2025-01-17"
 project: "Talent Signal Agent"
 context: "FirstMark Capital AI Lead Case Study"
 ---
 
-# Technical Specification: Talent Signal Agent
+# Technical Specification: Talent Signal Agent (v1.0-Minimal)
 
 Engineering contract for Python implementation of AI-powered executive matching system
 
@@ -18,9 +18,9 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 
 **Key Design Principles:**
 - **Evidence-Aware Scoring:** Explicit handling of "Unknown" when public data is insufficient (using `None`/`null`, not 0 or NaN)
-- **Quality-Gated Research:** Conditional supplemental search triggered only when initial research is insufficient
-- **Audit Trail:** Complete event logging for transparency and debugging
-- **Flexible Execution:** Toggle between deep research (comprehensive) and fast mode (quick turnaround)
+- **Quality-Gated Research:** Optional single incremental search agent step when initial research has quality issues
+- **Minimal Audit Trail:** Airtable fields + terminal logs (no separate event DB for v1)
+- **Deep Research Primary:** v1 uses o4-mini-deep-research as default; fast mode is Phase 2+
 
 ### Component Diagram
 
@@ -28,7 +28,7 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 ┌─────────────────────────────────────────────────────────────┐
 │                      AIRTABLE DATABASE                       │
 │  People (64) | Portcos (4) | Roles (4) | Specs (6)         │
-│  Searches (4) | Screens (4) | Workflows | Research | Assess │
+│  Searches (4) | Screens (4) | Research | Assessments       │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ Automation Trigger (Status Change)
@@ -48,15 +48,14 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
     │  AGNO WORKFLOW ORCHESTRATOR  │
     │                              │
     │  Step 1: Deep Research Agent │
-    │    ├─ o4-mini-deep-research  │
-    │    └─ OR gpt-5 + web_search  │
+    │    └─ o4-mini-deep-research  │
     │                              │
-    │  Step 2: Quality Gate        │
-    │    └─ Check research quality │
+    │  Step 2: Quality Check       │
+    │    └─ Simple sufficiency     │
     │                              │
     │  Step 3: Conditional Branch  │
-    │    ├─ Supplemental Search    │
-    │    │   └─ gpt-5 + web_search │
+    │    ├─ Incremental Search     │
+    │    │   (optional, single)    │
     │    └─ Merge Research         │
     │                              │
     │  Step 4: Assessment Agent    │
@@ -69,22 +68,17 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
     │  AIRTABLE API      │
     │  (pyairtable)      │
     │                    │
-    │  - Workflows       │
     │  - Research        │
     │  - Assessments     │
+    │  - Status fields   │
     └────────────────────┘
 
     ┌────────────────────┐
     │  OPENAI APIS       │
     │                    │
     │  - Deep Research   │
-    │  - GPT-5 / GPT-5-mini │
+    │  - GPT-5-mini      │
     │  - Web Search      │
-    └────────────────────┘
-
-    ┌────────────────────┐
-    │  SQLITE DB         │
-    │  (Workflow Events) │
     └────────────────────┘
 ```
 
@@ -92,65 +86,47 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 
 - **Language:** Python 3.11+
 - **Framework:** Flask (webhook server), Agno (agent orchestration)
-- **LLM Provider:** OpenAI (o4-mini-deep-research, gpt-5-mini, gpt-5)
-- **Database:** Airtable (primary), SQLite (workflow events)
+- **LLM Provider:** OpenAI (o4-mini-deep-research, gpt-5-mini)
+- **Database:** Airtable (primary storage, no SQLite for v1)
 - **Validation:** Pydantic (structured outputs)
 - **Package Manager:** UV
 - **Tunnel:** ngrok (local demo)
 
 ### Project Structure
 
+**v1.0-Minimal Layout (5 files):**
+
 ```
-demo_files/
-├── __init__.py
-├── agents/                    # Agent configurations
-│   ├── __init__.py
-│   ├── research_agent.py      # Deep research + web search modes
-│   ├── assessment_agent.py    # Spec-guided evaluation
-│   └── web_search_agent.py    # Supplemental search
-├── models/                    # Pydantic data models
-│   ├── __init__.py
-│   ├── research.py            # ExecutiveResearchResult, Citation
-│   ├── assessment.py          # AssessmentResult, DimensionScore
-│   └── workflow.py            # ResearchSupplement, quality metrics
-├── workflows/                 # Agno workflow definitions
-│   ├── __init__.py
-│   ├── screening_workflow.py  # Main candidate screening workflow
-│   └── workflow_functions.py  # Custom step functions
-├── integrations/              # External service clients
-│   ├── __init__.py
-│   ├── airtable_client.py     # Airtable read/write operations
-│   └── openai_client.py       # OpenAI API wrapper (if needed)
-├── utils/                     # Helper functions
-│   ├── __init__.py
-│   ├── scoring.py             # Overall score calculation
-│   ├── spec_parser.py         # Role spec markdown parser
-│   └── logger.py              # Structured logging setup
-├── webhook_server.py          # Flask app with /screen endpoint
-└── config.py                  # Environment variables and config
+demo/
+├── app.py              # Flask app + webhook entrypoints
+├── agents.py           # research + assessment agent creation + runners
+├── models.py           # Pydantic models (research + assessment)
+├── airtable_client.py  # Thin Airtable wrapper
+└── settings.py         # Config/env loading (optional)
 
 tests/
-├── __init__.py
-├── test_agents/               # Agent unit tests
-├── test_models/               # Pydantic model tests
-├── test_workflows/            # Workflow integration tests
-├── test_utils/                # Utility function tests
-├── fixtures/                  # Test data
-│   ├── mock_research.json
-│   ├── mock_assessment.json
-│   └── sample_specs/
-└── conftest.py                # Pytest configuration
+├── test_scoring.py         # calculate_overall_score tests
+├── test_quality_check.py   # quality check heuristics
+└── test_workflow_smoke.py  # happy-path /screen flow with mocks (optional)
 
-spec/                          # Documentation
-├── constitution.md            # Project governance
-├── prd.md                     # Product requirements
-└── spec.md                    # This file
+spec/                   # Documentation
+├── constitution.md     # Project governance
+├── prd.md              # Product requirements
+├── spec.md             # This file
+└── v1_minimal_spec.md  # Minimal scope definition
 
-.python-version                # Python 3.11
-pyproject.toml                 # Dependencies
-.env.example                   # Environment variables template
-README.md                      # Implementation guide
+.python-version         # Python 3.11
+pyproject.toml          # Dependencies
+.env.example            # Environment variables template
+README.md               # Implementation guide
 ```
+
+**Phase 2+ Enhancements:**
+- Further decomposition into subpackages (`agents/`, `models/`, `workflows/`)
+- CLI interface
+- SQLite workflow event storage
+- Async orchestration
+- Production deployment configuration
 
 ---
 
@@ -158,24 +134,30 @@ README.md                      # Implementation guide
 
 ### Research Agent Interface
 
-**Purpose:** Conduct comprehensive executive research using OpenAI Deep Research or fast web search mode.
+**Purpose:** Conduct comprehensive executive research using OpenAI Deep Research.
 
 **Signature:**
 ```python
 from pathlib import Path
 from typing import Optional
 from agno import Agent, OpenAIResponses
-from models.research import ExecutiveResearchResult
+from models import ExecutiveResearchResult
 
 def create_research_agent(use_deep_research: bool = True) -> Agent:
     """Create research agent with flexible execution mode.
 
     Args:
-        use_deep_research: If True, use o4-mini-deep-research (2-5 min).
-                          If False, use gpt-5 + web_search (30-60 sec).
+        use_deep_research: If True, use o4-mini-deep-research.
+                          For v1.0-minimal, only True is required.
+                          False (fast mode) is Phase 2+.
 
     Returns:
         Configured Agno Agent instance.
+
+    Notes:
+        - v1 implementation only requires use_deep_research=True
+        - Fast mode (gpt-5 + web_search) is future enhancement
+        - Use Agno's native structured outputs (output_model parameter)
     """
     pass
 
@@ -193,20 +175,25 @@ def run_research(
         current_title: Current job title
         current_company: Current company name
         linkedin_url: LinkedIn profile URL (optional)
-        use_deep_research: Toggle between deep and fast modes
+        use_deep_research: Toggle between deep and fast modes (v1: True only)
 
     Returns:
         ExecutiveResearchResult with career timeline, expertise, citations
 
     Raises:
         RuntimeError: If research agent execution fails after retries
+
+    Notes:
+        - Uses Agno's built-in retry with exponential_backoff=True
+        - Returns structured output directly via output_model
+        - No separate parser agent needed
     """
     pass
 ```
 
 **Examples:**
 ```python
-# Deep research mode (comprehensive)
+# Deep research mode (v1.0-minimal required path)
 result = run_research(
     candidate_name="Jonathan Carr",
     current_title="CFO",
@@ -216,15 +203,6 @@ result = run_research(
 )
 assert result.research_confidence in ["High", "Medium", "Low"]
 assert len(result.citations) >= 3
-
-# Fast mode (quick turnaround)
-result = run_research(
-    candidate_name="Jane Doe",
-    current_title="CTO",
-    current_company="Acme Corp",
-    use_deep_research=False
-)
-assert result.research_model == "gpt-5+web_search"
 ```
 
 ### Assessment Agent Interface
@@ -233,8 +211,7 @@ assert result.research_model == "gpt-5+web_search"
 
 **Signature:**
 ```python
-from models.assessment import AssessmentResult
-from models.research import ExecutiveResearchResult
+from models import AssessmentResult, ExecutiveResearchResult
 
 def assess_candidate(
     research: ExecutiveResearchResult,
@@ -253,98 +230,81 @@ def assess_candidate(
 
     Notes:
         - Dimension scores use 1-5 scale with None for Unknown
-        - Overall score calculated in Python (not by LLM)
-        - Uses gpt-5-mini with optional web_search for verification
+        - Overall score calculated in Python using simple average algorithm
+        - Uses gpt-5-mini with Agno's native structured outputs
+        - No separate parser needed
     """
     pass
 ```
 
 ### Quality Check Interface
 
-**Purpose:** Evaluate research sufficiency and determine if supplemental search is needed.
+**Purpose:** Evaluate research sufficiency and determine if incremental search is needed.
 
 **Signature:**
 ```python
-from typing import TypedDict
-from agno.workflow import StepInput, StepOutput
+from models import ExecutiveResearchResult
 
-class QualityMetrics(TypedDict):
-    """Research quality assessment metrics."""
-    has_enough_experiences: bool
-    has_enough_expertise: bool
-    has_enough_citations: bool
-    confidence_acceptable: bool
-    few_gaps: bool
-    quality_score: int
-
-class QualityCheckResult(TypedDict):
-    """Quality check output with sufficiency determination."""
-    research: ExecutiveResearchResult
-    is_sufficient: bool
-    gaps_to_fill: list[str]
-    quality_score: int
-    criteria_met: QualityMetrics
-
-def check_research_quality(step_input: StepInput) -> StepOutput:
+def check_research_quality(research: ExecutiveResearchResult) -> bool:
     """Evaluate if research is sufficient for assessment.
 
-    Sufficiency Criteria:
-    - ≥3 key experiences captured
-    - ≥2 domain expertise areas identified
-    - ≥3 distinct citations
-    - Research confidence is High or Medium
-    - ≤2 information gaps remain
+    Simple Sufficiency Criteria (v1.0-minimal):
+    - ≥3 citations
+    - Non-empty research summary
 
     Args:
-        step_input: Agno StepInput containing previous step content
+        research: ExecutiveResearchResult to evaluate
 
     Returns:
-        StepOutput with enriched research + is_sufficient flag
-        success=True if sufficient (skip supplemental search)
-        success=False if insufficient (trigger supplemental search)
+        True if sufficient (skip incremental search)
+        False if insufficient (trigger single incremental search agent step)
+
+    Notes:
+        - v1 uses minimal criteria
+        - Phase 2+ can add: experience count, expertise areas, confidence level
+        - This is a pure function, no complex workflow types needed
     """
     pass
 ```
 
 ### Score Calculation Interface
 
-**Purpose:** Calculate overall score from dimension scores using evidence-aware weighting.
+**Purpose:** Calculate overall score from dimension scores using simple average.
 
 **Signature:**
 ```python
 from typing import Optional
-from models.assessment import DimensionScore
+from models import DimensionScore
 
-def calculate_overall_score(
-    dimension_scores: list[DimensionScore],
-    spec_weights: dict[str, float]
-) -> Optional[float]:
-    """Calculate weighted overall score (0-100 scale) from dimension scores.
+def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[float]:
+    """Calculate simple average score from dimensions with scores.
 
-    Evidence-Aware Algorithm:
+    Simple Average Algorithm (v1.0-minimal):
     1. Filter to scored dimensions (score is not None)
-    2. If fewer than 2 dimensions scored, return None
-    3. Restrict and renormalize weights to scored dimensions only
-    4. Compute weighted average on 1-5 scale
-    5. Optionally boost High evidence dimensions
-    6. Scale to 0-100 and round to 1 decimal
+    2. If no dimensions scored, return None
+    3. Compute average on 1-5 scale
+    4. Scale to 0-100 (multiply by 20)
 
     Args:
         dimension_scores: List of DimensionScore objects from assessment
-        spec_weights: Human-designed weights from role spec (dimension -> weight)
 
     Returns:
-        Overall score (0-100) or None if insufficient scoreable dimensions
+        Overall score (0-100) or None if no dimensions scored
 
     Example:
         >>> scores = [
-        ...     DimensionScore(dimension="Fundraising", score=4, weight=0.25, ...),
-        ...     DimensionScore(dimension="Operations", score=3, weight=0.20, ...),
-        ...     DimensionScore(dimension="Strategy", score=None, weight=0.15, ...),
+        ...     DimensionScore(dimension="Fundraising", score=4, ...),
+        ...     DimensionScore(dimension="Operations", score=3, ...),
+        ...     DimensionScore(dimension="Strategy", score=None, ...),  # Unknown
         ... ]
-        >>> weights = {"Fundraising": 0.25, "Operations": 0.20, "Strategy": 0.15, ...}
-        >>> calculate_overall_score(scores, weights)
-        73.3  # Only Fundraising and Operations scored
+        >>> calculate_overall_score(scores)
+        70.0  # (4 + 3) / 2 * 20
+
+    Notes:
+        - v1 uses simple average (no weights)
+        - Spec-defined weights remain in AssessmentResult for reference
+        - Phase 2+ can implement weighted algorithm if needed
+        - Demonstrates evidence-aware concept without complexity
     """
     pass
 ```
@@ -391,41 +351,44 @@ class AirtableClient:
         """
         pass
 
-    def create_workflow_record(
+    def write_assessment(
         self,
         screen_id: str,
         candidate_id: str,
-        status: str = "Queued"
-    ) -> str:
-        """Create workflow audit trail record.
-
-        Args:
-            screen_id: Parent screen record ID
-            candidate_id: Candidate being evaluated
-            status: Initial workflow status
-
-        Returns:
-            Created workflow record ID
-        """
-        pass
-
-    def write_assessment(
-        self,
-        workflow_id: str,
         assessment: AssessmentResult,
-        role_id: str,
-        spec_id: str
+        research: Optional[ExecutiveResearchResult] = None
     ) -> str:
         """Write assessment results to Airtable.
 
         Args:
-            workflow_id: Parent workflow record ID
+            screen_id: Parent screen record ID
+            candidate_id: Candidate being evaluated
             assessment: Assessment result from agent
-            role_id: Role being evaluated for
-            spec_id: Spec used for evaluation
+            research: Optional research result for audit trail
 
         Returns:
             Created assessment record ID
+
+        Notes:
+            - Writes assessment JSON
+            - Writes key summary fields (overall_score, confidence, summary)
+            - Optionally writes research JSON if provided
+            - Updates status field on success/failure
+        """
+        pass
+
+    def update_screen_status(
+        self,
+        screen_id: str,
+        status: str,
+        error_message: Optional[str] = None
+    ) -> None:
+        """Update screen status field.
+
+        Args:
+            screen_id: Screen record ID
+            status: New status (e.g., "Processing", "Complete", "Failed")
+            error_message: Optional error message if status is "Failed"
         """
         pass
 ```
@@ -459,11 +422,10 @@ class CareerEntry(BaseModel):
     key_achievements: list[str] = Field(default_factory=list)
 
 class ExecutiveResearchResult(BaseModel):
-    """Structured research output from parser agent.
+    """Structured research output from Deep Research agent.
 
-    This model is produced by a parser agent (gpt-5-mini or gpt-5) that
-    processes Deep Research markdown + citations or fast web-search results
-    into a structured format for downstream assessment.
+    This model is produced directly by Agno agent with output_model parameter.
+    No separate parser agent needed in v1.0-minimal.
     """
     exec_name: str
     current_role: str
@@ -519,7 +481,7 @@ class ExecutiveResearchResult(BaseModel):
 - `research_confidence`: Overall confidence (High/Medium/Low)
 - `gaps`: Information not found or unclear
 - `research_timestamp`: When research was conducted
-- `research_model`: Model used (e.g., "o4-mini-deep-research", "gpt-5+web_search")
+- `research_model`: Model used (e.g., "o4-mini-deep-research")
 
 **Constraints:**
 - `exec_name` must be non-empty
@@ -592,19 +554,28 @@ class AssessmentResult(BaseModel):
 - `role_spec_used`: Spec identifier for audit trail
 
 **Constraints:**
-- `overall_score` is nullable (None if <2 dimensions scored)
+- `overall_score` is nullable (None if no dimensions scored)
 - `dimension_scores.score` uses None for Unknown (not 0, NaN, or empty)
 - `summary` should be 2-3 sentences
 
-### Entity: WorkflowEvent
+### Entity: WorkflowEvent (Phase 2+)
 
+**Note:** WorkflowEvent entity and SQLite storage are **Phase 2+ enhancements**, not required for v1.0-minimal.
+
+For v1.0-minimal:
+- Rely on Airtable fields for final state (status, error messages, execution metadata)
+- Use terminal logs (Python `logging` module) for execution visibility
+- Agno's event streaming enabled for stdout logging only (`stream_events=True`)
+- No separate database for workflow events
+
+**Phase 2+ WorkflowEvent Model:**
 ```python
 from pydantic import BaseModel
 from typing import Literal, Optional, Any
 from datetime import datetime
 
 class WorkflowEvent(BaseModel):
-    """Single event in workflow execution audit trail."""
+    """Single event in workflow execution audit trail (Phase 2+)."""
     timestamp: datetime
     event: Literal[
         "workflow_started",
@@ -613,22 +584,11 @@ class WorkflowEvent(BaseModel):
         "step_completed",
         "tool_call_started",
         "tool_call_completed",
-        "condition_execution_started",
-        "condition_execution_completed",
-        "loop_iteration_started",
-        "loop_iteration_completed",
     ]
     step_name: Optional[str] = None
     message: str
     metadata: Optional[dict[str, Any]] = None
 ```
-
-**Fields:**
-- `timestamp`: Event timestamp
-- `event`: Event type from Agno workflow
-- `step_name`: Step identifier (if applicable)
-- `message`: Human-readable event description
-- `metadata`: Additional context (tool args, results, etc.)
 
 ---
 
@@ -638,9 +598,8 @@ class WorkflowEvent(BaseModel):
 
 - **Research Phase:**
   - Deep Research mode: 2-5 minutes per candidate
-  - Fast mode: 30-60 seconds per candidate
   - Quality check: <1 second
-  - Supplemental search iteration: 30-60 seconds
+  - Optional incremental search: 30-60 seconds (single agent step, up to 2 web/search calls)
 - **Assessment Phase:**
   - Assessment agent: 30-60 seconds per candidate
 - **Full Workflow:** <10 minutes per candidate (including LLM API calls)
@@ -649,12 +608,13 @@ class WorkflowEvent(BaseModel):
 
 ### Scalability
 
-**For Demo (v1.0):**
+**For Demo (v1.0-minimal):**
 - **Concurrency:** Synchronous execution (one candidate at a time)
 - **Throughput:** 1 screen request per Flask worker
 - **Workers:** Single Flask process sufficient for demo
+- **Candidates:** Up to ~10 candidates per Screen
 
-**For Production (v2.0+):**
+**For Production (Phase 2+):**
 - **Horizontal Scaling:** Multiple Flask workers (3-5 per server)
 - **Async Processing:** asyncio.gather() for concurrent candidate screening
 - **Queue-Based:** Celery/RQ for long-running workflows
@@ -668,26 +628,36 @@ class WorkflowEvent(BaseModel):
   - `.env` file for local development
   - `.env` in `.gitignore`
   - No secrets in Airtable automations
-- **No SQL Injection Risk:** Using Airtable API and SQLite (workflow events only)
+- **No SQL Injection Risk:** Using Airtable API (no SQL database in v1)
 
 ### Reliability
 
 - **Uptime:** Not applicable (local demo server)
 - **Error Handling:**
-  - Agent-level retries: exponential_backoff=True, retries=2
-  - Workflow failures: Mark Workflow record as "Failed" with error message
+  - Agent-level retries: exponential_backoff=True, retries=2 (Agno built-in)
+  - Workflow failures: Update Airtable status to "Failed" with error message
   - Graceful degradation: Continue processing other candidates if one fails
 - **Recovery:** Manual restart of Flask server if needed
 - **Monitoring:** Terminal logs with emoji indicators (🔍, ✅, ❌)
 
 ### Testing
 
-- **Unit Tests:** pytest (50%+ coverage target)
-- **Coverage Scope:** Core matching logic, scoring, quality checks
-- **Integration Tests:** End-to-end workflow execution with mock data
-- **Type Checking:** mypy (standard mode, not strict)
+**v1.0-minimal Testing Scope:**
+- **Core Logic Tests:** Basic tests for scoring and quality check
+- **Test Files:**
+  - `test_scoring.py` - calculate_overall_score, etc.
+  - `test_quality_check.py` - quality check heuristics
+  - `test_workflow_smoke.py` - happy-path /screen flow with mocks (optional)
+- **Coverage:** No strict percentage requirement; focus on correctness
+- **Type Checking:** Type hints on public functions (mypy as goal, not gate)
 - **Formatting:** ruff format (black-compatible)
 - **Linting:** ruff check
+
+**Phase 2+ Testing Enhancements:**
+- 50%+ coverage target
+- Comprehensive integration tests
+- Strict mypy mode
+- CI/CD pipeline
 
 ### Deployment
 
@@ -696,7 +666,7 @@ class WorkflowEvent(BaseModel):
 - **Tunnel:** ngrok for webhook connectivity
 - **Configuration:** Environment variables via `.env` file
 - **Dependencies:** uv for package management
-- **Database:** Airtable (primary), SQLite (workflow events)
+- **Database:** Airtable only (no SQLite in v1)
 
 ---
 
@@ -724,20 +694,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",            # Testing framework
-    "pytest-cov>=4.1.0",        # Coverage reporting
     "ruff>=0.1.0",              # Formatting + linting
-    "mypy>=1.7.0",              # Type checking
+    "mypy>=1.7.0",              # Type checking (optional)
 ]
 ```
 
-### Optional Dependencies
-
-```toml
-[project.optional-dependencies]
-observability = [
-    "structlog>=23.1.0",        # Structured logging (if time permits)
-]
-```
+**Note:** `structlog` removed from dependencies for v1.0-minimal. Standard Python `logging` is sufficient.
 
 ---
 
@@ -773,13 +735,11 @@ Content-Type: application/json
     "results": [
         {
             "candidate_id": "recXYZ1",
-            "workflow_id": "recWF1",
             "overall_score": 78.0,
             "confidence": "High"
         },
         {
             "candidate_id": "recXYZ2",
-            "workflow_id": "recWF2",
             "overall_score": 65.3,
             "confidence": "Medium"
         }
@@ -798,8 +758,7 @@ Content-Type: application/json
     "errors": [
         {
             "candidate_id": "recXYZ3",
-            "error": "Research agent failed after 2 retries",
-            "workflow_id": "recWF3"
+            "error": "Research agent failed after 2 retries"
         }
     ]
 }
@@ -842,14 +801,14 @@ def run_screening():
             return {"error": "screen_id required"}, 400
 
         # Update screen status to Processing
-        airtable.update_screen(screen_id, status="Processing")
+        airtable.update_screen_status(screen_id, status="Processing")
 
         # Get screen details
         screen = airtable.get_screen(screen_id)
         candidates = airtable.get_linked_candidates(screen)
         role_spec = airtable.get_role_spec(screen['role_spec_id'])
 
-        # Process candidates (synchronous for demo)
+        # Process candidates (synchronous for v1)
         results = []
         errors = []
 
@@ -862,6 +821,7 @@ def run_screening():
                 )
                 results.append(result)
             except Exception as e:
+                logger.error(f"❌ Candidate failed: {candidate['id']} - {e}")
                 errors.append({
                     "candidate_id": candidate['id'],
                     "error": str(e)
@@ -869,7 +829,7 @@ def run_screening():
 
         # Update screen status
         final_status = "Complete" if not errors else "Partial"
-        airtable.update_screen(screen_id, status=final_status)
+        airtable.update_screen_status(screen_id, status=final_status)
 
         return {
             "status": "success" if not errors else "partial",
@@ -881,8 +841,8 @@ def run_screening():
         }
 
     except Exception as e:
-        logger.error("screening_failed", screen_id=screen_id, error=str(e))
-        airtable.update_screen(screen_id, status="Failed", error=str(e))
+        logger.error(f"❌ Screening failed: {screen_id} - {e}")
+        airtable.update_screen_status(screen_id, status="Failed", error_message=str(e))
         return {"error": str(e)}, 500
 ```
 
@@ -901,7 +861,7 @@ LOG_LEVEL=INFO
 
 # OpenAI
 OPENAI_API_KEY=sk-...
-USE_DEEP_RESEARCH=true  # Toggle research mode (true=deep, false=fast)
+USE_DEEP_RESEARCH=true  # v1: always true; fast mode is Phase 2+
 
 # Airtable
 AIRTABLE_API_KEY=pat...
@@ -912,15 +872,8 @@ FLASK_HOST=0.0.0.0
 FLASK_PORT=5000
 FLASK_DEBUG=true
 
-# Workflow
-MIN_EXPERIENCES=3
-MIN_EXPERTISE=2
+# Quality Check (v1 minimal)
 MIN_CITATIONS=3
-MAX_GAPS=2
-MAX_SUPPLEMENTAL_ITERATIONS=3
-
-# SQLite (workflow events)
-WORKFLOW_DB_PATH=tmp/screening_workflows.db
 ```
 
 ### Configuration Files
@@ -929,59 +882,16 @@ WORKFLOW_DB_PATH=tmp/screening_workflows.db
 - `.python-version`: Python version (3.11)
 - `.env`: Environment variables (local dev, not committed)
 - `.env.example`: Template for environment variables
-- `ruff.toml`: Linter configuration (if needed)
-- `mypy.ini`: Type checker configuration (if needed)
 
 ---
 
 ## Error Handling
 
-### Error Hierarchy
-
-```python
-class TalentSignalError(Exception):
-    """Base exception for Talent Signal Agent."""
-    pass
-
-class AirtableError(TalentSignalError):
-    """Airtable API operation failed."""
-    pass
-
-class ResearchError(TalentSignalError):
-    """Research agent execution failed."""
-    pass
-
-class AssessmentError(TalentSignalError):
-    """Assessment agent execution failed."""
-    pass
-
-class WorkflowError(TalentSignalError):
-    """Workflow execution failed."""
-    pass
-
-class ValidationError(TalentSignalError):
-    """Input validation failed."""
-    pass
-```
-
-### Error Response Format
-
-```json
-{
-    "error": "ResearchError",
-    "message": "Deep Research API failed after 2 retries",
-    "details": {
-        "candidate_id": "recXYZ",
-        "research_model": "o4-mini-deep-research",
-        "attempts": 2,
-        "last_error": "Rate limit exceeded"
-    },
-    "workflow_id": "recWF123",
-    "timestamp": "2025-01-16T10:30:00Z"
-}
-```
-
 ### Error Handling Strategy
+
+**v1.0-minimal Error Handling:**
+
+For v1.0-minimal, use basic Python exceptions and error logging. No custom error hierarchy needed.
 
 **Agent-Level (Agno built-in):**
 ```python
@@ -993,21 +903,27 @@ agent = Agent(
 )
 ```
 
-**Workflow-Level (Custom):**
+**Workflow-Level (Basic Exception Handling):**
 ```python
 try:
     result = await workflow.arun(input=prompt)
 except Exception as e:
-    logger.error("workflow_failed", error=str(e))
-    airtable.update_workflow(workflow_id, status="Failed", error=str(e))
-    raise WorkflowError(f"Workflow execution failed: {e}")
+    logger.error(f"❌ Workflow failed: {e}")
+    airtable.update_screen_status(screen_id, status="Failed", error_message=str(e))
+    raise
 ```
 
 **Graceful Degradation:**
 - If one candidate fails, continue processing others
-- Mark failed workflows individually
+- Update Airtable status individually per candidate
 - Return partial results with error details
 - Update Screen status to "Partial" if any candidates failed
+
+**Phase 2+ Enhancements:**
+- Custom error hierarchy (TalentSignalError, ResearchError, etc.)
+- Structured error responses
+- Error recovery strategies
+- Detailed error metadata
 
 ---
 
@@ -1015,7 +931,8 @@ except Exception as e:
 
 ### Logging
 
-**Setup (using standard logging for demo):**
+**v1.0-minimal Logging (Python standard library):**
+
 ```python
 import logging
 
@@ -1033,66 +950,171 @@ logger.info(f"✅ Research complete - {len(citations)} citations found")
 logger.error(f"❌ Assessment failed: {error}")
 ```
 
-**Optional: Structured Logging (if time permits):**
-```python
-import structlog
-
-logger = structlog.get_logger()
-logger.info("research_started", candidate_id="recXYZ", mode="deep_research")
-logger.info("research_completed", candidate_id="recXYZ", citations=12, confidence="High")
-```
+**Phase 2+ Enhancements:**
+- Structured logging with `structlog`
+- Log aggregation
+- Metrics collection
+- Rich event metadata
 
 ### Metrics (Terminal Output)
 
+For v1.0-minimal, log key metrics to terminal:
 - Workflow execution time (per candidate)
-- Supplemental search trigger rate
-- Quality check pass/fail rate
+- Quality check pass/fail
 - Overall score distribution
 - Token usage (from OpenAI API responses)
 
 ### Audit Trail
 
-**Storage:** SQLite database (`tmp/screening_workflows.db`)
+**v1.0-minimal Audit Trail:**
+- **Primary:** Airtable fields (status, error messages, assessment JSON, research JSON)
+- **Secondary:** Terminal logs during execution
+- **Agno Events:** Enable `stream_events=True` for stdout logging only (not persisted)
 
-**Captured Events:**
-- All Agno workflow events (via `store_events=True`)
-- Step execution timestamps and durations
-- Tool calls (web searches, API calls)
-- Condition evaluations (quality gate, loop end condition)
-- Loop iterations (supplemental search)
-
-**Access:**
-```python
-workflow_run = await workflow.arun(input=prompt)
-events = workflow_run.events  # List of WorkflowEvent objects
-
-# Store in Airtable for persistence
-airtable.update_workflow(
-    workflow_id=workflow_id,
-    execution_log=json.dumps([e.dict() for e in events])
-)
-```
+**Phase 2+ Enhancements:**
+- SQLite database for workflow events (`tmp/screening_workflows.db`)
+- Full event capture and persistence
+- Event replay capability
+- Detailed audit queries
 
 ---
 
 ## Workflow Specification Reference
 
-Complete workflow implementation details are in `demo_planning/screening_workflow_spec.md`.
+### v1.0-Minimal Workflow
 
-**Key Components:**
-- Step 1: Deep Research Agent (o4-mini-deep-research or gpt-5 + web_search)
-- Step 2: Quality Check (custom function, sufficiency criteria)
-- Step 3: Conditional Supplemental Search (gpt-5 + web_search, max 3 iterations)
-- Step 4: Assessment Agent (gpt-5-mini with role spec)
+**Linear Flow (4 steps):**
 
-**Execution Modes:**
-- Synchronous (demo v1.0): Process candidates sequentially
-- Async (future v2.0): Process candidates concurrently with asyncio.gather()
+1. **Deep Research Agent**
+   - Use `o4-mini-deep-research` model
+   - Configure with Agno's `output_model=ExecutiveResearchResult`
+   - Returns structured research directly (no parser needed)
+   - Built-in retry: `exponential_backoff=True, retries=2`
 
-**Event Streaming:**
-- All workflow steps captured with `stream=True, stream_events=True`
-- Events logged to terminal and stored in SQLite
-- Full audit trail for transparency and debugging
+2. **Quality Check**
+   - Pure Python function: `check_research_quality(research) -> bool`
+   - Simple criteria: ≥3 citations, non-empty summary
+   - Returns True (sufficient) or False (needs incremental search)
+
+3. **Conditional Incremental Search (Optional)**
+   - Triggered only if quality check returns False
+   - Single agent step (not a loop)
+   - Agent may perform up to 2 web/search calls internally
+   - Merge results with original research
+   - No multi-iteration loops in v1
+
+4. **Assessment Agent**
+   - Use `gpt-5-mini` model
+   - Configure with Agno's `output_model=AssessmentResult`
+   - Returns structured assessment directly (no parser needed)
+   - Overall score calculated in Python: `calculate_overall_score(dimension_scores)`
+
+**Implementation Pattern:**
+```python
+from agno import Workflow, Agent
+
+# Create workflow
+workflow = Workflow(
+    name="candidate_screening",
+    stream_events=True,  # Log events to stdout
+)
+
+# Step 1: Deep Research
+research_agent = create_research_agent(use_deep_research=True)
+research = await research_agent.arun(prompt)
+
+# Step 2: Quality Check
+is_sufficient = check_research_quality(research)
+
+# Step 3: Conditional Incremental Search
+if not is_sufficient:
+    search_agent = create_incremental_search_agent()
+    supplement = await search_agent.arun(prompt)
+    research = merge_research(research, supplement)
+
+# Step 4: Assessment
+assessment_agent = create_assessment_agent()
+assessment = await assessment_agent.arun(prompt)
+assessment.overall_score = calculate_overall_score(assessment.dimension_scores)
+```
+
+**Phase 2+ Enhancements:**
+- Multi-iteration supplemental search loops
+- Fast mode (gpt-5 + web_search)
+- Parallel candidate processing
+- Team-based agent coordination
+- Advanced quality metrics
+
+---
+
+## Agno Framework Implementation Guidance
+
+### Recommended Native Agno Features for v1.0-Minimal
+
+**Use These Agno Patterns:**
+
+1. **Structured Outputs (Native):**
+   ```python
+   from agno import Agent, OpenAIResponses
+   from models import ExecutiveResearchResult
+
+   agent = Agent(
+       name="research_agent",
+       model=OpenAIResponses(id="o4-mini-deep-research"),
+       output_model=ExecutiveResearchResult,  # Returns Pydantic model directly
+   )
+   ```
+   - No separate parser agent needed
+   - No custom JSON parsing prompts
+   - Direct Pydantic model output
+
+2. **Single Workflow for Orchestration:**
+   ```python
+   from agno import Workflow
+
+   workflow = Workflow(
+       name="screening",
+       stream_events=True,  # Log to stdout
+   )
+   ```
+   - Linear workflow (no teams, no nested workflows in v1)
+   - Simple, sequential steps
+   - Event streaming for visibility
+
+3. **Built-in Retry/Backoff:**
+   ```python
+   agent = Agent(
+       model=OpenAIResponses(id="o4-mini-deep-research"),
+       exponential_backoff=True,
+       retries=2,
+       retry_delay=1,
+   )
+   ```
+   - No custom retry wrappers needed
+   - Handles transient API failures
+   - Configurable backoff strategy
+
+4. **OpenAI Web Search Tools:**
+   ```python
+   from agno.tools.openai import web_search
+
+   agent = Agent(
+       name="incremental_search",
+       model=OpenAIResponses(id="gpt-5"),
+       tools=[web_search],  # Built-in web search
+   )
+   ```
+   - Use Agno's built-in OpenAI tools
+   - No hand-written HTTP calls
+   - Integrated with agent framework
+
+**Do NOT Use in v1.0-Minimal:**
+
+- AGNO memory / Postgres DB (`enable_user_memories`, `enable_agentic_memory`)
+- AGNO Teams or multi-agent coordination
+- Large toolkits unrelated to core functionality (Notion, Slack, etc.)
+- Nested workflows or complex state machines
+- Event persistence to databases (stream to stdout only)
 
 ---
 
@@ -1107,7 +1129,6 @@ Complete Airtable schema is in `demo_planning/airtable_schema.md`.
 - **Role_Specs (6 records):** 2 templates + 4 customized specs
 - **Searches (4 records):** Active talent searches linking roles to specs
 - **Screens (4 records):** Screening batches (3 pre-run + 1 live demo)
-- **Workflows (~12-15 records):** Execution audit trail (one per candidate-screen pair)
 - **Research_Results (~12-15 records):** Structured research outputs
 - **Assessments (~12-15 records):** Assessment results with dimension scores
 
@@ -1117,81 +1138,74 @@ Complete Airtable schema is in `demo_planning/airtable_schema.md`.
 - Trigger Value: "Ready to Screen" (change from "Draft")
 - Action: POST to Flask `/screen` endpoint with `screen_id`
 
+**v1.0-minimal Changes:**
+- No Workflows table (Phase 2+)
+- Status and error tracking in Screens and Assessments tables
+- Research and Assessment JSON stored in respective tables
+
 ---
 
 ## Implementation Checklist
 
-### Phase 1: Setup (4 hours)
-- [x] Create project structure
+### Phase 1: Setup (2 hours)
+- [x] Create minimal project structure (5 files)
 - [x] Set up Python environment (uv, .python-version)
 - [ ] Install dependencies (pyproject.toml)
 - [ ] Configure environment variables (.env)
-- [ ] Create Pydantic models (models/)
+- [ ] Create Pydantic models (models.py)
 - [ ] Validate against data_design.md schemas
 
-### Phase 2: Agent Implementation (8 hours)
-- [ ] Implement research agent (agents/research_agent.py)
+### Phase 2: Agent Implementation (6 hours)
+- [ ] Implement research agent (agents.py)
   - [ ] Deep Research mode (o4-mini-deep-research)
-  - [ ] Fast mode (gpt-5 + web_search)
-  - [ ] Environment toggle (USE_DEEP_RESEARCH)
-- [ ] Implement assessment agent (agents/assessment_agent.py)
+  - [ ] Agno structured outputs (output_model)
+  - [ ] Built-in retry/backoff
+- [ ] Implement assessment agent (agents.py)
   - [ ] Spec-guided evaluation
   - [ ] Evidence-aware scoring (None for Unknown)
-  - [ ] Web search capability for verification
-- [ ] Implement web search agent (agents/web_search_agent.py)
-  - [ ] Supplemental search for gaps
-  - [ ] Targeted query generation
+  - [ ] Agno structured outputs
+- [ ] Implement incremental search agent (agents.py)
+  - [ ] Optional single-step search
+  - [ ] Built-in web_search tool
+  - [ ] Research merging
 
-### Phase 3: Workflow Implementation (6 hours)
-- [ ] Create workflow definition (workflows/screening_workflow.py)
+### Phase 3: Workflow Implementation (4 hours)
+- [ ] Create workflow in agents.py
   - [ ] Step 1: Deep Research
-  - [ ] Step 2: Quality Check (custom function)
-  - [ ] Step 3: Conditional Supplemental Search (with loop)
+  - [ ] Step 2: Quality Check (simple function)
+  - [ ] Step 3: Conditional Incremental Search
   - [ ] Step 4: Assessment
-- [ ] Implement custom workflow functions (workflows/workflow_functions.py)
-  - [ ] check_research_quality()
-  - [ ] coordinate_supplemental_search()
-  - [ ] search_complete() (loop end condition)
-  - [ ] merge_research()
+- [ ] Implement scoring logic
+  - [ ] calculate_overall_score() - simple average × 20
+  - [ ] check_research_quality() - minimal criteria
 - [ ] Test workflow end-to-end with mock data
 
-### Phase 4: Integrations (6 hours)
-- [ ] Implement Airtable client (integrations/airtable_client.py)
+### Phase 4: Integrations (4 hours)
+- [ ] Implement Airtable client (airtable_client.py)
   - [ ] Read operations (get_screen, get_role_spec, etc.)
-  - [ ] Write operations (create_workflow, write_assessment, etc.)
-  - [ ] Status updates (update_screen_status)
-- [ ] Implement Flask webhook server (webhook_server.py)
+  - [ ] Write operations (write_assessment, update_screen_status)
+  - [ ] Error handling
+- [ ] Implement Flask webhook server (app.py)
   - [ ] /screen endpoint
   - [ ] Request validation
   - [ ] Error handling
 - [ ] Set up ngrok tunnel
 
-### Phase 5: Utilities (2 hours)
-- [ ] Implement scoring utilities (utils/scoring.py)
-  - [ ] calculate_overall_score() with evidence-aware weighting
-- [ ] Implement spec parser (utils/spec_parser.py)
-  - [ ] Parse markdown role specs
-  - [ ] Extract dimensions, weights, evidence levels
-- [ ] Set up logging (utils/logger.py)
+### Phase 5: Testing (2 hours)
+- [ ] Basic tests (tests/)
+  - [ ] test_scoring.py - overall score calculation
+  - [ ] test_quality_check.py - quality heuristics
+  - [ ] test_workflow_smoke.py - happy path (optional)
+- [ ] Run tests and verify core logic
 
-### Phase 6: Testing (4 hours)
-- [ ] Unit tests for core logic
-  - [ ] Quality check logic
-  - [ ] Score calculation
-  - [ ] Spec parsing
-- [ ] Integration tests
-  - [ ] End-to-end workflow execution
-  - [ ] Airtable read/write operations
-- [ ] Achieve 50%+ coverage on core logic
-
-### Phase 7: Demo Preparation (4 hours)
+### Phase 6: Demo Preparation (3 hours)
 - [ ] Pre-run 3 scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
 - [ ] Verify results in Airtable
 - [ ] Prepare Estuary CTO for live demo
 - [ ] Test webhook trigger automation
 - [ ] Create demo script with timing estimates
 
-**Total Estimated Time:** 34 hours (includes buffer)
+**Total Estimated Time:** 21 hours (reduced from 34 hours)
 
 ---
 
@@ -1201,10 +1215,10 @@ This specification succeeds if:
 
 1. ✅ **Working Prototype:** Demonstrates end-to-end candidate screening
 2. ✅ **Evidence-Aware Scoring:** Handles Unknown dimensions with None/null (not 0 or NaN)
-3. ✅ **Quality-Gated Research:** Conditional supplemental search works correctly
-4. ✅ **Type Safety:** All public functions have type hints, mypy passes
-5. ✅ **Test Coverage:** Core logic achieves 50%+ coverage
-6. ✅ **Audit Trail:** Full event logging captured and stored
+3. ✅ **Quality-Gated Research:** Optional incremental search triggered when quality is low
+4. ✅ **Minimal Implementation:** 5-file structure, simple algorithms, basic logging
+5. ✅ **Type Safety:** Type hints on public functions (mypy as goal, not gate)
+6. ✅ **Basic Tests:** Core logic tested (scoring, quality check)
 7. ✅ **Demo Ready:** 3 pre-run scenarios complete, 1 ready for live execution
 8. ✅ **Clear Documentation:** This spec + README explain implementation
 
@@ -1217,13 +1231,13 @@ This specification succeeds if:
 **Related Documents:**
 - `spec/constitution.md` - Project governance and principles
 - `spec/prd.md` - Product requirements document
+- `spec/v1_minimal_spec.md` - Minimal scope definition (this document's basis)
 - `case/technical_spec_V2.md` - Detailed technical architecture
 - `demo_planning/data_design.md` - Data models and schemas
-- `demo_planning/screening_workflow_spec.md` - Workflow implementation details
-- `demo_planning/airtable_schema.md` - Airtable database schema
 - `demo_planning/role_spec_design.md` - Role specification framework
 
 **Approval:**
 - Created: 2025-01-16
+- Updated: 2025-01-17 (v1.0-minimal refactor)
 - Status: Ready for Implementation
 - Next Review: Post-implementation retrospective
