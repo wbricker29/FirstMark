@@ -117,6 +117,10 @@ deep_research_agent = Agent(
 
 **Output Schema:**
 ```python
+# NOTE: Canonical research schema (with full fields) is defined in
+# demo_planning/data_design.md. This simplified version highlights
+# the fields most relevant to the screening workflow quality gate.
+
 class Citation(BaseModel):
     url: str
     quote: str
@@ -212,7 +216,8 @@ assessment_agent = Agent(
 
         Your evaluation process:
         1. For each dimension in the role spec:
-           - Score 0-5 (0 = Unknown/No Evidence, 1-5 = strength level)
+           - Score 1-5 (1 = weakest, 5 = strongest)
+           - If there is Unknown/No Evidence, leave the score as null/None
            - Assign confidence (High/Medium/Low)
            - Provide evidence-based reasoning with quotes
            - Cite specific sources
@@ -223,11 +228,12 @@ assessment_agent = Agent(
            - Critical assumptions (counterfactuals)
 
         3. Use web search ONLY if you need to:
-           - Verify specific claims about companies/roles
-           - Look up industry context (e.g., typical metrics for stage/sector)
-           - Validate assumptions critical to assessment
+            - Verify specific claims about companies/roles
+            - Look up industry context (e.g., typical metrics for stage/sector)
+            - Validate assumptions critical to assessment
 
-        Be explicit when evidence is insufficient - use score 0 for Unknown.
+        Be explicit when evidence is insufficient - leave the score as null/None
+        for that dimension instead of guessing.
         Minimize searches - rely primarily on research results provided.
     """,
     output_schema=AssessmentResult,
@@ -239,10 +245,19 @@ assessment_agent = Agent(
 **Output Schema:**
 ```python
 class DimensionScore(BaseModel):
-    dimension_name: str
-    weight: float = Field(description="From role spec (0-1)")
-    evidence_level: str = Field(description="High/Medium/Low from role spec")
-    score: float = Field(ge=0, le=5, description="0=Unknown, 1-5=strength level")
+    # NOTE: Canonical DimensionScore / AssessmentResult definitions live in
+    # demo_planning/data_design.md. This version adds optional fields that are
+    # convenient for the screening workflow implementation.
+
+    dimension: str
+    weight: float = Field(description="From role spec (0-1, used in Python weighting)")
+    evidence_level: str = Field(description="High/Medium/Low from role spec (expected observability)")
+    score: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=5,
+        description="1-5 = strength level; None = Unknown/Insufficient evidence",
+    )
     confidence: str = Field(description="High/Medium/Low")
     evidence: List[str] = Field(description="Specific evidence supporting this score")
     reasoning: str = Field(description="Why this score was assigned")
@@ -250,7 +265,12 @@ class DimensionScore(BaseModel):
 class AssessmentResult(BaseModel):
     candidate_id: str
     role_id: str
-    overall_score: float = Field(ge=0, le=100, description="Calculated in Python, not by LLM")
+    overall_score: Optional[float] = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Calculated in Python, not by LLM",
+    )
     overall_confidence: str = Field(description="High/Medium/Low")
     dimension_scores: List[DimensionScore]
     top_reasons_for: List[str] = Field(description="3-5 key strengths for this role")
@@ -407,7 +427,7 @@ def coordinate_supplemental_search(step_input: StepInput) -> StepOutput:
 
 **Type:** Loop Step
 **Max Iterations:** 3
-**End Condition:** `needs_more_search()` returns `False`
+**End Condition:** `search_complete()` returns `True` (breaks loop when sufficient)
 
 **Loop Content:**
 - **Step:** Web Search Agent
@@ -416,13 +436,13 @@ def coordinate_supplemental_search(step_input: StepInput) -> StepOutput:
 
 **End Condition Implementation:**
 ```python
-def needs_more_search(outputs: list) -> bool:
+def search_complete(outputs: list) -> bool:
     """
-    Determine if we should continue searching.
-    Returns False to break loop, True to continue.
+    Determine if we should stop searching.
+    Returns True to break the loop, False to continue.
     """
     if not outputs:
-        return True  # First iteration, continue
+        return False  # No iterations yet, continue
 
     last_supplement: ResearchSupplement = outputs[-1].content
 
@@ -432,9 +452,9 @@ def needs_more_search(outputs: list) -> bool:
     no_remaining_gaps = len(last_supplement.remaining_gaps) == 0
 
     if sufficient_findings and (high_confidence or no_remaining_gaps):
-        return False  # Break loop
+        return True  # Break loop
 
-    return True  # Continue to next iteration
+    return False  # Continue to next iteration
 ```
 
 **Iteration Context:**
@@ -559,9 +579,9 @@ candidate_screening_workflow = Workflow(
 
         # Step 3: Conditional Supplemental Search
         Condition(
-            name="sufficient_check",
-            description="Check if research is sufficient for assessment",
-            evaluator=lambda step_input: step_input.previous_step_content["is_sufficient"],
+            name="supplemental_search_condition",
+            description="Trigger supplemental search when research is insufficient",
+            evaluator=lambda step_input: not step_input.previous_step_content["is_sufficient"],
 
             # Execute these steps only if research is NOT sufficient
             steps=[
@@ -583,7 +603,7 @@ candidate_screening_workflow = Workflow(
                             agent=web_search_agent,
                         ),
                     ],
-                    end_condition=needs_more_search,
+                    end_condition=search_complete,
                     max_iterations=3,
                 ),
 
@@ -683,7 +703,12 @@ async def screen_candidate(candidate, role_spec):
 ```python
 @app.route('/screen', methods=['POST'])
 async def run_screening():
-    """Flask endpoint for batch candidate screening."""
+    """Flask endpoint for batch candidate screening.
+
+    NOTE: This async pattern is a Phase 2 optimization. For the initial
+    demo, a simpler synchronous endpoint that processes candidates one
+    at a time (as described in case/technical_spec_V2.md) is sufficient.
+    """
     screen_id = request.json['screen_id']
 
     # Get screen details
@@ -1083,12 +1108,22 @@ logger.info("supplemental_search_triggered",
 - **Agno Workflows Documentation:** `reference/docs_and_examples/agno/agno_workflows.md`
 - **Agno Workflow Patterns:** `reference/docs_and_examples/agno/agno_workflowpatterns.md`
 - **OpenAI Integration:** `reference/docs_and_examples/agno/agno_openai_itegration.md`
-- **Technical Specification:** `case/technical_spec.md`
+- **Technical Specification:** `case/technical_spec_V2.md`
 - **Role Spec Design:** `demo_planning/role_spec_design.md`
 - **Data Design:** `demo_planning/data_design.md`
 
 ---
 
+## Changelog
+
+- **2025-11-16**
+  - Fixed conditional supplemental-search logic to only run when research is insufficient (`supplemental_search_condition` evaluator now negates `is_sufficient`).
+  - Corrected loop end-condition semantics to align with Agno (`search_complete` now returns `True` to break the loop).
+  - Updated assessment scoring guidance and `DimensionScore` schema to use evidence-aware `None` for Unknown, consistent with `demo_planning/data_design.md`.
+  - Added notes pointing to canonical schema definitions in `demo_planning/data_design.md`.
+  - Clarified that the async batch `/screen` endpoint is a Phase 2 optimization and that v1 can use a simpler synchronous implementation.
+  - Updated technical spec reference to `case/technical_spec_V2.md`.
+
 **Document Status:** Implementation Ready
-**Last Updated:** 2025-01-16
+**Last Updated:** 2025-11-16
 **Next Steps:** Begin implementation in `demo_files/` directory

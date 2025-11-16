@@ -18,7 +18,8 @@
 - Candidate Profiles: OUT OF SCOPE (bespoke research per role instead)
 
 **Assessment Approach:**
-- Two evaluations confirmed: Spec-based + AI-generated rubric (both)
+- Single evaluation (Spec-guided): Evidence-aware scoring with confidence levels
+- AI-generated rubric: Explicitly deferred to Phase 2+ (not in demo v1)
 - Role specs: Fully defined in `demo_planning/role_spec_design.md`
 
 **Demo Strategy:**
@@ -40,8 +41,8 @@
 2. ✅ **Counterfactuals definition** - APPROVED
    - Decision: "Key reasons candidate might NOT be ideal fit despite high score + Assumptions or evaluation results that are most important/must be true"
 3. ✅ **Execution times** - RESOLVED
-   - Deep Research: 3-6 min/candidate (4-8 min for 10 async)
-   - Web Search fallback: 1-2 min/candidate (2-3 min for 10 async)
+   - Deep Research: 3-6 min/candidate (~30-60 min for 10 sequential)
+   - Web Search fallback: 1-2 min/candidate (~10-20 min for 10 sequential)
 4. **OpenAI API integration review** (1 hour) - Understand response format, structured outputs, web search tool usage
 5. **Airtable schema details** (2 hours) - Complete field definitions for all tables
 
@@ -60,9 +61,9 @@
 - [x] ~~Define what "counterfactuals" means~~ → **APPROVED**
   - **Decision:** "Key reasons candidate might NOT be ideal fit despite high score + Assumptions or evaluation results that are most important/must be true"
   - Implementation: LLM generates critical caveats and key assumptions for each assessment
-- [x] ~~Decide on two evaluation approach~~ → **RESOLVED**
-  - **Decision:** BOTH evaluations confirmed (rubric-based + LLM self-generated)
-  - [ ] Decide how to present/compare results (can iterate during build)
+- [x] ~~Decide on evaluation approach~~ → **RESOLVED**
+  - **Decision:** Single evaluation (spec-guided) with evidence-aware scoring for demo v1
+  - **Future:** AI-generated rubric / alternative evaluation deferred to Phase 2+ (post-demo)
 
 #### Airtable Schema Details
 - [ ] Define complete field list for People Table
@@ -100,15 +101,15 @@
     - Research phase: 2-5 minutes per candidate (o4-mini-deep-research)
     - Assessment phase: 30-60 seconds per candidate (gpt-5-mini)
     - Total per candidate: ~3-6 minutes
-    - Full screen (10 candidates async): ~4-8 minutes
+    - Full screen (10 candidates sequential): ~30-60 minutes
   - **Web Search Mode (Fallback/Fast):**
     - Research phase: 30-60 seconds per candidate (gpt-5 + web search)
     - Assessment phase: 30-60 seconds per candidate
     - Total per candidate: ~1-2 minutes
-    - Full screen (10 candidates async): ~2-3 minutes
+    - Full screen (10 candidates sequential): ~10-20 minutes
 - [x] ~~Plan demo execution strategy based on timing~~ → **RESOLVED**
-  - **Decision:** Use Deep Research for 3 pre-run scenarios; can use Web Search mode for live demo if time-constrained
-  - Async implementation (asyncio.gather) for concurrent candidate processing
+  - **Decision:** Use Deep Research for 3 pre-run scenarios; use Web Search mode or smaller candidate set for live demo if time-constrained
+  - Synchronous implementation (sequential processing) for demo simplicity and reliability
 
 ### MVP Simplifications (Decide Now)
 - [ ] Module 1 (Upload): Build full CSV processing or pre-populate data manually?
@@ -297,7 +298,7 @@
 
 ## Mid Priority
 
-- [ ] Implement second evaluation method (LLM generating own rubric) - if time permits
+- [ ] Implement second evaluation method (LLM generating own rubric) - explicitly deferred to Phase 2+ (post-demo)
 - [ ] Add LinkedIn scraping capability (if needed beyond Deep Research)
 - [ ] Enhanced investigation/drill-down UI in Airtable
 - [ ] Apollo API schema and logistics (for future real implementation discussion)
@@ -343,14 +344,14 @@
    - Implement ExecutiveResearchResult Pydantic schema
    - Create research agent with flexible execution modes (Deep Research vs Web Search)
    - Environment flag for demo flexibility
-2. Assessment module (evaluation logic + two evaluation types)
+2. Assessment module (spec-guided evaluation with evidence-aware scoring)
    - Implement AssessmentResult Pydantic schema
    - Create assessment agent with web search capability
-   - Evidence-aware scoring with confidence levels
+   - Evidence-aware scoring with confidence levels (None/null for insufficient evidence)
 3. Module 4 (Screen workflow) - end-to-end
-   - Async endpoint implementation with asyncio.gather()
-   - Concurrent candidate processing
-   - Real-time status updates
+   - Synchronous endpoint implementation (sequential processing)
+   - Full event streaming for audit trail capture
+   - Real-time status updates via console logs
 4. Expected: 8-10 hours
 
 ### Phase 3: Demo Data & Pre-Runs
@@ -379,8 +380,9 @@
 **Simplified from original:** Skipped Modules 1-3 automation saves ~4-6 hours
 **Implementation Notes:**
 - Implement both Deep Research and Web Search modes with environment flag toggle
-- Async implementation critical for acceptable demo timing (4-8 min vs 30-60 min sequential)
-- This provides demo flexibility: comprehensive results (Deep Research) or faster live execution (Web Search)
+- Synchronous implementation keeps demo simple and reliable (sequential processing)
+- Execution mode flexibility provides demo options: comprehensive results (Deep Research) or faster live execution (Web Search)
+- Async optimization deferred to post-demo phase
 
 ---
 

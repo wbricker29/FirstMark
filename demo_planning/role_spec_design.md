@@ -121,7 +121,7 @@ Below are standard CFO dimensions with their intended weight in the *human* spec
    - Web signals: mentions of “built FP&A function,” “implemented ERP/BI systems,” transformation case studies. Likely sparse; often “Unknown.”
 3. **Strategic Business Partnership (15%, Evidence: Low)**  
    - Cross-functional influence, CEO partnership, strategic decision-making.  
-   - Web signals: occasional quotes about being a “trusted partner,” but mostly internal. Use primarily for qualitative commentary; automated scoring may often be 0/Unknown.
+   - Web signals: occasional quotes about being a “trusted partner,” but mostly internal. Use primarily for qualitative commentary; automated scoring may often be Unknown (null/None).
 4. **Financial Leadership Scope (15%, Evidence: Medium)**  
    - Team size, org-building, process maturity.  
    - Web signals: “built finance team from X→Y,” “first finance hire,” “global team,” leadership awards.
@@ -260,7 +260,7 @@ def parse_role_spec(markdown_text: str) -> dict:
                     'weight': float,           # Human-design weight
                     'evidence_level': str,     # "High" | "Medium" | "Low"
                     'definition': str,
-                    'scale': {5: str, 4: str, 3: str, 2: str, 1: str, 0: str}
+                    'scale': {5: str, 4: str, 3: str, 2: str, 1: str}
                 }
             ],
             'must_haves': list[str],
@@ -300,7 +300,7 @@ Evidence Level: {dim['evidence_level']} (how reliably this can be assessed from 
 Scale:
 {format_scale(dim['scale'])}
 
-Score (0-5, where 0 = Unknown / Not enough public evidence):
+Score (1-5; if there is insufficient public evidence to score this dimension, leave the score unset (null/None) and explicitly explain that it is unscorable from public data):
 Confidence (High/Medium/Low):
 Reasoning:
 Evidence quotes:

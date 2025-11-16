@@ -1,0 +1,53 @@
+<!--
+ORCHESTRATION PLAN TEMPLATE
+
+Usage:
+- Use {variable_name} syntax for all placeholder values
+- Variables are filled in by scripts/synthesize_reports.py or manually
+- Keep structure and emoji consistent with skill guidelines
+- Replace all {variables} before presenting to user
+
+Required variables:
+- {scope_description}: High-level scope summary
+- {agent_count}: Number of agents to deploy
+- {agent_list_with_scopes}: Bulleted list of agents + scopes (one per line)
+- {execution_strategy}: parallel/sequential/mixed
+- {coordination_points}: Handoff descriptions
+- {deliverables}: Expected outputs (bulleted list)
+- {validation_gates}: Quality checks (bulleted list)
+-->
+
+# 🤖 Sub-Agent Orchestration Plan
+
+## Scope
+
+{scope_description}
+
+## Deployment Strategy
+
+**Agents to deploy:** {agent_count}
+
+{agent_list_with_scopes}
+
+## Execution Model
+
+**Strategy:** {execution_strategy}
+
+**Coordination points:**
+{coordination_points}
+
+## Expected Deliverables
+
+{deliverables}
+
+## Validation Gates
+
+{validation_gates}
+
+---
+
+## Ready to Proceed?
+
+Review the plan above. Agents will be deployed in {execution_strategy} mode with the coordination points shown above.
+
+**Proceed with orchestration? (y/n)**

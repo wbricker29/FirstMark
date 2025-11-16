@@ -49,8 +49,12 @@
 - **Primary Method:** OpenAI Deep Research API (`o4-mini-deep-research`)
   - Comprehensive executive research with multi-step reasoning
   - Built-in citation extraction and source tracking
-  - Structured output support via Pydantic schemas
+  - Returns markdown content + citations (no structured JSON)
   - ~2-5 minutes per candidate
+- **Parser Step (Structured Output):** `gpt-5-mini` (or `gpt-5`) parser agent
+  - Consumes Deep Research markdown + citations (or fast web search results)
+  - Produces structured `ExecutiveResearchResult` Pydantic objects
+  - Written to Airtable `Research_Results.research_json` as JSON
 - **Supplemental Method:** OpenAI Web Search Builtin (`web_search_preview`)
   - Assessment agent can verify claims and look up context
   - Person researcher can use for quick fact-checks
@@ -62,6 +66,17 @@
 - **Evidence-Aware Scoring:** Uses `None`/`null` for insufficient evidence (no forced guessing)
 - **Confidence Tracking:** High/Medium/Low based on evidence quality and LLM self-assessment
 - **Model-Generated Rubric:** Explicitly deferred to Phase 2+ (not in demo)
+
+### Planning Document Map
+
+This technical spec is supported by more detailed planning docs:
+- **Data Models / Pydantic Schemas:** `demo_planning/data_design.md`
+- **Airtable Schema & Field Definitions:** `demo_planning/airtable_schema.md`
+- **Role Spec System & Templates:** `demo_planning/role_spec_design.md`
+- **Research Pipeline Details:** `demo_planning/deep_research_findings.md`
+- **Alignment Review & Fix Log:** `demo_planning/alignment_issues_and_fixes.md`
+
+For schema changes, update `data_design.md` first, then sync `airtable_schema.md` and this technical spec.
 
 ### Role Spec Design
 
@@ -110,6 +125,38 @@ Airtable Trigger (Button click OR Status field change)
   - Bounded iteration (max 3 supplemental searches)
   - Full audit trail via event streaming
   - Error handling with exponential backoff
+
+#### Research Quality Gate (Step 2)
+
+The workflow includes an explicit sufficiency check immediately after the deep research agent. This prevents unnecessary supplemental searches and makes the behavior predictable for the demo.
+
+**Sufficiency Criteria:**
+- ≥3 key experiences captured
+- ≥2 domain expertise areas identified
+- ≥3 distinct citations
+- Research confidence is High or Medium
+- ≤2 information gaps remain
+
+**Outputs:**
+- Enriched `ExecutiveResearchResult` plus `quality_metrics`
+- Boolean `is_sufficient`
+- `gaps_to_fill` list for supplemental search instructions
+
+**Decision:** If `is_sufficient = True`, the workflow proceeds directly to assessment. Otherwise the supplemental search branch is invoked.
+
+#### Conditional Supplemental Search (Step 3)
+
+- Triggered only when the quality gate returns `is_sufficient = False`
+- **Step 3a – Prep:** Build targeted prompts/queries anchored to `gaps_to_fill`
+- **Step 3b – Loop:** Web-search agent executes up to **3 iterations**; each iteration receives prior findings to avoid duplication
+- **Step 3c – Merge:** Supplemental findings combine with the original research before assessment
+
+**Loop Mechanics (Step 3b):**
+The loop exits early when both conditions are met:
+1. ≥2 new findings are surfaced during the latest iteration, and
+2. Either (a) the supplemental output’s confidence is High **or** (b) there are no remaining gaps.
+
+If the break condition is never satisfied, the loop halts automatically after the third iteration to preserve deterministic timing for the demo.
 
 ### Flask Endpoints & Trigger Options
 
@@ -243,80 +290,48 @@ Bios and job descriptions will come via txt files.
 
 All LLM interactions use structured outputs via Pydantic models for type safety and consistent parsing.
 
-**Complete schema definitions are in:** `demo_planning/data_design.md` (lines 256-427)
+**📋 Complete schema definitions are in:** `demo_planning/data_design.md` (lines 256-448)
 
-#### ExecutiveResearchResult (Deep Research Output)
+#### Schema Overview
 
-```python
-from pydantic import BaseModel, Field
-from typing import Optional, Literal
-from datetime import datetime
+The following Pydantic models are used throughout the system:
 
-class Citation(BaseModel):
-    url: str
-    quote: str
-    relevance: str = Field(description="Why this source is relevant")
+**Research Output (from o4-mini-deep-research):**
+- `Citation` - Source citation with URL, title, snippet, relevance note
+- `CareerEntry` - Timeline entry for career history with achievements
+- `ExecutiveResearchResult` - Complete research output including:
+  - Career timeline and total years experience
+  - Dimension-aligned fields (fundraising, technical leadership, team building, etc.)
+  - Sector expertise and stage exposure
+  - Research summary, key achievements, notable companies
+  - Citations with full source tracking
+  - **Audit metadata:** research_timestamp, research_model
 
-class CareerEntry(BaseModel):
-    company: str
-    title: str
-    start_date: Optional[str] = None
-    end_date: Optional[str] = None
-    achievements: list[str]
+**Assessment Output (from gpt-5-mini):**
+- `DimensionScore` - Evidence-aware dimension score (1-5 or None for unknown)
+  - Includes evidence level (from spec), confidence (LLM assessment)
+  - Reasoning, evidence quotes, citation URLs
+- `MustHaveCheck` - Must-have requirement evaluation with evidence
+- `AssessmentResult` - Complete assessment including:
+  - Overall score and confidence
+  - Dimension-level scores with evidence
+  - Must-haves check, red flags, green flags
+  - Summary and counterfactuals
+  - **Audit metadata:** assessment_timestamp, assessment_model, role_spec_used
 
-class ExecutiveResearchResult(BaseModel):
-    """Structured output from o4-mini-deep-research."""
-    exec_name: str
-    current_role: str
-    current_company: str
-    career_timeline: list[CareerEntry]
+**Workflow Schemas:**
+- `ResearchSupplement` - Supplemental search findings from iterative web search (Step 3b)
+  - Iteration number, new findings, filled gaps, remaining gaps
+  - See `demo_planning/screening_workflow_spec.md` (lines 187-196)
+- Quality check output structures (enriched research + is_sufficient flag)
+- Merged research structures (original + all supplemental findings)
 
-    # Dimension-aligned fields
-    fundraising_experience: Optional[str] = None  # CFO
-    operational_finance_experience: Optional[str] = None  # CFO
-    technical_leadership_experience: Optional[str] = None  # CTO
-    team_building_experience: Optional[str] = None
-    sector_expertise: list[str]
-    stage_exposure: list[str]
+**Alternative Evaluation (Phase 2+):**
+- `ModelGeneratedDimension` - Model-created evaluation dimension
+- `AlternativeAssessment` - Alternative evaluation using model-generated rubric
+  - **Note:** Out of scope for demo v1
 
-    research_summary: str
-    key_achievements: list[str]
-    citations: list[Citation]
-    research_confidence: str = Field(description="High/Medium/Low based on evidence quality")
-    gaps: list[str] = Field(description="Information not found or unclear")
-```
-
-#### AssessmentResult (Evaluation Output)
-
-```python
-class DimensionScore(BaseModel):
-    """Evidence-aware dimension score."""
-    dimension: str
-    score: Optional[int] = Field(None, ge=1, le=5)  # None = Unknown
-    evidence_level: Literal["High", "Medium", "Low"]  # From spec
-    confidence: Literal["High", "Medium", "Low"]  # LLM assessment
-    reasoning: str
-    evidence_quotes: list[str]
-    citation_urls: list[str]
-
-class MustHaveCheck(BaseModel):
-    requirement: str
-    met: bool
-    evidence: str
-
-class AssessmentResult(BaseModel):
-    """Structured assessment from gpt-5-mini."""
-    overall_score: Optional[float] = Field(None, ge=0, le=100)
-    overall_confidence: Literal["High", "Medium", "Low"]
-    dimension_scores: list[DimensionScore]
-    must_haves_check: list[MustHaveCheck]
-    red_flags_detected: list[str]
-    green_flags: list[str]
-    summary: str
-    counterfactuals: list[str]
-```
-
-#### Schema Design Principles
+#### Key Design Principles
 
 **Evidence-Aware Scoring:**
 - `score: Optional[int]` with range 1-5, where `None` (Python) / `null` (JSON) = Unknown/Insufficient Evidence
@@ -330,18 +345,33 @@ class AssessmentResult(BaseModel):
 - `confidence` (from LLM): Self-assessed certainty given actual evidence found
 - These two signals combine to inform overall confidence calculation
 
+**Audit Metadata (Critical for Compliance):**
+- All research outputs include: `research_timestamp`, `research_model`
+- All assessment outputs include: `assessment_timestamp`, `assessment_model`, `role_spec_used`
+- Enables full audit trail and model tracking
+
 **Overall Score Calculation:**
-- Computed in Python using evidence-aware weighting (see Matching & Ranking Logic section)
-- Dimensions with `score = None` are ignored or down-weighted
-- Optional boost for High evidence level dimensions
-- Result scaled to 0-100 for Airtable display
+Computed in Python using an evidence-aware weighting algorithm over dimension scores:
+
+1. Filter to scored dimensions: `scored_dims = [d for d in dimension_scores if d.score is not None]`.
+2. If fewer than 2 dimensions are scored, return `overall_score = None` (insufficient information).
+3. Take human-designed weights from the role spec for each dimension.
+4. Restrict and renormalize weights to the scored dimensions only so they sum to 1.0.
+5. Compute a weighted average on the 1–5 scale:
+   - `weighted_avg = sum(d.score * w[d.dimension] for d in scored_dims) / sum(w[d.dimension] for d in scored_dims)`.
+6. Optionally apply a modest boost to dimensions whose `evidence_level` is High (implementation detail).
+7. Convert to 0–100 scale: `overall_score = (weighted_avg - 1) * 25`, then round to 1 decimal place.
 
 **Model Usage (demo v1):**
-- Research: `o4-mini-deep-research` → `ExecutiveResearchResult`
+- Research (Deep Mode): `o4-mini-deep-research` → markdown + citations → `gpt-5-mini` parser → `ExecutiveResearchResult`
+- Research (Fast Mode): `gpt-5` + `web_search_preview` → `ExecutiveResearchResult` directly
 - Assessment: `gpt-5-mini` → `AssessmentResult` (spec-guided evaluation only)
-  - Model-generated rubric / `AlternativeAssessment` is explicitly out of scope for the initial demo
 
-**See full schema definitions with usage examples in:** `demo_planning/data_design.md`
+**📖 See for complete details:**
+- **Full Pydantic model definitions:** `demo_planning/data_design.md` (lines 266-387)
+- **Usage examples:** `demo_planning/data_design.md` (lines 389-408)
+- **Schema design notes:** `demo_planning/data_design.md` (lines 410-448)
+- **Evidence-aware scoring patterns and None/null handling**
 
 ---
 
@@ -353,23 +383,30 @@ class AssessmentResult(BaseModel):
 - **Primary Agent:** Agno Agent with OpenAIResponses(id="o4-mini-deep-research")
   - Comprehensive multi-step executive research
   - Custom instructions for executive evaluation context
-  - Structured output using ExecutiveResearchResult Pydantic schema
+  - Returns markdown content with inline citations (no structured JSON)
   - Built-in citation tracking and source extraction
 - **Supplemental Tool:** Web search (`{"type": "web_search_preview"}`)
   - Quick fact-checks for missing details
   - Company context lookups
   - Recent news or role changes
+- **Parser Agent:** `gpt-5-mini` (or `gpt-5`) with `ExecutiveResearchResult` Pydantic schema
+  - Parses Deep Research markdown + citations (or fast web-search results)
+  - Produces structured research objects used by assessment and Airtable
 - **Flexible Mode:** Can switch to web-search-only agent for faster execution
   - Uses GPT-5 with web search tool instead of Deep Research API
-  - Reduces per-candidate time from 2-5 min to 30-60 sec
+  - Reduces per-candidate time from 2–5 min to 30–60 sec
   - Controlled via environment flag for demo flexibility
 
 **Research Storage:**
-- Research Run log in Operations - Workflows table
-- Structured research results using Pydantic schema
-- Citations automatically included from Deep Research API response (URLs + quotes)
-- Web search queries logged separately for transparency
-- All intermediate steps and reasoning captured in audit trail
+- Execution metadata and logs:
+  - Stored in `Operations - Workflows` table (status, timestamps, `execution_log`, errors).
+- Structured research:
+  - Stored in `Research_Results` table using `ExecutiveResearchResult` JSON (`research_json`).
+  - Citations stored as JSON array of citation objects (`citations` field).
+- Web search queries logged separately for transparency.
+- All intermediate steps and reasoning captured in audit trail.
+
+**Workflow Integration:** The `ExecutiveResearchResult` feeds directly into the Step 2 quality gate before any supplemental search decisions are made. See `demo_planning/screening_workflow_spec.md` (Quality Gate section) for end-to-end orchestration.
 
 **Implementation Example (synchronous for demo):**
 
@@ -382,7 +419,7 @@ from agno.models.openai import OpenAIResponses
 USE_DEEP_RESEARCH = os.getenv('USE_DEEP_RESEARCH', 'true').lower() == 'true'
 
 def create_research_agent() -> Agent:
-    """Create research agent with flexible execution mode."""
+    """Create research agent with flexible execution mode and error handling."""
 
     if USE_DEEP_RESEARCH:
         # Comprehensive research mode (slower, higher quality)
@@ -395,6 +432,9 @@ def create_research_agent() -> Agent:
                 Return structured results with citations.
             """,
             output_schema=ExecutiveResearchResult,
+            exponential_backoff=True,  # Auto-retry on provider errors
+            retries=2,
+            retry_delay=1,
         )
     else:
         # Fast web search mode (faster, good quality)
@@ -408,18 +448,41 @@ def create_research_agent() -> Agent:
                 Synthesize findings into structured output with citations.
             """,
             output_schema=ExecutiveResearchResult,
+            exponential_backoff=True,
+            retries=2,
+            retry_delay=1,
         )
 
 def run_deep_research(candidate):
-    """Run research on candidate using configured mode."""
+    """Run research on candidate with full audit trail (synchronous)."""
+    from agno.run import RunEvent
+
     agent = create_research_agent()
     prompt = f"""
     Research executive: {candidate.name}
     Current Role: {candidate.current_title} at {candidate.current_company}
     LinkedIn: {candidate.linkedin_url}
     """
-    result = agent.run(prompt)
-    return result.content  # Returns ExecutiveResearchResult
+
+    # Synchronous streaming for audit trail
+    response = agent.run(prompt, stream=True, stream_events=True)
+
+    # Capture all events for logging
+    events = []
+    final_response = None
+    for event in response:
+        events.append(event)
+
+        # Log tool calls for transparency
+        if event.event == RunEvent.tool_call_started:
+            print(f"🔧 {event.tool.tool_name}: {event.tool.tool_args}")
+
+        final_response = event
+
+    # Store events in Operations - Workflows table
+    store_workflow_events(candidate.id, events)
+
+    return final_response.content  # Returns ExecutiveResearchResult
 ```
 
 ### Assessment Agent
@@ -439,9 +502,12 @@ assessment_agent = Agent(
         - Validate assumptions critical to assessment
 
         Minimize searches - rely primarily on research results provided.
-        Be explicit when evidence is insufficient - use score 0 for Unknown.
+        Be explicit when evidence is insufficient - return score = null (None) for Unknown.
     """,
     output_schema=AssessmentResult,  # Pydantic model for structured output
+    exponential_backoff=True,  # Auto-retry on provider errors
+    retries=2,
+    retry_delay=1,
 )
 ```
 
@@ -450,6 +516,51 @@ assessment_agent = Agent(
 - Reduces "low confidence" scores by allowing context lookups
 - Demonstrates agentic autonomy (agent decides when additional search is needed)
 - All searches logged for transparency and reasoning trail
+
+### Agno Implementation Patterns
+
+**Agent Instantiation:**
+- Agents created per-request (safe pattern for demo)
+- Can also be module-level for performance optimization
+- State managed through session and database, not agent objects
+- Pattern: Create agents inside request handlers or workflow functions
+
+**Event Streaming & Audit Trails:**
+- Use `stream=True, stream_events=True` for full observability
+- Synchronous iteration with regular `for` loop (demo implementation)
+- Captured events: `run_started`, `run_completed`, `tool_call_started`, `tool_call_completed`, `run_content`
+- Store all events in Operations - Workflows table for complete audit trail
+
+**Streaming + Structured Outputs:**
+- Structured outputs work seamlessly with streaming
+- Final event in stream contains the Pydantic model instance
+- Pattern:
+  ```python
+  response = agent.run(prompt, stream=True, stream_events=True)
+  events = []
+  final_response = None
+  for event in response:
+      events.append(event)
+      final_response = event
+
+  result: ExecutiveResearchResult = final_response.content
+  ```
+
+**Error Handling:**
+- Built-in retry with `exponential_backoff=True`
+- Configure retries with `retries=2, retry_delay=1`
+- Automatic handling of provider errors (rate limits, timeouts)
+- Custom error handling via `RetryAgentRun` and `StopAgentRun` exceptions (if needed)
+- If a research or assessment step fails after retries:
+  - Mark the corresponding Workflow record as `Failed`
+  - Populate `error_message` with a concise error summary
+  - Do not crash the entire Flask process; return a 200/OK with `"status": "failed"` so Airtable reflects the failure state.
+
+**Implementation Notes:**
+- All agents configured with basic retry/error handling suitable for the demo.
+- Event streaming provides full transparency for demo and debugging.
+- Synchronous execution keeps implementation simple for the 48-hour constraint.
+- Async optimization deferred to post-demo phase.
 
 ### Matching & Ranking Logic (Evidence-Aware)
 
@@ -488,16 +599,22 @@ assessment_agent = Agent(
 **Implementation Note:**
 
 ```python
-# Filter scored dimensions
-scored_dims = [d for d in dimension_scores if d.score is not None]
+def calculate_overall_score(dimension_scores, spec_weights) -> Optional[float]:
+    # Filter scored dimensions
+    scored = [d for d in dimension_scores if d.score is not None]
+    if len(scored) < 2:
+        return None
 
-# Calculate weighted average (only non-None scores)
-if scored_dims:
-    weighted_sum = sum(d.score * weights[d.dimension] for d in scored_dims)
-    total_weight = sum(weights[d.dimension] for d in scored_dims)
-    overall_score = (weighted_sum / total_weight) * 20  # Scale to 0-100
-else:
-    overall_score = None  # No scoreable dimensions
+    # Restrict and renormalize weights to scored dimensions
+    raw_weights = {d.dimension: spec_weights[d.dimension] for d in scored}
+    total = sum(raw_weights.values())
+    norm_weights = {dim: w / total for dim, w in raw_weights.items()}
+
+    # Weighted average on 1–5 scale
+    weighted_avg = sum(d.score * norm_weights[d.dimension] for d in scored)
+
+    # Scale to 0–100
+    return round((weighted_avg - 1) * 25, 1)
 ```
 
 **Ranking:**
@@ -510,6 +627,29 @@ else:
 **Single Evaluation (Spec-Guided for Demo v1):**
 - **Primary (and only) evaluation:** Spec-guided, evidence-aware scoring as described above. This is the main ranking shown in Airtable.
 - Model-generated rubric / alternative evaluation is a **future experiment**, not implemented for the initial demo.
+
+#### Research Merging (Step 3c)
+
+When supplemental search runs, its outputs are merged back into the original `ExecutiveResearchResult` before assessment so downstream scoring sees a single, enriched object.
+
+- **Experiences & Expertise:** Append `new_findings` that map to key experiences, domain expertise, or leadership evidence.
+- **Citations:** Combine all primary + supplemental citations for transparent sourcing.
+- **Gaps:** Remove any gaps covered in `filled_gaps`; carry forward only unresolved items from `remaining_gaps`.
+- **Confidence:** Upgrade research confidence to "High" once supplemental search finishes (either by meeting the break condition or exhausting 3 iterations).
+
+This merged artifact is the only research object passed into the assessment agent, ensuring the scoring step always consumes the most complete view available. Detailed merge pseudo-code lives in `demo_planning/screening_workflow_spec.md` (Step 3c).
+
+#### Evidence Quote Extraction
+
+Dimension-level reasoning can optionally include short evidence quotes drawn from the research text:
+
+- **Input:** Full `ExecutiveResearchResult` (including `research_summary`, `career_timeline`, and citations) plus the dimension name.
+- **Process:** Call a lightweight `gpt-5-mini` helper with a structured output schema like:
+  - `QuoteExtractionResult = { quotes: list[str] }`
+- **Prompt:** "Extract 1–3 short quotes (1–2 sentences each) from the research that most directly support the score for `<dimension>`."
+- **Output:** A small list of concrete excerpts stored in `DimensionScore.evidence_quotes` (may be empty if nothing is clearly supportive).
+
+This helper is optional for the demo; it can be added as a follow-up enhancement if time permits.
 
 ### Person Enrichment
 
@@ -538,7 +678,7 @@ else:
 - 4–6 weighted dimensions per spec, each with:
   - **Weight** (for human-designed importance)
   - **Evidence Level** (High/Medium/Low – how reliably this can be assessed from public/web data)
-  - **Observable, evidence-based scale** (5–1) plus `0 = Unknown / Not enough public evidence`
+  - **Observable, evidence-based scale** (5–1) plus `None/null = Unknown / Not enough public evidence`
 - CFO and CTO templates include:
   - High-evidence dimensions (e.g., fundraising track record, sector/domain expertise, stage exposure)
   - Medium-/low-evidence dimensions (e.g., culture, product partnership) that are primarily for qualitative commentary
@@ -584,9 +724,18 @@ else:
 def process_upload():
     # Get file from Airtable
     # Clean and normalize
+    # Deduplicate rows (see deduplication strategy below)
     # Load to appropriate table
     # Return status
 ```
+
+**Deduplication Strategy (Demo-Scoped):**
+- Primary key for people imported via CSV:
+  - Use a normalized combination of `full_name` + `current_company` (case-insensitive) as a soft key.
+- Before inserting a new person:
+  - Search the People table for an existing record with the same normalized name + company.
+  - If found, skip insert and attach any additional CSV metadata as an update rather than a new row.
+- This keeps the demo data clean without heavy-weight fuzzy matching.
 
 ### Module 2: New Open Role
 
@@ -669,6 +818,7 @@ def process_upload():
 ```python
 @app.route('/screen', methods=['POST'])
 def run_screening():
+    """Synchronous screening with full event capture for audit trail."""
     screen_id = request.json['screen_id']
 
     # Get screen details + linked candidates
@@ -678,11 +828,22 @@ def run_screening():
     # Process candidates sequentially (simple, reliable for demo)
     results = []
     for candidate in candidates:
+        print(f"📋 Processing: {candidate.name}")
+
+        # Create workflow record for audit trail
         workflow = create_workflow_record(screen_id, candidate.id)
+
+        # Research with event capture (returns ExecutiveResearchResult + events)
         research = run_deep_research(candidate)
+
+        # Assessment with event capture
         assessment = run_assessment(candidate, research, screen.role_spec)
+
+        # Write results to Airtable
         write_results_to_airtable(workflow, research, assessment)
+
         results.append(assessment)
+        print(f"✅ Completed: {candidate.name}")
 
     # Update screen status
     update_screen_status(screen_id, 'Complete')

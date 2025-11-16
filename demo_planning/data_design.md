@@ -209,42 +209,51 @@
 - Synthesia CTO Spec (customized from template)
 - Estuary CTO Spec (customized from template)
 
-### Research Table
+### Research_Results Table
 
-**Status:** Field definitions needed
+**Status:** See finalized field definition in `demo_planning/airtable_schema.md`.
 
-**Purpose:** Stores granular research results for each candidate
+**Purpose:** Stores structured research results for each candidate.
 
-**Questions:**
-- Full research text field (Long Text)?
-- Citation structure: URLs only or full content snapshots?
-- OpenAI Deep Research API response format?
-- Link to People and Workflow tables?
-- Research request parameters storage?
+**Key Fields (summary – canonical source is `airtable_schema.md`):**
+- `research_id` (Auto ID)
+- `workflow` (Link to Workflows)
+- `candidate` (Link to People)
+- `research_summary` (Long Text)
+- `research_json` (Long Text) – full `ExecutiveResearchResult` JSON
+- `citations` (Long Text) – JSON array of citation objects
+- `research_confidence` (Single Select: High/Medium/Low)
+- `research_gaps` (Long Text) – JSON array of gaps
+- `research_timestamp` (DateTime)
+- `research_model` (Single Line Text)
 
-### Role Eval Table
+### Role Eval / Assessments Table
 
-**Status:** Field definitions needed
+**Status:** See finalized `Assessments` table definition in `demo_planning/airtable_schema.md`.
 
-**Purpose:** Stores assessment results for candidate-role pairs
+**Purpose:** Stores assessment results for candidate-role pairs.
 
-**Proposed Fields (grounded, evidence-aware):**
-- `role_eval_id` (Auto ID)
-- `person_link` (Link to People)
-- `role_link` (Link to Portco Role)
-- `screen_link` (Link to Screen)
-- `overall_score` (Number, 0–100) – aggregated from evidence-aware dimension scores
+**Key Fields (summary):**
+- `assessment_id` (Auto ID)
+- `workflow` (Link to Workflows)
+- `candidate` (Link to People)
+- `role` (Link to Portco_Roles)
+- `role_spec` (Link to Role_Specs)
+- `overall_score` (Number, 0–100, nullable)
 - `overall_confidence` (Single Select: High, Medium, Low)
-- `dimension_scores_json` (Long Text) – JSON blob with per-dimension scores:
-  - `dimension_name`
+- `dimension_scores_json` (Long Text) – JSON array of `DimensionScore` objects:
+  - `dimension`
   - `score` (1–5 or `null`, where `null` = Unknown / Insufficient public evidence)
-  - `evidence_level` (High/Medium/Low from spec)
-  - `confidence` (High/Medium/Low)
+  - `evidence_level`
+  - `confidence`
   - `reasoning`
-  - `evidence_quotes` (array of short strings)
-- `reasoning_long` (Long Text) – topline summary and key drivers of the score
-- `counterfactuals` (Long Text) – "what would change the recommendation"
-- `raw_assessment_json` (Long Text, optional) – raw LLM output for debugging
+  - `evidence_quotes` (array of strings)
+  - `citation_urls` (array of URLs)
+- `must_haves_check_json` (Long Text) – JSON array of `MustHaveCheck` objects
+- `red_flags` / `green_flags` (Long Text, JSON arrays)
+- `summary` (Long Text)
+- `counterfactuals` (Long Text, JSON array)
+- `raw_assessment_json` (Long Text, optional)
 
 **Design Notes:**
 - Dimension scores are stored as JSON to avoid constantly changing Airtable fields when specs evolve.
@@ -258,7 +267,7 @@
 
 ### Pydantic Models for LLM Outputs
 
-All LLM interactions use structured outputs via Pydantic models to ensure type safety and consistent parsing.
+All structured LLM interactions (parsing, assessment, fast web-search mode) use Pydantic models to ensure type safety and consistent parsing. Deep Research itself returns markdown + citations, which are parsed into these models.
 
 #### Core Models
 
@@ -268,7 +277,7 @@ from typing import Optional, Literal
 from datetime import datetime
 
 # ============================================================================
-# Research Output Models (from o4-mini-deep-research)
+# Research Output Models (from research pipeline)
 # ============================================================================
 
 class Citation(BaseModel):
@@ -287,7 +296,7 @@ class CareerEntry(BaseModel):
     key_achievements: list[str] = Field(default_factory=list)
 
 class ExecutiveResearchResult(BaseModel):
-    """Structured output from Deep Research API (o4-mini-deep-research)."""
+    """Structured research output produced by a parser agent over Deep Research or fast web-search results."""
     exec_name: str
     current_role: str
     current_company: str
@@ -309,6 +318,10 @@ class ExecutiveResearchResult(BaseModel):
     key_achievements: list[str] = Field(default_factory=list)
     notable_companies: list[str] = Field(default_factory=list)
     citations: list[Citation] = Field(default_factory=list)
+
+    # Confidence & Gaps (aligns with Research_Results table)
+    research_confidence: Literal["High", "Medium", "Low"] = "Medium"
+    gaps: list[str] = Field(default_factory=list)
 
     # Metadata
     research_timestamp: datetime = Field(default_factory=datetime.now)
@@ -389,13 +402,19 @@ class AlternativeAssessment(BaseModel):
 #### Usage Examples
 
 ```python
-# Research Agent (using o4-mini-deep-research)
 from agno import Agent, OpenAIResponses
 
-research_agent = Agent(
-    model=OpenAIResponses(id="o4-mini-deep-research"),
-    instructions="Conduct comprehensive executive research...",
-    response_model=ExecutiveResearchResult,
+# Step 1: Deep Research (markdown + citations)
+deep_research_agent = Agent(
+    model=OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1),
+    instructions="Conduct comprehensive executive research with inline citations..."
+)
+
+# Step 2: Parser → structured ExecutiveResearchResult
+parser_agent = Agent(
+    model=OpenAIResponses(id="gpt-5-mini"),
+    output_schema=ExecutiveResearchResult,
+    instructions="Parse research markdown + citations into structured form."
 )
 
 # Assessment Agent (using gpt-5-mini)
@@ -491,8 +510,8 @@ CSV Upload → Normalize → Dedupe? → Load to People Table
 1. Screen Record Created (links Search + Candidates)
 2. For each candidate:
    a. Create Workflow record
-   b. Run Deep Research API → Store in Research Table
-   c. Run Assessment → Store in Role Eval Table
+   b. Run Deep Research API → Parse to structured research → Store in Research_Results table
+   c. Run Assessment → Store in Assessments table
    d. Update Workflow with logs
 3. Update Screen status to Complete
 4. Generate markdown reports

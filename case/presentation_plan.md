@@ -196,3 +196,13 @@ Evaluators should say "I'd actually use this ranking"
 - The solution (demo)
   - How it works
   - What it does and doesn't address
+
+---
+
+## Items for Review (Sync & Clarify)
+
+- **Implemented vs conceptual components:** Align how you talk about "Role spec generator" and "People Info Enricher" with what is actually implemented vs what is future work in `technical_spec_V2.md` / `solution_strategy_v2_reviewer_draft.md`.
+- **Demo story scope:** Decide whether the primary live arc is a single search (e.g., CFO @ Series B SaaS with ~8 candidates) or the 4‑role set described in the strategy; make sure slides and demo expectations match.
+- **Ingestion emphasis:** Clarify whether CSV ingestion is shown briefly as a conceptual step or as a live component; the strategy treats ingestion as commodity compared to screening/assessment.
+- **Deep Research vs web‑search mode:** Make explicit in the talk track when you are using Deep Research vs a faster web‑search agent, and how that maps to the latency expectations you set.
+- **Airtable‑first flow:** Ensure the on‑screen navigation (tables, views, buttons) matches the end‑to‑end flow described in the strategy: Role Spec → Search → Screen → Workflow/Role Eval drill‑downs.

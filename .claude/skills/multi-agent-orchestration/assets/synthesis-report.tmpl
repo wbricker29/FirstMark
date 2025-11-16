@@ -1,0 +1,59 @@
+<!--
+SYNTHESIS REPORT TEMPLATE
+
+Usage:
+- Use {variable_name} syntax for all placeholder values
+- Variables are filled in by scripts/synthesize_reports.py or manually
+- Keep structure and emoji consistent with skill guidelines
+- Replace all {variables} before presenting to user
+
+Required variables:
+- {agent_summaries}: Per-agent completion summaries (bulleted list)
+- {deliverable_list_with_locations}: Files created/modified with full paths
+- {gate_results}: format|lint|types|tests|coverage results (bulleted list)
+- {coverage_actual}: Actual coverage percentage
+- {coverage_target}: Target coverage percentage
+- {evidence_status}: Verification of completion evidence
+- {files_modified_count}: Number of files modified
+- {files_created_count}: Number of files created
+- {tests_added_count}: Number of tests added
+- {docs_updated}: Documentation updates list
+- {recommended_actions}: Next steps and follow-up actions
+-->
+
+# 📊 Multi-Agent Orchestration Complete
+
+## Deployed Agents
+
+{agent_summaries}
+
+## Deliverables
+
+{deliverable_list_with_locations}
+
+## Validation Results
+
+**Quality Gates:**
+{gate_results}
+
+**Coverage:**
+- Actual: {coverage_actual}%
+- Target: {coverage_target}%
+
+**Evidence Status:**
+{evidence_status}
+
+## Changes Made
+
+- **Files modified:** {files_modified_count}
+- **Files created:** {files_created_count}
+- **Tests added:** {tests_added_count}
+- **Documentation updated:** {docs_updated}
+
+## Next Steps
+
+{recommended_actions}
+
+---
+
+**Orchestration completed successfully. Ready for next phase?**
