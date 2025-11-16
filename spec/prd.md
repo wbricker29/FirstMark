@@ -253,7 +253,7 @@ An AI-powered system that:
 
 ---
 
-## Python-Specific Considerations
+## Python-Specific Considerations@
 
 ### Performance Requirements
 

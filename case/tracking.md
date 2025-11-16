@@ -2,13 +2,49 @@
 
 > Task checklist and progress tracking for FirstMark Talent Signal Agent case study
 > **Presentation:** 5 PM 11/19/2025 (Tuesday)
-> **Last Updated:** 2025-11-16
+> **Last Updated:** 2025-01-16
 
 ---
 
 ## Quick Status Summary
 
-### ✅ Resolved Decisions (Updated 2025-11-16)
+**Current Phase:** Planning Complete → Ready to Begin Implementation
+**Last Updated:** 2025-01-16
+
+### 📊 Current Implementation Status
+
+**Planning & Design:** ✅ COMPLETE (100%)
+- All architectural decisions finalized
+- Complete Airtable schema designed (9 tables, all fields defined)
+- Complete Pydantic data models designed
+- Role spec templates created
+- Demo scenarios planned (4 portcos, 3 pre-run + 1 live)
+
+**Python Implementation:** ⚠️ NOT STARTED (0%)
+- Basic project structure only (`main.py` stub, `pyproject.toml`)
+- No dependencies installed yet
+- No agents implemented
+- No webhook server implemented
+- No Airtable integration implemented
+
+**Airtable Setup:** ⚠️ NOT STARTED (0%)
+- Base not created
+- Tables not created
+- People data (64 executives) not loaded
+- Role specs not created
+- Demo scenarios not set up
+
+**Demo Pre-Runs:** ⚠️ NOT STARTED (0%)
+- No pre-run screening data generated yet
+- Dependent on completing Python implementation + Airtable setup
+
+**Estimated Remaining Work:** 34-38 hours
+- Python implementation: 20-24 hours
+- Airtable setup: 7 hours
+- Pre-run execution: 4-6 hours
+- Testing & polish: 3-4 hours
+
+### ✅ Resolved Decisions (Updated 2025-01-16)
 
 **Technology & Architecture:**
 - Framework: AGNO
@@ -43,10 +79,13 @@
 3. ✅ **Execution times** - RESOLVED
    - Deep Research: 3-6 min/candidate (~30-60 min for 10 sequential)
    - Web Search fallback: 1-2 min/candidate (~10-20 min for 10 sequential)
-4. **OpenAI API integration review** (1 hour) - Understand response format, structured outputs, web search tool usage
-5. **Airtable schema details** (2 hours) - Complete field definitions for all tables
+4. ✅ **Airtable schema details** - COMPLETED
+   - Complete field definitions documented in `demo_planning/airtable_schema.md`
+   - All 9 tables designed with full JSON schemas
+   - Setup instructions and pre-population checklist included
+5. [ ] **OpenAI API integration review** (1 hour) - Understand response format, structured outputs, web search tool usage
 
-**Total Time to Unblock Build: ~3 hours** (down from 4 hours)
+**Total Time to Unblock Build: ~1 hour** (down from 3 hours)
 
 ---
 
@@ -65,25 +104,27 @@
   - **Decision:** Single evaluation (spec-guided) with evidence-aware scoring for demo v1
   - **Future:** AI-generated rubric / alternative evaluation deferred to Phase 2+ (post-demo)
 
-#### Airtable Schema Details
-- [ ] Define complete field list for People Table
-  - [ ] Map fields from guildmember_scrape.csv to People table
-  - [ ] Decide: Bio field Long Text or Rich Text?
-- [ ] Define complete field list for Platform - Hiring - Screen
-  - [ ] Status enum values (Draft, Ready to Screen, Processing, Complete, Failed?)
-  - [ ] Custom instructions field details
-- [ ] Define complete field list for Operations - Workflows
-  - [ ] Audit trail fields
-  - [ ] Research results storage structure
-  - [ ] Assessment results storage structure
-  - [ ] Execution logs format
-- [ ] Define complete field list for Role Eval Table
-  - [ ] Dimension scores: Individual fields vs JSON?
-  - [ ] Evidence quotes storage format
-  - [ ] Citation links storage format
-- [ ] Define complete field list for Research Table
-  - [ ] Full research text field structure
-  - [ ] Citation structure: URLs only or full content snapshots?
+#### Airtable Schema Details ✅ COMPLETED
+- [x] Define complete field list for People Table
+  - [x] Map fields from guildmember_scrape.csv to People table
+  - [x] Bio field: Using linkedin_headline (Long Text)
+- [x] Define complete field list for Screens Table (renamed from "Platform - Hiring - Screen")
+  - [x] Status enum values: Draft, Ready to Screen, Processing, Complete, Failed
+  - [x] Custom instructions field: Optional Long Text field
+- [x] Define complete field list for Workflows Table (renamed from "Operations - Workflows")
+  - [x] Audit trail fields: Multiple timestamp fields (research_started, research_completed, etc.)
+  - [x] Research results storage: Linked to Research_Results table
+  - [x] Assessment results storage: Linked to Assessments table
+  - [x] Execution logs format: JSON array in execution_log field
+- [x] Define complete field list for Assessments Table (renamed from "Role Eval Table")
+  - [x] Dimension scores: JSON array in dimension_scores_json field
+  - [x] Evidence quotes storage: Embedded in DimensionScore JSON objects
+  - [x] Citation links storage: URLs array in DimensionScore JSON objects
+- [x] Define complete field list for Research_Results Table
+  - [x] Full research text: ExecutiveResearchResult JSON in research_json field
+  - [x] Citation structure: Full Citation objects with URL, title, snippet, relevance_note
+
+**See:** `demo_planning/airtable_schema.md` for complete documentation
 
 #### Research Execution Strategy ✅ RESOLVED
 - [x] ~~Decide research approach~~ → **RESOLVED**
@@ -111,40 +152,50 @@
   - **Decision:** Use Deep Research for 3 pre-run scenarios; use Web Search mode or smaller candidate set for live demo if time-constrained
   - Synchronous implementation (sequential processing) for demo simplicity and reliability
 
-### MVP Simplifications (Decide Now)
-- [ ] Module 1 (Upload): Build full CSV processing or pre-populate data manually?
-  - **Recommendation:** Pre-populate manually (focus on Module 4)
-- [ ] Module 2 (New Role): Build UI flow or create records manually?
-  - **Recommendation:** Create records manually in Airtable
-- [ ] Module 3 (New Search): Build UI flow or create records manually?
-  - **Recommendation:** Create records manually in Airtable
-- [ ] Airtable Interface: Custom interfaces or standard grid views?
-  - **Recommendation:** Standard grid views + basic filtering
-- [x] ~~File upload deduplication~~ → **RESOLVED**
-  - **Decision:** Skip for demo (assume clean data)
-- [x] ~~Citation handling~~ → **RESOLVED**
-  - **Decision:** Store URLs + key quotes from API response (no full content scraping)
+### MVP Simplifications ✅ RESOLVED
+- [x] Module 1 (Upload): Pre-populate data manually
+  - **Decision:** Focus on Module 4 (Screen workflow) for demo
+  - **Rationale:** CSV upload is commodity; screening/assessment is the value demonstration
+- [x] Module 2 (New Role): Create records manually in Airtable
+  - **Decision:** Manual Airtable data entry for demo scenarios
+  - **Rationale:** Role creation is one-time setup, not core workflow
+- [x] Module 3 (New Search): Create records manually in Airtable
+  - **Decision:** Manual Airtable data entry linking roles to specs
+  - **Rationale:** Search setup is straightforward, automation not needed for demo
+- [x] Airtable Interface: Standard grid views + basic filtering
+  - **Decision:** Use default Airtable views, no custom interfaces
+  - **Rationale:** Custom interfaces add development time without demonstrating AI capability
+- [x] File upload deduplication: Skip for demo
+  - **Decision:** Assume clean data (no duplicate detection logic)
+  - **Rationale:** Data quality is pre-ensured, not a demo focus
+- [x] Citation handling: Store URLs + key quotes from API
+  - **Decision:** No additional web scraping beyond what Deep Research API provides
+  - **Rationale:** API citations sufficient for evidence trail
+
+**Implementation Scope for Demo v1.0:** Module 4 (Screen workflow) only - Research + Assessment agents with Airtable integration
 
 ---
 
 ## High Priority - Foundation
 
 ### Mock Data Generation
-- [ ] Design and generate mock data
-  - [ ] Use existing guildmember_scrape.csv (64 executives - already available)
-  - [ ] Create job descriptions for 4 demo portcos
-    - [ ] Pigment - CFO Role (B2B SaaS, enterprise, international)
-    - [ ] Mockingbird - CFO Role (Consumer DTC, physical product)
-    - [ ] Synthesia - CTO Role (AI/ML SaaS, global scale)
-    - [ ] Estuary - CTO Role (Data infrastructure, developer tools)
-  - [ ] Generate mock research data for 3 pre-run scenarios (Pigment, Mockingbird, Synthesia)
-  - [ ] Mock Apollo enrichment data (stub function)
+- [x] Design and generate mock data
+  - [x] Use existing guildmember_scrape.csv (64 executives - already available in `reference/`)
+  - [x] Create job descriptions for 4 demo portcos
+    - [x] Pigment - CFO Role (B2B SaaS, enterprise, international)
+    - [x] Mockingbird - CFO Role (Consumer DTC, physical product)
+    - [x] Synthesia - CTO Role (AI/ML SaaS, global scale)
+    - [x] Estuary - CTO Role (Data infrastructure, developer tools)
+  - [ ] Generate mock research data for 3 pre-run scenarios (Pigment, Mockingbird, Synthesia) - **DEFERRED** to after Python implementation
+  - [x] Mock Apollo enrichment data (stub function) - **DECISION:** Not needed, research comes from Deep Research API
 
-### Data Schemas
-- [ ] Design and generate data schemas
-  - [ ] Input schemas (CSV structure)
-  - [ ] Storage schemas (Airtable tables/fields)
-  - [ ] Output schemas (assessment results, reports)
+**Status:** Mock data design complete in `demo_planning/data_design.md`, actual data generation will happen during pre-run phase
+
+### Data Schemas ✅ COMPLETED
+- [x] Design and generate data schemas
+  - [x] Input schemas (CSV structure) - Documented in `airtable_schema.md`
+  - [x] Storage schemas (Airtable tables/fields) - Complete 9-table schema in `airtable_schema.md`
+  - [x] Output schemas (assessment results, reports) - Pydantic models documented in `data_design.md`
 
 ### Framework Elements
 - [x] Role spec framework and template (COMPLETED - see demo_planning/role_spec_design.md)
@@ -170,10 +221,20 @@
 ## High Priority - Infrastructure
 
 ### Python Project Setup
-- [ ] Set up Python project structure
+- [x] Set up Python project structure
+  - [x] Created `pyproject.toml` with project metadata
+  - [x] Created basic `main.py` stub
+  - [x] Python 3.11+ environment configured via `.python-version`
+  - [x] Virtual environment at `.venv/`
 - [ ] Install dependencies (flask, pyairtable, openai, python-dotenv)
+  - **STATUS:** Not yet added to `pyproject.toml`
+  - **NEXT:** Add dependencies and run `uv pip install -e .`
 - [ ] Set up environment variables and API key management (.env file)
+  - **STATUS:** Not yet created
+  - **REQUIRED:** OpenAI API key, Airtable API key, Airtable base ID
 - [ ] Create requirements.txt
+  - **NOTE:** Using `pyproject.toml` instead (modern Python packaging)
+  - Will auto-generate from `pyproject.toml` if needed
 
 ### Airtable Configuration
 - [ ] Create Airtable base
@@ -317,18 +378,77 @@
 
 ## Implementation Phase Recommendations
 
-### Phase 0: Immediate Pre-Build Tasks (DO FIRST) ⚡
-**Time: ~3 hours remaining | Blocks all other work**
+### Phase 0: Immediate Pre-Build Tasks ✅ COMPLETE
+**Time: Originally 3 hours | Status: DONE**
 1. [x] ~~Document confidence calculation logic~~ ✅ APPROVED
 2. [x] ~~Document counterfactuals definition~~ ✅ APPROVED
-3. [ ] Review OpenAI Deep Research API documentation (1 hour)
+3. [ ] Review OpenAI Deep Research API documentation (1 hour) - **REMAINING**
    - File: `reference/docs_and_examples/agno/agno_openai_itegration.md`
    - Understand: response format, citation structure, rate limits, execution time
    - Confirm: Structured output support, web_search_preview tool usage
-4. [ ] Create detailed Airtable schema document (2 hours)
-   - New file: `demo_planning/airtable_schema.md`
-   - Complete field definitions for: People, Screen, Workflows, Role Eval tables
-   - Note: Role spec validation can happen during build phase based on actual API results
+   - **NOTE:** Can be done concurrently with Phase 1 setup work
+4. [x] ~~Create detailed Airtable schema document~~ ✅ COMPLETED
+   - File: `demo_planning/airtable_schema.md` (created 2025-01-16)
+   - Complete 9-table schema with all field definitions
+   - JSON schemas for all complex data structures
+   - Setup instructions and pre-population checklist
+
+**Current Blocker Status:** ✅ UNBLOCKED - Ready to begin implementation
+
+---
+
+## 🚀 Next Steps - Immediate Actions
+
+### Critical Path to Demo (in priority order)
+
+**1. Airtable Base Setup (7 hours) - DO FIRST**
+   - Create new Airtable base: "FirstMark Talent Signal Agent Demo"
+   - Create all 9 tables with field definitions from `airtable_schema.md`
+   - Import 64 executives from `reference/guildmember_scrape.csv` to People table
+   - Create 4 portco records (Pigment, Mockingbird, Synthesia, Estuary)
+   - Create 4 role records (2 CFO, 2 CTO)
+   - Create 6 role specs (2 templates + 4 customized from `role_spec_design.md`)
+   - Create 4 search records linking roles to specs
+   - Create 4 screen records (3 Draft for pre-run, 1 Draft for live demo)
+   - **Why first:** Airtable setup is independent work and unblocks API key setup
+
+**2. Python Dependencies & Environment (1 hour)**
+   - Add dependencies to `pyproject.toml`: `flask`, `pyairtable`, `openai`, `python-dotenv`, `pydantic`
+   - Run `uv pip install -e .`
+   - Create `.env` file with API keys (OpenAI, Airtable base ID, Airtable API token)
+   - Test basic OpenAI API connectivity
+   - Test basic Airtable API connectivity (read from People table)
+
+**3. Core Python Implementation (20-24 hours)**
+   - Create Pydantic models (ExecutiveResearchResult, AssessmentResult, etc.)
+   - Implement research agent (Deep Research API + parser agent)
+   - Implement assessment agent (spec-guided evaluation)
+   - Implement Flask webhook server with `/screen` endpoint
+   - Implement Airtable integration (read screens, write results)
+   - End-to-end testing with 1 candidate
+
+**4. Webhook & Automation Setup (1 hour)**
+   - Start Flask server
+   - Start ngrok tunnel
+   - Create Airtable automation: "When Screen.status → Ready to Screen, POST to webhook"
+   - Test automation with dummy screen
+
+**5. Pre-Run Executions (4-6 hours)**
+   - Run Pigment CFO screening (3-4 candidates)
+   - Run Mockingbird CFO screening (3-4 candidates)
+   - Run Synthesia CTO screening (4-5 candidates)
+   - Verify all results populated correctly in Workflows, Research_Results, Assessments
+
+**6. Demo Preparation & Polish (3-4 hours)**
+   - Test Estuary CTO live demo flow (don't save results)
+   - Create Airtable views for demo (ranked candidates, drill-down into reasoning)
+   - Practice demo presentation flow
+   - Create backup plan if webhook fails
+   - Write 1-2 page write-up or slide deck
+
+**Total Estimated Time:** 36-43 hours
+
+---
 
 ### Phase 1: Foundation (Core Infrastructure) ✅ Partially Resolved
 1. ✅ Technology stack decided (AGNO, GPT-5, Flask, Airtable)

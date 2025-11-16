@@ -86,8 +86,6 @@ Thumbs.db
 *.temp
 *.bak
 *.cache
-output/
-generated/
 
 # Archives
 archive/
@@ -95,3 +93,6 @@ archives/
 
 # aidev
 .claude/logs/
+
+# Non code 
+non_code/
