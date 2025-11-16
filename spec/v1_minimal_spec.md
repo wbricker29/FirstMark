@@ -310,6 +310,35 @@ tests/
 
 - Remove any implication that a large, granular test suite is mandatory for the demo.
 
+### 3.7 Recommended Native AGNO Features for v1
+
+To keep the implementation simple while leveraging AGNO effectively, v1.0-minimal should:
+
+- **Use structured outputs natively:**
+  - Configure research and assessment agents with AGNO’s structured output / `output_model` support so they return `ExecutiveResearchResult` and `AssessmentResult` directly.
+  - Avoid a separate “parser agent” layer and heavy custom JSON-parsing prompts.
+
+- **Use a single AGNO Workflow for orchestration:**
+  - Implement `Deep Research → Quality Check → (optional incremental search agent step) → Assessment` as an AGNO `Workflow` instead of a custom state machine.
+  - Keep the workflow linear and small; no teams, no nested workflows for v1.
+
+- **Rely on built-in retry/backoff:**
+  - Configure agents with `exponential_backoff=True` and a small `retries` count for OpenAI calls.
+  - Remove any bespoke retry wrappers in Python around research/assessment agents.
+
+- **Use streaming events only for logging (not storage):**
+  - Enable `stream_events=True` and log events to stdout for demo-time visibility.
+  - Do not persist events in a separate database; Airtable + logs are the v1 audit trail.
+
+- **Use built-in OpenAI tools for search:**
+  - Implement the incremental search agent using AGNO’s OpenAI/web-search tools instead of hand-written HTTP calls.
+
+And v1.0-minimal should explicitly **not** use:
+
+- AGNO memory / Postgres DB (`enable_user_memories` / `enable_agentic_memory`) for candidate data.
+- AGNO Teams or other multi-agent coordination abstractions.
+- Large toolkits unrelated to Airtable/OpenAI (e.g., Notion tools).
+
 ---
 
 ## 4. Summary: v1.0-Minimal Contract
