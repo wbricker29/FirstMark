@@ -17,12 +17,12 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Title:** Implement Pydantic data models for agent outputs
 - **Description:** Create all Pydantic models in `demo/models.py` including ExecutiveResearchResult, AssessmentResult, DimensionScore, Citation, CareerEntry, and MustHaveCheck. Ensure evidence-aware scoring with Optional[int] for scores (None for Unknown, never 0 or NaN). Follow spec/dev_reference/implementation_guide.md for complete field definitions.
 - **Files:** `demo/models.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** high
 - **Estimate:** 1.5 hours
 - **Dependencies:** None
 - **Note:** Foundation for all agent structured outputs. Critical: Use Optional[int] for DimensionScore.score field.
-- **Completed:** null
+- **Completed:** 2025-01-16T23:45:00Z
 
 ### TK-02
 
@@ -153,11 +153,11 @@ Volatile task breakdown and verification plan for implementing core AI agents
 
 ## Progress
 
-- **Status:** planning
+- **Status:** in_progress
 - **Created:** 2025-01-16
 - **Tasks Total:** 9
-- **Tasks Completed:** 0
-- **Progress:** 0%
+- **Tasks Completed:** 1
+- **Progress:** 11%
 
 ## Notes
 
