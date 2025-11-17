@@ -13,6 +13,7 @@
 ## Purpose & When to Use
 
 Use this guide when:
+
 - Deciding whether to create a general or Claude Code skill
 - Understanding Claude Code's auto-activation system
 - Planning to add automation features to skills
@@ -24,7 +25,7 @@ Use this guide when:
 
 ## When to Use Claude Code Features
 
-### Use General Skills When:
+### Use General Skills When
 
 - ✅ Skill needs to work across all Claude environments (Desktop, CLI, API)
 - ✅ Manual invocation is acceptable
@@ -32,12 +33,13 @@ Use this guide when:
 - ✅ No need for automatic activation
 
 **Examples**:
+
 - PDF processing workflows
 - Data analysis procedures
 - API integration guides
 - General documentation assistance
 
-### Use Claude Code Skills When:
+### Use Claude Code Skills When
 
 - ✅ Need automatic activation based on context (keywords, file paths, content)
 - ✅ Enforcing critical practices (guardrails that block edits)
@@ -46,6 +48,7 @@ Use this guide when:
 - ✅ Complex trigger patterns (intent detection, content analysis)
 
 **Examples**:
+
 - Database schema verification (blocks edits until verified)
 - Error handling enforcement (suggests Sentry integration)
 - Framework-specific guides (auto-activates for React + TypeScript)
@@ -82,11 +85,13 @@ Claude Code skills use a **two-hook architecture** for auto-activation:
 **Method**: Injects formatted reminder as context (stdout → Claude's input)
 
 **Use Cases**:
+
 - Topic-based skills (e.g., "error tracking")
 - Implicit work detection (e.g., "create" + "API")
 - Technology mentions (e.g., "Prisma", "React")
 
 **Example**:
+
 ```
 User types: "Add Sentry error tracking"
 ↓
@@ -110,6 +115,7 @@ Claude sees reminder + user prompt
 **Method**: Analyzes edited files for risky patterns, displays reminder if needed
 
 **Use Cases**:
+
 - Error handling awareness
 - Code quality reminders
 - Non-blocking best practice suggestions
@@ -123,6 +129,7 @@ Claude sees reminder + user prompt
 **Location**: `.claude/skills/skill-rules.json`
 
 **Defines**:
+
 - All skills and their trigger conditions
 - Enforcement levels (block, suggest, warn)
 - File path patterns (glob)
@@ -142,6 +149,7 @@ Claude Code supports two skill patterns:
 **Purpose**: Enforce critical best practices that prevent errors
 
 **Characteristics**:
+
 - Type: `"guardrail"`
 - Enforcement: `"block"`
 - Priority: `"critical"` or `"high"`
@@ -150,10 +158,12 @@ Claude Code supports two skill patterns:
 - Session-aware (don't repeat nag in same session)
 
 **Examples**:
+
 - `database-verification` - Verify table/column names before Prisma queries
 - `frontend-dev-guidelines` - Enforce React/TypeScript patterns
 
 **When to Use**:
+
 - Mistakes that cause runtime errors
 - Data integrity concerns
 - Critical compatibility issues
@@ -168,6 +178,7 @@ Claude Code supports two skill patterns:
 **Purpose**: Provide comprehensive guidance for specific areas
 
 **Characteristics**:
+
 - Type: `"domain"`
 - Enforcement: `"suggest"`
 - Priority: `"high"` or `"medium"`
@@ -176,11 +187,13 @@ Claude Code supports two skill patterns:
 - Comprehensive documentation
 
 **Examples**:
+
 - `backend-dev-guidelines` - Node.js/Express/TypeScript patterns
 - `frontend-dev-guidelines` - React/TypeScript best practices
 - `error-tracking` - Sentry integration guidance
 
 **When to Use**:
+
 - Complex systems requiring deep knowledge
 - Best practices documentation
 - Architectural patterns
@@ -219,11 +232,13 @@ Create or update `.claude/skills/skill-rules.json`:
 Add trigger keywords to YAML frontmatter description:
 
 **Before**:
+
 ```yaml
 description: Guide for processing PDF files
 ```
 
 **After**:
+
 ```yaml
 description: Guide for processing PDF files. Use when working with PDFs, extracting text, parsing documents, or converting file formats.
 ```
@@ -290,6 +305,7 @@ Add session tracking to prevent repeated nagging:
 #### Step 6: Validate and Test
 
 Run validation:
+
 ```bash
 uv run python scripts/quick_validate.py path/to/my-skill
 ```

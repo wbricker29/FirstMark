@@ -14,6 +14,7 @@ This skill provides a principled, framework-agnostic approach to designing and b
 ## Core Principles
 
 ### 1. KISS (Keep It Simple, Stupid)
+
 **Simple solutions first, always.**
 
 - Start with the most straightforward approach that could work
@@ -22,6 +23,7 @@ This skill provides a principled, framework-agnostic approach to designing and b
 - Question every dependency: "Do I actually need this?"
 
 **Example:**
+
 ```python
 # KISS: Start here
 response = client.chat.completions.create(
@@ -39,6 +41,7 @@ agent = LangChainAgent(
 ```
 
 ### 2. YAGNI (You Aren't Gonna Need It)
+
 **Don't build for imaginary future requirements.**
 
 - Build only what you need right now
@@ -49,6 +52,7 @@ agent = LangChainAgent(
 **Decision Test:** "If I delete this, would the core functionality break today?" If no, delete it.
 
 ### 3. Lean Development Cycles
+
 **Build → Validate → Expand (repeat)**
 
 1. **Build:** Minimal implementation that demonstrates core value
@@ -58,6 +62,7 @@ agent = LangChainAgent(
 **Anti-pattern:** Building the entire architecture before running a single example.
 
 ### 4. Iterative Complexity
+
 **Complexity ladder: climb only as high as you must.**
 
 ```
@@ -93,6 +98,7 @@ Start at the bottom. Move up only when the current level fails to meet requireme
 **Exit Criteria:** You have a working script that demonstrates the core value proposition.
 
 **Example (Talent Matching):**
+
 ```python
 # minimal_matcher.py - ~50 lines
 import anthropic
@@ -146,6 +152,7 @@ print(response.content[0].text)
 **Exit Criteria:** The script processes your full dataset and produces results.
 
 **Example (Scaling Matcher):**
+
 ```python
 # matcher_v2.py - ~150 lines
 import anthropic
@@ -221,9 +228,11 @@ if __name__ == "__main__":
 ### Complexity Ladder (climb only as needed)
 
 #### Level 0: Single Prompt (Start Here)
+
 **When to use:** Most tasks, most of the time.
 
 **Pattern:**
+
 ```python
 response = llm.generate(f"Task: {task}\nContext: {context}\nOutput:")
 ```
@@ -235,9 +244,11 @@ response = llm.generate(f"Task: {task}\nContext: {context}\nOutput:")
 ---
 
 #### Level 1: Few-Shot Prompting
+
 **When to use:** Single prompt works but output format/style is inconsistent.
 
 **Pattern:**
+
 ```python
 examples = """
 Example 1: {input1} → {output1}
@@ -255,9 +266,11 @@ prompt = f"{examples}\n\nNow solve: {new_input}"
 ---
 
 #### Level 2: Prompt Chains
+
 **When to use:** Task naturally decomposes into sequential steps.
 
 **Pattern:**
+
 ```python
 # Step 1: Extract requirements
 requirements = llm.generate(f"Extract requirements from: {job_description}")
@@ -276,9 +289,11 @@ explanation = llm.generate(f"Explain score {score} for: {candidate}")
 ---
 
 #### Level 3: Retrieval-Augmented Generation (RAG)
+
 **When to use:** Need to search/filter large datasets before LLM processing.
 
 **Simple RAG (no vector DB):**
+
 ```python
 def simple_rag(query, documents):
     # Filter by keyword matching
@@ -295,6 +310,7 @@ def simple_rag(query, documents):
 **When to add vector search:** When keyword matching fails to find relevant docs.
 
 **Vector RAG:**
+
 ```python
 from sentence_transformers import SentenceTransformer
 import numpy as np
@@ -319,9 +335,11 @@ return llm.generate(f"Context: {context}\n\nQuestion: {query}")
 ---
 
 #### Level 4: Tool-Using Agent (ReAct Pattern)
+
 **When to use:** LLM needs to decide which tools to use and when.
 
 **Simple ReAct:**
+
 ```python
 def react_agent(task, tools, max_iterations=5):
     """
@@ -363,11 +381,13 @@ def react_agent(task, tools, max_iterations=5):
 ---
 
 #### Level 5: Multi-Agent Systems
+
 **When to use:** Task requires specialized sub-agents with different roles.
 
 **Only use when Level 4 proves insufficient.** Multi-agent systems are complex and hard to debug.
 
 **Simple Multi-Agent:**
+
 ```python
 def multi_agent_system(task):
     # Agent 1: Researcher
@@ -445,18 +465,21 @@ Q: Need a vector database?
 ### Prompt vs Agent Decision Guide
 
 **Use a Prompt When:**
+
 - Task is well-defined and consistent
 - Single pass can produce good results
 - You can provide all necessary context upfront
 - Deterministic behavior is important
 
 **Use an Agent When:**
+
 - Task requires dynamic decision-making
 - Need to use external tools/APIs
 - Multi-step reasoning with variable paths
 - Context must be gathered iteratively
 
 **Example:**
+
 - Prompt: "Summarize this document" ✓
 - Agent: "Research a topic across multiple sources and write a report" ✓
 
@@ -475,6 +498,7 @@ project/
 ```
 
 **Don't create:**
+
 - `src/` directory (until you have 5+ modules)
 - `config/` directory (until you have 5+ config files)
 - `tests/` directory (until core logic is stable)
@@ -483,6 +507,7 @@ project/
 ### Dependency Management
 
 **Start with:**
+
 ```txt
 # requirements.txt (minimal)
 openai>=1.0.0           # or anthropic
@@ -490,6 +515,7 @@ python-dotenv>=1.0.0    # for API keys
 ```
 
 **Add only when needed:**
+
 ```txt
 pandas>=2.0.0           # when working with tabular data
 sentence-transformers   # when adding vector search
@@ -497,6 +523,7 @@ faiss-cpu              # when vector search is proven necessary
 ```
 
 **Avoid until proven necessary:**
+
 - langchain, llamaindex (heavy frameworks)
 - chromadb, pinecone (vector DBs)
 - pydantic (unless validation is critical)
@@ -505,6 +532,7 @@ faiss-cpu              # when vector search is proven necessary
 ### Code Structure Principles
 
 **1. Flat is better than nested**
+
 ```python
 # Good: Flat structure
 def main():
@@ -519,6 +547,7 @@ class DataLoader:
 ```
 
 **2. Functions over classes (until you need state)**
+
 ```python
 # Good: Simple functions
 def match_candidate(role, candidate):
@@ -534,6 +563,7 @@ class CandidateMatcher:
 ```
 
 **3. Inline first, extract later**
+
 ```python
 # First iteration: Inline everything
 def process():
@@ -549,11 +579,13 @@ def create_analysis_prompt(data):
 ### Error Handling (Progressive)
 
 **Phase 1: Let it crash (learn failure modes)**
+
 ```python
 result = llm.generate(prompt)  # No try/except yet
 ```
 
 **Phase 2: Catch and log (when errors are understood)**
+
 ```python
 try:
     result = llm.generate(prompt)
@@ -563,6 +595,7 @@ except Exception as e:
 ```
 
 **Phase 3: Graceful handling (when in production)**
+
 ```python
 import logging
 
@@ -585,6 +618,7 @@ except Exception as e:
 **Problem:** LLM returns inconsistent formats.
 
 **Simple Solution: Use prompt instructions**
+
 ```python
 prompt = f"""
 Analyze this candidate for the role.
@@ -600,6 +634,7 @@ Role: {role}
 ```
 
 **If that fails: Use JSON mode**
+
 ```python
 response = client.chat.completions.create(
     model="gpt-4-turbo",
@@ -613,6 +648,7 @@ result = json.loads(response.choices[0].message.content)
 ```
 
 **Last resort: Pydantic validation**
+
 ```python
 from pydantic import BaseModel
 
@@ -627,6 +663,7 @@ class MatchResult(BaseModel):
 ### Pattern: Batch Processing with Progress
 
 **Simple batch processing:**
+
 ```python
 from tqdm import tqdm  # pip install tqdm
 
@@ -637,6 +674,7 @@ for item in tqdm(data, desc="Processing"):
 ```
 
 **With cost tracking:**
+
 ```python
 total_cost = 0
 for item in tqdm(data):
@@ -652,6 +690,7 @@ print(f"Total cost: ${total_cost:.2f}")
 **Problem:** Re-running experiments is expensive.
 
 **Simple file-based cache:**
+
 ```python
 import json
 from pathlib import Path
@@ -673,6 +712,7 @@ def cached_llm_call(prompt, cache_file="cache.json"):
 ## Anti-Patterns to Avoid
 
 ### ❌ Premature Abstraction
+
 ```python
 # Don't do this first
 class AbstractLLMProvider:
@@ -684,6 +724,7 @@ class AnthropicProvider(AbstractLLMProvider): ...
 ```
 
 **Do this instead:**
+
 ```python
 # Start here
 def generate(prompt):
@@ -693,6 +734,7 @@ def generate(prompt):
 ```
 
 ### ❌ Framework-First Thinking
+
 ```python
 # Don't start here
 from langchain.agents import create_react_agent
@@ -707,6 +749,7 @@ def simple_agent(task):
 ```
 
 ### ❌ Premature Optimization
+
 ```python
 # Don't do this on day 1
 async def parallel_process(items):
@@ -721,6 +764,7 @@ for item in items:
 ```
 
 ### ❌ Over-Engineering Data Pipelines
+
 ```python
 # Don't build this before proving the concept
 class DataPipeline:
@@ -737,26 +781,31 @@ df = pd.read_csv("data.csv")
 ## When to Graduate to Complexity
 
 **Move from script → package when:**
+
 - Single file > 500 lines
 - 3+ modules are emerging naturally
 - External users need to install it
 
 **Add a framework when:**
+
 - You've written the same agent logic 3+ times
 - Custom orchestration code > 200 lines
 - You need features the framework provides that would take weeks to build
 
 **Add a vector database when:**
+
 - FAISS file size > 10GB
 - Query latency > 5 seconds
 - Need distributed search
 
 **Add tests when:**
+
 - Core logic is stable and won't change daily
 - You're refactoring and need confidence
 - Others are contributing code
 
 **Add CI/CD when:**
+
 - You're deploying regularly
 - Multiple contributors need standardization
 - Bugs are reaching production
@@ -764,11 +813,13 @@ df = pd.read_csv("data.csv")
 ## Resources
 
 ### scripts/
+
 **`setup_minimal_env.py`** - Sets up a minimal Python environment with core dependencies only.
 
 **`benchmark_llm_providers.py`** - Simple benchmarking script to compare cost/latency across providers.
 
 ### references/
+
 **`design_patterns_deep_dive.md`** - Detailed explanations of ReAct, Plan-and-Execute, Reflexion patterns with trade-offs.
 
 **`prompt_engineering_guide.md`** - Techniques for effective prompting: few-shot, chain-of-thought, structured output.
@@ -776,6 +827,7 @@ df = pd.read_csv("data.csv")
 **`evaluation_strategies.md`** - How to measure LLM application quality: accuracy, relevance, cost, latency.
 
 ### assets/
+
 **`minimal_project_template/`** - Bare-bones Python project structure (main.py, requirements.txt, README.md).
 
 **`prompt_templates/`** - Reusable prompt structures for common tasks (classification, extraction, reasoning).

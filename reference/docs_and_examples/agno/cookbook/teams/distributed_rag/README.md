@@ -9,6 +9,7 @@ pip install agno openai anthropic cohere lancedb pgvector "psycopg[binary]" sqla
 ```
 
 Set your API key based on your provider:
+
 ```bash
 export OPENAI_API_KEY=xxx
 export ANTHROPIC_API_KEY=xxx

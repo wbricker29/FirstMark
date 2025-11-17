@@ -15,6 +15,7 @@
 ## Purpose & When to Use
 
 Use this guide when:
+
 - Initializing a new skill directory
 - Writing SKILL.md content
 - Configuring YAML frontmatter
@@ -60,6 +61,7 @@ Every SKILL.md must begin with valid YAML frontmatter enclosed by `---` delimite
 ### Required Fields
 
 **name** (required)
+
 - Type: String
 - Max length: 64 characters
 - Format: lowercase-with-hyphens (e.g., `my-skill-name`)
@@ -67,6 +69,7 @@ Every SKILL.md must begin with valid YAML frontmatter enclosed by `---` delimite
 - Example: `pdf-editor`, `brand-guidelines`, `sql-query-helper`
 
 **description** (required)
+
 - Type: String
 - Max length: 1024 characters
 - Must include BOTH what the skill does AND when to use it

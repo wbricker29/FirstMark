@@ -9,11 +9,13 @@ pip install agno qdrant-client openai
 ```
 
 Start Qdrant locally:
+
 ```bash
 docker run -p 6333:6333 qdrant/qdrant
 ```
 
 Set your API key:
+
 ```bash
 export OPENAI_API_KEY=your_api_key
 ```

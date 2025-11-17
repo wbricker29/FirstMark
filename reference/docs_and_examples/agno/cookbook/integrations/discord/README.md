@@ -15,11 +15,12 @@ Before you can use the Discord client, you'll need:
 ## Installation
 
 1. Install the required packages:
+
 ```bash
 pip install discord.py agno
 ```
 
-2. Create a Discord bot:
+1. Create a Discord bot:
    - Go to the [Discord Developer Portal](https://discord.com/developers/applications)
    - Click "New Application" and give it a name
    - Go to the "Bot" section and click "Add Bot"
@@ -29,14 +30,15 @@ pip install discord.py agno
      - Message Content Intent
    - Copy your bot token (you'll need this later)
 
-3. Set up your environment:
+2. Set up your environment:
    - Create a `.envrc` file in your project root
    - Add your Discord bot token:
+
    ```
    DISCORD_TOKEN=your_bot_token_here
    ```
 
-4. Invite Your Bot to Your Discord Server:
+3. Invite Your Bot to Your Discord Server:
    - In your application's settings under **"OAuth2"** > **"URL Generator"**, select the `bot` scope
    - Under **"Bot Permissions"**, select the permissions your bot needs (e.g., sending messages)
    - Copy the generated URL, navigate to it in your browser, and select the server where you want to add the bot
@@ -84,6 +86,7 @@ The DiscordClient accepts the following parameters:
 ## Support
 
 If you encounter any issues or have questions, please:
+
 1. Check the [Agno documentation](https://docs.agno.com)
 2. Open an issue on the Agno GitHub repository
 3. Join the Agno Discord server for community support

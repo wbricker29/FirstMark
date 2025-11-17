@@ -9,6 +9,7 @@ pip install agno openai pgvector "psycopg[binary]" sqlalchemy
 ```
 
 Set your API key:
+
 ```bash
 export OPENAI_API_KEY=xxx
 ```

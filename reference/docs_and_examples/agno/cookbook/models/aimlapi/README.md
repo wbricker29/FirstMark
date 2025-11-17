@@ -1,8 +1,9 @@
 # AI/ML API Cookbook
 
-### AI/ML API provides 300+ AI models including Deepseek, Gemini, ChatGPT. The models run at enterprise-grade rate limits and uptimes.
+### AI/ML API provides 300+ AI models including Deepseek, Gemini, ChatGPT. The models run at enterprise-grade rate limits and uptimes
 
 #### You can check provider docs [_here_](https://docs.aimlapi.com/?utm_source=agno&utm_medium=github&utm_campaign=integration)
+
 #### And models overview is [_here_](https://aimlapi.com/models/?utm_source=agno&utm_medium=github&utm_campaign=integration)
 
 > Note: Fork and clone this repository if needed
@@ -53,4 +54,3 @@ python cookbook/models/aimlapi/tool_use.py
 ```shell
 python cookbook/models/aimlapi/structured_output.py
 ```
-

@@ -9,6 +9,7 @@ pip install pymongo
 ```
 
 Run a local MongoDB server using:
+
 ```bash
 docker run -d \
   --name local-mongo \
@@ -17,7 +18,9 @@ docker run -d \
   -e MONGO_INITDB_ROOT_PASSWORD=secret \
   mongo
 ```
+
 or use our script:
+
 ```bash
 ./scripts/run_mongodb.sh
 ```

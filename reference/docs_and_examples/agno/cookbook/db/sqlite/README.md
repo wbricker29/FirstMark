@@ -37,4 +37,3 @@ agent = Agent(
 - [`sqlite_for_agent.py`](sqlite_for_agent.py) - Agent with SQLite storage
 - [`sqlite_for_team.py`](sqlite_for_team.py) - Team with SQLite storage
 - [`sqlite_for_workflow.py`](sqlite_for_workflow.py) - Workflow with SQLite storage
-

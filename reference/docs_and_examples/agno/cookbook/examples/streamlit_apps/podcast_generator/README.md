@@ -60,7 +60,7 @@ streamlit run cookbook/examples/streamlit_apps/podcast_generator/app.py
 Try these example topics to get started:
 
 - "The Future of AI in Healthcare"
-- "Climate Change Solutions in 2025" 
+- "Climate Change Solutions in 2025"
 - "Space Exploration: Mars Missions"
 - "The Rise of Electric Vehicles"
 - "Blockchain Technology Explained"

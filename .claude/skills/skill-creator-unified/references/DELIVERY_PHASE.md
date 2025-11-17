@@ -18,6 +18,7 @@
 ## Purpose & When to Use
 
 Use this guide when:
+
 - Preparing to package and distribute a skill
 - Validating skill quality before release
 - Iterating on an existing skill based on feedback
@@ -100,11 +101,12 @@ If validation fails, the script will report the errors and exit without creating
 After testing the skill, users may request improvements. Often this happens right after using the skill, with fresh context of how the skill performed.
 
 **Iteration workflow:**
+
 1. Use the skill on real tasks
 2. Analyze execution and results
 3. Notice relevant and important weaknesses
 4. Identify how SKILL.md or bundled resources could be updated to directly address weaknesses
-5. Select the most valuable update(s) that should be implemented 
+5. Select the most valuable update(s) that should be implemented
 6. Implement changes and test again
 
 **Key principle**: Iterate on evidence (skill doesn't activate, instructions unclear) not preference (different style).

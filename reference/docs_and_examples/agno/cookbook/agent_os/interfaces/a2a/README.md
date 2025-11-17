@@ -50,6 +50,7 @@ python cookbook/agent_os/interfaces/a2a/basic.py
 ### Access your agent
 
 Once running, your agent will be available at:
+
 - **Agent endpoint**: `http://localhost:7777/a2a/message/send`
 - **API documentation**: `http://localhost:7777/docs`
 

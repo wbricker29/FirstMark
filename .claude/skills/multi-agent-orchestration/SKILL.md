@@ -12,6 +12,7 @@ Orchestrate complex multi-step workflows by deploying specialized sub-agents, ma
 ## When to Use This Skill
 
 **Trigger this skill when:**
+
 - Task requires coordinating 3+ specialized sub-agents
 - Workflow has complex dependencies between sub-tasks
 - Need to manage parallel development streams
@@ -20,6 +21,7 @@ Orchestrate complex multi-step workflows by deploying specialized sub-agents, ma
 - Managing handoffs between different agent types
 
 **Do not use for:**
+
 - Single-agent tasks (deploy agent directly)
 - Simple linear workflows (standard command chains sufficient)
 - Pure exploration or research (use Explore agent)
@@ -31,12 +33,14 @@ Follow this 5-phase workflow for all orchestrations:
 ### Phase 1: Analyze (UNDERSTAND)
 
 **Read Project Context:**
+
 1. Identify and load relevant project documentation (requirements, standards, guidelines)
 2. Understand quality expectations and constraints
 3. Review existing work logs or decision history if available
 4. Gather all context needed to understand the task scope
 
 **Analyze Work Requirements:**
+
 1. Parse user request to identify scope and deliverables
 2. Identify dependencies between sub-tasks
 3. Map requirements to quality standards
@@ -44,12 +48,14 @@ Follow this 5-phase workflow for all orchestrations:
 
 **Run Pre-Flight Validation:**
 Execute `scripts/validate_orchestration.py` (optional) to verify:
+
 - Task scope is clearly defined
 - Dependencies are identified and acyclic
 - Context bounds are manageable (token limits)
 - Required resources are available
 
 **Validation Checklist:**
+
 - ✅ Task scope is clearly defined
 - ✅ Dependencies are identified and mapped
 - ✅ Quality requirements understood
@@ -61,6 +67,7 @@ Execute `scripts/validate_orchestration.py` (optional) to verify:
 **Determine Sub-Agent Deployment:**
 
 Identify which specialized sub-agents are needed:
+
 - `task-implementor`: Complete specific tasks from tasks.md
 - `systematic-debugger`: Investigate bugs or errors
 - `code-prettier`: Refactor and code cleanup
@@ -70,6 +77,7 @@ Identify which specialized sub-agents are needed:
 - Other specialized agents as needed
 
 **For each sub-agent, define:**
+
 - **Scope**: Specific tasks and boundaries
 - **Context**: Required files, documents, reference materials
 - **Instructions**: Clear directives and constraints
@@ -77,12 +85,14 @@ Identify which specialized sub-agents are needed:
 - **Validation criteria**: What constitutes success
 
 **Establish Coordination Protocol:**
+
 - **Execution order**: Parallel vs sequential (use `references/agent-coordination.md` for patterns)
 - **Handoff points**: Information flow between agents
 - **Dependencies**: What each agent needs from others
 
 **Present Plan to User:**
 Use `assets/orchestration-plan.tmpl` to generate:
+
 ```
 🤖 Sub-Agent Orchestration Plan
 
@@ -114,6 +124,7 @@ For each sub-agent in the plan:
    - Expected output format
 
 2. **Deploy agent using Task tool:**
+
    ```
    Task tool parameters:
    - subagent_type: [appropriate agent type]
@@ -134,6 +145,7 @@ For each sub-agent in the plan:
    - Manage information flow between agents per coordination protocol
 
 **Track During Execution:**
+
 - Agent deployment timestamps
 - Progress status for each agent
 - Blockers or issues encountered
@@ -142,6 +154,7 @@ For each sub-agent in the plan:
 ### Phase 4: Validate (SYNTHESIZE & VERIFY)
 
 **Synthesize Sub-Agent Outputs:**
+
 1. Collect outputs from all deployed sub-agents
 2. Verify each agent completed its assigned scope
 3. Check for gaps or inconsistencies
@@ -151,18 +164,21 @@ For each sub-agent in the plan:
 **Run Comprehensive Validation:**
 
 **Quality Standards:**
+
 - ✅ All outputs meet project quality standards
 - ✅ Code/content follows established conventions
 - ✅ Performance targets satisfied (if applicable)
 - ✅ Constraints enforced
 
 **Completeness Verification:**
+
 - ✅ All required tasks completed
 - ✅ All deliverables produced
 - ✅ No placeholders or incomplete work remaining
 - ✅ Edge cases handled
 
 **Technical Validation (adapt to project):**
+
 - ✅ Code formatted per project standards
 - ✅ Linting passes
 - ✅ Type checking passes (if applicable)
@@ -170,12 +186,14 @@ For each sub-agent in the plan:
 - ✅ Coverage meets target
 
 **Evidence Requirements:**
+
 - ✅ Each sub-task has verifiable evidence of completion
 - ✅ Results demonstrate correctness
 - ✅ Documentation updated where needed
 - ✅ Decision logs updated if architectural changes made
 
 **If validation fails:**
+
 - Document specific failures
 - Determine which sub-agent needs to re-run
 - Deploy corrective agents with focused scope
@@ -186,6 +204,7 @@ For each sub-agent in the plan:
 **Generate Synthesis Report:**
 
 Use `scripts/synthesize_reports.py` with `assets/synthesis-report.tmpl` to generate:
+
 ```
 📊 Multi-Agent Orchestration Complete
 
@@ -214,6 +233,7 @@ Use `scripts/synthesize_reports.py` with `assets/synthesis-report.tmpl` to gener
 ```
 
 **Update Documentation:**
+
 1. **Task Status**: Update task tracking system with completed work
 2. **Decision Log**: If significant decisions were made, document them:
    - What was decided and why
@@ -223,10 +243,12 @@ Use `scripts/synthesize_reports.py` with `assets/synthesis-report.tmpl` to gener
 
 **Coordinate Documentation Updates:**
 If cross-document updates are needed:
+
 - Deploy appropriate agent to handle documentation consistency
 - Ensure all changes are reflected across relevant documentation
 
 **Prompt User for Next Action:**
+
 - Continue with next task?
 - Validate overall completion?
 - Commit changes?
@@ -242,7 +264,7 @@ Quick reference for agent selection:
 | `systematic-debugger` | Debug errors methodically | Needs error context, produces fix + test |
 | `code-prettier` | Refactor for readability | No functional changes, preserves behavior |
 | `principle-evaluator` | Validate KISS/YAGNI/Quality | Reads constitution.md, produces report |
-| `documentation-manager` | Update docs for consistency | Reads all specs/, produces alignment report |
+| `documentation-manager` | Update docs for consistency | Reads all spec/, produces alignment report |
 | `Explore` | Codebase exploration | Fast discovery, minimal context usage |
 | `Plan` | Generate implementation plans | Similar to Explore but planning-focused |
 
@@ -251,6 +273,7 @@ Quick reference for agent selection:
 For detailed error scenarios and resolutions, see `references/error-scenarios.md`.
 
 **Common errors:**
+
 - **Missing project context** → Gather required documentation before proceeding
 - **Ambiguous requirements** → Ask clarifying questions before planning
 - **Sub-agent failure** → Analyze failure, adjust briefing, redeploy
@@ -263,43 +286,54 @@ For specific error codes and detailed troubleshooting, grep `references/error-sc
 ## Resources
 
 ### scripts/validate_orchestration.py
+
 Pre-flight validation ensuring:
+
 - Task scope is clearly defined
 - Context bounds are manageable (token limits)
 - Dependencies are identified and acyclic
 - Returns structured JSON validation report
 
 **Usage:**
+
 ```bash
 python3 scripts/validate_orchestration.py --scope "task description" [--context-files file1,file2]
 ```
 
 ### scripts/synthesize_reports.py
+
 Template-based report generation from sub-agent outputs:
+
 - Parses sub-agent completion messages
 - Extracts deliverables, validation results, changes
 - Generates markdown synthesis report using template
 - Supports JSON output for decision logging
 
 **Usage:**
+
 ```bash
 python3 scripts/synthesize_reports.py --agents agent1,agent2 --deliverables file1.ts,file2.ts
 ```
 
 ### scripts/check_context_bounds.py
+
 Token usage monitoring during orchestration:
+
 - Estimates token usage from file reads and agent briefings
 - Warns when approaching model context limits (200k tokens)
 - Suggests chunking strategies if limits exceeded
 - Tracks token usage per phase
 
 **Usage:**
+
 ```bash
 python3 scripts/check_context_bounds.py --phase [1-5] --files file1.ts,file2.ts
 ```
 
 ### references/agent-coordination.md
+
 Detailed coordination patterns for complex multi-agent workflows:
+
 - Sequential execution: When to use, handoff protocols, state management
 - Parallel execution: Task independence validation, output merging strategies
 - Hybrid patterns: Mixed sequential + parallel workflows
@@ -310,7 +344,9 @@ Detailed coordination patterns for complex multi-agent workflows:
 Load this reference when planning complex coordination protocols or troubleshooting handoff issues.
 
 ### references/phase-playbooks.md
+
 Comprehensive per-phase execution guidance:
+
 - Extended examples with real-world scenarios
 - Edge cases and unusual situations
 - Common failure patterns and prevention strategies
@@ -321,7 +357,9 @@ Comprehensive per-phase execution guidance:
 Load this reference when encountering edge cases or needing detailed phase guidance.
 
 ### references/error-scenarios.md
+
 Comprehensive error catalog with resolution strategies:
+
 - Error codes (ORG-001 through ORG-008)
 - Root cause analysis for each error type
 - Step-by-step resolution protocols
@@ -332,7 +370,9 @@ Comprehensive error catalog with resolution strategies:
 Grep this file for specific error codes or search by symptom (e.g., "context overflow", "validation failure").
 
 ### assets/orchestration-plan.tmpl
+
 Markdown template for presenting orchestration plans to users. Variables:
+
 - `{scope_description}`: High-level scope summary
 - `{agent_count}`: Number of agents to deploy
 - `{agent_list_with_scopes}`: Bulleted list of agents + scopes
@@ -342,7 +382,9 @@ Markdown template for presenting orchestration plans to users. Variables:
 - `{validation_gates}`: Quality checks
 
 ### assets/synthesis-report.tmpl
+
 Markdown template for final synthesis reports. Variables:
+
 - `{agent_summaries}`: Per-agent completion summaries
 - `{deliverable_list_with_locations}`: Files created/modified with paths
 - `{gate_results}`: format|lint|types|tests|coverage results

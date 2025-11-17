@@ -38,6 +38,7 @@ export GROQ_API_KEY=your_groq_key_here
 The application requires Node.js and npm to run MCP servers:
 
 For GitHub server:
+
 ```bash
 npm install -g @modelcontextprotocol/server-github
 ```
@@ -86,6 +87,7 @@ streamlit run cookbook/examples/streamlit_apps/mcp_agent/app.py
 ### Available MCP Servers
 
 #### GitHub Server
+
 - Search repositories
 - Access repository information
 - View issues and pull requests

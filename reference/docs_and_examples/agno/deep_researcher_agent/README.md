@@ -4,7 +4,6 @@
 
 A multi-stage AI-powered research workflow agent that automates comprehensive web research, analysis, and report generation using Agno, Scrapegraph, and Nebius AI.
 
-
 ## Features
 
 - **Multi-Stage Research Workflow**: Automated pipeline for searching, analyzing, and reporting
@@ -28,14 +27,11 @@ A multi-stage AI-powered research workflow agent that automates comprehensive we
 > - The agent orchestrates web search, analysis, and report writing in sequence
 > - Results are presented in a user-friendly format (web or CLI)
 
-
 ## Prerequisites
 
 - Python 3.10+
 - [uv](https://github.com/astral-sh/uv) for dependency management
 - API keys for [Nebius AI](https://dub.sh/nebius) and [Scrapegraph](https://dub.sh/scrapegraphai)
-
-
 
 ## Installation
 
@@ -73,7 +69,6 @@ Create a `.env` file in the project root with your API keys:
 NEBIUS_API_KEY=your_nebius_api_key_here
 SGAI_API_KEY=your_scrapegraph_api_key_here
 ```
-
 
 ## Usage
 
@@ -135,8 +130,6 @@ This allows tools like Claude Desktop to manage and launch the MCP server automa
 
 ![Claude Desktop Demo](./assets/mcp-demo.png)
 
-
-
 ## Project Structure
 
 ```
@@ -186,7 +179,6 @@ Contributions are welcome! Please feel free to submit a Pull Request or open an 
 - [Scrapegraph](https://dub.sh/scrapegraphai) for web scraping
 - [Nebius Token Factory](https://tokenfactory.nebius.com/) for AI model access
 - [Streamlit](https://streamlit.io/) for the web interface
-
 
 ## Author
 

@@ -5,6 +5,7 @@ This demo showcases how to set up and run an Agno Agent that can interact with a
 MCP Toolbox for Databases (MCP Toolbox) provides a unified interface for AI agents to interact with databases.
 
 In this demo, we have a collection of tools (defined in `config/tools.yaml`) that allow the agent to perform various hotel management tasks, such as searching for hotels, making bookings, and retrieving hotel information. The tools are groups into two toolsets:
+
 - `hotel-management`: For searching and retrieving hotel information
 - `booking-system`: For handling reservations and cancellations
 
@@ -19,6 +20,7 @@ Read more about the MCP Toolbox confiuration here: [MCP Toolbox Configuration](h
 ## Project Overview
 
 The demo includes:
+
 - **PostgreSQL Database**: Pre-populated with sample hotel data
 - **MCP Toolbox Server**: Provides database tools via HTTP API
 - **Python Agent**: Interactive CLI agent for hotel management tasks
@@ -30,6 +32,7 @@ The demo includes:
 Start the MCP Toolbox and PostgreSQL database using Docker Compose (`docker-compose.yml`).
 
 Navigate to the demo directory:
+
 ```bash
 cd cookbook/tools/mcp/mcp_toolbox_demo
 ```
@@ -42,6 +45,7 @@ docker-compose up -d
 ```
 
 **For Podman users:**
+
 ```bash
 podman compose up -d
 ```
@@ -49,14 +53,17 @@ podman compose up -d
 #### Verify the setup
 
 Check that both containers are running:
+
 ```bash
 docker-compose ps
 ```
 
 Test the database connection:
+
 ```bash
 docker-compose exec db psql -U toolbox_user -d toolbox_db -c "SELECT COUNT(*) FROM hotels;"
 ```
+
 You should see a count of the hotels in the database.
 
 ### 2. Install Python Dependencies
@@ -69,17 +76,20 @@ uv sync
 ### 3. Run the Hotel Management Agent
 
 Setup OpenAI API key:
+
 ```bash
 export OPENAI_API_KEY="your_openai_api_key"
 ```
 
 Start the agent:
+
 ```bash
 # Activate the virtual environment and run the agent or use uv
 uv run agent.py
 ```
 
 The agent will start an interactive CLI where you can:
+
 - Search for hotels by location or price
 - Make hotel bookings
 - Cancel existing reservations
@@ -97,6 +107,7 @@ Once the agent is running, try these commands:
 ```
 
 ### 4. Run AgentOS
+
 To run the AgentOS:
 
 ```bash
@@ -106,6 +117,7 @@ uv run agent_os.py
 Connect AgentOS Control Plane to `http://localhost:7777` and interact with the agent via the web interface.
 
 ### 5. Run Workflows
+
 To run Hotel booking workflow:
 
 ```bash
@@ -131,14 +143,14 @@ Content: The hotel has been successfully booked!
 ```
 
 ### 6. Run Type-Safe Agent
+
 To run the type-safe agent:
+
 ```bash
 uv run hotel_management_typesafe.py
 ```
 
 This agent uses Pydantic models to ensure type safety when interacting with the database.
-
-
 
 ## Service Configuration
 
@@ -155,6 +167,7 @@ This agent uses Pydantic models to ensure type safety when interacting with the 
 ### Agent Configuration
 
 The agent is configured with two toolsets:
+
 - `hotel-management`: Search and retrieve hotel information
 - `booking-system`: Handle reservations and cancellations
 
@@ -166,10 +179,10 @@ The agent is configured with two toolsets:
 2. **Database connection errors**: Ensure the database container is healthy before starting the agent
 3. **Python dependency errors**: Run `uv sync` to install all required packages
 
-
 ## Cleanup
 
 To stop and remove all services:
+
 ```bash
 docker-compose down -v
 ```

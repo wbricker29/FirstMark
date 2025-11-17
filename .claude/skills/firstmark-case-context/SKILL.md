@@ -19,6 +19,7 @@ This skill provides all context, requirements, and resources specific to the Fir
 ### The Problem
 
 FirstMark's network includes:
+
 - Portfolio company executives
 - Members of FirstMark Guilds (role-based peer groups: CTO, CPO, CRO, etc.)
 - Broader professional networks (LinkedIn, founders, event attendees)
@@ -94,6 +95,7 @@ Design and demonstrate a "Talent Signal Agent" that can:
   - Example: "Jane Doe → strong fit for CFO @ AcmeCo because of prior Series B fundraising experience at consumer startup"
 
 **Technical Requirements:**
+
 - Python-based
 - Can use LangChain, LlamaIndex, or vanilla Python + OpenAI/Anthropic
 - Should run with `python main.py` or similar simple command
@@ -125,30 +127,35 @@ Design and demonstrate a "Talent Signal Agent" that can:
 **How to maximize each criterion:**
 
 **Product Thinking (25%):**
+
 - Reference FirstMark's guilds and portfolio explicitly
 - Explain how talent team would actually use this
 - Discuss iteration and feedback loops
 - Show you understand VC talent challenges (passive candidates, executive-level matching, relationship-first culture)
 
 **Technical Design (25%):**
+
 - Follow ai-agent-architect skill principles (start simple)
 - Don't over-engineer (they want to see thinking, not complexity)
 - Use the right tool for the job (prompt chain might beat multi-agent)
 - Show modular design that's easy to extend
 
 **Data Integration (20%):**
+
 - Demonstrate both structured and unstructured data handling
 - Show thoughtful data modeling (how you represent candidates, roles)
 - If using embeddings, explain why keyword search wasn't enough
 - Clean code for data processing
 
 **Insight Generation (20%):**
+
 - Create structured output format (JSON, DataFrame, or similar)
 - Provide numerical scores AND qualitative reasoning
 - Rank candidates clearly (1st choice, 2nd choice, etc.)
 - Make it actionable (talent team should know who to call first)
 
 **Communication (10%):**
+
 - Clear, concise writeup (1-2 pages means 1-2 pages)
 - No unnecessary jargon
 - Diagrams if they help (but not required)
@@ -161,6 +168,7 @@ Design and demonstrate a "Talent Signal Agent" that can:
 **1. `mock_guilds.csv` - FirstMark Guild Members**
 
 Example structure:
+
 ```csv
 name,current_company,current_title,location,seniority,function,linkedin_url,guild
 Sarah Chen,Stripe,VP Engineering,San Francisco,VP,Engineering,https://linkedin.com/in/sarahchen,CTO Guild
@@ -168,6 +176,7 @@ Marcus Johnson,Plaid,CFO,New York,C-Suite,Finance,https://linkedin.com/in/marcus
 ```
 
 **Columns:**
+
 - name: Full name
 - current_company: Where they work now
 - current_title: Their current role
@@ -184,6 +193,7 @@ Marcus Johnson,Plaid,CFO,New York,C-Suite,Finance,https://linkedin.com/in/marcus
 **2. `exec_network.csv` - Extended Network (Partner Connections)**
 
 Example structure:
+
 ```csv
 name,current_title,current_company,role_type,location,linkedin_url,connection_source
 Elena Rodriguez,CTO,TechCorp,CTO,Austin,https://linkedin.com/in/elena,Partner Network
@@ -191,6 +201,7 @@ David Kim,VP Finance,ScaleUp Inc,CFO,Boston,https://linkedin.com/in/davidkim,Eve
 ```
 
 **Columns:**
+
 - name: Full name
 - current_title: Current role
 - current_company: Current employer
@@ -206,6 +217,7 @@ David Kim,VP Finance,ScaleUp Inc,CFO,Boston,https://linkedin.com/in/davidkim,Eve
 **3. `open_roles.csv` - Portfolio Company Open Positions**
 
 Example structure:
+
 ```csv
 role_id,company,role_title,role_type,location,stage,industry,required_experience,nice_to_have
 CFO_001,AcmeCo,Chief Financial Officer,CFO,New York,Series B,FinTech,10+ years finance; Series B+ exp,Consumer fintech background
@@ -213,6 +225,7 @@ CTO_002,DataFlow,Chief Technology Officer,CTO,San Francisco,Series C,Data Infras
 ```
 
 **Columns:**
+
 - role_id: Unique identifier
 - company: Portfolio company name (use real FirstMark portfolio or mock names)
 - role_title: Official title
@@ -230,6 +243,7 @@ CTO_002,DataFlow,Chief Technology Officer,CTO,San Francisco,Series C,Data Infras
 **1. `executive_bios.json` - Biographical Text**
 
 Example structure:
+
 ```json
 [
   {
@@ -246,6 +260,7 @@ Example structure:
 ```
 
 **Fields:**
+
 - name: Match to CSV data
 - bio: 2-4 sentences with career highlights, achievements, background
 - source: Where this info came from (for realism)
@@ -297,6 +312,7 @@ Reports to: CEO
 **Geography:** Primarily US, with global portfolio
 
 **Key Differentiators:**
+
 - Platform team (talent, marketing, ops support)
 - FirstMark Guilds (peer networks for executives)
 - Long-term partnership approach
@@ -305,22 +321,26 @@ Reports to: CEO
 ### Portfolio Highlights (Sample - Use for Mock Data)
 
 **Data & Infrastructure:**
+
 - Airflow (Apache)
 - Astronomer
 - DataDog (IPO)
 - Looker (acquired by Google)
 
 **FinTech:**
+
 - Betterment
 - Ramp
 - Narmi
 
 **Developer Tools:**
+
 - Gitlab
 - Klaviyo (IPO)
 - Contentful
 
 **Consumer:**
+
 - Pinterest (IPO)
 - Shopify
 - Ro
@@ -330,6 +350,7 @@ Reports to: CEO
 **What they are:** Role-based peer groups where executives from portfolio companies meet regularly to share knowledge, challenges, and best practices.
 
 **Active Guilds:**
+
 - CTO Guild
 - CPO Guild (Chief Product Officer)
 - CFO Guild
@@ -337,6 +358,7 @@ Reports to: CEO
 - CMO Guild
 
 **Relevance to Case:**
+
 - Guild members are high-quality, pre-vetted executives
 - They know FirstMark's portfolio and values
 - They're warm intros (not cold outreach)
@@ -345,6 +367,7 @@ Reports to: CEO
 ### Talent Team Workflow (Context for Product Thinking)
 
 **Current Process (Manual):**
+
 1. Portfolio company posts open executive role
 2. Talent team reviews role requirements
 3. Team manually reviews guild membership lists
@@ -353,6 +376,7 @@ Reports to: CEO
 6. Make warm introductions
 
 **Pain Points:**
+
 - Time-consuming manual review
 - Can't easily search across bios/backgrounds
 - May miss good fits in extended network
@@ -360,6 +384,7 @@ Reports to: CEO
 - No ranking/prioritization system
 
 **What Success Looks Like:**
+
 - Faster identification of potential matches
 - More coverage (don't miss people in extended network)
 - Clear reasoning to explain to both candidate and company
@@ -371,12 +396,14 @@ Reports to: CEO
 ### Mapping Rubric to Technical Decisions
 
 **To score well on Product Thinking (25%):**
+
 - Explicitly mention guilds, portfolio companies, warm intros
 - Design for talent team use (not generic recruiting)
 - Acknowledge that this is relationship-first, not spam
 - Show understanding of executive-level matching nuances
 
 **To score well on Technical Design (25%):**
+
 - Apply KISS principle: Use simplest approach that works
 - If using prompt chains: Explain why steps are separated
 - If using RAG: Explain what you're retrieving and why
@@ -384,18 +411,21 @@ Reports to: CEO
 - Show you chose complexity level intentionally
 
 **To score well on Data Integration (20%):**
+
 - Clean data loading and normalization code
 - Smart use of both CSV metadata AND bio text
 - If using embeddings: Show both structured filters AND semantic search
 - Demonstrate thoughtful data modeling
 
 **To score well on Insight Generation (20%):**
+
 - Create structured match output (not just LLM text dump)
 - Provide scores/rankings
 - Give detailed, specific reasoning
 - Make output actionable (talent team knows what to do)
 
 **To score well on Communication (10%):**
+
 - 1-2 pages means 1-2 pages (not 10)
 - Clear, simple language
 - Explain tradeoffs honestly
@@ -404,26 +434,31 @@ Reports to: CEO
 ### Common Pitfalls to Avoid
 
 **❌ Over-Engineering:**
+
 - Don't build a full multi-agent orchestration if prompt chains work
 - Don't use vector DB if you have < 50 candidates
 - Don't build complex RAG if simple filtering + LLM works
 
 **❌ Under-Explaining:**
+
 - Don't just show code without explaining *why*
 - Don't skip the reasoning for matches
 - Don't forget to address the rubric criteria explicitly
 
 **❌ Generic Solution:**
+
 - Don't build "generic recruiting tool"
 - Don't ignore FirstMark-specific context (guilds, warm intros)
 - Don't forget this is VC talent, not corporate recruiting
 
 **❌ Perfect Data Obsession:**
+
 - Don't spend all time on realistic mock data
 - Don't build actual web scrapers for real LinkedIn profiles
 - Focus on demonstrating the logic, not data perfection
 
 **❌ Jargon Overload:**
+
 - Don't use buzzwords without explaining them
 - Don't assume they know all LLM/agent terminology
 - Explain clearly what you built and why
@@ -433,6 +468,7 @@ Reports to: CEO
 **Phase 1: Start Simple (Get 80% of value)**
 
 Use basic prompt chain:
+
 1. Load structured data (CSVs)
 2. Load unstructured data (bios, job descriptions)
 3. For each open role:
@@ -444,6 +480,7 @@ Use basic prompt chain:
 **Phase 2: Add Complexity Only If Needed**
 
 If basic approach works but has issues:
+
 - Issue: Too many candidates → Add vector search to pre-filter
 - Issue: Scoring inconsistent → Add structured output + few-shot examples
 - Issue: Need multi-step reasoning → Add ReAct agent pattern
@@ -488,12 +525,14 @@ If basic approach works but has issues:
 ## Quick Reference Checklist
 
 **Before Starting:**
+
 - [ ] Read full case brief (references/case_brief.md)
 - [ ] Understand FirstMark context (references/firstmark_context.md)
 - [ ] Review evaluation rubric (this document)
 - [ ] Decide on technical approach using ai-agent-architect principles
 
 **During Development:**
+
 - [ ] Generate mock data (scripts/generate_mock_data.py)
 - [ ] Build minimal prototype first
 - [ ] Test with 2-3 examples
@@ -501,6 +540,7 @@ If basic approach works but has issues:
 - [ ] Add complexity only if needed
 
 **Before Submission:**
+
 - [ ] Run deliverables validation (scripts/validate_deliverables.py)
 - [ ] Check all rubric criteria are addressed
 - [ ] Ensure 1-2 page writeup is actually 1-2 pages
@@ -509,6 +549,7 @@ If basic approach works but has issues:
 - [ ] Review submission by Nov 19, 5:00 PM
 
 **Submission Checklist:**
+
 - [ ] Write-up or slide deck (1-2 pages)
 - [ ] Python prototype with requirements.txt
 - [ ] README or Loom video explanation

@@ -9,6 +9,7 @@ pip install agno openai pgvector "psycopg[binary]" sqlalchemy
 ```
 
 Set your OpenAI API key:
+
 ```bash
 export OPENAI_API_KEY=your_api_key
 ```
@@ -24,7 +25,6 @@ docker run -d \
   --name postgres \
   agnohq/pgvector:16
 ```
-
 
 ## Examples
 

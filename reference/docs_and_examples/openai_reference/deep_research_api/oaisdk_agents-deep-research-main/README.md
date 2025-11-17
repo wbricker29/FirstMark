@@ -44,11 +44,13 @@ It is worth noting that the deep research agent does not ask clarifying question
 ## Sample Output
 
 Deep Research Examples (using DeepResearcher):
+
 - [Life and Works of Plato](examples/sample_output/plato.md) - 7,980 words
 - [Text Book on Quantum Computing](examples/sample_output/quantum_computing.md) - 5,253 words
 - [Deep-Dive on Tesla](examples/sample_output/tesla.md) - 4,732 words
 
 Simple Research Examples (using IterativeResearcher):
+
 - [Quantera Market Size](examples/sample_output/quantera_market_size.md) - 1,001 words
 - [UK Government Policies](examples/sample_output/labour_policies.md) - 1,077 words
 
@@ -175,6 +177,7 @@ report = asyncio.run(
 Run the research assistant from the command line.
 
 If you've installed via `pip`:
+
 ```sh
 deep-researcher --mode deep --query "Provide a comprehensive overview of quantum computing" --max-iterations 3 --max-time 10 --verbose
 ```
@@ -237,10 +240,11 @@ The Deep Research Assistant is built with the following components:
 ### Implementing Custom Tool Agents
 
 Tool agents are agents specialized in carrying out specific tasks using one or more tools (e.g. web searches, fetching and interpreting data from an API, etc). To implement a custom tool agent:
-* Create any tools that the agent will use in the `deep_researcher/tools` folder
-* Create a new tool agent that calls this tool in the `deep_researcher/agents/tool_agents` folder
-* Add the tool agent definition to the `init_tool_agents` function in `deep_researcher/agents/tool_agents/__init__.py`
-* Update the system prompt of `deep_researcher/agents/tool_selector_agent.py` to include the name and description of the new agent, so that the ToolSelectorAgent knows of its existence
+
+- Create any tools that the agent will use in the `deep_researcher/tools` folder
+- Create a new tool agent that calls this tool in the `deep_researcher/agents/tool_agents` folder
+- Add the tool agent definition to the `init_tool_agents` function in `deep_researcher/agents/tool_agents/__init__.py`
+- Update the system prompt of `deep_researcher/agents/tool_selector_agent.py` to include the name and description of the new agent, so that the ToolSelectorAgent knows of its existence
 
 ### Configuring Custom LLMs
 
@@ -255,19 +259,20 @@ The Deep Research assistant integrates with OpenAI's trace monitoring system. Ea
 ## Observations and Limitations
 
 ### Rate Limits
-- The `DeepResearcher` runs a lot of searches and API calls in parallel (at any given point in time it could be ingesting 50-60 different web pages). As a result you may find that yourself hitting rate limits for AzureOpenAI, OpenAI, Gemini, Anthropic and other model providers particularly if you are on lower or free tiers. 
+
+- The `DeepResearcher` runs a lot of searches and API calls in parallel (at any given point in time it could be ingesting 50-60 different web pages). As a result you may find that yourself hitting rate limits for AzureOpenAI, OpenAI, Gemini, Anthropic and other model providers particularly if you are on lower or free tiers.
 - If you run into these errors, you may wish to use the `IterativeResearcher` instead which is less consumptive of API calls.
 
-### **Output Length:** 
+### **Output Length:**
 
 LLMs are not good at following guidelines on output length. You typically run into two issues:
 
-- LLMs are bad at counting. When giving length instructions, it's better to provide a reference that the model will be familiar with from its training data (e.g. 'length of a tweet', 'a few paragraphs', 'length of a book') rather than a specific word count. 
+- LLMs are bad at counting. When giving length instructions, it's better to provide a reference that the model will be familiar with from its training data (e.g. 'length of a tweet', 'a few paragraphs', 'length of a book') rather than a specific word count.
 - Even though the output token limit on many of these models is massive, it is very difficult to get them to produce more than 1-2,000 words per response. There are methods such as [this one](https://medium.com/@techsachin/longwriter-using-llm-agent-based-pipeline-to-scale-llms-output-window-size-to-10-000-words-33210d299e2b) to produce longer outputs.
 
 We include an `output_length` parameter for the `IterativeResearcher` to give the user control but bear in mind the above limitations.
 
-## TODOs:
+## TODOs
 
 - [ ] Add unit tests for different model providers
 - [ ] Add example implementation for different models

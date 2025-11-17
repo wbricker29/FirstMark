@@ -8,6 +8,7 @@ source ~/.venvs/aienv/bin/activate
 ```
 
 ### 2. Export your API keys
+
 Regardless of the model used—OpenAI, Hugging Face, or XAI—the API key is referenced as `LITELLM_API_KEY`.
 
 ```shell

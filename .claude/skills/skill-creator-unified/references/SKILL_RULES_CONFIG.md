@@ -67,6 +67,7 @@ interface SkillRule {
 | `skills` | object | Yes | Map of skill name → SkillRule |
 
 **Example**:
+
 ```json
 {
   "version": "1.0",
@@ -105,6 +106,7 @@ Used by **UserPromptSubmit hook** to detect when skill should be suggested.
 | `intentPatterns` | string[] | Optional | Regex patterns for intent detection |
 
 **Example**:
+
 ```json
 "promptTriggers": {
   "keywords": ["pdf", "document", "extract"],
@@ -133,6 +135,7 @@ Used by **PreToolUse hook** to detect file operations that should activate the s
 *Required if fileTriggers is present
 
 **Example**:
+
 ```json
 "fileTriggers": {
   "pathPatterns": [
@@ -164,6 +167,7 @@ Controls when to skip activation (user override mechanisms).
 | `envOverride` | string | Optional | Environment variable name to disable skill |
 
 **Example**:
+
 ```json
 "skipConditions": {
   "sessionSkillUsed": true,
@@ -208,6 +212,7 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
+
 - User says "help me process a PDF"
 - User says "extract text from documents"
 - UserPromptSubmit hook suggests the skill to Claude
@@ -246,6 +251,7 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
+
 - User mentions "react component"
 - Editing .tsx files in frontend/src/
 - PreToolUse hook suggests the skill before file edits
@@ -300,12 +306,14 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
+
 - User mentions "prisma" or "database"
 - Editing service files containing Prisma code
 - PreToolUse hook BLOCKS the edit
 - Claude must use skill before retrying
 
 **Important**:
+
 - `blockMessage` is required for guardrails
 - Use `{file_path}` placeholder for file name
 - `sessionSkillUsed: true` prevents repeated blocking in same session
@@ -345,6 +353,7 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
+
 - Editing backend .ts files
 - File contains NestJS decorators (`@Controller`, `@Injectable`)
 - File defines controllers or services
@@ -367,6 +376,7 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ### Common JSON Errors
 
 **Trailing comma**:
+
 ```json
 {
   "keywords": ["one", "two"], // ❌ Trailing comma
@@ -374,6 +384,7 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Missing quotes**:
+
 ```json
 {
   type: "guardrail" // ❌ Missing quotes on key
@@ -381,6 +392,7 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Single quotes** (invalid JSON):
+
 ```json
 {
   "type": 'guardrail' // ❌ Must use double quotes
@@ -388,6 +400,7 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Unescaped regex backslashes**:
+
 ```json
 {
   "contentPatterns": ["\.findMany\("] // ❌ Single backslash
@@ -395,6 +408,7 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 Should be:
+
 ```json
 {
   "contentPatterns": ["\\.findMany\\("] // ✅ Escaped backslashes
@@ -425,12 +439,14 @@ Use this checklist before deploying:
 After editing skill-rules.json, test triggers manually:
 
 **Test UserPromptSubmit**:
+
 ```bash
 echo '{"session_id":"test","prompt":"your test prompt"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts
 ```
 
 **Test PreToolUse**:
+
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"session_id":"test","tool_name":"Edit","tool_input":{"file_path":"test.ts"}}

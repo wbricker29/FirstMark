@@ -60,6 +60,7 @@ python cookbook/models/anthropic/storage.py
 ### 8. Run Agent that uses knowledge
 
 Take note that claude uses OpenAI embeddings under the hood, and you will need an OpenAI API Key
+
 ```shell
 export OPENAI_API_KEY=***
 ```
@@ -83,9 +84,11 @@ python cookbook/models/anthropic/image_agent.py
 ### 11. Run Agent with Thinking enabled
 
 - Streaming on
+
 ```shell
 python cookbook/models/anthropic/thinking.py
 ```
+
 - Streaming off
 
 ```shell

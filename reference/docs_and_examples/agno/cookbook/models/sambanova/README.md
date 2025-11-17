@@ -34,7 +34,8 @@ python cookbook/models/sambanova/basic_stream.py
 ```shell
 python cookbook/models/sambanova/basic.py
 ```
-## Disclaimer:
+
+## Disclaimer
 
 Sambanova does not support all OpenAIChat features. The following features are not yet supported and will be ignored:
 
@@ -51,4 +52,4 @@ Sambanova does not support all OpenAIChat features. The following features are n
 - stream_options: include_usage
 - response_format
 
-Please refer to https://community.sambanova.ai/t/open-ai-compatibility/195 for more information.
+Please refer to <https://community.sambanova.ai/t/open-ai-compatibility/195> for more information.

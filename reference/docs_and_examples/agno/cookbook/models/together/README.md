@@ -38,6 +38,7 @@ python cookbook/models/together/basic.py
 ### 5. Run Agent with Tools
 
 - DuckDuckGo Search
+
 ```shell
 python cookbook/models/together/tool_use.py
 ```

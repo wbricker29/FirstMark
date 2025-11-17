@@ -70,6 +70,7 @@ You define an agent by providing a name, model, instructions, and tools:
 - Equip them with tools (the digital equivalent of giving someone access to the supply closet)
 
 Pythonfrom openai.agents import Agent researcher = Agent( name=”Customer Support Agent”, model=”gpt-4o”, instructions=”Help users without saying ‘have you tried turning it off and on again?”, tools=\[web\_search, document\_retrieval\] )
+
 ```
 from openai.agents import Agent
 
@@ -86,6 +87,7 @@ researcher = Agent(
 Different models have different capabilities and costs. Choose the right model for your agent’s needs:
 
 Pythonfrom agents import Agent, ModelSettings # Fast, cost-effective agent for simple tasks quick\_agent = Agent( name=”Quick Responder”, model=”gpt-4o-mini”, # Fastest, most cost-effective instructions=”Provide quick, helpful responses to simple questions.”, model\_settings=ModelSettings( temperature=0.3, # Lower temperature for consistent responses max\_tokens=150 # Limit response length for quick interactions ) ) # Powerful agent for complex reasoning reasoning\_agent = Agent( name=”Deep Thinker”, model=”o1-preview”, # Most capable for complex reasoning instructions=”Provide thorough analysis and step-by-step reasoning for complex problems.”, model\_settings=ModelSettings( temperature=0.7, # Moderate temperature for balanced creativity # Note: o1 models don’t support max\_tokens in the same way ) ) # Creative agent for content generation creative\_agent = Agent( name=”Creative Writer”, model=”gpt-4o”, # Good balance of capability and speed instructions=”Write engaging, creative content with vivid descriptions.”, model\_settings=ModelSettings( temperature=0.9, # Higher temperature for more creativity top\_p=0.9, # Use nucleus sampling for variety presence\_penalty=0.1 # Encourage topic diversity ) )
+
 ```
 from agents import Agent, ModelSettings
 
@@ -129,6 +131,7 @@ creative_agent = Agent(
 By default, agents produce plain text outputs. However, you can use the `output_type` parameter to ensure structured, validated outputs that your application can reliably process:
 
 Python\# Define the structure you want the agent to return # Pydantic models provide automatic validation and clear documentation class WeatherReport(BaseModel): city: str temperature: int # Temperature in Celsius conditions: str # Weather conditions (sunny, cloudy, etc.) recommendation: str # What the user should do based on the weather # Create an agent that returns structured data instead of free-form text weather\_agent = Agent( name=”Weather Reporter”, instructions=””” You are a weather reporting agent that provides structured weather information. When users ask about weather, use the get\_weather tool and then format your response to include all required fields: – city: The city name (cleaned up and properly formatted) – temperature: The temperature as an integer – conditions: Brief weather description – recommendation: Practical advice based on the weather Be helpful and specific in your recommendations. “””, output\_type=WeatherReport, # This ensures the response matches our structure tools=\[get\_weather\] )
+
 ```
 # Define the structure you want the agent to return
 # Pydantic models provide automatic validation and clear documentation
@@ -178,6 +181,7 @@ When your agent runs, it enters the “agent loop”, a fancy way of saying it t
 It’s basically the digital version of how I approach cooking: assess situation, realize I need more information, google recipe, realize I’m missing ingredients, order takeout, problem solved.
 
 Pythonfrom openai.agents import Runner<br><br>runner = Runner() result = runner.run(researcher, “What are the latest developments in quantum computing?”) print(result.final\_output)
+
 ```
 from openai.agents import Runner<br><br>runner = Runner()
 result = runner.run(researcher, "What are the latest developments in quantum computing?")
@@ -191,6 +195,7 @@ Without tools, agents would just be fancy chatbots. Tools are what let your AI r
 Creating a tool is as simple as decorating a Python function:
 
 Pythonfrom agents.tool import function\_tool @function\_tool def search\_knowledge\_base(query: str) -> str: # Your code to search a database return “Here’s what I found about ” + query
+
 ```
 from agents.tool import function_tool
 
@@ -211,7 +216,8 @@ The beauty is in how naturally the agent decides when to use these tools – it�
 
 The most straightforward way to create tools is by decorating Python functions. The SDK handles all the complex work of schema generation, parameter validation, and integration:
 
-Pythonfrom agents import function\_tool, Agent import requests from typing import Dict, Any # Example 1: External API Integration # This shows how to wrap external services as agent tools @function\_tool def search\_wikipedia(query: str) -> str: “””Search Wikipedia for information about a topic. The agent will see this docstring and understand what this tool does. Clear descriptions help the agent choose the right tool for the task. Args: query: The search term to look up on Wikipedia. Returns: str: A summary of the Wikipedia article. “”” try: # Clean up the query for URL usage clean\_query = query.replace(” “, “\_”) # Call Wikipedia’s REST API – this is a real API call response = requests.get( f”https://en.wikipedia.org/api/rest\_v1/page/summary/{clean\_query}”, headers={‘User-Agent’: ‘OpenAI-Agents-Demo/1.0’} ) if response.status\_code == 200: data = response.json() # Format the response in a user-friendly way return f”\*\*{data\[‘title’\]}\*\*: {data\[‘extract’\]}” elif response.status\_code == 404: return f”Sorry, I couldn’t find a Wikipedia article for ‘{query}’. Try rephrasing your search.” else: return f”Wikipedia search temporarily unavailable (status: {response.status\_code})” except Exception as e: # Always handle errors gracefully in tools return f”Error searching Wikipedia: {str(e)}” # Example 2: Complex Calculations with Structured Output # This demonstrates how to return structured data from tools @function\_tool def calculate\_compound\_interest( principal: float, rate: float, time: int, compound\_frequency: int = 12 ) -> Dict\[str, Any\]: “””Calculate compound interest with detailed breakdown. This tool shows how to handle multiple parameters and return structured data that the agent can interpret and present clearly to users. Args: principal: Initial amount invested (in dollars). rate: Annual interest rate as a percentage (e.g., 5.5 for 5.5%). time: Number of years to calculate. compound\_frequency: How often interest compounds per year (default: 12 for monthly). Returns: dict: Calculation results including final amount and total interest. “”” # Input validation – important for tools that do calculations if principal <= 0: return {“error”: “Principal amount must be positive”} if rate < 0: return {“error”: “Interest rate cannot be negative”} if time <= 0: return {“error”: “Time period must be positive”} if compound\_frequency <= 0: return {“error”: “Compound frequency must be positive”} # Convert percentage to decimal decimal\_rate = rate / 100 # Apply the compound interest formula: A = P(1 + r/n)^(nt) final\_amount = principal \* (1 + decimal\_rate/compound\_frequency) \*\* (compound\_frequency \* time) total\_interest = final\_amount – principal # Return structured data that the agent can easily work with return { “status”: “success”, “calculation”: { “principal”: principal, “final\_amount”: round(final\_amount, 2), “total\_interest”: round(total\_interest, 2), “rate\_percent”: rate, “years”: time, “compound\_frequency”: compound\_frequency }, “summary”: f”${principal:,.2f} grows to ${final\_amount:,.2f} over {time} years at {rate}% annual interest” }
+Pythonfrom agents import function\_tool, Agent import requests from typing import Dict, Any # Example 1: External API Integration # This shows how to wrap external services as agent tools @function\_tool def search\_wikipedia(query: str) -> str: “””Search Wikipedia for information about a topic. The agent will see this docstring and understand what this tool does. Clear descriptions help the agent choose the right tool for the task. Args: query: The search term to look up on Wikipedia. Returns: str: A summary of the Wikipedia article. “”” try: # Clean up the query for URL usage clean\_query = query.replace(” “, “\_”) # Call Wikipedia’s REST API – this is a real API call response = requests.get( f”<https://en.wikipedia.org/api/rest\_v1/page/summary/{clean\_query}”>, headers={‘User-Agent’: ‘OpenAI-Agents-Demo/1.0’} ) if response.status\_code == 200: data = response.json() # Format the response in a user-friendly way return f”\*\*{data\[‘title’\]}\*\*: {data\[‘extract’\]}” elif response.status\_code == 404: return f”Sorry, I couldn’t find a Wikipedia article for ‘{query}’. Try rephrasing your search.” else: return f”Wikipedia search temporarily unavailable (status: {response.status\_code})” except Exception as e: # Always handle errors gracefully in tools return f”Error searching Wikipedia: {str(e)}” # Example 2: Complex Calculations with Structured Output # This demonstrates how to return structured data from tools @function\_tool def calculate\_compound\_interest( principal: float, rate: float, time: int, compound\_frequency: int = 12 ) -> Dict\[str, Any\]: “””Calculate compound interest with detailed breakdown. This tool shows how to handle multiple parameters and return structured data that the agent can interpret and present clearly to users. Args: principal: Initial amount invested (in dollars). rate: Annual interest rate as a percentage (e.g., 5.5 for 5.5%). time: Number of years to calculate. compound\_frequency: How often interest compounds per year (default: 12 for monthly). Returns: dict: Calculation results including final amount and total interest. “”” # Input validation – important for tools that do calculations if principal <= 0: return {“error”: “Principal amount must be positive”} if rate < 0: return {“error”: “Interest rate cannot be negative”} if time <= 0: return {“error”: “Time period must be positive”} if compound\_frequency <= 0: return {“error”: “Compound frequency must be positive”} # Convert percentage to decimal decimal\_rate = rate / 100 # Apply the compound interest formula: A = P(1 + r/n)^(nt) final\_amount = principal \* (1 + decimal\_rate/compound\_frequency) \*\* (compound\_frequency \* time) total\_interest = final\_amount – principal # Return structured data that the agent can easily work with return { “status”: “success”, “calculation”: { “principal”: principal, “final\_amount”: round(final\_amount, 2), “total\_interest”: round(total\_interest, 2), “rate\_percent”: rate, “years”: time, “compound\_frequency”: compound\_frequency }, “summary”: f”${principal:,.2f} grows to ${final\_amount:,.2f} over {time} years at {rate}% annual interest” }
+
 ```
 from agents import function_tool, Agent
 import requests
@@ -322,6 +328,7 @@ The SDK provides several hosted tools that run on OpenAI’s servers, offering p
 You just need to import them and use them like any tools:
 
 Pythonfrom agents import Agent, WebSearchTool, FileSearchTool, CodeInterpreterTool
+
 ```
 from agents import Agent, WebSearchTool, FileSearchTool, CodeInterpreterTool
 ```
@@ -331,6 +338,7 @@ from agents import Agent, WebSearchTool, FileSearchTool, CodeInterpreterTool
 You can use agents as tools for other agents, creating powerful hierarchical systems where specialized agents handle specific domains:
 
 Python\# Create specialized agents that excel at specific tasks # Each agent has focused expertise and tailored instructions # Math specialist – optimized for numerical calculations and explanations math\_agent = Agent( name=”Math Specialist”, instructions=””” You are an expert mathematician who excels at: – Solving complex mathematical problems step by step – Explaining mathematical concepts clearly – Performing accurate calculations – Showing your work and reasoning Always break down complex problems into understandable steps. When doing calculations, be precise and show intermediate results. “””, tools=\[calculate\_compound\_interest\] # From our earlier example ) # Research specialist – optimized for information gathering research\_agent = Agent( name=”Research Specialist”, instructions=””” You are an expert researcher who excels at: – Finding authoritative and current information – Synthesizing information from multiple sources – Providing well-sourced and balanced perspectives – Distinguishing between facts and opinions Always cite your sources and explain the credibility of information. When possible, find multiple sources to verify important claims. “””, tools=\[search\_wikipedia, WebSearchTool()\] ) # Create an orchestrator agent that coordinates the specialists # This agent decides which specialist to use based on the user’s needs orchestrator = Agent( name=”Task Orchestrator”, instructions=””” You are a smart coordinator that manages a team of specialist agents. Your job is to understand user requests and delegate to the right specialist. Use the math specialist for: – Numerical calculations and mathematical problems – Financial analysis and projections – Statistical analysis – Any task involving numbers or formulas Use the research specialist for: – Finding information about topics, people, or events – Gathering current news or developments – Researching background information – Fact-checking and verification For complex tasks, you can use both specialists: 1. First gather information with the research specialist 2. Then perform calculations with the math specialist 3. Synthesize the results into a comprehensive answer Always explain which specialist you’re consulting and why. “””, tools=\[ # Convert agents into tools using the as\_tool() method # This allows the orchestrator to call them like any other tool math\_agent.as\_tool( tool\_name=”get\_math\_help”, tool\_description=”Get expert help with mathematical calculations, formulas, and numerical analysis” ), research\_agent.as\_tool( tool\_name=”get\_research\_help”, tool\_description=”Get expert help researching topics, finding information, and gathering current data” ) \] )
+
 ```
 # Create specialized agents that excel at specific tasks
 # Each agent has focused expertise and tailored instructions
@@ -439,6 +447,7 @@ Context is the foundation that transforms stateless agent interactions into inte
 The SDK lets you create a context object using a dataclass. In this example, we’ll create a context class that holds all user session information and passes it to all the agents and their tools:
 
 Pythonfrom dataclasses import dataclass from agents import Agent, RunContextWrapper, function\_tool import time # Define a context class that holds all the user session information # This will be passed to every agent and tool in your system @dataclass class UserSession: user\_id: str name: str preferences: dict conversation\_history: list session\_start\_time: float
+
 ```
 from dataclasses import dataclass
 from agents import Agent, RunContextWrapper, function_tool
@@ -458,6 +467,7 @@ class UserSession:
 Now let’s see how our tools can access and modify the context. Tools can access user data to provide personalized responses and remember user preferences:
 
 Python@function\_tool def get\_user\_preferences(ctx: RunContextWrapper\[UserSession\]) -> str: “””Get the current user’s preferences. The ctx parameter gives us access to the user session data. This allows tools to personalize their behavior based on user settings. “”” prefs = ctx.context.preferences if not prefs: return “No preferences set yet. You can update them anytime!” # Format preferences in a user-friendly way formatted\_prefs = \[\] for category, value in prefs.items(): formatted\_prefs.append(f”{category}: {value}”) return f”Your current preferences: {‘, ‘.join(formatted\_prefs)}” @function\_tool def update\_preference(ctx: RunContextWrapper\[UserSession\], category: str, value: str) -> str: “””Update a user preference. This tool modifies the context data, which persists throughout the session. Changes made here will be available to all subsequent tool calls and agent interactions. “”” # Update the preferences in the context ctx.context.preferences\[category\] = value # Add to conversation history for tracking ctx.context.conversation\_history.append({ “action”: “preference\_update”, “category”: category, “value”: value, “timestamp”: time.time() }) return f”Updated your {category} preference to ‘{value}’. This will apply to all future interactions!” @function\_tool def get\_conversation\_summary(ctx: RunContextWrapper\[UserSession\]) -> str: “””Provide a summary of the user’s session activity. This demonstrates how context can be used to track state across multiple interactions. “”” session = ctx.context session\_duration = time.time() – session.session\_start\_time summary = f””” Session Summary for {session.name}: – Session duration: {session\_duration/60:.1f} minutes – Conversation events: {len(session.conversation\_history)} – Current preferences: {len(session.preferences)} set “”” # Show recent activity if available if session.conversation\_history: recent\_activity = session.conversation\_history\[-3:\] # Last 3 events summary += “\\n\\nRecent activity:” for event in recent\_activity: if event.get(“action”) == “preference\_update”: summary += f”\\n- Set {event\[‘category’\]} to {event\[‘value’\]}” return summary
+
 ```
 @function_tool
 def get_user_preferences(ctx: RunContextWrapper[UserSession]) -> str:
@@ -527,6 +537,7 @@ def get_conversation_summary(ctx: RunContextWrapper[UserSession]) -> str:
 We can also create an agent that uses context-aware tools. Note the type annotation \[UserSession\]. This tells the agent what context type to expect and prevents errors.
 
 Pythonpersonalized\_agent = Agent\[UserSession\]( name=”Personal Assistant”, instructions=””” You are a personal assistant that provides personalized service based on user preferences. You can: – Check and update user preferences using the available tools – Provide personalized recommendations based on their settings – Track conversation history and provide session summaries Key behaviors: – Always use the user’s name when you know it – Reference their preferences when giving advice – Offer to update preferences when you notice user needs – Be helpful and remember context from earlier in the conversation “””, tools=\[get\_user\_preferences, update\_preference, get\_conversation\_summary\] )
+
 ```
 personalized_agent = Agent[UserSession](
     name="Personal Assistant",
@@ -561,7 +572,8 @@ The built-in tracing system captures every step of the agent’s thinking and ac
 
 This means when something goes wrong (and we all know something always goes wrong), you can actually figure out why.
 
-Pythonfrom agents import Agent, Runner, trace # Tracing is enabled by default, but you can customize it async def traced\_research\_session(): with trace(workflow\_name=”Research Session”, group\_id=”session\_123″) as trace\_context: # First research query result1 = await Runner.run( agent, “Research the history of artificial intelligence”, run\_config=RunConfig( workflow\_name=”AI History Research”, trace\_metadata={“user\_id”: “user\_456”, “session\_type”: “research”} ) ) # Follow-up query in the same trace result2 = await Runner.run( agent, f”Based on this research: {result1.final\_output}, what are the key milestones?” ) # Traces are automatically sent to OpenAI dashboard print(“Research complete. Check traces at https://platform.openai.com/traces”) # You can also disable tracing or customize processors from agents import set\_tracing\_disabled, add\_trace\_processor # Disable tracing entirely set\_tracing\_disabled(True) # Or add custom trace processors for external tools # add\_trace\_processor(your\_custom\_processor)
+Pythonfrom agents import Agent, Runner, trace # Tracing is enabled by default, but you can customize it async def traced\_research\_session(): with trace(workflow\_name=”Research Session”, group\_id=”session\_123″) as trace\_context: # First research query result1 = await Runner.run( agent, “Research the history of artificial intelligence”, run\_config=RunConfig( workflow\_name=”AI History Research”, trace\_metadata={“user\_id”: “user\_456”, “session\_type”: “research”} ) ) # Follow-up query in the same trace result2 = await Runner.run( agent, f”Based on this research: {result1.final\_output}, what are the key milestones?” ) # Traces are automatically sent to OpenAI dashboard print(“Research complete. Check traces at <https://platform.openai.com/traces”>) # You can also disable tracing or customize processors from agents import set\_tracing\_disabled, add\_trace\_processor # Disable tracing entirely set\_tracing\_disabled(True) # Or add custom trace processors for external tools # add\_trace\_processor(your\_custom\_processor)
+
 ```
 from agents import Agent, Runner, trace
 
@@ -607,6 +619,7 @@ One of the most powerful features is the ability to create handoffs between spec
 - Complex reasoning needed? Bring in the heavyweight model
 
 Pythonsupport\_agent = Agent(name=”support”, instructions=”You handle customer questions.”) technical\_agent = Agent(name=”technical”, instructions=”You solve technical issues.”) billing\_agent = Agent(name=”billing”, instructions=”You handle billing inquiries.”) triage\_agent = Agent( name=”triage”, instructions=”Route customer inquiries to the appropriate specialized agent.”, handoffs=\[support\_agent, technical\_agent, billing\_agent\] )
+
 ```
 support_agent = Agent(name="support", instructions="You handle customer questions.")
 technical_agent = Agent(name="technical", instructions="You solve technical issues.")
@@ -637,6 +650,7 @@ Guardrails are the bouncers of your application, validating inputs before they r
 Developers can implement safety measures that run in parallel with agent execution:
 
 Pythonfrom agents.guardrails import CustomGuardrail async def is\_not\_swearing(msgs, context) -> bool: content = ” “.join(m\[“content”\] for m in msgs if “content” in m) return “badword” not in content.lower() my\_guardrail = CustomGuardrail( guardrail\_function=is\_not\_swearing, tripwire\_config=lambda output: not output # if ‘False’, raise error ) agent = Agent( name=”my\_agent”, input\_guardrails=\[my\_guardrail\] )
+
 ```
 from agents.guardrails import CustomGuardrail
 
@@ -689,6 +703,7 @@ Each agent is designed with specific instructions, tools, and capabilities that 
 Each agent as described above is going to do a certain task and then give us the result of the task in an output. We want to ensure that the output is structured in a certain manner so that when they hand it off to the next agent, that agent can take it in that structure and then do more work on it.
 
 Pythonclass ResearchFinding(BaseModel): “””A single research finding with source information.””” statement: str source: str confidence: float # 0.0 to 1.0 class VerifiedResearch(BaseModel): “””Collection of verified research findings.””” findings: List\[ResearchFinding\] verified: bool notes: Optional\[str\] = None class FinalContent(BaseModel): “””Final output content with structured sections.””” title: str introduction: str key\_points: List\[str\] body: str conclusion: str sources: List\[str\]
+
 ```
 class ResearchFinding(BaseModel):
     """A single research finding with source information."""
@@ -716,7 +731,8 @@ We also want to give each agent some tools to do their work. The Research Agent,
 
 I am not going to write all the tools here, but here’s what the web search tool might look like, using the [Exa Search API](https://www.siddharthbharath.com/the-ultimate-guide-to-building-ai-agents-with-exa/).
 
-Python@function\_tool async def search\_web(context: AgentContextWrapper\[ResearchContext\], query: str) -> str: “”” Search the web for information about a topic using the Exa Search API. Args: query: The search query text Returns: Search results as formatted text with citations “”” topic = context.agent\_context.topic # Combine the specific query with the general topic for better results full\_query = f”{query} about {topic}” try: # Make a request to the Exa Search API async with aiohttp.ClientSession() as session: async with session.post( “https://api.exa.ai/search”, headers={ “Content-Type”: “application/json”, “x-api-key”: “YOUR\_EXA\_API\_KEY” # Replace with your actual API key }, json={ “query”: full\_query, “numResults”: 5, “useAutoprompt”: True, “type”: “keyword” } ) as response: if response.status != 200: error\_text = await response.text() return f”Error searching: {response.status} – {error\_text}” search\_results = await response.json() # Process the results formatted\_results = f”Search results for ‘{query}’ about {topic}:\\n\\n” if not search\_results.get(“results”): return f”No results found for ‘{query}’ about {topic}.” # Format each result with its title, content, and URL for i, result in enumerate(search\_results.get(“results”, \[\]), 1): title = result.get(“title”, “No title”) url = result.get(“url”, “No URL”) content = result.get(“text”, “”).strip() # Limit content length for readability if len(content) > 500: content = content\[:500\] + “…” formatted\_results += f”{i}. \*\*{title}\*\*\\n” formatted\_results += f” {content}\\n” formatted\_results += f” Source: {url}\\n\\n” # Add a summary if available if search\_results.get(“autopromptString”): formatted\_results += f”Summary: {search\_results.get(‘autopromptString’)}\\n\\n” return formatted\_results except Exception as e: # Provide a useful error message error\_message = f”Error while searching for ‘{query}’: {str(e)}” # Add fallback information if the search fails fallback\_info = f”\\n\\nFallback information about {topic}:\\n” + \\ f”1. {topic} has been studied in recent publications.\\n” + \\ f”2. Current research suggests growing interest in {topic}.\\n” + \\ f”3. Common challenges in {topic} include implementation complexity and adoption barriers.” return error\_message + fallback\_info
+Python@function\_tool async def search\_web(context: AgentContextWrapper\[ResearchContext\], query: str) -> str: “”” Search the web for information about a topic using the Exa Search API. Args: query: The search query text Returns: Search results as formatted text with citations “”” topic = context.agent\_context.topic # Combine the specific query with the general topic for better results full\_query = f”{query} about {topic}” try: # Make a request to the Exa Search API async with aiohttp.ClientSession() as session: async with session.post( “<https://api.exa.ai/search”>, headers={ “Content-Type”: “application/json”, “x-api-key”: “YOUR\_EXA\_API\_KEY” # Replace with your actual API key }, json={ “query”: full\_query, “numResults”: 5, “useAutoprompt”: True, “type”: “keyword” } ) as response: if response.status != 200: error\_text = await response.text() return f”Error searching: {response.status} – {error\_text}” search\_results = await response.json() # Process the results formatted\_results = f”Search results for ‘{query}’ about {topic}:\\n\\n” if not search\_results.get(“results”): return f”No results found for ‘{query}’ about {topic}.” # Format each result with its title, content, and URL for i, result in enumerate(search\_results.get(“results”, \[\]), 1): title = result.get(“title”, “No title”) url = result.get(“url”, “No URL”) content = result.get(“text”, “”).strip() # Limit content length for readability if len(content) > 500: content = content\[:500\] + “…” formatted\_results += f”{i}. \*\*{title}\*\*\\n” formatted\_results += f” {content}\\n” formatted\_results += f” Source: {url}\\n\\n” # Add a summary if available if search\_results.get(“autopromptString”): formatted\_results += f”Summary: {search\_results.get(‘autopromptString’)}\\n\\n” return formatted\_results except Exception as e: # Provide a useful error message error\_message = f”Error while searching for ‘{query}’: {str(e)}” # Add fallback information if the search fails fallback\_info = f”\\n\\nFallback information about {topic}:\\n” + \\ f”1. {topic} has been studied in recent publications.\\n” + \\ f”2. Current research suggests growing interest in {topic}.\\n” + \\ f”3. Common challenges in {topic} include implementation complexity and adoption barriers.” return error\_message + fallback\_info
+
 ```
 @function_tool
 async def search_web(context: AgentContextWrapper[ResearchContext], query: str) -> str:
@@ -797,6 +813,7 @@ async def search_web(context: AgentContextWrapper[ResearchContext], query: str) 
 You’ll notice this tool uses the ResearchContext context to share data across other tools. Let’s define that as well:
 
 Pythonclass ResearchContext: def \_\_init\_\_(self, topic: str): self.topic = topic self.findings = \[\] self.verified\_findings = \[\] self.draft\_content = “” self.history = \[\] def add\_finding(self, finding: ResearchFinding): self.findings.append(finding) self.history.append(f”Added finding: {finding.statement}”) def add\_verified\_findings(self, verified: VerifiedResearch): self.verified\_findings.extend(verified.findings) self.history.append(f”Added {len(verified.findings)} verified findings”) def set\_draft(self, draft: str): self.draft\_content = draft self.history.append(“Updated draft content”)
+
 ```
 class ResearchContext:
     def __init__(self, topic: str):
@@ -822,6 +839,7 @@ class ResearchContext:
 You may also want to add some guardrails, for example checking if the research content is unbiased. A very simple hard-coded example might be to count the number of times an opinion is expressed vs a fact, like so:
 
 Pythonasync def is\_fact\_based(msgs, context) -> bool: “””Check if messages appear to be fact-based and not opinion-heavy.””” content = ” “.join(m.get(“content”, “”) for m in msgs if isinstance(m, dict)) opinion\_phrases = \[“I believe”, “I think”, “in my opinion”, “probably”, “might be”, “could be”\] # Count opinion phrases opinion\_count = sum(content.lower().count(phrase) for phrase in opinion\_phrases) # Allow some opinion phrases, but not too many return opinion\_count < 3 fact\_based\_guardrail = CustomGuardrail( guardrail\_function=is\_fact\_based, tripwire\_config=lambda output: not output, error\_message=”Output contains too many opinion statements rather than fact-based research.” )
+
 ```
 async def is_fact_based(msgs, context) -> bool:
     """Check if messages appear to be fact-based and not opinion-heavy."""
@@ -846,6 +864,7 @@ You can create something more powerful but this simple example highlights how th
 Finally, we’ll create our Agents and give them the tools, context, and guardrails. Here’s what the Fact Checker Agent might look like:
 
 Pythonfact\_checker\_agent = Agent( name=”fact\_checker\_agent”, model=”gpt-4o”, instructions=”””You are a meticulous fact-checking agent. Your job is to: 1. Review the research findings in the shared context 2. Verify each statement using the verify\_statement tool 3. Consolidate verified findings using save\_verified\_research 4. Be skeptical and thorough – only approve statements with sufficient evidence For each finding, check if the source is credible and if the statement contains verifiable facts rather than opinions or generalizations. “””, context\_type=ResearchContext, tools=\[verify\_statement, save\_verified\_research\], output\_type=str, output\_guardrails=\[fact\_based\_guardrail\], description=”Verifies research findings for accuracy and proper sourcing” )
+
 ```
 fact_checker_agent = Agent(
     name="fact_checker_agent",
@@ -870,6 +889,7 @@ fact_checker_agent = Agent(
 Our Triage Agent which manages the whole process would also have handoffs defined in its parameters:
 
 Pythontriage\_agent = Agent( name=”triage\_agent”, model=”gpt-3.5-turbo”, instructions=”””You are a research coordinator who manages the research process. For any research query: 1. First, hand off to the researcher\_agent to gather information 2. Then, hand off to the fact\_checker\_agent to verify the findings 3. Finally, hand off to the writer\_agent to create the final content Monitor the process and ensure each specialized agent completes their task. “””, context\_type=ResearchContext, handoffs=\[ handoff(researcher\_agent), handoff(fact\_checker\_agent), handoff(writer\_agent) \], output\_type=FinalContent, description=”Coordinates the research process across specialized agents” )
+
 ```
 triage_agent = Agent(
     name="triage_agent",
@@ -896,6 +916,7 @@ triage_agent = Agent(
 And finally, we write the main function to run the whole process:
 
 Pythonasync def run\_research\_system(topic: str) -> FinalContent: “””Run the multi-agent research system on a given topic.””” # Create the shared context context = ResearchContext(topic=topic) # Configure the run with tracing enabled config = AgentRunConfig( run\_name=f”research\_{topic.replace(‘ ‘, ‘\_’)}”, tracing\_disabled=False ) # Run the triage agent with the initial query result = await AgentRunner.run( triage\_agent, \[f”Research the following topic thoroughly: {topic}”\], context=context, run\_config=config ) return result.agent\_output
+
 ```
 async def run_research_system(topic: str) -> FinalContent:
     """Run the multi-agent research system on a given topic."""

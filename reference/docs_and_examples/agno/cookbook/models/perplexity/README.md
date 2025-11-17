@@ -48,4 +48,3 @@ python cookbook/models/cohere/tool_use.py
 ```shell
 python cookbook/models/perplexity/knowledge.py
 ```
-

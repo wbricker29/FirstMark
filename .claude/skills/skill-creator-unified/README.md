@@ -28,13 +28,13 @@ These apply to both general and Claude Code skills:
 
 These apply only when creating Claude Code skills with auto-activation:
 
-4. **CLAUDE_CODE_OVERVIEW.md** (352 lines) - When to use, system architecture, skill types, migration guide
-5. **HOOKS_AND_TRIGGERS.md** (514 lines) - Hook mechanisms, trigger types, best practices
-6. **SKILL_RULES_CONFIG.md** (480 lines) - skill-rules.json schema, examples, validation
-7. **ENFORCEMENT_LEVELS.md** (477 lines) - Block/suggest/warn, guardrails vs domain, skip conditions
-8. **TESTING_CLAUDE_CODE.md** (422 lines) - Testing commands, checklist, troubleshooting
-9. **PATTERNS_LIBRARY.md** (168 lines) - Copy-paste trigger patterns
-10. **FAQ.md** (509 lines) - Common questions and answers
+1. **CLAUDE_CODE_OVERVIEW.md** (352 lines) - When to use, system architecture, skill types, migration guide
+2. **HOOKS_AND_TRIGGERS.md** (514 lines) - Hook mechanisms, trigger types, best practices
+3. **SKILL_RULES_CONFIG.md** (480 lines) - skill-rules.json schema, examples, validation
+4. **ENFORCEMENT_LEVELS.md** (477 lines) - Block/suggest/warn, guardrails vs domain, skip conditions
+5. **TESTING_CLAUDE_CODE.md** (422 lines) - Testing commands, checklist, troubleshooting
+6. **PATTERNS_LIBRARY.md** (168 lines) - Copy-paste trigger patterns
+7. **FAQ.md** (509 lines) - Common questions and answers
 
 **Total reference documentation**: 3,390 lines organized into 10 focused files
 
@@ -49,11 +49,13 @@ These apply only when creating Claude Code skills with auto-activation:
 ### 1. Choose Your Path
 
 **General Skills** - Simple, portable, manually invoked:
+
 - Work everywhere (Desktop, CLI, API)
 - No auto-activation
 - Simpler setup
 
 **Claude Code Skills** - Advanced, auto-activation:
+
 - Auto-trigger based on keywords, files, content
 - Can enforce guardrails (block edits)
 - Session tracking and skip conditions
@@ -66,11 +68,13 @@ These apply only when creating Claude Code skills with auto-activation:
 ### 2. Initialize Your Skill
 
 **General skill**:
+
 ```bash
 uv run python scripts/init_skill.py my-skill
 ```
 
 **Claude Code skill** (future - not yet implemented):
+
 ```bash
 uv run python scripts/init_skill.py my-skill --claude-code
 ```
@@ -80,6 +84,7 @@ uv run python scripts/init_skill.py my-skill --claude-code
 ### 3. Follow the 6-Step Process
 
 **Design Phase**:
+
 1. **Understand** - Gather 3+ concrete use case examples
 2. **Plan** - Identify scripts, references, assets to include
 
@@ -96,11 +101,13 @@ uv run python scripts/init_skill.py my-skill --claude-code
 ### 4. Validate and Package
 
 **Validate**:
+
 ```bash
 uv run python scripts/quick_validate.py path/to/my-skill
 ```
 
 **Package**:
+
 ```bash
 uv run python scripts/package_skill.py path/to/my-skill
 ```
@@ -125,12 +132,14 @@ uv run python scripts/package_skill.py path/to/my-skill
 ### ✅ Comprehensive Coverage
 
 **General Skills**:
+
 - Design, implementation, delivery phases
 - Bundled resources (scripts, references, assets)
 - Validation and packaging
 - YAML frontmatter best practices
 
 **Claude Code Skills**:
+
 - Auto-activation triggers (keywords, intent, file paths, content)
 - Enforcement levels (block, suggest, warn)
 - Guardrails vs domain skills
@@ -173,9 +182,11 @@ uv run python scripts/package_skill.py path/to/my-skill
 ### Reference Files Organization
 
 **Universal** (shared foundation):
+
 - Design → Implementation → Delivery (linear workflow)
 
 **Claude Code** (optional extensions):
+
 - Overview → Hooks/Triggers → Config → Enforcement → Testing → Patterns → FAQ
 - Progressive complexity: start with overview, drill down as needed
 
@@ -215,12 +226,14 @@ uv run python scripts/package_skill.py path/to/my-skill
 ### vs wskill-creator
 
 **Preserved**:
+
 - ✅ Clean 6-step process
 - ✅ Phase-based organization (Design, Implementation, Delivery)
 - ✅ Comprehensive packaging support
 - ✅ Beginner-friendly approach
 
 **Added**:
+
 - ✅ Claude Code integration path
 - ✅ Decision matrix for path selection
 - ✅ Migration guide
@@ -229,12 +242,14 @@ uv run python scripts/package_skill.py path/to/my-skill
 ### vs skill-developer
 
 **Preserved**:
+
 - ✅ Complete Claude Code infrastructure coverage
 - ✅ Hooks, triggers, enforcement levels
 - ✅ Testing and troubleshooting guides
 - ✅ Patterns library
 
 **Improved**:
+
 - ✅ Better organization (decomposed into focused files)
 - ✅ Clear separation: universal vs Claude Code
 - ✅ Gentler learning curve (opt-in complexity)
@@ -407,6 +422,7 @@ Same as source skills (wskill-creator and skill-developer)
 **Created**: 2025-11-15
 
 **Line count**:
+
 - SKILL.md: 438 lines
 - References: 3,390 lines (10 files)
 - Scripts: 3 files

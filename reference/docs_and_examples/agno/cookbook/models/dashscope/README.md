@@ -9,7 +9,7 @@ source ~/.venvs/aienv/bin/activate
 
 ### 2. Export your `DASHSCOPE_API_KEY` or `QWEN_API_KEY`
 
-Get your API key from: https://modelstudio.console.alibabacloud.com/?tab=model#/api-key
+Get your API key from: <https://modelstudio.console.alibabacloud.com/?tab=model#/api-key>
 
 ```shell
 export DASHSCOPE_API_KEY=***
@@ -90,4 +90,5 @@ python cookbook/models/dashscope/async_image_agent.py
 ```
 
 For more information about Qwen models and capabilities, visit:
+
 - [Model Studio Console](https://modelstudio.console.alibabacloud.com/)

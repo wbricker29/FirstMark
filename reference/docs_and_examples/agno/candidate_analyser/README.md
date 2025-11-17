@@ -133,12 +133,11 @@ Agent(
 ```
 
 **This agent:**
+
 - Thinks before evaluating (🧠)
 - Gathers accurate GitHub + LinkedIn info (🔍)
 - Reasons like an expert hiring manager (📈)
 - Provides a final score with strict justification (✅❌)
-
-
 
 ## 🔗 Links
 

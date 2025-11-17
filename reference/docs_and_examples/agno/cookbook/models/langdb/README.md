@@ -73,5 +73,3 @@ python cookbook/models/langdb/finance_agent.py
 ```shell
 python cookbook/models/langdb/structured_output.py
 ```
-
-

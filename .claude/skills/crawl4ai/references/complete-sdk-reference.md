@@ -101,7 +101,6 @@ If errors occur, rerun `crawl4ai-doctor` or manually ensure Playwright is instal
   crawl4ai-setup
   ```
 
-
 ```bash
 crawl4ai-download-models
 ```
@@ -242,7 +241,6 @@ schema = JsonCssExtractionStrategy.generate_schema(
 strategy = JsonCssExtractionStrategy(schema)
 ```
 
-
 ```python
 import asyncio
 import json
@@ -280,6 +278,7 @@ if __name__ == "__main__":
 - Great for repetitive page structures (e.g., item listings, articles).
 - No AI usage or costs.
 - The crawler returns a JSON string you can parse or store.
+
 > Tips: You can pass raw HTML to the crawler instead of a URL. To do so, prefix the HTML with `raw://`.
 
 ## 6. Simple Data Extraction (LLM-based)
@@ -519,9 +518,9 @@ if __name__ == "__main__":
 ## AsyncWebCrawler
 
 The **`AsyncWebCrawler`** is the core class for asynchronous web crawling in Crawl4AI. You typically create it **once**, optionally customize it with a **`BrowserConfig`** (e.g., headless, user agent), then **run** multiple **`arun()`** calls with different **`CrawlerRunConfig`** objects.
-1. **Create** a `BrowserConfig` for global browser settings. 
-2. **Instantiate** `AsyncWebCrawler(config=browser_config)`. 
-3. **Use** the crawler in an async context manager (`async with`) or manage start/close manually. 
+1. **Create** a `BrowserConfig` for global browser settings.
+2. **Instantiate** `AsyncWebCrawler(config=browser_config)`.
+3. **Use** the crawler in an async context manager (`async with`) or manage start/close manually.
 4. **Call** `arun(url, config=crawler_run_config)` for each page you want.
 
 ## 1. Constructor Overview
@@ -753,14 +752,14 @@ async def main():
 asyncio.run(main())
 ```
 
-- We define a **`BrowserConfig`** with Firefox, no headless, and `verbose=True`. 
-- We define a **`CrawlerRunConfig`** that **bypasses cache**, uses a **CSS** extraction schema, has a `word_count_threshold=15`, etc. 
+- We define a **`BrowserConfig`** with Firefox, no headless, and `verbose=True`.
+- We define a **`CrawlerRunConfig`** that **bypasses cache**, uses a **CSS** extraction schema, has a `word_count_threshold=15`, etc.
 - We pass them to `AsyncWebCrawler(config=...)` and `arun(url=..., config=...)`.
 
 ## 7. Best Practices & Migration Notes
 
-1. **Use** `BrowserConfig` for **global** settings about the browser’s environment. 
-2. **Use** `CrawlerRunConfig` for **per-crawl** logic (caching, content filtering, extraction strategies, wait conditions). 
+1. **Use** `BrowserConfig` for **global** settings about the browser’s environment.
+2. **Use** `CrawlerRunConfig` for **per-crawl** logic (caching, content filtering, extraction strategies, wait conditions).
 3. **Avoid** legacy parameters like `css_selector` or `word_count_threshold` directly in `arun()`. Instead:
 
    ```python
@@ -770,10 +769,10 @@ asyncio.run(main())
 
 ## 8. Summary
 
-- **Constructor** accepts **`BrowserConfig`** (or defaults). 
-- **`arun(url, config=CrawlerRunConfig)`** is the main method for single-page crawls. 
-- **`arun_many(urls, config=CrawlerRunConfig)`** handles concurrency across multiple URLs. 
-- For advanced lifecycle control, use `start()` and `close()` explicitly. 
+- **Constructor** accepts **`BrowserConfig`** (or defaults).
+- **`arun(url, config=CrawlerRunConfig)`** is the main method for single-page crawls.
+- **`arun_many(urls, config=CrawlerRunConfig)`** handles concurrency across multiple URLs.
+- For advanced lifecycle control, use `start()` and `close()` explicitly.
 - If you used `AsyncWebCrawler(browser_type="chromium", css_selector="...")`, move browser settings to `BrowserConfig(...)` and content/crawl logic to `CrawlerRunConfig(...)`.
 
 ## `arun()` Parameter Guide (New Approach)
@@ -813,7 +812,7 @@ async def main():
             print(f"Error: {result.error_message}")
 ```
 
-- `verbose=True` logs each crawl step. 
+- `verbose=True` logs each crawl step.
 - `cache_mode` decides how to read/write the local crawl cache.
 
 ## 2. Cache Control
@@ -896,7 +895,7 @@ run_config = CrawlerRunConfig(
   - `"css:selector"` or
   - `"js:() => boolean"`
   e.g. `js:() => document.querySelectorAll('.item').length > 10`.
-- `mean_delay` & `max_range`: define random delays for `arun_many()` calls. 
+- `mean_delay` & `max_range`: define random delays for `arun_many()` calls.
 - `semaphore_count`: concurrency limit when crawling multiple URLs.
 
 ### 4.2 JavaScript Execution
@@ -911,7 +910,7 @@ run_config = CrawlerRunConfig(
 )
 ```
 
-- `js_code` can be a single string or a list of strings. 
+- `js_code` can be a single string or a list of strings.
 - `js_only=True` means “I’m continuing in the same session with new JS steps, no new full navigation.”
 
 ### 4.3 Anti-Bot
@@ -924,8 +923,8 @@ run_config = CrawlerRunConfig(
 )
 ```
 
-- `magic=True` tries multiple stealth features. 
-- `simulate_user=True` mimics mouse movements or random delays. 
+- `magic=True` tries multiple stealth features.
+- `simulate_user=True` mimics mouse movements or random delays.
 - `override_navigator=True` fakes some navigator properties (like user agent checks).
 
 ## 5. Session Management
@@ -1035,23 +1034,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-1. **Crawling** the main content region, ignoring external links. 
-2. Running **JavaScript** to click “.show-more”. 
-3. **Waiting** for “.loaded-block” to appear. 
-4. Generating a **screenshot** & **PDF** of the final page. 
+1. **Crawling** the main content region, ignoring external links.
+2. Running **JavaScript** to click “.show-more”.
+3. **Waiting** for “.loaded-block” to appear.
+4. Generating a **screenshot** & **PDF** of the final page.
 
 ## 9. Best Practices
 
-1. **Use `BrowserConfig` for global browser** settings (headless, user agent). 
-2. **Use `CrawlerRunConfig`** to handle the **specific** crawl needs: content filtering, caching, JS, screenshot, extraction, etc. 
-4. **Limit** large concurrency (`semaphore_count`) if the site or your system can’t handle it. 
+1. **Use `BrowserConfig` for global browser** settings (headless, user agent).
+2. **Use `CrawlerRunConfig`** to handle the **specific** crawl needs: content filtering, caching, JS, screenshot, extraction, etc.
+4. **Limit** large concurrency (`semaphore_count`) if the site or your system can’t handle it.
 5. For dynamic pages, set `js_code` or `scan_full_page` so you load all content.
 
 ## 10. Conclusion
 
 All parameters that used to be direct arguments to `arun()` now belong in **`CrawlerRunConfig`**. This approach:
 
-- Makes code **clearer** and **more maintainable**. 
+- Makes code **clearer** and **more maintainable**.
 
 ## `arun_many(...)` Reference
 
@@ -1083,16 +1082,16 @@ async def arun_many(
 
 1. **Multiple URLs**:
 
-- Instead of crawling a single URL, you pass a list of them (strings or tasks). 
+- Instead of crawling a single URL, you pass a list of them (strings or tasks).
 - The function returns either a **list** of `CrawlResult` or an **async generator** if streaming is enabled.
 2. **Concurrency & Dispatchers**:
-- **`dispatcher`** param allows advanced concurrency control. 
-- If omitted, a default dispatcher (like `MemoryAdaptiveDispatcher`) is used internally. 
+- **`dispatcher`** param allows advanced concurrency control.
+- If omitted, a default dispatcher (like `MemoryAdaptiveDispatcher`) is used internally.
 3. **Streaming Support**:
 - Enable streaming by setting `stream=True` in your `CrawlerRunConfig`.
 - When streaming, use `async for` to process results as they become available.
 4. **Parallel** Execution**:
-- `arun_many()` can run multiple requests concurrently under the hood. 
+- `arun_many()` can run multiple requests concurrently under the hood.
 - Each `CrawlResult` might also include a **`dispatch_result`** with concurrency details (like memory usage, start/end times).
 
 ### Basic Example (Batch Mode)
@@ -1201,7 +1200,7 @@ results = await crawler.arun_many(
 - **Function matchers**: `lambda url: 'api' in url`
 - **Mixed patterns**: Combine strings and functions with `MatchMode.OR` or `MatchMode.AND`
 - **First match wins**: Configs are evaluated in order
-- `dispatch_result` in each `CrawlResult` (if using concurrency) can hold memory and timing info. 
+- `dispatch_result` in each `CrawlResult` (if using concurrency) can hold memory and timing info.
 - **Important**: Always include a default config (without `url_matcher`) as the last item if you want to handle all URLs. Otherwise, unmatched URLs will fail.
 
 ### Return Value
@@ -1210,8 +1209,8 @@ Either a **list** of [`CrawlResult`](./crawl-result.md) objects, or an **async g
 
 ## Dispatcher Reference
 
-- **`MemoryAdaptiveDispatcher`**: Dynamically manages concurrency based on system memory usage. 
-- **`SemaphoreDispatcher`**: Fixed concurrency limit, simpler but less adaptive. 
+- **`MemoryAdaptiveDispatcher`**: Dynamically manages concurrency based on system memory usage.
+- **`SemaphoreDispatcher`**: Fixed concurrency limit, simpler but less adaptive.
 
 ## Common Pitfalls
 
@@ -1649,14 +1648,17 @@ class BrowserConfig:
 ### Key Fields to Note
 
 1. **`browser_type`**
+
 - Options: `"chromium"`, `"firefox"`, or `"webkit"`.
 - Defaults to `"chromium"`.
 - If you need a different engine, specify it here.
-2. **`headless`**
+
+1. **`headless`**
 
 - `True`: Runs the browser in headless mode (invisible browser).
 - `False`: Runs the browser in visible mode, which helps with debugging.
-3. **`proxy_config`**
+
+1. **`proxy_config`**
 
 - A dictionary with fields like:
 
@@ -1669,34 +1671,42 @@ class BrowserConfig:
 ```
 
 - Leave as `None` if a proxy is not required.
+
 1. **`viewport_width` & `viewport_height`**:
 
 - The initial window size.
 - Some sites behave differently with smaller or bigger viewports.
-2. **`verbose`**:
+
+1. **`verbose`**:
 
 - If `True`, prints extra logs.
 - Handy for debugging.
-3. **`use_persistent_context`**:
+
+1. **`use_persistent_context`**:
 
 - If `True`, uses a **persistent** browser profile, storing cookies/local storage across runs.
 - Typically also set `user_data_dir` to point to a folder.
-4. **`cookies`** & **`headers`**:
+
+1. **`cookies`** & **`headers`**:
 
 - E.g. `cookies=[{"name": "session", "value": "abc123", "domain": "example.com"}]`.
-5. **`user_agent`**:
+
+1. **`user_agent`**:
 
 - Custom User-Agent string. If `None`, a default is used.
 - You can also set `user_agent_mode="random"` for randomization (if you want to fight bot detection).
-6. **`text_mode`** & **`light_mode`**:
+
+1. **`text_mode`** & **`light_mode`**:
 
 - `text_mode=True` disables images, possibly speeding up text-only crawls.
 - `light_mode=True` turns off certain background features for performance.
-7. **`extra_args`**:
+
+1. **`extra_args`**:
 
 - Additional flags for the underlying browser.
 - E.g. `["--disable-extensions"]`.
-8. **`enable_stealth`**:
+
+1. **`enable_stealth`**:
 
 - If `True`, enables stealth mode using playwright-stealth.
 - Modifies browser fingerprints to avoid basic bot detection.
@@ -1720,7 +1730,6 @@ debug_browser = base_browser.clone(
     verbose=True
 )
 ```
-
 
 ```python
 from crawl4ai import AsyncWebCrawler, BrowserConfig
@@ -1774,61 +1783,75 @@ class CrawlerRunConfig:
 
 - The minimum word count before a block is considered.
 - If your site has lots of short paragraphs or items, you can lower it.
-2. **`extraction_strategy`**:
+
+1. **`extraction_strategy`**:
 
 - Where you plug in JSON-based extraction (CSS, LLM, etc.).
 - If `None`, no structured extraction is done (only raw/cleaned HTML + markdown).
-3. **`markdown_generator`**:
+
+1. **`markdown_generator`**:
 
 - E.g., `DefaultMarkdownGenerator(...)`, controlling how HTML→Markdown conversion is done.
 - If `None`, a default approach is used.
-4. **`cache_mode`**:
+
+1. **`cache_mode`**:
 
 - Controls caching behavior (`ENABLED`, `BYPASS`, `DISABLED`, etc.).
 - If `None`, defaults to some level of caching or you can specify `CacheMode.ENABLED`.
-5. **`js_code`**:
+
+1. **`js_code`**:
 
 - A string or list of JS strings to execute.
 - Great for "Load More" buttons or user interactions.
-6. **`wait_for`**:
+
+1. **`wait_for`**:
 
 - A CSS or JS expression to wait for before extracting content.
 - Common usage: `wait_for="css:.main-loaded"` or `wait_for="js:() => window.loaded === true"`.
-7. **`screenshot`**, **`pdf`**, & **`capture_mhtml`**:
+
+1. **`screenshot`**, **`pdf`**, & **`capture_mhtml`**:
 
 - If `True`, captures a screenshot, PDF, or MHTML snapshot after the page is fully loaded.
 - The results go to `result.screenshot` (base64), `result.pdf` (bytes), or `result.mhtml` (string).
-8. **Location Parameters**:
+
+1. **Location Parameters**:
 
 - **`locale`**: Browser's locale (e.g., `"en-US"`, `"fr-FR"`) for language preferences
 - **`timezone_id`**: Browser's timezone (e.g., `"America/New_York"`, `"Europe/Paris"`)
 - **`geolocation`**: GPS coordinates via `GeolocationConfig(latitude=48.8566, longitude=2.3522)`
-9. **`verbose`**:
+
+1. **`verbose`**:
 
 - Logs additional runtime details.
 - Overlaps with the browser's verbosity if also set to `True` in `BrowserConfig`.
-10. **`enable_rate_limiting`**:
+
+1. **`enable_rate_limiting`**:
 
 - If `True`, enables rate limiting for batch processing.
 - Requires `rate_limit_config` to be set.
-11. **`memory_threshold_percent`**:
+
+1. **`memory_threshold_percent`**:
 
 - The memory threshold (as a percentage) to monitor.
 - If exceeded, the crawler will pause or slow down.
-12. **`check_interval`**:
+
+1. **`check_interval`**:
 
 - The interval (in seconds) to check system resources.
 - Affects how often memory and CPU usage are monitored.
-13. **`max_session_permit`**:
+
+1. **`max_session_permit`**:
 
 - The maximum number of concurrent crawl sessions.
 - Helps prevent overwhelming the system.
-14. **`url_matcher`** & **`match_mode`**:
+
+1. **`url_matcher`** & **`match_mode`**:
 
 - Enable URL-specific configurations when used with `arun_many()`.
 - Set `url_matcher` to patterns (glob, function, or list) to match specific URLs.
 - Use `match_mode` (OR/AND) to control how multiple patterns combine.
-15. **`display_mode`**:
+
+1. **`display_mode`**:
 
 - The display mode for progress information (`DETAILED`, `BRIEF`, etc.).
 - Affects how much information is printed during the crawl.
@@ -1869,14 +1892,17 @@ The `clone()` method:
 ### Key fields to note
 
 1. **`provider`**:
+
 - Which LLM provider to use.
 - Possible values are `"ollama/llama3","groq/llama3-70b-8192","groq/llama3-8b-8192", "openai/gpt-4o-mini" ,"openai/gpt-4o","openai/o1-mini","openai/o1-preview","openai/o3-mini","openai/o3-mini-high","anthropic/claude-3-haiku-20240307","anthropic/claude-3-opus-20240229","anthropic/claude-3-sonnet-20240229","anthropic/claude-3-5-sonnet-20240620","gemini/gemini-pro","gemini/gemini-1.5-pro","gemini/gemini-2.0-flash","gemini/gemini-2.0-flash-exp","gemini/gemini-2.0-flash-lite-preview-02-05","deepseek/deepseek-chat"`<br/>*(default: `"openai/gpt-4o-mini"`)*
-2. **`api_token`**:
+
+1. **`api_token`**:
 
 - Optional. When not provided explicitly, api_token will be read from environment variables based on provider. For example: If a gemini model is passed as provider then,`"GEMINI_API_KEY"` will be read from environment variables
 - API token of LLM provider <br/> eg: `api_token = "gsk_1ClHGGJ7Lpn4WGybR7vNWGdyb3FY7zXEw3SCiy0BAVM9lL8CQv"`
 - Environment variable - use with prefix "env:" <br/> eg:`api_token = "env: GROQ_API_KEY"`
-3. **`base_url`**:
+
+1. **`base_url`**:
 
 - If your provider has a custom endpoint
 
@@ -2143,6 +2169,7 @@ config = CrawlerRunConfig(
 ```
 
 **VirtualScrollConfig Parameters:**
+
 | **Parameter**          | **Type / Default**        | **What It Does**                                                                          |
 |------------------------|---------------------------|-------------------------------------------------------------------------------------------|
 | **`container_selector`** | `str` (required)        | CSS selector for the scrollable container (e.g., `"#feed"`, `".timeline"`)              |
@@ -2482,6 +2509,7 @@ if __name__ == "__main__":
 
 1. How to configure the **Default Markdown Generator**
 2. The difference between raw markdown (`result.markdown`) and filtered markdown (`fit_markdown`)
+>
 > - You know how to configure `CrawlerRunConfig`.
 
 ## 1. Quick Example
@@ -2713,6 +2741,7 @@ async def main():
 
 - **Chunk Processing**: Handles large documents by processing them in chunks (controlled by `chunk_token_threshold`)
 - **Parallel Processing**: For better performance, use smaller `chunk_token_threshold` (e.g., 2048 or 4096) to enable parallel processing of content chunks
+
 1. **Exact Content Preservation**:
 
 ```python
@@ -2728,7 +2757,7 @@ filter = LLMContentFilter(
 )
 ```
 
-2. **Focused Content Extraction**:
+1. **Focused Content Extraction**:
 
 ```python
 filter = LLMContentFilter(
@@ -3017,6 +3046,7 @@ if __name__ == "__main__":
 - **`bm25_threshold`** (float, default 1.0):
   - Higher → fewer chunks but more relevant.
   - Lower → more inclusive.
+
 > In more advanced scenarios, you might see parameters like `language`, `case_sensitive`, or `priority_tags` to refine how text is tokenized or weighted.
 
 ## 4. Accessing the “Fit” Output
@@ -3246,7 +3276,6 @@ config = CrawlerRunConfig(
     remove_overlay_elements=True
 )
 ```
-
 
 ```python
 import asyncio
@@ -3920,7 +3949,6 @@ crawler_cfg = CrawlerRunConfig(
 )
 ```
 
-
 ```python
 crawler_cfg = CrawlerRunConfig(
     exclude_all_images=True
@@ -3930,7 +3958,8 @@ crawler_cfg = CrawlerRunConfig(
 - You don't need image data in your results
 - You're crawling image-heavy pages that cause memory issues
 - You want to focus only on text content
-4. Configure your crawler to exclude or prioritize certain images
+
+1. Configure your crawler to exclude or prioritize certain images
 
 Below is a revised version of the **Link Extraction** and **Media Extraction** sections that includes example data structures showing how links and media items are stored in `CrawlResult`. Feel free to adjust any field names or descriptions to match your actual output.
 
@@ -3959,7 +3988,6 @@ async with AsyncWebCrawler() as crawler:
     else:
         print("Crawl failed:", result.error_message)
 ```
-
 
 ```python
 result.links = {
@@ -4090,7 +4118,6 @@ if __name__ == "__main__":
     asyncio.run(extract_link_heads_example())
 ```
 
-
 ```text
 ✅ Successfully crawled: https://docs.python.org/3/
 📄 Page title: 3.13.5 Documentation
@@ -4170,7 +4197,6 @@ Only available when you provide a `query`. Uses BM25 algorithm against head cont
 # Low contextual score: Link to "Privacy Policy"
 ```
 
-
 ```python
 # When both scores available: (intrinsic * 0.3) + (contextual * 0.7)
 # When only intrinsic: uses intrinsic score
@@ -4209,7 +4235,6 @@ async def research_assistant():
                 print(f"   {link.get('head_data', {}).get('title', 'No title')}")
 ```
 
-
 ```python
 async def api_discovery():
     config = CrawlerRunConfig(
@@ -4245,7 +4270,6 @@ async def api_discovery():
                 for link in links[:3]:
                     print(f"  • {link['href']}")
 ```
-
 
 ```python
 async def quality_analysis():
@@ -4302,7 +4326,6 @@ config = CrawlerRunConfig(
 )
 ```
 
-
 ```python
 # Make sure scoring is enabled:
 config = CrawlerRunConfig(
@@ -4312,7 +4335,6 @@ config = CrawlerRunConfig(
     )
 )
 ```
-
 
 ```python
 # Optimize performance:
@@ -4390,7 +4412,6 @@ if result.success:
         print(f"           Score: {img.get('score')}")
         print(f"           Description: {img.get('desc', '')}\n")
 ```
-
 
 ```python
 result.media = {
@@ -4686,7 +4707,6 @@ That's how you keep the config self-contained, illustrate **XPath** usage, and d
 ```text
 https://gist.githubusercontent.com/githubusercontent/2d7b8ba3cd8ab6cf3c8da771ddb36878/raw/1ae2f90c6861ce7dd84cc50d3df9920dee5e1fd2/sample_ecommerce.html
 ```
-
 
 ```python
 schema = {
@@ -5464,7 +5484,6 @@ async with AsyncWebCrawler() as crawler:
     # Clean up when done
     await crawler.crawler_strategy.kill_session(session_id)
 ```
-
 
 ```python
 from crawl4ai.async_configs import CrawlerRunConfig

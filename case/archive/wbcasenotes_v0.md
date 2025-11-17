@@ -2,7 +2,6 @@
 
 V0
 
-
 ## Background
 
 ### Case Brief Breakdown
@@ -70,15 +69,15 @@ High Priority
   - [ ] candidate profile
   - [ ] assessment/match score
 - [ ] design and generate prompts
-- [ ] Identify platform 
+- [ ] Identify platform
   - [ ] Agno or lang chain/graph
   - [ ] firecrawl
-  - [ ] 
+  - [ ]
 - [ ] design generate mock data
   - [ ] Mock_Guilds.csv
   - [ ] Exec_Network.csv
   - [ ] | Executive bios
-  - [ ] Job descriptions 
+  - [ ] Job descriptions
 
 Mid Priority
 
@@ -88,14 +87,12 @@ Optional
 
 - [ ] Review the existing company finder skill
 
-
-
 ## Notes & Planning
 
 ### Reference items
 
-https://github.com/lastmile-ai/mcp-agent/tree/main/src/mcp_agent/workflows/deep_orchestrator
-https://github.com/FrancyJGLisboa/agent-skill-creator
+<https://github.com/lastmile-ai/mcp-agent/tree/main/src/mcp_agent/workflows/deep_orchestrator>
+<https://github.com/FrancyJGLisboa/agent-skill-creator>
 
 **DeepREsearch APIS**
 
@@ -103,89 +100,77 @@ https://github.com/FrancyJGLisboa/agent-skill-creator
 - FIRECRAWL
 - OEPNAI
 - Perplexity
-- https://parallel.ai/
-- https://deeplookup.com/welcome/
-- https://brightdata.com/products/web-scraper
+- <https://parallel.ai/>
+- <https://deeplookup.com/welcome/>
+- <https://brightdata.com/products/web-scraper>
 
-- https://huggingface.co/Alibaba-NLP/Tongyi-DeepResearch-30B-A3B
-  - https://github.com/Alibaba-NLP/DeepResearch
-- Provider SHowcase - https://medium.com/@leucopsis/open-source-deep-research-ai-assistants-157462a59c14
+- <https://huggingface.co/Alibaba-NLP/Tongyi-DeepResearch-30B-A3B>
+  - <https://github.com/Alibaba-NLP/DeepResearch>
+- Provider SHowcase - <https://medium.com/@leucopsis/open-source-deep-research-ai-assistants-157462a59c14>
 
 **Deep Research Agent Examples**
 
-https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/deep_researcher_agent
+<https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/deep_researcher_agent>
 
-https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/candidate_analyser
-
-
+<https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/candidate_analyser>
 
 Tools
 
-https://huggingface.co/spaces?q=Web&sort=likes
+<https://huggingface.co/spaces?q=Web&sort=likes>
 
-https://anotherwrapper.com/open-deep-research
+<https://anotherwrapper.com/open-deep-research>
 
-https://github.com/camel-ai/camel
-
-
-
-
-
-
+<https://github.com/camel-ai/camel>
 
 ### Response Notes & Planning
 
 #### Response Guiding Principles
+
 - Emphasize the quality of thinking
 - Make basic assumptions, and err on the side of KISS where possible
 
 #### **Components of response**
 
 Intro
+
 - How I think about attacking transformation in venture
 
 The Case
+
 - The Requirements and Components
 - The key complexity points and decisions
 
 Top-level approach breakdown to show thinking and contextualize the
-- Distinction and articulation of 
+
+- Distinction and articulation of
   - Ideal solution - What this would look like in an ideal state, both in terms of this feature and the surrounding ecosystem
   - MVP Solution - If asked to develop my first cut of this for use and evaluation, what would It would look like
   - Demo Solution - The demo I think, is illustrative in 2 days
 
 Use case
+
 - My process and decisions
 - How the process led to demo
 - demo
 
-  
-
-
-
 #### Talking Points (Items to cover in response)
 
 Ultimate design depends on Time, Value, and security concerns
+
 - Security is a firm-level decision and its needs to be clear
-
-
 
 Distinguish demo from other scenarios
 
 - Ideal would already have x, and would approach by doing y
 - MVP Would have x, woudl spend more time to do Y
 
-
-
-
-
 The ideal model for FirstMArk AI path is a guild
 
 - There are forward-deployed development use cases
 - centralized foundation and standards building
-- 
+-
 
-In ideal and MVP, Would start by identifying what solutions are in the market. 
+In ideal and MVP, Would start by identifying what solutions are in the market.
 
 - Are there solutions that can perform this e2e
   - cost, performance
@@ -198,9 +183,7 @@ In ideal and MVP, Would start by identifying what solutions are in the market.
   - Research approaches
     - research as api
     - open source approaches
-    - custom 
-
-
+    - custom
 
 #### Future Ideas to potentially cover
 
@@ -208,13 +191,11 @@ In ideal and MVP, Would start by identifying what solutions are in the market.
 
 - generalized enrichment
 
-  
-
 ### Case Parts
 
 Tech
 
-- People data ingestion 
+- People data ingestion
   - Take in CSVs
   - normalize the headers and add to db
 - People Info Enricher
@@ -235,13 +216,9 @@ Response
   - How it works
   - What it does and doesn't address
 
-## 
+##
 
-
-
-### Assorted Notes 
-
-
+### Assorted Notes
 
 #### ON target infrastructure
 
@@ -281,15 +258,11 @@ While we will include ingestion of data in our case study response, the response
 
     - Where mapping is unclear, HITL loop
 
-    
-
 Ideal/Target design open questions
 
 - would we decompose down to role name table?
 - how handle location? is both person and role based, and subsject to change
 - Can we use affinity as Central source of people truth? what does affinity design look like
-
-
 
 ### ON real mvp
 
@@ -297,16 +270,14 @@ use whatever apis you have - harmonic, apollo, etc
 
 A2A as framework most liekl y
 
-
-
 ## Tech Planning
 
-### Key Decisions 
+### Key Decisions
 
 #### Open
 
 - What is research method
-  - Open AI Deepresearch API 
+  - Open AI Deepresearch API
   - Other deep research API
   - Custom Agentic
 - Use LLM or code or both for ingestion?
@@ -322,7 +293,7 @@ A2A as framework most liekl y
 - What is the right level of granularity to express the ideal state of the DB?
 - DB platform
   - Local sqlite or supabase
-- What does the mock data look like? 
+- What does the mock data look like?
   - totally fake
   - some reality
 - Datascraper
@@ -337,10 +308,6 @@ A2A as framework most liekl y
 - Enrichment tool will be stub
   - Will mock api response data from Apollo
 
-
-
-
-
 ### Artifacts
 
 #### Inputs
@@ -351,8 +318,6 @@ A2A as framework most liekl y
 | **Structured data**   | "Exec_Network.csv", could be an example of a Partner's connections to fill out additional potential candidates | Columns: name, current title, company, role type (CTO, CRO, etc.), location, LinkedIn URL. |
 | **Unstructured data** | Executive bios or press snippets                             | ~10–20 bios (mock or real) in text format.                   |
 | **Unstructured data** | Job descriptions                                             | Text of 3–5 open portfolio roles for CFO and CTO.            |
-
-
 
 #### Output
 
@@ -382,7 +347,7 @@ A2A as framework most liekl y
   - Ideal: (Centralized Platform)
   - Project: Python script to ingest, normalize and store
 - Person Enrichment
-  - Fake - Stub function that looks up mock apollo data 
+  - Fake - Stub function that looks up mock apollo data
 - Person Researcher
   - Execution
     - Current Design: Static Prompt Tempalte +  OpenAI Deep research API
@@ -412,6 +377,7 @@ A2A as framework most liekl y
     - and or title and company archetype
 - Company-specific role spec enricher (can customize standardized )
   - plain text Input job description translator and enricher
+
   - manual editing capabilities
     -
 
@@ -441,8 +407,6 @@ A2A as framework most liekl y
 >   - Profiling them
 >   - input of fit
 
-
-
 ### Tech Outline
 
 Data Ingestion - Python
@@ -455,15 +419,10 @@ Data Storage (Either Supabase or Sqllite)
 
 - Existing Company Table
 
-
-
 ### Tech Notes
 
 must have confidence alongside any evaluation
 
-
-
 # Other
 
 Note - Tamar Yehoshua is fslack on one page
-

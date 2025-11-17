@@ -14,6 +14,7 @@ source ~/.venvs/aienv/bin/activate
 ### 2. Export your AWS Credentials
 
 #### 2.A: Leverage Access and Secret Access Keys
+
 ```shell
 export AWS_ACCESS_KEY_ID=***
 export AWS_SECRET_ACCESS_KEY=***
@@ -32,12 +33,15 @@ agent = Agent(
 ```
 
 #### 2.B: Leverage AWS SSO Credentials
+
 Log in through the aws sso login command to get access to your account
+
 ```shell
 aws sso login
 ```
 
 Leverage sso settings in the AwsBedrock object to leverage the credentials provided by sso
+
 ```python
 import boto3
 agent = Agent(
@@ -45,7 +49,6 @@ agent = Agent(
     markdown=True
 )
 ```
-
 
 ### 3. Install libraries
 

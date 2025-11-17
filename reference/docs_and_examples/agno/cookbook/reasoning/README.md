@@ -10,7 +10,7 @@ Reasoning Agents go through an internal chain of thought before responding, work
 
 ## Reasoning Models
 
-Reasoning Models are pre-trained models that are used to reason about the world. You can try any supported Agno model and if that model has reasoning capabilities, it will be used to reason about the problem. 
+Reasoning Models are pre-trained models that are used to reason about the world. You can try any supported Agno model and if that model has reasoning capabilities, it will be used to reason about the problem.
 
 See the [examples](./models/).
 
@@ -35,4 +35,3 @@ You can enable reasoning on any Agent by setting reasoning=True.
 When an Agent with reasoning=True is given a task, a separate “Reasoning Agent” first solves the problem using chain-of-thought. At each step, it calls tools to gather information, validate results, and iterate until it reaches a final answer. Once the Reasoning Agent has a final answer, it hands the results back to the original Agent to validate and provide a response.
 
 See the [examples](./agents/).
-

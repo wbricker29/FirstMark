@@ -11,19 +11,23 @@ The workflow uses session state to store resolved queries and their solutions fo
 ## Getting Started
 
 ### Prerequisites
+
 - OpenAI API key
 
 ### Setup
+
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 ```
 
 Install dependencies
+
 ```
 pip install agno openai
 ```
 
 Run the workflow
+
 ```
 python cookbook/examples/workflows_2/customer_support/run_workflow.py
 ```
@@ -58,4 +62,4 @@ The workflow efficiently caches solutions and learns from each ticket. Exact que
 - **Triage Agent**: Classifies customer queries by category, priority, and tags
 - **Support Agent**: Develops clear, step-by-step solutions for customer issues
 
-The workflow demonstrates how session state can be used to build learning systems that improve over time through caching and reuse. 
+The workflow demonstrates how session state can be used to build learning systems that improve over time through caching and reuse.

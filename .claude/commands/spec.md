@@ -1,154 +1,138 @@
 ---
 name: spec
-description: Create Python Technical Specification
+description: Create Engineering Contract
 ---
 
-# /spec - Create Python Technical Specification
+# /spec - Create Engineering Contract
+
+Define architecture, interfaces, data models, and non-functional requirements. This is the technical contract between product (PRD) and implementation.
 
 ## Purpose
-Produce the engineering contract: architecture, interfaces, data models, and NFRs for Python implementation.
 
-## Usage
-```
-/spec
-```
+Translate product requirements into technical design. Define architecture, interfaces, data models, and non-functional requirements as the contract between PRD and implementation.
 
 ## Prerequisites
-- `spec/constitution.md` should exist
-- `spec/prd.md` should exist
 
-## Process
+- `spec/constitution.md` must exist
+- `spec/PRD.md` must exist
 
-### Step 1: Architecture Design
-Define:
-- System overview and component diagram
-- Technology stack (Python 3.10+, frameworks, databases)
-- Project structure (src/ layout)
-- Package organization
+## Execution Pattern
 
-### Step 2: Interface Definitions
-For each interface:
-- Function signature with full type hints
-- Purpose and behavior
-- Parameters (name, type, description, examples)
-- Return values (type, description, examples)
-- Exceptions raised
-- Docstring (Google or NumPy style)
+### Step 0: Review Workflow
 
-**Example:**
-```python
-from pathlib import Path
-from typing import Optional
+**Before proceeding, invoke the aidev-workflow skill to review:**
 
-def parse_document(
-    file_path: Path,
-    encoding: str = "utf-8"
-) -> Optional[Document]:
-    """Parse document from file.
+- Engineering specification structure and interface contract patterns
+- Architecture pattern selection and documentation standards
+- NFR definition and measurement methodology
 
-    Args:
-        file_path: Path to document file
-        encoding: Character encoding
+### Phase 1: Validate
 
-    Returns:
-        Parsed Document or None if parsing fails
+1. Check that `spec/constitution.md` exists
+2. Check that `spec/PRD.md` exists
+3. If missing, error: "Prerequisites not met. Run /constitution and /prd first."
+4. Check if `spec/spec.md` already exists
+5. If exists, ask user: "Spec already exists. Overwrite (o), update (u), or cancel (c)?"
+6. Load template from `.claude/skills/aidev-workflow/assets/templates/SPEC-TEMPLATE.md`
+7. Verify template exists and is valid markdown
+8. Detect project stack (package.json, tsconfig.json, etc.) for smart defaults
 
-    Raises:
-        FileNotFoundError: If file doesn't exist
-    """
-    pass
+### Phase 2: Gather
+
+Ask user these questions (provide smart defaults based on detected stack):
+
+1. **Prompt:** "Architecture pattern? (e.g., ports-and-adapters, layered, microservices, RAG pipeline)"
+   → Validate: Pattern recognized and appropriate | Default: Next.js → layered + server actions
+   → Follow-up: "Why this pattern?" (captures rationale)
+
+2. **Prompt:** "Core modules/components? (3-7 major modules, each with responsibility)"
+   → Validate: Each has responsibility, location, dependencies | Default: Suggest from PRD + stack
+
+3. **Prompt:** "Data flow: key steps from input to output?"
+   → Validate: Clear start/end, references modules | Default: Suggest from architecture pattern
+
+4. **Prompt:** "Critical interfaces? (2-5 key interfaces with inputs, outputs, errors)"
+   → Validate: Each has module, description, typed inputs/outputs, errors, pre/postconditions
+   → Default: Suggest from PRD acceptance criteria
+
+5. **Prompt:** "Data models/entities? (2-5 core entities with fields and relationships)"
+   → Validate: Each has description, typed fields, constraints, relationships
+   → Default: Suggest from PRD scope + architecture
+
+6. **Prompt:** "Non-functional requirements? (performance, reliability, observability, security)"
+   → Validate: Each has requirement + measurement method; aligns with constitution
+   → Default: Pull from constitution, suggest stack defaults
+
+### Phase 3: Generate
+
+1. Populate template with gathered information
+2. Format architecture (pattern + rationale), modules (dependencies + locations)
+3. Write data flow (numbered steps), interfaces (full contracts)
+4. Create data model (entities + fields + constraints), NFRs (measurement methods)
+5. Write to `spec/spec.md`
+
+### Phase 4: Validate
+
+Run these checks before confirming:
+
+- ✅ File exists at `spec/spec.md`
+- ✅ Architecture pattern is stated with rationale
+- ✅ At least 3 modules defined with responsibilities
+- ✅ Data flow references defined modules
+- ✅ At least 2 interfaces with complete contracts
+- ✅ All interface inputs/outputs specify types
+- ✅ At least 2 entities with fields and constraints
+- ✅ NFRs include performance, reliability, observability, security
+- ✅ All NFRs specify measurement method
+- ✅ Spec aligns with PRD acceptance criteria
+- ✅ Spec adheres to constitution constraints
+- ✅ Valid markdown structure with proper headings
+
+### Phase 5: Confirm
+
+Display summary to user:
+
+```
+✅ Engineering Spec created: spec/spec.md
+
+Architecture: [pattern]
+Modules: [count]
+Interfaces: [count]
+Entities: [count]
+NFRs: [count] requirements
+
+Next: Run /new [feature-id] to start feature development
 ```
 
-### Step 3: Data Models
-For each entity:
-- Define using dataclass or Pydantic model
-- List all fields with types
-- Document constraints (unique, indexed, length limits)
-- Show examples
+## Error Handling
 
-**Example:**
-```python
-from dataclasses import dataclass
-from datetime import datetime
+**Missing prerequisites:**
 
-@dataclass
-class User:
-    """User entity."""
-    id: int
-    email: str
-    name: str
-    created_at: datetime
-```
+- Error: "spec/constitution.md not found. Run /constitution first."
+- Error: "spec/PRD.md not found. Run /prd first."
+- Resolution: Run prerequisite commands in order
 
-### Step 4: Non-Functional Requirements
-Document:
-- **Performance:** Response times, throughput, memory limits
-- **Scalability:** Horizontal scaling, concurrency model
-- **Security:** Authentication, authorization, input validation
-- **Reliability:** Uptime, error handling, retry logic
-- **Testing:** Coverage targets, test types
-- **Deployment:** Environment, configuration, health checks
+**Missing template:**
 
-### Step 5: Dependencies
-List:
-- Core dependencies (with version constraints)
-- Development dependencies
-- Optional dependencies
+- Error: "Template not found at .claude/skills/aidev-workflow/assets/templates/SPEC-TEMPLATE.md"
+- Resolution: Check file exists, suggest creating from reference
 
-### Step 6: API Specification
-For each endpoint:
-- HTTP method and path
-- Purpose
-- Request format (with examples)
-- Response formats (success and error cases)
-- Status codes
+**Stack detection failure:**
 
-### Step 7: Configuration
-Document:
-- Environment variables
-- Configuration files (pyproject.toml, .env, etc.)
-- Default values
+- Warning: "Could not detect project stack. Provide manual defaults."
+- Resolution: Continue with generic prompts, no smart defaults
 
-### Step 8: Error Handling
-Define:
-- Error hierarchy
-- Error response format
-- Logging strategy
+**Misalignment with PRD:**
 
-### Step 9: Observability
-Plan:
-- Logging (structured logs with structlog)
-- Metrics (request count, latency, errors)
-- Tracing (request IDs, distributed tracing)
+- Warning: "Interface [name] doesn't map to any PRD acceptance criteria"
+- Resolution: Ask user to confirm or revise interface
 
-### Step 10: Create Spec
-Generate `spec/spec.md` using SPEC-TEMPLATE.md with all gathered information
+**Misalignment with constitution:**
 
-### Step 11: Validate
-Check that:
-- All interfaces have complete type hints
-- All entities have field descriptions
-- NFRs are measurable
-- API endpoints documented
-- Dependencies listed with versions
+- Error: "NFR [name] conflicts with constitution quality bar [bar]"
+- Resolution: Revise NFR or ask user to update constitution
 
-### Step 12: Confirm
-Display summary:
-- Number of interfaces defined
-- Number of entities defined
-- Key NFRs established
-- Next step: Run `/new SLUG` to create first unit
+## Reference
 
-## Output
-- **File:** `spec/spec.md`
-- **Status:** Engineering contract established
-
-## Validation
-- ✅ Architecture diagram present
-- ✅ All interfaces have type hints
-- ✅ All entities use dataclass or Pydantic
-- ✅ NFRs are measurable
-- ✅ Dependencies include versions
-
-## Next Steps
-Run `/new SLUG` to create your first development unit
+For framework patterns, detailed context, and examples:
+aidev-workflow skill → execution-framework.md, commands-reference.md

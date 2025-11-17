@@ -21,12 +21,14 @@ After comprehensive evaluation, **Agno** was selected for the Talent Signal Agen
 **Location:** `agno/`
 
 **Key Examples:**
+
 - `candidate_analyser/main.py` ⭐⭐⭐ - Multi-candidate evaluation with scoring
 - `cookbook/examples/workflows/employee_recruiter_async_stream.py` ⭐⭐ - Full hiring workflow
 - `agno_deepresearch.md` ⭐⭐ - Research patterns with citations
 - `agno_recruiter.md` ⭐ - Recruitment workflow overview
 
 **Start Here:**
+
 ```python
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
@@ -47,6 +49,7 @@ agent = Agent(
 **Location:** `openai_reference/`
 
 **Use For:**
+
 1. **Deep Research API Integration** (`deep_research_api/`)
    - Call from Agno agents for comprehensive candidate research
    - Background processing patterns
@@ -63,6 +66,7 @@ agent = Agent(
    - Structured outputs
 
 **Example Integration:**
+
 ```python
 from openai import OpenAI
 from agno.agent import Agent
@@ -91,12 +95,14 @@ agent = Agent(
 ## Implementation Timeline (48 Hours)
 
 ### Day 1 (24 hours)
+
 - **Hours 1-3:** Setup + study Candilyzer example
 - **Hours 4-12:** Build core matching engine (3-agent team)
 - **Hours 13-18:** Data integration (CSV + vector store)
 - **Hours 19-24:** Testing with mock data
 
 ### Day 2 (24 hours)
+
 - **Hours 1-4:** Flask webhook + Airtable integration
 - **Hours 5-8:** Add Deep Research for finalists
 - **Hours 9-16:** Refinement (prompts, scoring, reasoning)
@@ -107,6 +113,7 @@ agent = Agent(
 ## Key Files Reference
 
 ### Agno Examples to Adapt
+
 ```
 candidate_analyser/main.py
 ├── Multi-candidate loop
@@ -122,6 +129,7 @@ employee_recruiter_async_stream.py
 ```
 
 ### OpenAI Patterns to Reference
+
 ```
 oaisdk_research_bot/
 ├── Planner → Searcher → Writer
@@ -175,6 +183,7 @@ print(result.content)
 **Decision:** Use Agno framework with OpenAI Deep Research API for supplementary research
 
 **Rationale:**
+
 - Domain examples (Candilyzer) save 10-15 hours vs. building from scratch
 - Agno provides research flexibility (Exa + Deep Research + others)
 - 48-hour timeline favors rapid prototyping over single-vendor simplicity
@@ -182,11 +191,13 @@ print(result.content)
 - Best of both worlds: Agno's framework + OpenAI's research capabilities
 
 **Trade-offs Accepted:**
+
 - Multiple vendor dependencies (Agno + Exa + OpenAI) vs. single vendor
 - 45 min Exa setup vs. integrated WebSearchTool
 - Smaller community vs. OpenAI/LangChain ecosystems
 
 **Alternatives Considered:**
+
 - OpenAI SDK: Better single-vendor integration, but lacks domain examples
 - LangGraph: Excellent for complex state management, but longer learning curve
 
@@ -197,15 +208,18 @@ print(result.content)
 ## Support Resources
 
 **Agno Documentation:**
+
 - GitHub: github.com/agno-oss/agno
 - Examples: 140+ in cookbook/
 - Community: Discord, GitHub Discussions
 
 **OpenAI Deep Research:**
+
 - API Docs: `openai_reference/deep_research_api/OAI_deepresearchapi.md`
 - Examples: `openai_reference/deep_research_api/oaisdk_agents-deep-research-main/`
 
 **Implementation Help:**
+
 - Start with: `agno/candidate_analyser/main.py`
 - Reference: This guide + `openai_reference/README.md`
 
@@ -220,6 +234,7 @@ print(result.content)
 A hierarchical multi-agent system with a top-level planning agent coordinating specialized lower-level agents.
 
 **When to reference:**
+
 - Need hierarchical task planning patterns
 - Want MCP integration examples  
 - Considering browser automation for LinkedIn scraping
@@ -228,4 +243,3 @@ A hierarchical multi-agent system with a top-level planning agent coordinating s
 **Note:** This is for reference only. Stick with Agno for your implementation - it's the right choice for the 48-hour timeline and talent matching use case.
 
 See `alternative_architectures/README.md` for detailed comparison.
-

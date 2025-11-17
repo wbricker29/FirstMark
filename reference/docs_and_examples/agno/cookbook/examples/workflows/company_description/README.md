@@ -11,11 +11,13 @@ The workflow uses workflow session state management to cache analysis results. I
 ## Getting Started
 
 ### Prerequisites
+
 - OpenAI API key
 - Resend API key for emails [https://resend.com/api-keys]
 - Firecrawl API key for web crawling [https://www.firecrawl.dev/app/api-keys]
 
 ### Quick Setup
+
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 export RESEND_API_KEY="your-resend-key"
@@ -23,6 +25,7 @@ export FIRECRAWL_API_KEY="your-firecrawl-key"
 ```
 
 Install dependencies
+
 ```
 pip install agno openai firecrawl-py resend
 ```
@@ -48,4 +51,4 @@ Company Description Workflow
     └── Sends report to specified email
 ```
 
-The workflow uses workflow session state to intelligently cache analysis results. If the same supplier is analyzed again, it returns cached results instead of re-running the entire analysis pipeline, saving time and API costs. 
+The workflow uses workflow session state to intelligently cache analysis results. If the same supplier is analyzed again, it returns cached results instead of re-running the entire analysis pipeline, saving time and API costs.

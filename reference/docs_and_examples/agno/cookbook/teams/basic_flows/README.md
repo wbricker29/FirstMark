@@ -2,7 +2,6 @@
 
 This directory contains basic examples of how to use teams.
 
-
 ## Examples
 
 - **[01_basic_coordination.py](./01_basic_coordination.py)** - Basic coordination team example

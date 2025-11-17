@@ -5,6 +5,7 @@ This example demonstrates how to execute Agno workflows in the background with r
 ## Overview
 
 The WebSocket approach provides:
+
 - **Real-time streaming** of workflow events and content
 - **Background execution** - workflows run independently of client connections
 - **Beautiful CLI interface** with color-coded events and emojis
@@ -39,6 +40,7 @@ or pass it directly with the `--token` flag.
 ### 3. Run the CLI Client
 
 **Interactive Mode** (recommended):
+
 ```bash
 # Using environment variable
 python websocket_client.py -i
@@ -50,6 +52,7 @@ python websocket_client.py -i --token "your_security_key_here"
 Then enter any message you want, for example: `start AI Trends`
 
 **Single Command Mode**:
+
 ```bash
 # Using environment variable
 python websocket_client.py -m "Research the latest AI developments in 2024"

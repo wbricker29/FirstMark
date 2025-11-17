@@ -7,6 +7,7 @@
 ## Resolved Decisions (as of 2025-11-16)
 
 ### Technology Stack Confirmed
+
 - **Framework:** AGNO (agent framework)
 - **LLM Models:**
   - Person Research: OpenAI Deep Research API (`o4-mini-deep-research`)
@@ -16,13 +17,16 @@
 - **Infrastructure:** Flask + ngrok webhook architecture (required for demo)
 
 ### Demo Scope Confirmed
+
 **All 4 modules are in scope:**
+
 1. Module 1 (Data Upload) - ✅ In demo
 2. Module 2 (New Open Role) - ✅ In demo
 3. Module 3 (New Search) - ✅ In demo
 4. Module 4 (New Screen) - ✅ In demo (primary workflow)
 
 ### Demo Execution Strategy
+
 - **Portco Scenarios:**
   - 3 portcos: Pre-run results ready for demonstration
   - 1 portco: Live execution during demo
@@ -31,12 +35,14 @@
 - **Demo Flow:** Showcase both pre-run results AND live execution
 
 ### Role Spec Design
+
 - **Structure & Schema:** Fully defined in `demo_planning/role_spec_design.md`
 - **Format:** Markdown-based specs stored in Airtable Long Text field
 - **Dimensions:** 6 weighted dimensions per spec (CFO and CTO templates)
 - **Storage:** Individual records with template vs customized versions
 
 ### Research Execution Strategy
+
 - **Primary Method:** OpenAI Deep Research API (`o4-mini-deep-research`)
   - Comprehensive executive research with multi-step reasoning
   - Built-in citation extraction and source tracking
@@ -50,17 +56,20 @@
 - **Rationale:** Hybrid approach balances depth (Deep Research) with flexibility (Web Search)
 
 ### Assessment Approach
+
 - **Single Evaluation for Demo (Confirmed):**
   - LLM guided via spec and rubric (structured evaluation)
   - Spec-guided evaluation is the only path implemented for the initial demo
   - Model-generated rubric evaluation is explicitly deferred to a future iteration (Phase 2+)
 
 ### Candidate Profiles
+
 - **Decision:** OUT OF SCOPE for demo
 - **Rationale:** Not mission critical; can extend later if needed
 - **Approach:** Run bespoke research per role spec rather than maintaining pre-generated profiles
 
 ### Design Principles
+
 - **Recall over Precision:** "Rather not miss a great match vs see some duds"
 - **Filter, Don't Decide:** Goal is to focus review, not replace human judgment
 - **Augmentation, Not Replacement:** Target is enhancing talent team capabilities
@@ -74,15 +83,18 @@
 **UI:** Airtable
 **Actions:** Python script
 **LLM:**
+
 - Framework: AGNO
 - Models: GPT-5, GPT-5-mini, o4-mini-deep-research
 
 **APIs:**
+
 - OpenAI Deep Research API (o4-mini-deep-research)
 - OpenAI API (gpt-5, gpt-5-mini)
 - OpenAI Web Search (web_search_preview builtin tool)
 
 **Other:**
+
 - pyairtable
 - Flask (webhook server)
 - ngrok (local tunnel)
@@ -170,10 +182,12 @@ ngrok http 5000
 - `/screen` - Run candidate screening workflow
 
 **Airtable-only (no Python code for v1 demo):**
+
 - Module 2 (New Open Role) - configured entirely in Airtable (tables, forms, views)
 - Module 3 (New Search) - configured entirely in Airtable (tables, forms, views)
 
 **Benefits:**
+
 - Keeps the Python surface area small for the demo
 - Single Python codebase with only the endpoints needed for automation
 - Modules 2 and 3 can be built in parallel purely in Airtable
@@ -230,6 +244,7 @@ Bios and job descriptions will come via txt files.
 ### Output Artifacts
 
 **Search - Config & Trail:**
+
 - Logging of Search
   - All agent steps, messages, reasoning
   - OpenAI Deep research full response and parsing
@@ -237,6 +252,7 @@ Bios and job descriptions will come via txt files.
 - Storage of All logs and intermediate parts
 
 **Assessment Results:**
+
 - Assessment results Overview
 - Individual assessment results
   - Result Scorecard
@@ -251,45 +267,57 @@ Bios and job descriptions will come via txt files.
 ### Tables
 
 **People Table:**
+
 - Needs bio field + other normal descriptors
 
 **Company Table:**
+
 - Standard company information
 
 **Portco Table:**
+
 - Portfolio company specific information
 
 **Platform - Hiring - Portco Roles:**
+
 - Where all open roles live
 
 **Platform - Hiring - Search:**
+
 - Roles where we are actively assisting with the search
 - Contains Search Custom Info
 - Allows for tracking of work and status
 - Contains spec info that can then be used for Eval
 
 **Platform - Hiring - Screen:**
+
 - Batch of screens done
 
 **Operations - Audit & Logging:**
+
 - Audit trail for all operations
 
 **Operations - Workflows:**
+
 - Standardized set of fields that contain execution trail and reporting info that can be linked to other items like Screen
 
 **Role Spec Table:**
+
 - Standard role specifications
 
 **Research Table:**
+
 - Holds all granular research sprint info (could fold into role eval temporarily)
 
 **Role Eval Table:**
+
 - Holds all Assessments
 - Linked to Operation, Role, People
 
 ### Design Notes
 
 **Confirmed Decisions:**
+
 - Demo: Only upload people (no company/role uploads via Module 1)
 - Title Table: NOT in demo - using standard dropdowns instead
 - Role Spec Structure: See `demo_planning/role_spec_design.md` for full details
@@ -308,15 +336,18 @@ Bios and job descriptions will come via txt files.
 ### Person Components
 
 #### Person Ingestion & Normalization
+
 - **Ideal:** (Centralized Platform)
 - **Project:** Python script to ingest, normalize and store
 
 #### Person Enrichment
+
 - **Implementation:** Fake - Stub function that looks up mock Apollo data
 
 #### Person Researcher
 
 **Implementation:**
+
 - **Primary Agent:** Agno Agent with OpenAIResponses(id="o4-mini-deep-research")
   - Comprehensive multi-step executive research
   - Custom instructions for executive evaluation context
@@ -332,6 +363,7 @@ Bios and job descriptions will come via txt files.
   - Controlled via environment flag for demo flexibility
 
 **Research Storage:**
+
 - Research Run log in Operations - Workflows table
 - Structured research results using Pydantic schema (see Structured Output Schemas section)
 - Citations automatically included from Deep Research API response (URLs + quotes)
@@ -339,6 +371,7 @@ Bios and job descriptions will come via txt files.
 - All intermediate steps and reasoning captured in audit trail
 
 **Implementation Example (synchronous for demo):**
+
 ```python
 import os
 from agno.agent import Agent
@@ -391,11 +424,13 @@ def run_deep_research(candidate):
 ### Portco Components
 
 **Standardized storage of portco information:**
+
 - Basic Portco Info Define subset
 - Review Startup Taxonomy
 - Includes stage
 
 **Demo:**
+
 - Cut-through portco table pre-enriched
 - Maybe add startup taxonomy
 - Maybe do research
@@ -406,6 +441,7 @@ def run_deep_research(candidate):
 **Full specification defined in:** `demo_planning/role_spec_design.md`
 
 **Summary:**
+
 - Markdown-based role evaluation frameworks
 - Template library (CFO, CTO base templates)
 - 4–6 weighted dimensions per spec, each with:
@@ -431,15 +467,18 @@ def run_deep_research(candidate):
 ### Candidate Matching
 
 **Candidate Assessment Definition:**
+
 - Standardized definitions, framework, process for evaluating a candidate
 - The definition encompasses two processes: 1. A general process for human execution, and 2. LLM Agent execution process
 
 **Process entails:**
+
 - Population of candidate info
 - Evaluation vs benchmark (role spec)
 - Evidence-aware scoring + Confidence + Justification
 
 **Output includes:**
+
 - Topline assessment
 - Individual component assessment score, confidence (H/M/L), and reasoning
 - Counterfactuals
@@ -449,6 +488,7 @@ def run_deep_research(candidate):
 #### Assessment Agent Design
 
 **Configuration:**
+
 ```python
 assessment_agent = Agent(
     model=OpenAIResponses(id="gpt-5-mini"),
@@ -469,6 +509,7 @@ assessment_agent = Agent(
 ```
 
 **Benefits:**
+
 - Assessment agent can validate critical assumptions independently
 - Reduces "low confidence" scores by allowing context lookups
 - Demonstrates agentic autonomy (agent decides when additional search is needed)
@@ -477,6 +518,7 @@ assessment_agent = Agent(
 ### Matching & Ranking Logic (Evidence-Aware)
 
 **Pre-filtering (Deterministic):**
+
 - Filter candidates by:
   - Role type (CTO vs CFO)
   - Basic stage/sector alignment with the role (exact or “stretch” match)
@@ -484,6 +526,7 @@ assessment_agent = Agent(
 - Goal: keep LLM work focused on plausible candidates.
 
 **Dimension-Level Scoring:**
+
 - For each candidate-role pair, the assessment LLM call returns:
   - Dimension scores on a 1–5 scale with `None` for Unknown:
     - `5–1` = strength based on observable evidence
@@ -497,6 +540,7 @@ assessment_agent = Agent(
   - To return `null` and a short "insufficient evidence" explanation when it cannot support a score.
 
 **Overall Score Calculation:**
+
 - Per-candidate overall score is computed in Python (not by the LLM):
   - Start from human-designed dimension weights from the spec.
   - For each dimension:
@@ -509,6 +553,7 @@ assessment_agent = Agent(
   - The proportion of dimensions with non-None scores (more None values → lower overall confidence).
 
 **Implementation Note:**
+
 ```python
 # Filter scored dimensions
 scored_dims = [d for d in dimension_scores if d.score is not None]
@@ -523,6 +568,7 @@ else:
 ```
 
 **Ranking:**
+
 - Candidates are ranked for a given role by:
   1. `overall_score` (descending)
   2. `overall_confidence` (High > Medium > Low)
@@ -530,6 +576,7 @@ else:
 - Candidates below a configurable minimum score threshold are explicitly labeled as “Not Recommended” (rather than hidden).
 
 **Single Evaluation (Spec-Guided for Demo v1):**
+
 - **Primary (and only) evaluation:** Spec-guided, evidence-aware scoring as described above. This is the main ranking shown in Airtable.
 - Model-generated rubric / alternative evaluation is a **future experiment**, not implemented for the initial demo.
 
@@ -544,6 +591,7 @@ All LLM interactions use structured outputs via Pydantic models for type safety 
 ### Key Models
 
 #### ExecutiveResearchResult (Deep Research Output)
+
 ```python
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
@@ -570,6 +618,7 @@ class ExecutiveResearchResult(BaseModel):
 ```
 
 #### AssessmentResult (Evaluation Output)
+
 ```python
 class DimensionScore(BaseModel):
     """Evidence-aware dimension score."""
@@ -596,6 +645,7 @@ class AssessmentResult(BaseModel):
 ### Schema Design Principles
 
 **Evidence-Aware Scoring:**
+
 - `score: Optional[int]` with range 1-5, where `None` (Python) / `null` (JSON) = Unknown/Insufficient Evidence
 - **DO NOT use:** NaN, 0, or empty values - use `None`/`null` exclusively
 - Prevents forced guessing when public data is thin
@@ -603,17 +653,20 @@ class AssessmentResult(BaseModel):
 - Example: `{"dimension": "Fundraising Experience", "score": null, "reasoning": "No public data found"}`
 
 **Confidence vs Evidence Level:**
+
 - `evidence_level` (from spec): How observable this dimension typically is from public data
 - `confidence` (from LLM): Self-assessed certainty given actual evidence found
 - These two signals combine to inform overall confidence calculation
 
 **Overall Score Calculation:**
+
 - Computed in Python using evidence-aware weighting (see "Overall Score Calculation" section above)
 - Dimensions with `score = None` are ignored or down-weighted
 - Optional boost for High evidence level dimensions
 - Result scaled to 0-100 for Airtable display
 
 **Model Usage (demo v1):**
+
 - Research: `o4-mini-deep-research` → `ExecutiveResearchResult`
 - Assessment: `gpt-5-mini` → `AssessmentResult` (spec-guided evaluation only)
   - Model-generated rubric / `AlternativeAssessment` is explicitly out of scope for the initial demo
@@ -629,6 +682,7 @@ class AssessmentResult(BaseModel):
 **Pattern:** Airtable Button → Webhook → Flask `/upload` endpoint
 
 **Flow (via Airtable Interface UI):**
+
 - Upload file via Airtable attachment field
 - Select File type dropdown (person, company)
   - No role uploads for demo
@@ -641,10 +695,12 @@ class AssessmentResult(BaseModel):
   - Python: Update status field with results
 
 **Demo:**
+
 - Add new people CSV
   - Could add bios in text field too
 
 **Implementation:**
+
 ```python
 @app.route('/upload', methods=['POST'])
 def process_upload():
@@ -655,13 +711,16 @@ def process_upload():
 ```
 
 ### Module 2: New Open Role
+>
 > ALL IN AIRTABLE
 **Defs and Notes:**
+
 - Open roles exist for many portcos. Not all of them we will be actively assisting with
 - Portcos can provide us open roles that we provide in careers portal externally
 - Note: Can have portcos submit + Aging mechanism
 
 **Flow (via Airtable Interface UI):**
+
 - Select Portco
 - Select Role type
 - Optional notes for candidate parameters
@@ -672,21 +731,26 @@ def process_upload():
   - Maybe create new version of existing
 
 **Demo:**
+
 - Create new Role live
 
 ### Module 3: New Search
+>
 > ALL IN AIRTABLE
 **Defs and Notes:**
+
 - Search is a role we are actively assisting with. Will have role spec
 - Have as distinct item so we can attach other items to it (like notes)
 
 **Flow (via Airtable Interface UI):**
+
 - Link Role
 - Link spec?
 - Add notes
 - Add timeline date
 
 **Demo:**
+
 - Create new search live
 
 ### Module 4: New Screen
@@ -694,16 +758,19 @@ def process_upload():
 **Pattern:** Airtable Button → Webhook → Flask `/screen` endpoint
 
 **Definition:**
+
 - Perform screening on a set of people for a search
 - Main demo workflow for talent matching
 
 **Requirements:**
+
 - Process one or more candidates at a time
 - Bulk selection via linked records
 - Multiple screens per search allowed
 - Can redo evals with new guidance
 
 **Flow (via Airtable Interface UI):**
+
 - Create new Screen record in Airtable
 - Link to Search (which links to Role + Spec)
 - Add custom guidance/specifications (optional)
@@ -727,6 +794,7 @@ def process_upload():
   - Terminal shows real-time progress
 
 **Implementation (synchronous for demo):**
+
 ```python
 @app.route('/screen', methods=['POST'])
 def run_screening():
@@ -752,6 +820,7 @@ def run_screening():
 ```
 
 **Demo:**
+
 - Demo UI and kick off flow
 - Use pre-run example for discussion and can check in periodically to see the live run is progressing
 
@@ -773,12 +842,14 @@ def run_screening():
 ### Model Selection & Assignment
 
 **Person Researcher:**
+
 - Model: `OpenAIResponses(id="o4-mini-deep-research")`
 - Specialized for comprehensive research tasks
 - Built-in research tool with output_schema support
 - Fallback mode: `OpenAIResponses(id="gpt-5")` with web search tool for faster execution
 
 **Assessment Agent:**
+
 - Model: `OpenAIResponses(id="gpt-5-mini")`
 - Standard agent tasks with tool use
 - Structured outputs for assessment results
@@ -789,6 +860,7 @@ def run_screening():
 All agent inputs and outputs use Pydantic models for type safety and consistency.
 
 **Research Output Schema:**
+
 ```python
 from pydantic import BaseModel, Field
 from typing import List
@@ -813,6 +885,7 @@ class ExecutiveResearchResult(BaseModel):
 ```
 
 **Assessment Output Schema:**
+
 ```python
 class DimensionScore(BaseModel):
     dimension_name: str
@@ -837,6 +910,7 @@ class AssessmentResult(BaseModel):
 ```
 
 **Implementation Notes:**
+
 - `overall_score` is calculated in Python, not by the LLM (weighted average of dimension scores)
 - LLM only provides dimension-level scores and reasoning
 - Strict mode by default: `output_schema=Model` ensures schema compliance
@@ -855,6 +929,7 @@ class AssessmentResult(BaseModel):
 ## Demo-Specific Components
 
 ### Candidates
+
 - **Source:** `reference/guildmember_scrape.csv` (64 executives from FirstMark guilds)
 - **Roles:** Mix of CFOs, CTOs, CPOs, CROs across various companies
 - **Demo Scope:** Execute evaluations for 10-15 candidates
@@ -877,6 +952,7 @@ class AssessmentResult(BaseModel):
    - Status: **LIVE EXECUTION** during demo 🔴
 
 **Demo Strategy:**
+
 - Show pre-run results for 3 scenarios (full data, insights, rankings ready)
 - Kick off live screening for 1 scenario to demonstrate real-time workflow
 - Toggle between completed results and in-progress execution
@@ -889,6 +965,7 @@ class AssessmentResult(BaseModel):
 ### Critical Implementation Details
 
 #### 1. Assessment Scoring Mechanics
+
 - **Confidence Calculation:** How is confidence (High/Medium/Low) determined?
   - Based on amount of evidence found?
   - Based on directness of evidence match?
@@ -909,30 +986,36 @@ class AssessmentResult(BaseModel):
   - Use spec-based as primary, AI-generated as validation?
 
 #### 2. Airtable Schema Details
+
 Need complete field definitions for these tables:
 
 **People Table:**
+
 - Standard fields: name, current_title, current_company, location, linkedin_url
 - Bio field: Long Text? Rich Text?
 - Which fields from guildmember_scrape.csv map to People table?
 
 **Platform - Hiring - Screen:**
+
 - Fields: screen_id, search_link, candidates_links, status, created_date
 - Status enum values: Draft, Ready to Screen, Processing, Complete, Failed?
 - Custom instructions field?
 
 **Operations - Workflows:**
+
 - Fields needed for audit trail?
 - Research results storage structure?
 - Assessment results storage structure?
 - Execution logs format?
 
 **Role Eval Table:**
+
 - How are dimension scores stored? Individual fields vs JSON?
 - Evidence quotes storage?
 - Citation links storage?
 
 **Research Table:**
+
 - Full research text field?
 - Citation structure: URLs only or full content snapshots?
 - OpenAI Deep Research API response format?
@@ -940,17 +1023,20 @@ Need complete field definitions for these tables:
 #### 3. Data Ingestion & Processing
 
 **File Upload Deduplication:**
+
 - Do we implement dedupe logic for demo? (checking exec_id or name+company?)
 - **Recommendation:** Skip for demo - assume clean uploads only
 - Simplifies implementation; can note as future enhancement
 
 **OpenAI Deep Research API Integration:**
+
 - Expected response format and structure?
 - How are citations returned in the API response?
 - Rate limits and cost implications?
 - **Need to review:** `reference/docs_and_examples/openai_reference/deep_research_api/OAI_deepresearchapi.md`
 
 **Citation Storage:**
+
 - Store URLs only (from Deep Research API response)?
 - Or also store citation snippets/quotes provided by API?
 - **Recommendation:** URLs + key quotes provided in API response (no additional scraping)
@@ -958,11 +1044,13 @@ Need complete field definitions for these tables:
 #### 4. Technical Robustness
 
 **Error Handling:**
+
 - Rate limiting strategy for OpenAI API calls?
 - Retry logic for failed research/assessment calls?
 - Fallback behavior if API fails during demo?
 
 **Execution Time:**
+
 - **Deep Research Mode (Primary):**
   - Research phase: 2-5 minutes per candidate (o4-mini-deep-research)
   - Assessment phase: 30-60 seconds per candidate (gpt-5-mini)
@@ -976,6 +1064,7 @@ Need complete field definitions for these tables:
 - **Demo Strategy:** Use Deep Research for 3 pre-run scenarios; use Web Search mode or a smaller candidate set for the live demo if time-constrained
 
 **Structured Outputs:**
+
 - All API calls use structured outputs (confirmed)
 - Schema validation: strict or permissive?
 - Handling of schema mismatches?
@@ -983,16 +1072,19 @@ Need complete field definitions for these tables:
 #### 5. Demo Logistics
 
 **Airtable Setup Scope:**
+
 - Which Interface views are needed for demo?
 - Are automations essential or can we trigger webhooks manually?
 - Pre-populated test data requirements?
 
 **Webhook Testing:**
+
 - Can we test webhook locally before demo?
 - Ngrok stability concerns for live demo?
 - Backup plan if webhook fails?
 
 **Output Artifacts:**
+
 - Markdown export of all assessment results (confirmed requirement)
 - Where are markdown files stored? (Airtable attachment? Local folder?)
 - Format template for markdown reports?
@@ -1000,12 +1092,14 @@ Need complete field definitions for these tables:
 #### 6. MVP Simplifications (Given 48-Hour Constraint)
 
 **Resolved Simplifications:**
+
 - Person enrichment: **Stub function** (no real Apollo API) ✅
 - Research: **Real OpenAI Deep Research API** (not mock data) ✅
 - Candidate profiles: **Skip entirely** ✅
 - Deduplication: **Skip** (assume clean data) ✅
 
 **Still Need to Decide:**
+
 - Module 1 (Upload): Build full CSV processing webhook or pre-populate data manually?
 - Module 2 (New Role): Airtable-only UI flow (no Python) vs fully manual record creation?
 - Module 3 (New Search): Airtable-only UI flow (no Python) vs fully manual record creation?
@@ -1015,6 +1109,7 @@ Need complete field definitions for these tables:
 ### Prioritization Recommendation
 
 **Must Have Before Build:**
+
 1. ✅ ~~Research execution strategy~~ → **RESOLVED:** OpenAI Deep Research API + Web Search (hybrid approach, no Tavily)
 2. ✅ ~~Expected execution times~~ → **RESOLVED:** 3-6 min/candidate (Deep Research) or 1-2 min/candidate (Web Search)
 3. ✅ ~~Model selection~~ → **RESOLVED:** o4-mini-deep-research (research), gpt-5-mini (assessment)
@@ -1024,6 +1119,7 @@ Need complete field definitions for these tables:
 7. **Airtable schema details** → Complete field definitions for core tables
 
 **Can Decide During Build:**
+
 1. ✅ ~~Deduplication approach~~ → **RESOLVED:** Skip for demo
 2. Citation storage details (review Deep Research API docs for format)
 3. Error handling specifics (retry logic, fallbacks)
@@ -1031,6 +1127,7 @@ Need complete field definitions for these tables:
 5. Markdown export format (can use simple template)
 
 **Recommended Simplifications for Demo:**
+
 1. **Modules 1-3:** Pre-populate data manually (no webhook automation needed)
 2. **Module 4:** Build full webhook + automation (this is the core demo)
 3. **Airtable UI:** Standard grid views + basic filtering (no custom interfaces)
@@ -1041,6 +1138,7 @@ Need complete field definitions for these tables:
 ## Next Steps
 
 ### Immediate Decisions Needed (Before Build)
+
 1. **Define confidence calculation logic** (30 min)
    - Propose simple heuristic: LLM self-assessment + evidence count threshold
    - Document in assessment schema
@@ -1061,6 +1159,7 @@ Need complete field definitions for these tables:
    - Create new document: `demo_planning/airtable_schema.md`
 
 ### Implementation Sequence
+
 1. **Phase 1:** Airtable setup + manual data population (4 hours)
 2. **Phase 2:** Core assessment logic + prompts + Pydantic models (6 hours)
    - Implement ExecutiveResearchResult and AssessmentResult schemas
@@ -1082,6 +1181,7 @@ Need complete field definitions for these tables:
 **Total Estimated: 20 hours** (leaves buffer within 48-hour window)
 
 **Implementation Notes:**
+
 - Implement both Deep Research and Web Search modes with environment flag toggle
 - This provides demo flexibility: comprehensive results (Deep Research) or faster live execution (Web Search)
 - Keep implementation synchronous for the initial demo; add async/concurrency later only if needed

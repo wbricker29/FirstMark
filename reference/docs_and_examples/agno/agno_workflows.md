@@ -739,7 +739,6 @@ See the [Workflow class reference](/reference/workflows/workflow) for more detai
 * View the [WorkflowRunOutput schema](/reference/workflows/workflow_run_output)
 * View [Cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/workflows/README.md)
 
-
 # Input and Output
 
 > Learn how to use structured input and output with Workflows for reliable, production-ready systems.
@@ -971,6 +970,7 @@ if __name__ == "__main__":
 
   print(response.images)
   ```
+
 </Note>
 
 Similarly, you can pass `Video` and `Audio` as input.
@@ -1185,6 +1185,7 @@ You can use it to read and modify the session state, via `run_context.session_st
       """Update the workflow session state"""
       run_context.session_state["test"] = test_1
   ```
+
 </Note>
 
 See [examples](/examples/concepts/workflows/06_workflows_advanced_concepts/access_session_state_in_custom_python_function_step) for more details.
@@ -1257,7 +1258,6 @@ and [Session State in Router Selector Function](/examples/concepts/workflows/06_
     Learn how teams coordinate using shared state
   </Card>
 </CardGroup>
-
 
 # Additional Data and Metadata
 
@@ -1353,7 +1353,6 @@ workflow.print_response(
 
 * [Step with Function and Additional Data](/examples/concepts/workflows/06_workflows_advanced_concepts/step_with_function_additional_data)
 
-
 # Workflow History & Continuous Execution
 
 > Build conversational workflows that maintain context across multiple executions, creating truly intelligent and natural interactions.
@@ -1424,8 +1423,8 @@ def custom_function(step_input: StepInput) -> StepOutput:
 <Note>
   You can use these helper functions to access the history:
 
-  * `step_input.get_workflow_history(num_runs=3)`
-  * `step_input.get_workflow_history_context(num_runs=3)`
+* `step_input.get_workflow_history(num_runs=3)`
+* `step_input.get_workflow_history_context(num_runs=3)`
 </Note>
 
 Refer to [StepInput](/reference/workflows/step_input) reference for more details.
@@ -1499,7 +1498,6 @@ Step("Analysis", agent=analysis_agent,
 ## Developer Resources
 
 Explore the different examples in [Workflow History Examples](/examples/concepts/workflows/06_workflows_advanced_concepts/workflow_history/01_single_step_continuous_execution_workflow) for more details.
-
 
 # Metrics
 

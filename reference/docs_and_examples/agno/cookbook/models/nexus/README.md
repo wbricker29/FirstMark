@@ -9,7 +9,7 @@ python3 -m venv ~/.venvs/aienv
 source ~/.venvs/aienv/bin/activate
 ```
 
-### 2. Download and set Nexus up:
+### 2. Download and set Nexus up
 
 [Nexus documentation](https://nexusrouter.com/docs).
 

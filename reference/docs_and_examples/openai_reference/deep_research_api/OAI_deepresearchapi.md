@@ -5,9 +5,9 @@ Use deep research models for complex analysis and research tasks.
 
 The [`o3-deep-research`](/docs/models/o3-deep-research) and [`o4-mini-deep-research`](/docs/models/o4-mini-deep-research) models can find, analyze, and synthesize hundreds of sources to create a comprehensive report at the level of a research analyst. These models are optimized for browsing and data analysis, and can use [web search](/docs/guides/tools-web-search), [remote MCP](/docs/guides/tools-remote-mcp) servers, and [file search](/docs/guides/tools-file-search) over internal [vector stores](/docs/api-reference/vector-stores) to generate detailed reports, ideal for use cases like:
 
-*   Legal or scientific research
-*   Market analysis
-*   Reporting on large bodies of internal company data
+* Legal or scientific research
+* Market analysis
+* Reporting on large bodies of internal company data
 
 To use deep research, use the [Responses API](/docs/api-reference/responses) with the model set to `o3-deep-research` or `o4-mini-deep-research`. You must include at least one data source: web search, remote MCP servers, or file search with vector stores. You can also include the [code interpreter](/docs/guides/tools-code-interpreter) tool to allow the model to perform complex analysis by writing code.
 
@@ -61,11 +61,11 @@ The output from a deep research model is the same as any other via the Responses
 
 Responses may include output items like:
 
-*   **web\_search\_call**: Action taken by the model using the web search tool. Each call will include an `action`, such as `search`, `open_page` or `find_in_page`.
-*   **code\_interpreter\_call**: Code execution action taken by the code interpreter tool.
-*   **mcp\_tool\_call**: Actions taken with remote MCP servers.
-*   **file\_search\_call**: Search actions taken by the file search tool over vector stores.
-*   **message**: The model's final answer with inline citations.
+* **web\_search\_call**: Action taken by the model using the web search tool. Each call will include an `action`, such as `search`, `open_page` or `find_in_page`.
+* **code\_interpreter\_call**: Code execution action taken by the code interpreter tool.
+* **mcp\_tool\_call**: Actions taken with remote MCP servers.
+* **file\_search\_call**: Search actions taken by the file search tool over vector stores.
+* **message**: The model's final answer with inline citations.
 
 Example `web_search_call` (search action):
 
@@ -118,9 +118,9 @@ Prompting deep research models
 
 If you've used Deep Research in ChatGPT, you may have noticed that it asks follow-up questions after you submit a query. Deep Research in ChatGPT follows a three step process:
 
-1.  **Clarification**: When you ask a question, an intermediate model (like `gpt-4.1`) helps clarify the user's intent and gather more context (such as preferences, goals, or constraints) before the research process begins. This extra step helps the system tailor its web searches and return more relevant and targeted results.
-2.  **Prompt rewriting**: An intermediate model (like `gpt-4.1`) takes the original user input and clarifications, and produces a more detailed prompt.
-3.  **Deep research**: The detailed, expanded prompt is passed to the deep research model, which conducts research and returns it.
+1. **Clarification**: When you ask a question, an intermediate model (like `gpt-4.1`) helps clarify the user's intent and gather more context (such as preferences, goals, or constraints) before the research process begins. This extra step helps the system tailor its web searches and return more relevant and targeted results.
+2. **Prompt rewriting**: An intermediate model (like `gpt-4.1`) takes the original user input and clarifications, and produces a more detailed prompt.
+3. **Deep research**: The detailed, expanded prompt is passed to the deep research model, which conducts research and returns it.
 
 Deep research via the Responses API does not include a clarification or prompt rewriting step. As a developer, you can configure this processing step to rewrite the user prompt or ask a set of clarifying questions, since the model expects fully-formed prompts up front and will not ask for additional context or fill in missing information; it simply starts researching based on the input it receives. These steps are optional: if you have a sufficiently detailed prompt, there's no need to clarify or rewrite it. Below we include an examples of asking clarifying questions and rewriting the prompt before passing it to the deep research models.
 
@@ -371,10 +371,10 @@ Research with your own data
 
 Deep research models are designed to access both public and private data sources, but they require a specific setup for private or internal data. By default, these models can access information on the public internet via the [web search tool](/docs/guides/tools-web-search). To give the model access to your own data, you have several options:
 
-*   Include relevant data directly in the prompt text
-*   Upload files to vector stores, and use the file search tool to connect model to vector stores
-*   Use [connectors](/docs/guides/tools-remote-mcp#connectors) to pull in context from popular applications, like Dropbox and Gmail
-*   Connect the model to a remote MCP server that can access your data source
+* Include relevant data directly in the prompt text
+* Upload files to vector stores, and use the file search tool to connect model to vector stores
+* Use [connectors](/docs/guides/tools-remote-mcp#connectors) to pull in context from popular applications, like Dropbox and Gmail
+* Connect the model to a remote MCP server that can access your data source
 
 ### Prompt text
 
@@ -394,8 +394,8 @@ If you need to use a remote MCP server instead, deep research models require a s
 
 To integrate with a deep research model, your MCP server must provide:
 
-*   A `search` tool that takes a query and returns search results.
-*   A `fetch` tool that takes an id from the search results and returns the corresponding document.
+* A `search` tool that takes a query and returns search results.
+* A `fetch` tool that takes an id from the search results and returns the corresponding document.
 
 For more details on the required schemas, how to build a compatible MCP server, and an example of a compatible MCP server, see our [deep research MCP guide](/docs/mcp).
 
@@ -499,19 +499,19 @@ Prompt-injection is when an attacker smuggles additional instructions into the m
 
 OpenAI models include multiple defense layers against known prompt-injection techniques, but no automated filter can catch every case. You should therefore still implement your own controls:
 
-*   Only connect **trusted MCP servers** (servers you operate or have audited).
-*   Only upload files you trust to your vector stores.
-*   Log and **review tool calls and model messages** – especially those that will be sent to third-party endpoints.
-*   When sensitive data is involved, **stage the workflow** (for example, run public-web research first, then run a second call that has access to the private MCP but **no** web access).
-*   Apply **schema or regex validation** to tool arguments so the model cannot smuggle arbitrary payloads.
-*   Review and screen links returned in your results before opening them or passing them on to end users to open. Following links (including links to images) in web search responses could lead to data exfiltration if unintended additional context is included within the URL itself. (e.g. `www.website.com/{return-your-data-here}`).
+* Only connect **trusted MCP servers** (servers you operate or have audited).
+* Only upload files you trust to your vector stores.
+* Log and **review tool calls and model messages** – especially those that will be sent to third-party endpoints.
+* When sensitive data is involved, **stage the workflow** (for example, run public-web research first, then run a second call that has access to the private MCP but **no** web access).
+* Apply **schema or regex validation** to tool arguments so the model cannot smuggle arbitrary payloads.
+* Review and screen links returned in your results before opening them or passing them on to end users to open. Following links (including links to images) in web search responses could lead to data exfiltration if unintended additional context is included within the URL itself. (e.g. `www.website.com/{return-your-data-here}`).
 
 #### Example: leaking CRM data through a malicious web page
 
 Imagine you are building a lead-qualification agent that:
 
-1.  Reads internal CRM records through an MCP server
-2.  Uses the `web_search` tool to gather public context for each lead
+1. Reads internal CRM records through an MCP server
+2. Uses the `web_search` tool to gather public context for each lead
 
 An attacker sets up a website that ranks highly for a relevant query. The page contains hidden text with malicious instructions:
 
@@ -591,6 +591,6 @@ More examples
 
 Learn more about deep research from these examples in the [OpenAI Cookbook](https://cookbook.openai.com).
 
-*   [Introduction to deep research](https://cookbook.openai.com/examples/deep_research_api/introduction_to_deep_research_api)
-*   [Deep research with the Agents SDK](https://cookbook.openai.com/examples/deep_research_api/introduction_to_deep_research_api_agents)
-*   [Building a deep research MCP server](https://cookbook.openai.com/examples/deep_research_api/how_to_build_a_deep_research_mcp_server/readme)
+* [Introduction to deep research](https://cookbook.openai.com/examples/deep_research_api/introduction_to_deep_research_api)
+* [Deep research with the Agents SDK](https://cookbook.openai.com/examples/deep_research_api/introduction_to_deep_research_api_agents)
+* [Building a deep research MCP server](https://cookbook.openai.com/examples/deep_research_api/how_to_build_a_deep_research_mcp_server/readme)

@@ -9,6 +9,7 @@ pip install agno openai pydantic
 ```
 
 Set your API key:
+
 ```bash
 export OPENAI_API_KEY=xxx
 ```

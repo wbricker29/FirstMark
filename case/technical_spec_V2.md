@@ -9,6 +9,7 @@
 ### Technology Stack
 
 **Framework & Models:**
+
 - **Framework:** AGNO (agent framework)
 - **LLM Models:**
   - Person Research: OpenAI Deep Research API (`o4-mini-deep-research`)
@@ -17,6 +18,7 @@
   - Reference: `reference/docs_and_examples/agno/agno_openai_itegration.md`
 
 **Infrastructure:**
+
 - **DB & UI:** Airtable
 - **Backend:** Python script with Flask webhook server
 - **Tunnel:** ngrok (for local demo)
@@ -26,12 +28,14 @@
 ### Demo Scope
 
 **All 4 modules in scope:**
+
 1. Module 1 (Data Upload) - ✅ CSV ingestion via webhook
 2. Module 2 (New Open Role) - ✅ Airtable-only (no Python)
 3. Module 3 (New Search) - ✅ Airtable-only (no Python)
 4. Module 4 (New Screen) - ✅ Primary workflow (webhook + Python)
 
 **Demo Execution Strategy:**
+
 - **3 portcos:** Pre-run results ready (Pigment CFO, Mockingbird CFO, Synthesia CTO)
 - **1 portco:** Live execution during demo (Estuary CTO)
 - **Candidates:** Sourced from `reference/guildmember_scrape.csv` (64 executives)
@@ -46,6 +50,7 @@
 ### Research & Assessment Strategy
 
 **Research Execution:**
+
 - **Primary Method:** OpenAI Deep Research API (`o4-mini-deep-research`)
   - Comprehensive executive research with multi-step reasoning
   - Built-in citation extraction and source tracking
@@ -62,6 +67,7 @@
 - **Flexible Mode:** Can switch to web-search-only for faster demos (~30-60 sec/candidate)
 
 **Assessment Approach:**
+
 - **Single Evaluation (Spec-Guided):** LLM guided via role spec with evidence-aware scoring
 - **Evidence-Aware Scoring:** Uses `None`/`null` for insufficient evidence (no forced guessing)
 - **Confidence Tracking:** High/Medium/Low based on evidence quality and LLM self-assessment
@@ -70,17 +76,18 @@
 ### Planning Document Map
 
 This technical spec is supported by more detailed planning docs:
-- **Data Models / Pydantic Schemas:** `demo_planning/data_design.md`
-- **Airtable Schema & Field Definitions:** `demo_planning/airtable_schema.md`
-- **Role Spec System & Templates:** `demo_planning/role_spec_design.md`
-- **Research Pipeline Details:** `demo_planning/deep_research_findings.md`
-- **Alignment Review & Fix Log:** `demo_planning/alignment_issues_and_fixes.md`
+
+- **Data Models / Pydantic Schemas:** `spec/dev_reference/data_design.md`
+- **Airtable Schema & Field Definitions:** `spec/dev_reference/airtable_schema.md`
+- **Role Spec System & Templates:** `spec/dev_reference/role_spec_design.md`
+- **Research Pipeline Details:** `spec/dev_reference/deep_research_findings.md`
+- **Alignment Review & Fix Log:** `spec/dev_reference/alignment_issues_and_fixes.md`
 
 For schema changes, update `data_design.md` first, then sync `airtable_schema.md` and this technical spec.
 
 ### Role Spec Design
 
-- **Structure:** Fully defined in `demo_planning/role_spec_design.md`
+- **Structure:** Fully defined in `spec/dev_reference/role_spec_design.md`
 - **Format:** Markdown-based specs stored in Airtable Long Text field
 - **Dimensions:** 6 weighted dimensions per spec (CFO and CTO templates)
 - **Evidence Levels:** High/Medium/Low for each dimension
@@ -93,11 +100,13 @@ For schema changes, update `data_design.md` first, then sync `airtable_schema.md
 ### Webhook Architecture (Flask + ngrok)
 
 **Design:**
+
 - Single Python codebase (webhook receiver + AI workflow + Airtable writes)
 - Flask-based webhook receiver with ngrok tunnel for local demo
 - Simple setup (~15 min), full automation, no cloud deployment needed
 
 **Flow:**
+
 ```
 Airtable Trigger (Button click OR Status field change)
   → Airtable Automation (webhook trigger)
@@ -109,6 +118,7 @@ Airtable Trigger (Button click OR Status field change)
 ```
 
 **Benefits:**
+
 - All logic in one place
 - Real-time visibility (terminal logs during execution)
 - Local hosting OK for demo
@@ -117,7 +127,8 @@ Airtable Trigger (Button click OR Status field change)
 ### Workflow Architecture
 
 **Complete Specification:**
-- **See:** `demo_planning/screening_workflow_spec.md` for full implementation details
+
+- **See:** `spec/dev_reference/screening_workflow_spec.md` for full implementation details
 - **Pattern:** Research → Quality Gate → Conditional Supplemental Search (Loop) → Assessment
 - **Execution:** Synchronous for demo (async optimization post-demo)
 - **Key Features:**
@@ -131,6 +142,7 @@ Airtable Trigger (Button click OR Status field change)
 The workflow includes an explicit sufficiency check immediately after the deep research agent. This prevents unnecessary supplemental searches and makes the behavior predictable for the demo.
 
 **Sufficiency Criteria:**
+
 - ≥3 key experiences captured
 - ≥2 domain expertise areas identified
 - ≥3 distinct citations
@@ -138,6 +150,7 @@ The workflow includes an explicit sufficiency check immediately after the deep r
 - ≤2 information gaps remain
 
 **Outputs:**
+
 - Enriched `ExecutiveResearchResult` plus `quality_metrics`
 - Boolean `is_sufficient`
 - `gaps_to_fill` list for supplemental search instructions
@@ -153,6 +166,7 @@ The workflow includes an explicit sufficiency check immediately after the deep r
 
 **Loop Mechanics (Step 3b):**
 The loop exits early when both conditions are met:
+
 1. ≥2 new findings are surfaced during the latest iteration, and
 2. Either (a) the supplemental output’s confidence is High **or** (b) there are no remaining gaps.
 
@@ -161,15 +175,18 @@ If the break condition is never satisfied, the loop halts automatically after th
 ### Flask Endpoints & Trigger Options
 
 **Endpoints:**
+
 - `/upload` - Data ingestion (CSV → clean → load → People table)
 - `/screen` - Run candidate screening workflow (Module 4)
 
 **Modules 2 & 3:** Airtable-only (no Python endpoints needed)
+
 - Keeps Python surface area small
 - Single codebase with only automation-needed endpoints
 - Can extend with additional endpoints later
 
 **Trigger Options:**
+
 - **Button:** Explicit action button in record (e.g., "Start Screening")
 - **Status Field:** Automation triggers when field changes (e.g., Status → "Ready to Screen")
 - **Recommended:** Status field triggers for natural workflow and state management
@@ -205,6 +222,7 @@ ngrok http 5000
 ### Input Data Schemas
 
 #### Structured: Mock_Guilds.csv
+
 (One row per guild member seat)
 
 - `guild_member_id` (string) – unique row id
@@ -222,6 +240,7 @@ ngrok http 5000
 - `is_portfolio_company` (bool) – whether it's FirstMark portfolio
 
 #### Structured: Exec_Network.csv
+
 (One row per known executive in the wider network)
 
 - `exec_id` (string) – primary key; matches Mock_Guilds.csv
@@ -241,11 +260,13 @@ ngrok http 5000
 - `source_partner` (string, optional) – which partner/guild list
 
 #### Unstructured: Executive bios and Job descriptions
+
 Bios and job descriptions will come via txt files.
 
 ### Output Artifacts
 
 **Search - Config & Trail:**
+
 - Logging of Search
   - All agent steps, messages, reasoning
   - OpenAI Deep research full response and parsing
@@ -253,6 +274,7 @@ Bios and job descriptions will come via txt files.
 - Storage of All logs and intermediate parts
 
 **Assessment Results:**
+
 - Assessment results Overview
 - Individual assessment results
   - Result Scorecard
@@ -280,9 +302,10 @@ Bios and job descriptions will come via txt files.
 - **Role Eval Table:** Holds all Assessments (linked to Operation, Role, People)
 
 **Design Notes:**
+
 - Demo: Only upload people (no company/role uploads via Module 1)
 - Title Table: NOT in demo - using standard dropdowns instead
-- Role Spec Structure: See `demo_planning/role_spec_design.md` for full details
+- Role Spec Structure: See `spec/dev_reference/role_spec_design.md` for full details
 - Specs include custom instructions field for additional guidance
 - Generalized search rules may include tenure-based scoring adjustments
 
@@ -290,13 +313,14 @@ Bios and job descriptions will come via txt files.
 
 All LLM interactions use structured outputs via Pydantic models for type safety and consistent parsing.
 
-**📋 Complete schema definitions are in:** `demo_planning/data_design.md` (lines 256-448)
+**📋 Complete schema definitions are in:** `spec/dev_reference/data_design.md` (lines 256-448)
 
 #### Schema Overview
 
 The following Pydantic models are used throughout the system:
 
 **Research Output (from o4-mini-deep-research):**
+
 - `Citation` - Source citation with URL, title, snippet, relevance note
 - `CareerEntry` - Timeline entry for career history with achievements
 - `ExecutiveResearchResult` - Complete research output including:
@@ -308,6 +332,7 @@ The following Pydantic models are used throughout the system:
   - **Audit metadata:** research_timestamp, research_model
 
 **Assessment Output (from gpt-5-mini):**
+
 - `DimensionScore` - Evidence-aware dimension score (1-5 or None for unknown)
   - Includes evidence level (from spec), confidence (LLM assessment)
   - Reasoning, evidence quotes, citation URLs
@@ -320,13 +345,15 @@ The following Pydantic models are used throughout the system:
   - **Audit metadata:** assessment_timestamp, assessment_model, role_spec_used
 
 **Workflow Schemas:**
+
 - `ResearchSupplement` - Supplemental search findings from iterative web search (Step 3b)
   - Iteration number, new findings, filled gaps, remaining gaps
-  - See `demo_planning/screening_workflow_spec.md` (lines 187-196)
+  - See `spec/dev_reference/screening_workflow_spec.md` (lines 187-196)
 - Quality check output structures (enriched research + is_sufficient flag)
 - Merged research structures (original + all supplemental findings)
 
 **Alternative Evaluation (Phase 2+):**
+
 - `ModelGeneratedDimension` - Model-created evaluation dimension
 - `AlternativeAssessment` - Alternative evaluation using model-generated rubric
   - **Note:** Out of scope for demo v1
@@ -334,6 +361,7 @@ The following Pydantic models are used throughout the system:
 #### Key Design Principles
 
 **Evidence-Aware Scoring:**
+
 - `score: Optional[int]` with range 1-5, where `None` (Python) / `null` (JSON) = Unknown/Insufficient Evidence
 - **DO NOT use:** NaN, 0, or empty values - use `None`/`null` exclusively
 - Prevents forced guessing when public data is thin
@@ -341,11 +369,13 @@ The following Pydantic models are used throughout the system:
 - Example: `{"dimension": "Fundraising Experience", "score": null, "reasoning": "No public data found"}`
 
 **Confidence vs Evidence Level:**
+
 - `evidence_level` (from spec): How observable this dimension typically is from public data
 - `confidence` (from LLM): Self-assessed certainty given actual evidence found
 - These two signals combine to inform overall confidence calculation
 
 **Audit Metadata (Critical for Compliance):**
+
 - All research outputs include: `research_timestamp`, `research_model`
 - All assessment outputs include: `assessment_timestamp`, `assessment_model`, `role_spec_used`
 - Enables full audit trail and model tracking
@@ -363,14 +393,16 @@ Computed in Python using an evidence-aware weighting algorithm over dimension sc
 7. Convert to 0–100 scale: `overall_score = (weighted_avg - 1) * 25`, then round to 1 decimal place.
 
 **Model Usage (demo v1):**
+
 - Research (Deep Mode): `o4-mini-deep-research` → markdown + citations → `gpt-5-mini` parser → `ExecutiveResearchResult`
 - Research (Fast Mode): `gpt-5` + `web_search_preview` → `ExecutiveResearchResult` directly
 - Assessment: `gpt-5-mini` → `AssessmentResult` (spec-guided evaluation only)
 
 **📖 See for complete details:**
-- **Full Pydantic model definitions:** `demo_planning/data_design.md` (lines 266-387)
-- **Usage examples:** `demo_planning/data_design.md` (lines 389-408)
-- **Schema design notes:** `demo_planning/data_design.md` (lines 410-448)
+
+- **Full Pydantic model definitions:** `spec/dev_reference/data_design.md` (lines 266-387)
+- **Usage examples:** `spec/dev_reference/data_design.md` (lines 389-408)
+- **Schema design notes:** `spec/dev_reference/data_design.md` (lines 410-448)
 - **Evidence-aware scoring patterns and None/null handling**
 
 ---
@@ -380,6 +412,7 @@ Computed in Python using an evidence-aware weighting algorithm over dimension sc
 ### Person Researcher
 
 **Implementation:**
+
 - **Primary Agent:** Agno Agent with OpenAIResponses(id="o4-mini-deep-research")
   - Comprehensive multi-step executive research
   - Custom instructions for executive evaluation context
@@ -398,6 +431,7 @@ Computed in Python using an evidence-aware weighting algorithm over dimension sc
   - Controlled via environment flag for demo flexibility
 
 **Research Storage:**
+
 - Execution metadata and logs:
   - Stored in `Operations - Workflows` table (status, timestamps, `execution_log`, errors).
 - Structured research:
@@ -406,7 +440,7 @@ Computed in Python using an evidence-aware weighting algorithm over dimension sc
 - Web search queries logged separately for transparency.
 - All intermediate steps and reasoning captured in audit trail.
 
-**Workflow Integration:** The `ExecutiveResearchResult` feeds directly into the Step 2 quality gate before any supplemental search decisions are made. See `demo_planning/screening_workflow_spec.md` (Quality Gate section) for end-to-end orchestration.
+**Workflow Integration:** The `ExecutiveResearchResult` feeds directly into the Step 2 quality gate before any supplemental search decisions are made. See `spec/dev_reference/screening_workflow_spec.md` (Quality Gate section) for end-to-end orchestration.
 
 **Implementation Example (synchronous for demo):**
 
@@ -512,6 +546,7 @@ assessment_agent = Agent(
 ```
 
 **Benefits:**
+
 - Assessment agent can validate critical assumptions independently
 - Reduces "low confidence" scores by allowing context lookups
 - Demonstrates agentic autonomy (agent decides when additional search is needed)
@@ -520,21 +555,25 @@ assessment_agent = Agent(
 ### Agno Implementation Patterns
 
 **Agent Instantiation:**
+
 - Agents created per-request (safe pattern for demo)
 - Can also be module-level for performance optimization
 - State managed through session and database, not agent objects
 - Pattern: Create agents inside request handlers or workflow functions
 
 **Event Streaming & Audit Trails:**
+
 - Use `stream=True, stream_events=True` for full observability
 - Synchronous iteration with regular `for` loop (demo implementation)
 - Captured events: `run_started`, `run_completed`, `tool_call_started`, `tool_call_completed`, `run_content`
 - Store all events in Operations - Workflows table for complete audit trail
 
 **Streaming + Structured Outputs:**
+
 - Structured outputs work seamlessly with streaming
 - Final event in stream contains the Pydantic model instance
 - Pattern:
+
   ```python
   response = agent.run(prompt, stream=True, stream_events=True)
   events = []
@@ -547,6 +586,7 @@ assessment_agent = Agent(
   ```
 
 **Error Handling:**
+
 - Built-in retry with `exponential_backoff=True`
 - Configure retries with `retries=2, retry_delay=1`
 - Automatic handling of provider errors (rate limits, timeouts)
@@ -557,6 +597,7 @@ assessment_agent = Agent(
   - Do not crash the entire Flask process; return a 200/OK with `"status": "failed"` so Airtable reflects the failure state.
 
 **Implementation Notes:**
+
 - All agents configured with basic retry/error handling suitable for the demo.
 - Event streaming provides full transparency for demo and debugging.
 - Synchronous execution keeps implementation simple for the 48-hour constraint.
@@ -565,6 +606,7 @@ assessment_agent = Agent(
 ### Matching & Ranking Logic (Evidence-Aware)
 
 **Pre-filtering (Deterministic):**
+
 - Filter candidates by:
   - Role type (CTO vs CFO)
   - Basic stage/sector alignment with the role (exact or "stretch" match)
@@ -572,6 +614,7 @@ assessment_agent = Agent(
 - Goal: keep LLM work focused on plausible candidates.
 
 **Dimension-Level Scoring:**
+
 - For each candidate-role pair, the assessment LLM call returns:
   - Dimension scores on a 1–5 scale with `None` for Unknown:
     - `5–1` = strength based on observable evidence
@@ -585,6 +628,7 @@ assessment_agent = Agent(
   - To return `null` and a short "insufficient evidence" explanation when it cannot support a score.
 
 **Overall Score Calculation:**
+
 - Per-candidate overall score is computed in Python (not by the LLM):
   - Start from human-designed dimension weights from the spec.
   - For each dimension:
@@ -618,6 +662,7 @@ def calculate_overall_score(dimension_scores, spec_weights) -> Optional[float]:
 ```
 
 **Ranking:**
+
 - Candidates are ranked for a given role by:
   1. `overall_score` (descending)
   2. `overall_confidence` (High > Medium > Low)
@@ -625,6 +670,7 @@ def calculate_overall_score(dimension_scores, spec_weights) -> Optional[float]:
 - Candidates below a configurable minimum score threshold are explicitly labeled as "Not Recommended" (rather than hidden).
 
 **Single Evaluation (Spec-Guided for Demo v1):**
+
 - **Primary (and only) evaluation:** Spec-guided, evidence-aware scoring as described above. This is the main ranking shown in Airtable.
 - Model-generated rubric / alternative evaluation is a **future experiment**, not implemented for the initial demo.
 
@@ -637,7 +683,7 @@ When supplemental search runs, its outputs are merged back into the original `Ex
 - **Gaps:** Remove any gaps covered in `filled_gaps`; carry forward only unresolved items from `remaining_gaps`.
 - **Confidence:** Upgrade research confidence to "High" once supplemental search finishes (either by meeting the break condition or exhausting 3 iterations).
 
-This merged artifact is the only research object passed into the assessment agent, ensuring the scoring step always consumes the most complete view available. Detailed merge pseudo-code lives in `demo_planning/screening_workflow_spec.md` (Step 3c).
+This merged artifact is the only research object passed into the assessment agent, ensuring the scoring step always consumes the most complete view available. Detailed merge pseudo-code lives in `spec/dev_reference/screening_workflow_spec.md` (Step 3c).
 
 #### Evidence Quote Extraction
 
@@ -658,11 +704,13 @@ This helper is optional for the demo; it can be added as a follow-up enhancement
 ### Portco Components
 
 **Standardized storage of portco information:**
+
 - Basic Portco Info Define subset
 - Review Startup Taxonomy
 - Includes stage
 
 **Demo:**
+
 - Cut-through portco table pre-enriched
 - Maybe add startup taxonomy
 - Maybe do research
@@ -670,9 +718,10 @@ This helper is optional for the demo; it can be added as a follow-up enhancement
 
 ### Role Spec Components
 
-**Full specification defined in:** `demo_planning/role_spec_design.md`
+**Full specification defined in:** `spec/dev_reference/role_spec_design.md`
 
 **Summary:**
+
 - Markdown-based role evaluation frameworks
 - Template library (CFO, CTO base templates)
 - 4–6 weighted dimensions per spec, each with:
@@ -690,6 +739,7 @@ This helper is optional for the demo; it can be added as a follow-up enhancement
 ### Candidate Profiles
 
 **OUT OF SCOPE FOR DEMO**
+
 - Standardized Candidate Profile Definition: Components, definitions, requirements, standards for a spec
 - Goal is to have standard way we describe a candidate generally, and then how we translate and populate for a given spec
 
@@ -702,6 +752,7 @@ This helper is optional for the demo; it can be added as a follow-up enhancement
 **Pattern:** Airtable Button → Webhook → Flask `/upload` endpoint
 
 **Flow (via Airtable Interface UI):**
+
 - Upload file via Airtable attachment field
 - Select File type dropdown (person, company)
   - No role uploads for demo
@@ -714,6 +765,7 @@ This helper is optional for the demo; it can be added as a follow-up enhancement
   - Python: Update status field with results
 
 **Demo:**
+
 - Add new people CSV
   - Could add bios in text field too
 
@@ -730,6 +782,7 @@ def process_upload():
 ```
 
 **Deduplication Strategy (Demo-Scoped):**
+
 - Primary key for people imported via CSV:
   - Use a normalized combination of `full_name` + `current_company` (case-insensitive) as a soft key.
 - Before inserting a new person:
@@ -742,11 +795,13 @@ def process_upload():
 **ALL IN AIRTABLE (no Python)**
 
 **Definitions and Notes:**
+
 - Open roles exist for many portcos. Not all of them we will be actively assisting with
 - Portcos can provide us open roles that we provide in careers portal externally
 - Note: Can have portcos submit + Aging mechanism
 
 **Flow (via Airtable Interface UI):**
+
 - Select Portco
 - Select Role type
 - Optional notes for candidate parameters
@@ -757,6 +812,7 @@ def process_upload():
   - Maybe create new version of existing
 
 **Demo:**
+
 - Create new Role live
 
 ### Module 3: New Search
@@ -764,16 +820,19 @@ def process_upload():
 **ALL IN AIRTABLE (no Python)**
 
 **Definitions and Notes:**
+
 - Search is a role we are actively assisting with. Will have role spec
 - Have as distinct item so we can attach other items to it (like notes)
 
 **Flow (via Airtable Interface UI):**
+
 - Link Role
 - Link spec?
 - Add notes
 - Add timeline date
 
 **Demo:**
+
 - Create new search live
 
 ### Module 4: New Screen
@@ -781,16 +840,19 @@ def process_upload():
 **Pattern:** Airtable Button → Webhook → Flask `/screen` endpoint
 
 **Definition:**
+
 - Perform screening on a set of people for a search
 - Main demo workflow for talent matching
 
 **Requirements:**
+
 - Process one or more candidates at a time
 - Bulk selection via linked records
 - Multiple screens per search allowed
 - Can redo evals with new guidance
 
 **Flow (via Airtable Interface UI):**
+
 - Create new Screen record in Airtable
 - Link to Search (which links to Role + Spec)
 - Add custom guidance/specifications (optional)
@@ -852,6 +914,7 @@ def run_screening():
 ```
 
 **Demo:**
+
 - Demo UI and kick off flow
 - Use pre-run example for discussion and can check in periodically to see the live run is progressing
 
@@ -860,6 +923,7 @@ def run_screening():
 ## 6. Demo Configuration
 
 ### Candidates
+
 - **Source:** `reference/guildmember_scrape.csv` (64 executives from FirstMark guilds)
 - **Roles:** Mix of CFOs, CTOs, CPOs, CROs across various companies
 - **Demo Scope:** Execute evaluations for 10-15 candidates
@@ -882,6 +946,7 @@ def run_screening():
    - Status: **LIVE EXECUTION** during demo 🔴
 
 **Demo Strategy:**
+
 - Show pre-run results for 3 scenarios (full data, insights, rankings ready)
 - Kick off live screening for 1 scenario to demonstrate real-time workflow
 - Toggle between completed results and in-progress execution
@@ -894,6 +959,7 @@ def run_screening():
 ### Technical Implementation Notes
 
 **Core Requirements:**
+
 - Must have confidence alongside any evaluation score
 - Rubrics are dimensions, weights, definition, and scale
 - Need quotation level detail somewhere
@@ -904,6 +970,7 @@ def run_screening():
 - Data schema: People will always have LinkedIn associated with them
 
 **Airtable Requirements:**
+
 - DB & UI features quickly
 - Meet them in their stack
 - Requirements:
@@ -915,6 +982,7 @@ def run_screening():
 #### 1. Assessment Scoring Mechanics
 
 **Confidence Calculation:** How is confidence (High/Medium/Low) determined?
+
 - Based on amount of evidence found?
 - Based on directness of evidence match?
 - LLM self-assessment of certainty?
@@ -923,6 +991,7 @@ def run_screening():
 - **Status:** APPROVED ✅
 
 **Counterfactuals Definition:** What does "counterfactuals" mean in this context?
+
 - "What if" scenarios? (e.g., "If candidate had X experience, score would be Y")
 - Alternative interpretations of ambiguous evidence?
 - Reasons candidate might NOT be a good fit despite high score?
@@ -930,6 +999,7 @@ def run_screening():
 - **Status:** APPROVED ✅
 
 **Two Evaluation Comparison:** How do we present both evaluation results?
+
 - Side-by-side comparison in UI?
 - Separate sections in markdown report?
 - Highlight where they agree vs disagree?
@@ -941,27 +1011,32 @@ def run_screening():
 Need complete field definitions for these tables:
 
 **People Table:**
+
 - Standard fields: name, current_title, current_company, location, linkedin_url
 - Bio field: Long Text? Rich Text?
 - Which fields from guildmember_scrape.csv map to People table?
 
 **Platform - Hiring - Screen:**
+
 - Fields: screen_id, search_link, candidates_links, status, created_date
 - Status enum values: Draft, Ready to Screen, Processing, Complete, Failed?
 - Custom instructions field?
 
 **Operations - Workflows:**
+
 - Fields needed for audit trail?
 - Research results storage structure?
 - Assessment results storage structure?
 - Execution logs format?
 
 **Role Eval Table:**
+
 - How are dimension scores stored? Individual fields vs JSON?
 - Evidence quotes storage?
 - Citation links storage?
 
 **Research Table:**
+
 - Full research text field?
 - Citation structure: URLs only or full content snapshots?
 - OpenAI Deep Research API response format?
@@ -969,17 +1044,20 @@ Need complete field definitions for these tables:
 #### 3. Data Ingestion & Processing
 
 **File Upload Deduplication:**
+
 - Do we implement dedupe logic for demo? (checking exec_id or name+company?)
 - **Recommendation:** Skip for demo - assume clean uploads only
 - **Status:** RESOLVED ✅ - Skipping dedupe for demo
 
 **OpenAI Deep Research API Integration:**
+
 - Expected response format and structure?
 - How are citations returned in the API response?
 - Rate limits and cost implications?
 - **Need to review:** `reference/docs_and_examples/openai_reference/deep_research_api/OAI_deepresearchapi.md`
 
 **Citation Storage:**
+
 - Store URLs only (from Deep Research API response)?
 - Or also store citation snippets/quotes provided by API?
 - **Recommendation:** URLs + key quotes provided in API response (no additional scraping)
@@ -987,11 +1065,13 @@ Need complete field definitions for these tables:
 #### 4. Technical Robustness
 
 **Error Handling:**
+
 - Rate limiting strategy for OpenAI API calls?
 - Retry logic for failed research/assessment calls?
 - Fallback behavior if API fails during demo?
 
 **Execution Time:**
+
 - **Deep Research Mode (Primary):**
   - Research phase: 2-5 minutes per candidate (o4-mini-deep-research)
   - Assessment phase: 30-60 seconds per candidate (gpt-5-mini)
@@ -1005,6 +1085,7 @@ Need complete field definitions for these tables:
 - **Demo Strategy:** Use Deep Research for 3 pre-run scenarios; use Web Search mode or a smaller candidate set for the live demo if time-constrained
 
 **Structured Outputs:**
+
 - All API calls use structured outputs (confirmed)
 - Schema validation: strict or permissive?
 - Handling of schema mismatches?
@@ -1012,16 +1093,19 @@ Need complete field definitions for these tables:
 #### 5. Demo Logistics
 
 **Airtable Setup Scope:**
+
 - Which Interface views are needed for demo?
 - Are automations essential or can we trigger webhooks manually?
 - Pre-populated test data requirements?
 
 **Webhook Testing:**
+
 - Can we test webhook locally before demo?
 - Ngrok stability concerns for live demo?
 - Backup plan if webhook fails?
 
 **Output Artifacts:**
+
 - Markdown export of all assessment results (confirmed requirement)
 - Where are markdown files stored? (Airtable attachment? Local folder?)
 - Format template for markdown reports?
@@ -1029,12 +1113,14 @@ Need complete field definitions for these tables:
 #### 6. MVP Simplifications (Given 48-Hour Constraint)
 
 **Resolved Simplifications:**
+
 - Person enrichment: **Stub function** (no real Apollo API) ✅
 - Research: **Real OpenAI Deep Research API** (not mock data) ✅
 - Candidate profiles: **Skip entirely** ✅
 - Deduplication: **Skip** (assume clean data) ✅
 
 **Still Need to Decide:**
+
 - Module 1 (Upload): Build full CSV processing webhook or pre-populate data manually?
 - Module 2 (New Role): Airtable-only UI flow (no Python) vs fully manual record creation?
 - Module 3 (New Search): Airtable-only UI flow (no Python) vs fully manual record creation?
@@ -1044,6 +1130,7 @@ Need complete field definitions for these tables:
 ### Prioritization Recommendation
 
 **Must Have Before Build:**
+
 1. ✅ Research execution strategy → **RESOLVED:** OpenAI Deep Research API + Web Search (hybrid approach, no Tavily)
 2. ✅ Expected execution times → **RESOLVED:** 3-6 min/candidate (Deep Research) or 1-2 min/candidate (Web Search)
 3. ✅ Model selection → **RESOLVED:** o4-mini-deep-research (research), gpt-5-mini (assessment)
@@ -1053,6 +1140,7 @@ Need complete field definitions for these tables:
 7. **Airtable schema details** → Complete field definitions for core tables
 
 **Can Decide During Build:**
+
 1. ✅ Deduplication approach → **RESOLVED:** Skip for demo
 2. Citation storage details (review Deep Research API docs for format)
 3. Error handling specifics (retry logic, fallbacks)
@@ -1060,6 +1148,7 @@ Need complete field definitions for these tables:
 5. Markdown export format (can use simple template)
 
 **Recommended Simplifications for Demo:**
+
 1. **Modules 1-3:** Pre-populate data manually (no webhook automation needed)
 2. **Module 4:** Build full webhook + automation (this is the core demo)
 3. **Airtable UI:** Standard grid views + basic filtering (no custom interfaces)
@@ -1086,7 +1175,7 @@ Need complete field definitions for these tables:
 
 4. **Create detailed Airtable schema** (2 hours)
    - Complete field definitions for: People, Screen, Workflows, Role Eval tables
-   - Create new document: `demo_planning/airtable_schema.md`
+   - Create new document: `spec/dev_reference/airtable_schema.md`
 
 **Implementation Sequence:**
 
@@ -1111,6 +1200,7 @@ Need complete field definitions for these tables:
 **Total Estimated: 20 hours** (leaves buffer within 48-hour window)
 
 **Implementation Notes:**
+
 - Implement both Deep Research and Web Search modes with environment flag toggle
 - This provides demo flexibility: comprehensive results (Deep Research) or faster live execution (Web Search)
 - Keep implementation synchronous for the initial demo; add async/concurrency later only if needed

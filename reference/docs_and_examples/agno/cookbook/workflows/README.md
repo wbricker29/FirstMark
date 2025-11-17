@@ -68,12 +68,15 @@ Agno Workflows 2.0 provides a powerful, declarative way to orchestrate multi-ste
 | **Router** | Dynamic routing | Content-based step selection |
 
 ### Atomic Units with Controlled Execution
+
 The workflow system is built around the concept of atomic execution units in Agno- `Agents` and `Teams`, these are individual components that can work independently but gain enhanced capabilities when orchestrated together:
+
 - **Agents**: Individual AI executors with specific capabilities and instructions
 - **Teams**: Coordinated groups of agents working together on complex problems
 - **Custom Python Functions**: Custom Python functions for specialized processing logic and full control
 
 The beauty of this approach is that you maintain the full power and flexibility of each atomic unit while gaining sophisticated orchestration capabilities. Your agents and teams retain their individual characteristics, memory, and behavior patterns, but now operate within a structured workflow that provides:
+
 - Sequential step execution with output chaining
 - Session management and state persistence
 - Error handling and retry mechanisms
@@ -110,9 +113,9 @@ workflow.print_response("Analyze the competitive landscape for fintech startups"
 ```
 
 **See Examples**:
+
 - [`sequence_of_functions_and_agents.py`](_01_basic_workflows/_01_sequence_of_steps/sync/sequence_of_functions_and_agents.py)
 - [`sequence_of_functions_and_agents_stream.py`](_01_basic_workflows/_01_sequence_of_steps/sync/sequence_of_functions_and_agents_stream.py)
-
 
 > **Note**: `StepInput` and `StepOutput` provides standardized interfaces for data flow between steps:
 ![Workflows Step IO](assets/step_io_flow.png)
@@ -141,6 +144,7 @@ workflow.print_response("Evaluate the market potential for quantum computing app
 ```
 
 **See Examples**:
+
 - [`function_instead_of_steps.py`](_01_basic_workflows/_03_function_instead_of_steps/sync/function_instead_of_steps.py) - Complete function-based workflow
 - [`function_instead_of_steps_stream.py`](_01_basic_workflows/_03_function_instead_of_steps/sync/function_instead_of_steps_stream.py) - Streaming version
 
@@ -170,6 +174,7 @@ workflow.print_response(
 ```
 
 **See Examples**:
+
 - [`sequence_of_steps.py`](_01_basic_workflows/_01_sequence_of_steps/sync/sequence_of_steps.py)
 - [`sequence_of_steps_stream.py`](_01_basic_workflows/_01_sequence_of_steps/sync/sequence_of_steps_stream.py)
 - [`step_with_function.py`](_01_basic_workflows/_02_step_with_function/sync/step_with_function.py)
@@ -203,6 +208,7 @@ workflow.print_response("Write about the latest AI developments", markdown=True)
 ```
 
 **See Examples**:
+
 - [`parallel_steps_workflow.py`](_04_workflows_parallel_execution/sync/parallel_steps_workflow.py)
 - [`parallel_steps_workflow_stream.py`](_04_workflows_parallel_execution/sync/parallel_steps_workflow_stream.py)
 
@@ -237,6 +243,7 @@ workflow.print_response("Comprehensive analysis of AI and machine learning trend
 ```
 
 **See Examples**:
+
 - [`condition_with_list_of_steps.py`](_02_workflows_conditional_execution/sync/condition_with_list_of_steps.py)
 - [`condition_steps_workflow_stream.py`](_02_workflows_conditional_execution/sync/condition_steps_workflow_stream.py)
 
@@ -272,6 +279,7 @@ workflow.print_response("Research the impact of renewable energy on global marke
 ```
 
 **See Examples**:
+
 - [`loop_steps_workflow.py`](_03_workflows_loop_execution/sync/loop_steps_workflow.py)
 - [`loop_steps_workflow_stream.py`](_03_workflows_loop_execution/sync/loop_steps_workflow_stream.py)
 
@@ -312,6 +320,7 @@ workflow.print_response("Latest developments in artificial intelligence and mach
 ```
 
 **See Examples**:
+
 - [`router_steps_workflow.py`](_05_workflows_conditional_branching/sync/router_steps_workflow.py)
 - [`router_steps_workflow_stream.py`](_05_workflows_conditional_branching/sync/router_steps_workflow_stream.py)
 
@@ -345,6 +354,7 @@ workflow.print_response("Write an article about renewable energy", markdown=True
 ```
 
 #### Steps with Router for Clean Branching
+
 This is where Steps really shines - creating distinct sequences for different content types or workflows:
 
 ```python
@@ -402,6 +412,7 @@ media_workflow.print_response("Create a cinematic video of city timelapse", mark
 ```
 
 **See Examples**
+
 - [`workflow_using_steps.py`](_01_basic_workflows/_01_sequence_of_steps/sync/workflow_using_steps.py)
 - [`workflow_using_steps_nested.py`](_01_basic_workflows/_01_sequence_of_steps/sync/workflow_using_steps_nested.py)
 - [`selector_for_image_video_generation_pipelines.py`](_05_workflows_conditional_branching/sync/selector_for_image_video_generation_pipelines.py)
@@ -495,6 +506,7 @@ workflow.print_response("Create a comprehensive analysis of sustainable technolo
 ```
 
 **See Examples**:
+
 - [`condition_and_parallel_steps_stream.py`](_02_workflows_conditional_execution/sync/condition_and_parallel_steps_stream.py)
 - [`loop_with_parallel_steps_stream.py`](_03_workflows_loop_execution/sync/loop_with_parallel_steps_stream.py)
 - [`router_with_loop_steps.py`](_05_workflows_conditional_branching/sync/router_with_loop_steps.py)
@@ -542,6 +554,7 @@ workflow.print_response("Scan this code: exec(input('Enter command: '))")
 ```
 
 **See Examples**:
+
 - [`early_stop_workflow_with_agents.py`](_06_advanced_concepts/_02_early_stopping/early_stop_workflow_with_agents.py)
 - [`early_stop_workflow_with_loop.py`](_06_advanced_concepts/_02_early_stopping/early_stop_workflow_with_loop.py)
 - [`early_stop_workflow_with_router.py`](_06_advanced_concepts/_02_early_stopping/early_stop_workflow_with_router.py)
@@ -600,6 +613,7 @@ workflow = Workflow(
 ```
 
 > **Key Methods:**
+>
 > - `step_input.get_step_content("step_name")` - Get content from specific step by name
 > - `step_input.get_all_previous_content()` - Get all previous step content combined
 > - `step_input.input` - Access the original workflow input message
@@ -617,6 +631,7 @@ Workflows can automatically store all events for later analysis, debugging, or a
 - **Post-Execution Access**: Access all stored events via `run_response.events`
 
 **Available Events to Skip:**
+
 ```python
 from agno.run.workflow import WorkflowRunEvent
 
@@ -638,6 +653,7 @@ events_to_skip = [
 ```
 
 **When to use:**
+
 - **Debugging**: Store all events to analyze workflow execution flow
 - **Audit Trails**: Keep records of all workflow activities for compliance
 - **Performance Analysis**: Analyze timing and execution patterns
@@ -645,6 +661,7 @@ events_to_skip = [
 - **Noise Reduction**: Skip verbose events like `step_started` to focus on results
 
 **Example Use Cases:**
+
 ```python
 # store everything
 debug_workflow = Workflow(
@@ -674,11 +691,13 @@ fast_workflow = Workflow(
 ```
 
 **See Examples**:
+
 - [`store_events_and_events_to_skip_in_a_workflow.py`](_06_advanced_concepts/_07_other/store_events_and_events_to_skip_in_a_workflow.py)
 
 ### Additional Data
 
 **When to use**: When you need to pass metadata, configuration, or contextual information to specific steps without it being part of the main workflow message flow.
+
 - Separation of Concerns: Keep workflow logic separate from metadata
 - Step-Specific Context: Access additional information in custom functions
 - Clean Message Flow: Main message stays focused on content
@@ -843,6 +862,7 @@ workflow.print_response("Add apples and oranges to my shopping list")
 ```
 
 **See**:
+
 - [`shared_session_state_with_agent.py`](06_advanced_concepts/04_shared_session_state/shared_session_state_with_agent.py)
 - [`shared_session_state_with_team.py`](06_advanced_concepts/04_shared_session_state/shared_session_state_with_team.py)
 
@@ -875,6 +895,7 @@ async def main():
 ```
 
 **See**:
+
 - [`background_execution_poll.py`](/cookbook/workflows/_06_advanced_concepts/_05_background_execution/background_execution_poll.py)
 - [`background_execution_using_websocket`](/cookbook/workflows/_06_advanced_concepts/_05_background_execution/background_execution_using_websocket)
 
@@ -934,6 +955,7 @@ workflow.print_response(
 5. **Add state management**: Use `session_state` for data sharing
 
 For more examples and advanced patterns, explore the following directories-
+
 - [`01_basic_workflows/`](01_basic_workflows)
 - [`02_workflows_conditional_execution/`](02_workflows_conditional_execution)
 - [`03_workflows_loop_execution/`](03_workflows_loop_execution)

@@ -1,170 +1,108 @@
 ---
 name: plan
-description: Generate Python Unit Plan
+description: Generate Unit Plan
 ---
 
-# /plan - Generate Python Unit Plan
+# /plan SLUG - Generate Unit Plan
+
+Generate implementation plan from an approved design, creating a task breakdown with verification plan and progress tracking.
 
 ## Purpose
-Generate task breakdown and verification plan from design document.
 
-## Usage
-```
-/plan <slug>
-```
-
-**Example:**
-```
-/plan csv-parser
-/plan user-authentication
-```
+This command translates a design document into an actionable implementation plan. It breaks down the work into discrete, sequenced tasks with clear verification criteria, enabling incremental progress tracking and ensuring nothing is overlooked during implementation.
 
 ## Prerequisites
-- `spec/units/###-SLUG/design.md` must exist (run `/new SLUG` first)
 
-## Process
+- design.md must exist for the specified unit (`spec/units/###-SLUG/design.md`)
+- design.md status should be "approved" or "draft"
+- `spec/spec.md` must exist
+- `spec/constitution.md` must exist
 
-### Step 1: Locate Unit
-- Find unit directory matching SLUG
-- Load `design.md`
-- Extract objective, behavior, acceptance criteria
+## Execution Pattern
 
-### Step 2: Break Down Into Tasks
-Generate granular tasks for Python implementation:
+### Step 0: Review Workflow
 
-**Common Task Pattern:**
-1. Set up module structure and type stubs
-2. Implement core logic
-3. Add input validation
-4. Handle edge cases
-5. Write unit tests with pytest
-6. Add type hints and docstrings
-7. Performance optimization (if needed)
+**MANDATORY: Invoke the `aidev-workflow` skill now before proceeding further.**
 
-### Step 3: Define Task Details
-For each task:
-- **Title:** Clear, action-oriented
-- **Description:** What needs to be done
-- **Status:** ready/doing/done/blocked
-- **Priority:** high/medium/low
-- **Estimate:** Time estimate (1h, 3h, 1d)
-- **Dependencies:** Which tasks must finish first
-- **Completed:** Date when done (YYYY-MM-DD)
+Use the Skill tool to load the aidev-workflow skill and review:
 
-### Step 4: Verification Commands
-Define Python-specific verification:
+- Plan generation methodology and task breakdown patterns
+- Verification gate configuration and quality standards
+- Task dependency modeling and DAG validation
 
-**Required commands:**
-```bash
-# Tests
-uv run pytest tests/ -v
+This is not optional. The skill provides critical context for plan generation.
 
-# Coverage
-uv run pytest --cov=src --cov-report=term
+### Phase 1: Validate
 
-# Type checking
-uv run pyright src/
-# OR
-uv run mypy src/
+Before proceeding, verify:
 
-# Linting
-uv run ruff check src/
+- ✅ Unit directory exists (`spec/units/###-SLUG/`)
+- ✅ design.md exists and is readable
+- ✅ design.md has all required sections (Objective, Behavior, Acceptance Criteria)
+- ✅ `spec/spec.md` exists and is readable
+- ✅ `spec/constitution.md` exists and is readable
 
-# Formatting
-uv run ruff format --check src/
-```
+### Phase 2: Gather
 
-### Step 5: Verification Gates
-Define pass criteria:
-- **tests:** All pytest tests must pass ✅
-- **type_check:** Zero type errors ✅
-- **coverage:** Must be ≥ constitution target ✅
-- **linting:** Zero linting errors ✅
-- **formatting:** No format changes needed ✅
+Load context automatically (no user prompts):
 
-### Step 6: Coverage Target
-Extract from constitution.md (default: 85%)
+- Read design.md, spec.md (patterns), constitution.md (quality standards, gates)
+- Identify implementation patterns and quality gates
 
-### Step 7: Acceptance References
-Link to acceptance criteria from design.md:
-- AC-[UNIT]-01
-- AC-[UNIT]-02
-- etc.
+### Phase 3: Generate
 
-### Step 8: Python-Specific Notes
-Add:
-- Package structure (src/, tests/)
-- Test fixtures examples
-- Type hints examples
-- Performance profiling commands
+1. Task breakdown (TK-01, TK-02...):
+   - Order: Data models → Core logic → Integration → Tests
+   - Each task: 1-3 files, <4 hours, status "ready"
+   - Include: ID, title, description, priority, estimate, dependencies
+   - Ensure valid DAG (no cycles)
 
-### Step 9: Generate Plan
-Create `spec/units/###-SLUG/plan.md` with:
-- Task breakdown
-- Verification commands
-- Gates and coverage target
-- Status tracking (progress, blockers)
-- Python-specific notes
+2. Verification section:
+   - Extract must_pass gates from constitution.md
+   - Coverage target ≥80%, verification commands
 
-### Step 10: Validate Plan
-Check that:
-- All tasks have estimates
-- Dependencies are valid (no cycles)
-- Verification commands use UV
-- All acceptance criteria covered
-- Python structure documented
+3. Status section: progress 0%, created_at timestamp, status "planning"
 
-### Step 11: Update Design Status
-Change `design.md` status from "draft" to "planned"
+4. Write `spec/units/###-SLUG/plan.md` (Metadata, Tasks, Verification, Status)
 
-### Step 12: Confirm
-Display summary:
-- Task count
-- Total estimated time
-- Verification gates
-- Next step: Run `/work SLUG TK-##` to start first task
+### Phase 4: Validate
 
-## Output
-- **File:** `spec/units/###-SLUG/plan.md`
-- **Status:** Ready for implementation
+Run these checks before confirming:
 
-## Example Interaction
-```
-User: /plan csv-parser
+- ✅ plan.md created at correct path
+- ✅ All tasks have unique IDs (TK-01, TK-02, etc.)
+- ✅ All tasks have status "ready"
+- ✅ All dependencies reference valid task IDs
+- ✅ No circular dependencies
+- ✅ At least one verification gate defined
+- ✅ Coverage target specified (≥80%)
+- ✅ File is valid markdown and readable
 
-Claude: Loading design for unit 001-csv-parser...
+### Phase 5: Confirm
 
-Generated 7 tasks:
-1. TK-01: Set up module structure (1h)
-2. TK-02: Implement core parsing logic (3h)
-3. TK-03: Add input validation (2h)
-4. TK-04: Implement schema validation (3h)
-5. TK-05: Write unit tests (4h)
-6. TK-06: Add type hints and docstrings (2h)
-7. TK-07: Performance optimization (3h)
+Display: Plan location, task count (TK-01 through TK-##), verification gates count, next step (/work ###-SLUG TK-01).
 
-Total estimate: 18 hours
+### Phase 6: Capture Follow-ups
 
-Verification gates:
-✅ Tests (uv run pytest tests/ -v)
-✅ Coverage ≥ 85% (uv run pytest --cov=src)
-✅ Type check (uv run pyright src/)
-✅ Linting (uv run ruff check src/)
-✅ Formatting (uv run ruff format --check src/)
+- Add a final task to the generated plan for any required downstream clean-up (e.g., updating documentation/scripts to cover new structural metadata such as `chunk_index` ordering) so no design-aligned modifications are dropped once implementation begins.
 
-Plan created: spec/units/001-csv-parser/plan.md
-Design status updated: draft → planned
+## Integration
 
-Next step: Run `/work csv-parser TK-01` to start first task
-```
+- **Runs after /new**: Requires approved design.md to exist
+- **Informs /work**: Tasks become input for UPEVD implementation pattern
+- **Validated by /verify**: Verification section defines quality gates for the unit
+- **Tracked by /check**: State-tracker.py reads plan.md to generate progress metrics in state.json
 
-## Validation
-- ✅ plan.md created in unit directory
-- ✅ All tasks have estimates and priorities
-- ✅ Dependencies form valid DAG (no cycles)
-- ✅ Verification commands use UV
-- ✅ Coverage target matches constitution
-- ✅ All acceptance criteria referenced
+## Error Handling
 
-## Next Steps
-Run `/work SLUG TK-##` to implement first task with UPEVD pattern
+- **Missing design.md**: Report missing file and suggest running `/new SLUG` first
+- **Invalid design status**: Warn if status is not "approved" or "draft", ask user to confirm proceeding
+- **Incomplete design.md**: Report missing required sections and exit
+- **Circular dependencies**: Report cycle and ask user to manually resolve
+- **Invalid task ID format**: Auto-correct to TK-## format
+- **Missing constitution.md**: Warn and use default gates (linting, type checking, tests)
+
+## Reference
+
+For framework patterns, detailed context, and examples:
+aidev-workflow skill → execution-framework.md, commands-reference.md

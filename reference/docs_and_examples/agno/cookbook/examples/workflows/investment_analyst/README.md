@@ -9,20 +9,22 @@ This workflow demonstrates how to build a comprehensive investment analysis work
 ## 🚀 **Getting Started**
 
 ### **Prerequisites**
-- A Supabase API key. You can get one from https://supabase.com/dashboard/account/tokens.
+
+- A Supabase API key. You can get one from <https://supabase.com/dashboard/account/tokens>.
 - OpenAI API key
 
 ### **Setup**
+
 ```bash
 export SUPABASE_ACCESS_TOKEN="your-supabase-token"
 export OPENAI_API_KEY="your-openai-key"
 ```
 
 Install packages
+
 ```
 pip install agno mcp openai
 ```
-
 
 ## 🏗️ **Analysis Flow**
 

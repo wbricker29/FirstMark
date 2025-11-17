@@ -1,6 +1,6 @@
 ---
 name: aidev-workflow
-description: Comprehensive guidance for the AIdev workflow system used for structured software project management with Claude Code. Covers AIdev commands (/constitution, /prd, /plan, /work, /check, /verify, /reflect, /new, /spec), file structure (specs/ directory with constitution, PRD, units), task execution with evidence-based completion, constitutional governance, quality gates, Single Source of Truth principle, Context Discipline, pre-implementation checks, task schema format, automation hooks, template management, and workflow sequences for feature planning and implementation. Use when working with specs/, creating product requirements, designing features, managing tasks, or validating project alignment.
+description: Comprehensive guidance for the AIdev workflow system used for structured software project management with Claude Code. Covers AIdev commands (/constitution, /prd, /plan, /work, /check, /verify, /reflect, /new, /spec), file structure (spec/ directory with constitution, PRD, units), task execution with evidence-based completion, constitutional governance, quality gates, Single Source of Truth principle, Context Discipline, pre-implementation checks, task schema format, automation hooks, template management, and workflow sequences for feature planning and implementation. Use when working with spec/, creating product requirements, designing features, managing tasks, or validating project alignment.
 ---
 
 # AIdev Workflow Skill
@@ -12,8 +12,9 @@ Provides systematic guidance for managing software projects using Claude Code wi
 ## When to Use This Skill
 
 Use this skill when:
+
 - Needing guidance on AIdev commands (/constitution, /prd, /plan, /work, /check, etc.)
-- Understanding the file structure (specs/, supabase/, .claude/)
+- Understanding the file structure (spec/, supabase/, .claude/)
 - Learning workflow sequences (one-time setup, per-project, per-feature)
 - Clarifying core principles (Single Source of Truth, Evidence = Completion, Context Discipline)
 - Asking about pre-implementation checks or quality gates
@@ -38,6 +39,7 @@ Provides bundled resources for understanding and implementing the AIdev system.
 **Documentation Location:** `.claude/skills/aidev-workflow/references/`
 
 Reference documents are available for loading as needed when this skill is invoked. Access them directly via:
+
 - `@.claude/skills/aidev-workflow/references/workflow-details.md`
 - `@.claude/skills/aidev-workflow/references/commands-reference.md`
 - `@.claude/skills/aidev-workflow/references/execution-framework.md`
@@ -69,6 +71,7 @@ Reference documents are available for loading as needed when this skill is invok
 **Location:** `.claude/skills/aidev-workflow/assets/templates/` (single source of truth)
 
 Available templates:
+
 - **CONSTITUTION-TEMPLATE.md** — Project governance (used by `/constitution`)
 - **PRD-TEMPLATE.md** — Product requirements (used by `/prd`)
 - **SPEC-TEMPLATE.md** — Technical specifications (used by `/spec`)
@@ -105,7 +108,7 @@ See `references/workflow-details.md` for full automation documentation.
 ## File Structure Reference
 
 ```
-specs/
+spec/
 ├── constitution.md              # Non-negotiable project principles
 ├── PRD.md                       # Product requirements (unified document)
 └── units/###-SLUG/

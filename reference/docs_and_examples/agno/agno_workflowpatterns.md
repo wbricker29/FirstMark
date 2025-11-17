@@ -338,7 +338,7 @@ content_planning_step = Step(
 
 For a detailed example see [Class-based Executor](/examples/concepts/workflows/01-basic-workflows/class_based_executor).
 
-## Streaming execution with custom function step on AgentOS:
+## Streaming execution with custom function step on AgentOS
 
 If you are running an agent or team within the custom function step, you can enable streaming on the [AgentOS chat page](/agent-os/introduction#chat-page) by setting `stream=True` and `stream_events=True` when calling `run()` or `arun()` and yielding the events.
 
@@ -433,7 +433,6 @@ async def custom_content_planning_function(
 * [Step with a Custom Function with Streaming on AgentOS](/examples/concepts/workflows/01-basic-workflows/step_with_function_streaming_agentos)
 * [Parallel and custom function step streaming on AgentOS](/examples/concepts/workflows/04-workflows-parallel-execution/parallel_and_custom_function_step_streaming_agentos)
 
-
 # Conditional Workflow
 
 > Deterministic branching based on input analysis or business rules
@@ -478,7 +477,6 @@ workflow.print_response("Comprehensive analysis of AI and machine learning trend
 ## Reference
 
 For complete API documentation, see [Condition Steps Reference](/reference/workflows/conditional-steps).
-
 
 # Parallel Workflow
 

@@ -20,8 +20,8 @@ Start Chrome on `:9222` with remote debugging.
 ## Navigate
 
 \`\`\`bash
-./tools/nav.js https://example.com
-./tools/nav.js https://example.com --new
+./tools/nav.js <https://example.com>
+./tools/nav.js <https://example.com> --new
 \`\`\`
 
 Navigate current tab or open new tab.

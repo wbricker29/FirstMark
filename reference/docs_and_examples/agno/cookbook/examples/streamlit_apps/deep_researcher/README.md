@@ -70,7 +70,6 @@ The Deep Researcher uses a three-stage workflow:
 - **Structured Reports**: Professional formatting with references and recommendations
 - **Example Topics**: Quick-start buttons for common research areas
 
-
 ## 📚 Documentation
 
 For more detailed information:

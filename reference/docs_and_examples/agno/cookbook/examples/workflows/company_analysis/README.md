@@ -9,10 +9,12 @@ This workflow analyzes companies using 8 specialized agents that perform researc
 ## Getting Started
 
 ### Prerequisites
+
 - OpenAI API key
-- Firecrawl API. You can get one from https://www.firecrawl.dev/app/api-keys
+- Firecrawl API. You can get one from <https://www.firecrawl.dev/app/api-keys>
 
 ### Setup
+
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 export FIRECRAWL_API_KEY="your-firecrawl-key"
@@ -47,4 +49,4 @@ Company Analysis Workflow
 └── Report Compilation
 ```
 
-The workflow uses 8 specialized agents running in parallel to perform comprehensive strategic analysis across multiple frameworks, then compiles the results into an executive-ready procurement report. 
+The workflow uses 8 specialized agents running in parallel to perform comprehensive strategic analysis across multiple frameworks, then compiles the results into an executive-ready procurement report.

@@ -1,4 +1,5 @@
 # Tech Specs
+>
 > document for planning demo build
 
 ## Tech Planning & Notes
@@ -244,6 +245,7 @@ Airtable UI Action (button/automation)
 ```
 
 **Benefits:**
+
 - Consistent architecture across all modules
 - Single Python codebase with multiple endpoints
 - All modules benefit from same logging/monitoring
@@ -251,6 +253,7 @@ Airtable UI Action (button/automation)
 - Demo shows scalable pattern
 
 **Flask Endpoints:**
+
 - `/upload` - Data ingestion (CSV → clean → load)
 - `/screen` - Run candidate screening workflow
 - `/new-role` - Process new role creation
@@ -320,6 +323,7 @@ Role Eval Table - Holds all Assessments
 **Pattern:** Airtable Button → Webhook → Flask `/upload` endpoint
 
 **Flow (via Airtable Interface UI):**
+
 - Upload file via Airtable attachment field
 - Select File type dropdown (person, company)
   - No role uploads for demo
@@ -332,10 +336,12 @@ Role Eval Table - Holds all Assessments
   - Python: Update status field with results
 
 **Demo**
+
 - Add new people CSV
   - Could add bios in text field too
 
 **Implementation:**
+
 ```python
 @app.route('/upload', methods=['POST'])
 def process_upload():
@@ -365,19 +371,23 @@ def process_upload():
   - Maybe create new version of existing
 **Demo**
 - Create new Role live
+
 ##### New Search
 
 **Defs and Notes**
+
 - Search is an role we are actively assisting with. Will have role spec
 - have as distinct item so we can attach other items to it ( like notes)
 
 **Flow (via Airtable Interface UI)**
+
 - Link Role
 - link spec ?
 - Add notes
 - Add timeline date
 
 **Demo**
+
 - Create new search live
 
 ##### New Screen
@@ -385,16 +395,19 @@ def process_upload():
 **Pattern:** Airtable Button → Webhook → Flask `/screen` endpoint
 
 **Definition:**
+
 - Perform screening on a set of people for a search
 - Main demo workflow for talent matching
 
 **Requirements:**
+
 - Process one or more candidates at a time
 - Bulk selection via linked records
 - Multiple screens per search allowed
 - Can redo evals with new guidance
 
 **Flow (via Airtable Interface UI)**
+
 - Create new Screen record in Airtable
 - Link to Search (which links to Role + Spec)
 - Add custom guidance/specifications (optional)
@@ -418,6 +431,7 @@ def process_upload():
   - Terminal shows real-time progress
 
 **Implementation:**
+
 ```python
 @app.route('/screen', methods=['POST'])
 def run_screening():
@@ -433,11 +447,11 @@ def run_screening():
 
     return {'status': 'success', 'candidates_processed': n}
 ```
+
 **Demo**
+
 - demo ui and kick off flow
 - use pre-run example for discussion and can check in periodically to see the live run is porgressing
-
-
 
 ### Tech Notes
 
@@ -455,6 +469,7 @@ def run_screening():
   - People will always have linked in associated with them
 
 Airtable
+
 - DB & UI features quickly
 - Meet them in their stack
 - Requirements

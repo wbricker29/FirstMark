@@ -84,20 +84,24 @@ aidev-workflow skill → execution-framework.md, commands-reference.md
 ### Phase Definitions
 
 #### Phase 1: Validate (Prerequisites)
+
 **Purpose**: Verify system state before beginning execution.
 
 **Common Checks**:
+
 - Required files exist (constitution.md, PRD.md, state.json)
-- Required directories exist (specs/, .claude/)
+- Required directories exist (spec/, .claude/)
 - Prerequisites from other commands are met
 - User has necessary permissions
 
 **Action on Failure**: Stop execution, explain what's missing, suggest remedy.
 
 #### Phase 2: Gather (Information Collection)
+
 **Purpose**: Collect all required information from the user.
 
 **Principles**:
+
 - Ask specific, clear questions
 - Provide examples when helpful
 - Offer defaults when appropriate
@@ -107,9 +111,11 @@ aidev-workflow skill → execution-framework.md, commands-reference.md
 **Action on Invalid Input**: Re-prompt with explanation of validation criteria.
 
 #### Phase 3: Generate (File Creation/Modification)
+
 **Purpose**: Create or modify files based on gathered information.
 
 **Principles**:
+
 - Use Read tool before editing existing files
 - Follow established templates and schemas
 - Maintain consistent formatting
@@ -119,9 +125,11 @@ aidev-workflow skill → execution-framework.md, commands-reference.md
 **Action on Failure**: Roll back changes, explain error, suggest fix.
 
 #### Phase 4: Validate (Output Verification)
+
 **Purpose**: Verify generated output meets quality standards.
 
 **Common Checks**:
+
 - Files exist at expected paths
 - Content follows schema/template
 - References are valid (no broken links)
@@ -131,9 +139,11 @@ aidev-workflow skill → execution-framework.md, commands-reference.md
 **Action on Failure**: Fix automatically if possible, otherwise report and suggest manual fix.
 
 #### Phase 5: Confirm (User Feedback)
+
 **Purpose**: Provide clear summary of what was accomplished.
 
 **Principles**:
+
 - List files created/modified with absolute paths
 - Summarize key changes
 - Explain next steps
@@ -149,6 +159,7 @@ aidev-workflow skill → execution-framework.md, commands-reference.md
 **Use Case**: Collect required input with specific validation criteria.
 
 **Structure**:
+
 ```markdown
 Prompt: "What is the [item]? (must meet: [criteria])"
 Validate: [validation logic]
@@ -156,6 +167,7 @@ On Invalid: "Invalid input: [reason]. Please provide [criteria]."
 ```
 
 **Example**:
+
 ```markdown
 Prompt: "What is the feature name? (lowercase, hyphens, 2-30 chars)"
 Validate: matches /^[a-z0-9-]{2,30}$/
@@ -167,6 +179,7 @@ On Invalid: "Invalid feature name. Use lowercase letters, numbers, and hyphens o
 **Use Case**: Collect optional input with a sensible default value.
 
 **Structure**:
+
 ```markdown
 Prompt: "What is the [item]? (default: [value])"
 Handle: If empty/skip, use default value
@@ -174,6 +187,7 @@ Validate: [validation logic]
 ```
 
 **Example**:
+
 ```markdown
 Prompt: "What is the priority? (default: Medium)"
 Handle: If empty, use "Medium"
@@ -185,6 +199,7 @@ Validate: Must be one of: Low, Medium, High, Critical
 **Use Case**: Collect multiple items in sequence (tasks, requirements, etc.).
 
 **Structure**:
+
 ```markdown
 Prompt: "Enter [item] (or 'done' to finish):"
 Loop: Continue until user enters 'done'
@@ -193,6 +208,7 @@ Store: Accumulate in list
 ```
 
 **Example**:
+
 ```markdown
 Prompt: "Enter requirement (or 'done' to finish):"
 Loop: While not 'done'
@@ -205,6 +221,7 @@ Store: Add to requirements array
 **Use Case**: Collect input, then confirm understanding before proceeding.
 
 **Structure**:
+
 ```markdown
 Gather: Ask question(s)
 Summarize: Display collected information
@@ -214,6 +231,7 @@ On Yes: Proceed to generation
 ```
 
 **Example**:
+
 ```markdown
 Gather: Feature name, description, priority
 Summarize: "Feature: [name], Description: [desc], Priority: [priority]"
@@ -227,6 +245,7 @@ On Yes: Proceed to generate spec
 **Use Case**: Provide helpful context before asking question.
 
 **Structure**:
+
 ```markdown
 Context: "Currently: [current state]"
 Guidance: "[helpful information]"
@@ -235,6 +254,7 @@ Validate: [criteria]
 ```
 
 **Example**:
+
 ```markdown
 Context: "Current features in PRD: [list]"
 Guidance: "New features should build on existing capabilities."
@@ -247,6 +267,7 @@ Validate: Not duplicate, fits architecture
 **Use Case**: Break complex input into manageable parts.
 
 **Structure**:
+
 ```markdown
 Part 1: "First aspect: [question]"
 Part 2: "Second aspect: [question]"
@@ -255,6 +276,7 @@ Synthesize: Combine into structured output
 ```
 
 **Example**:
+
 ```markdown
 Part 1: "What is the problem this feature solves?"
 Part 2: "Who is the target user?"
@@ -267,6 +289,7 @@ Synthesize: Create problem statement from three answers
 **Use Case**: User selects from predefined options.
 
 **Structure**:
+
 ```markdown
 Prompt: "Select [choice]:"
 Options:
@@ -278,6 +301,7 @@ Map: Number → option value
 ```
 
 **Example**:
+
 ```markdown
 Prompt: "Select priority:"
 Options:
@@ -297,6 +321,7 @@ Map: 1→Low, 2→Medium, 3→High
 **Use Case**: Verify required file exists before proceeding.
 
 **Check**:
+
 ```markdown
 Use: Read tool on file path
 On Success: File exists, continue
@@ -309,6 +334,7 @@ Error: "[file] not found. Run [prerequisite command] first."
 **Use Case**: Verify generated markdown follows structure.
 
 **Check**:
+
 ```markdown
 Verify: Front matter present (if required)
 Verify: Required headings exist
@@ -322,6 +348,7 @@ Verify: No duplicate headings (if prohibited)
 **Use Case**: Verify referenced files/sections exist.
 
 **Check**:
+
 ```markdown
 Parse: Extract all [references](paths) and [[cross-refs]]
 For Each: Verify target exists (file or heading)
@@ -333,6 +360,7 @@ On Missing: Report broken reference with suggestion
 **Use Case**: Verify content matches expected schema.
 
 **Check**:
+
 ```markdown
 Verify: Required fields present
 Verify: Field types correct (string, number, array, etc.)
@@ -346,6 +374,7 @@ Verify: No unexpected fields (if strict)
 **Use Case**: Verify content follows formatting conventions.
 
 **Check**:
+
 ```markdown
 Verify: Headings follow hierarchy (no skipped levels)
 Verify: Lists use consistent markers (-, *, 1.)
@@ -359,6 +388,7 @@ Verify: Dates in ISO format (YYYY-MM-DD)
 **Use Case**: Verify content doesn't duplicate existing entries.
 
 **Check**:
+
 ```markdown
 Read: Existing content
 Parse: Extract identifiers (names, IDs, keys)
@@ -371,6 +401,7 @@ On Duplicate: Halt with error or offer merge
 **Use Case**: Verify state change is valid according to workflow.
 
 **Check**:
+
 ```markdown
 Read: Current state from state.json
 Verify: Transition allowed (e.g., planning → in_progress)
@@ -389,11 +420,12 @@ On Invalid: Explain valid transitions, suggest correct command
 **Detection**: Phase 1 validation fails.
 
 **Response**:
+
 ```markdown
 Error: "[Prerequisite] is missing."
 Explanation: "[Why prerequisite is needed]"
 Remedy: "Run [command] first to create [prerequisite]."
-Example: "Example: /constitution to create specs/constitution.md"
+Example: "Example: /constitution to create spec/constitution.md"
 ```
 
 ### Pattern: Invalid User Input
@@ -403,6 +435,7 @@ Example: "Example: /constitution to create specs/constitution.md"
 **Detection**: Phase 2 validation fails.
 
 **Response**:
+
 ```markdown
 Error: "Invalid [input type]: [reason]"
 Expected: "[Validation criteria]"
@@ -411,6 +444,7 @@ Re-prompt: "Please try again: [question]"
 ```
 
 **Handling**:
+
 - Explain what's wrong clearly
 - Show validation criteria
 - Provide example of valid input
@@ -424,6 +458,7 @@ Re-prompt: "Please try again: [question]"
 **Detection**: Attempt to read template file fails.
 
 **Response**:
+
 ```markdown
 Error: "Template not found: [path]"
 Explanation: "[What template was needed and why]"
@@ -438,6 +473,7 @@ Fallback: "Attempting to generate without template..."
 **Detection**: Write/Edit tool fails.
 
 **Response**:
+
 ```markdown
 Error: "Failed to write [file]: [reason]"
 Explanation: "[What was being written]"
@@ -452,6 +488,7 @@ Rollback: "No changes were made to existing files."
 **Detection**: Post-generation validation check fails.
 
 **Response**:
+
 ```markdown
 Error: "Generated content failed validation: [check]"
 Explanation: "[What's wrong and why it matters]"
@@ -468,12 +505,14 @@ Manual Fix: "[If not] Please manually correct: [instructions]"
 Start with essential questions, add detail only as needed.
 
 **Approach**:
+
 1. Ask minimum required questions first
 2. Assess complexity of user's needs
 3. Ask follow-up questions if clarification needed
 4. Don't burden user with unnecessary detail
 
 **Example** (/new command):
+
 - Essential: Feature name, description
 - Conditional: Ask about dependencies if feature is complex
 - Conditional: Ask about acceptance criteria if user mentions testing
@@ -483,12 +522,14 @@ Start with essential questions, add detail only as needed.
 Provide intelligent defaults based on current system state.
 
 **Approach**:
+
 1. Read current state (PRD, state.json, existing specs)
 2. Infer sensible defaults from context
 3. Offer defaults in prompts
 4. Accept empty input as consent to use default
 
 **Example** (/plan command):
+
 - Default priority: "Medium" (most common)
 - Default assignee: Current user from git config
 - Default milestone: Next unreleased milestone from PRD
@@ -498,6 +539,7 @@ Provide intelligent defaults based on current system state.
 Validate each input immediately before moving to next question.
 
 **Approach**:
+
 1. Ask question
 2. Validate response
 3. If invalid, explain and re-prompt immediately
@@ -505,6 +547,7 @@ Validate each input immediately before moving to next question.
 5. Don't accumulate multiple invalid inputs
 
 **Example** (/new command):
+
 - Ask feature name → validate format → proceed
 - Ask description → validate length → proceed
 - Ask priority → validate enum → proceed
@@ -514,6 +557,7 @@ Validate each input immediately before moving to next question.
 After gathering information, summarize and confirm understanding.
 
 **Approach**:
+
 1. Collect all required inputs
 2. Display summary in structured format
 3. Ask explicit confirmation
@@ -521,6 +565,7 @@ After gathering information, summarize and confirm understanding.
 5. Only generate after confirmation
 
 **Example** (/spec command):
+
 - Gather: Problem, solution, success metrics
 - Summary: Display all three in readable format
 - Confirm: "Proceed with this specification? (yes/no)"
@@ -531,6 +576,7 @@ After gathering information, summarize and confirm understanding.
 Help user think through requirements by asking leading questions.
 
 **Approach**:
+
 1. Ask open-ended question
 2. Listen to response
 3. Ask clarifying follow-ups based on answer
@@ -538,6 +584,7 @@ Help user think through requirements by asking leading questions.
 5. Synthesize into clear requirement
 
 **Example** (/new command):
+
 - Open: "Describe the feature you'd like to build."
 - Follow-up: "Who is the primary user of this feature?"
 - Follow-up: "What problem does it solve for them?"
@@ -552,12 +599,14 @@ Help user think through requirements by asking leading questions.
 Be clear and explicit, even if it takes more words.
 
 **Good**:
+
 ```
 Enter the feature name (lowercase, hyphens, 2-30 characters).
 Example: "user-authentication" or "dark-mode-toggle"
 ```
 
 **Bad**:
+
 ```
 Feature name? (2-30 chars)
 ```
@@ -567,12 +616,14 @@ Feature name? (2-30 chars)
 Always tell the user what to do next, don't just report status.
 
 **Good**:
+
 ```
-Constitution created successfully at specs/constitution.md.
+Constitution created successfully at spec/constitution.md.
 Next: Run /prd to define your project's feature roadmap.
 ```
 
 **Bad**:
+
 ```
 Constitution created.
 ```
@@ -582,12 +633,14 @@ Constitution created.
 Explain what went wrong AND how to fix it.
 
 **Good**:
+
 ```
-Error: PRD.md not found at specs/PRD.md.
+Error: PRD.md not found at spec/PRD.md.
 Fix: Run /prd to create the project requirements document.
 ```
 
 **Bad**:
+
 ```
 Error: File not found.
 ```
@@ -597,6 +650,7 @@ Error: File not found.
 Be professional, helpful, and encouraging.
 
 **Guidelines**:
+
 - Use "please" and "thank you" appropriately
 - Avoid condescending language
 - Assume user has good reasons for their choices
@@ -608,6 +662,7 @@ Be professional, helpful, and encouraging.
 Show just enough information at each step.
 
 **Approach**:
+
 - Start with high-level summary
 - Offer "more details" if user needs it
 - Don't overwhelm with full file contents unless asked
@@ -619,7 +674,8 @@ Show just enough information at each step.
 Use the same terms throughout all commands.
 
 **Standard Terms**:
-- "specs/" (not "specifications folder")
+
+- "spec/" (not "specifications folder")
 - "PRD" (not "requirements doc")
 - "feature" (not "initiative" or "project")
 - "task" (not "todo" or "action item")
@@ -631,14 +687,16 @@ Use the same terms throughout all commands.
 Show file paths and confirmation of actions taken.
 
 **Good**:
+
 ```
-Created: specs/features/001-user-auth/spec.md
-Created: specs/features/001-user-auth/plan.md
-Updated: specs/PRD.md (added feature to Part B)
+Created: spec/features/001-user-auth/spec.md
+Created: spec/features/001-user-auth/plan.md
+Updated: spec/PRD.md (added feature to Part B)
 Updated: .claude/logs/state.json (status: planning)
 ```
 
 **Bad**:
+
 ```
 Feature created successfully.
 ```

@@ -35,6 +35,7 @@ vLLM embedders can load and run embedding models locally without requiring a ser
 ### Setup for Local Embeddings
 
 1. **Install vLLM** (if not already installed):
+
    ```bash
    pip install vllm
    ```
@@ -52,6 +53,7 @@ vLLM embedders can load and run embedding models locally without requiring a ser
    - all-MiniLM-L6-v2: ~500MB VRAM
 
 4. **Usage**:
+
    ```python
    from agno.knowledge.embedder.vllm import VLLMEmbedder
 
@@ -73,12 +75,14 @@ vLLM embedders can load and run embedding models locally without requiring a ser
 ### Local vs Remote Mode
 
 **Local Mode** (no server):
+
 - Use `VLLMEmbedder(id="model-name")`
 - Model loads directly into GPU/CPU
 - No `base_url` needed
 - Best for: Development, single-machine deployment
 
 **Remote Mode** (requires server):
+
 - Use `VLLMEmbedder(base_url="http://localhost:8000/v1")`
 - Connects to running vLLM server
 - Best for: Production, shared infrastructure
@@ -86,6 +90,7 @@ vLLM embedders can load and run embedding models locally without requiring a ser
 ### Performance Tips
 
 - Enable batching for multiple embeddings:
+
   ```python
   embedder = VLLMEmbedder(
       id="intfloat/e5-mistral-7b-instruct",
@@ -98,8 +103,6 @@ vLLM embedders can load and run embedding models locally without requiring a ser
 - For CPU-only: Use smaller models (bge-small, MiniLM)
 
 ## Examples
-
-
 
 ```shell
 python cookbook/models/vllm/basic.py

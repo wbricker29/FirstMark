@@ -1,12 +1,14 @@
 # Agentic Workflows
 
 This feature allows you to add a `WorkflowAgent` to your workflow that intelligently decides whether to:
+
 1. **Answer directly** from workflow session history
 2. **Run the workflow** by calling a tool when new processing is needed
 
 ## Overview
 
 The `WorkflowAgent` is a restricted version of the `Agent` class specifically designed for workflow orchestration. It uses a tool-based approach to decide when to execute workflows, providing:
+
 - **Better determinism** - Tool calls are explicit and trackable
 - **Improved reliability** - Clear decision boundaries between answering and executing
 - **Session awareness** - Automatically accesses workflow history for context
@@ -32,13 +34,17 @@ Decision Point:
 ## Key Components
 
 ### 1. WorkflowAgent Class
+
 A restricted Agent with limited configuration:
+
 - **Allowed**: `model`, `name`, `description`, `instructions`, `debug_mode`, `monitoring`, `add_history_to_context`, `num_history_responses`
 - **Not Allowed**: Custom `tools`, `knowledge`, `storage`
 - Tools are automatically set by the workflow
 
 ### 2. Workflow History Context
+
 Automatically built from previous runs in the session:
+
 ```xml
 <workflow_history_context>
 [run-1]
@@ -52,7 +58,9 @@ response: Luna was a curious cat who...
 ```
 
 ### 3. Workflow Execution Tool
+
 Automatically created and provided to the agent:
+
 - **Name**: `run_workflow`
 - **Purpose**: Execute the complete workflow
 - **Returns**: Workflow execution result
@@ -116,14 +124,18 @@ response4 = workflow.run("Compare Max and Luna")
 ## How It Works
 
 ### 1. Initialization
+
 When `workflow.run()` is called with an agent configured:
+
 1. Workflow reads/creates session from database
 2. Builds history context from previous runs
 3. Creates the `run_workflow` tool dynamically
 4. Sets up `WorkflowAgent` with tool and context
 
 ### 2. Agent Decision
+
 The `WorkflowAgent`:
+
 1. Receives user input
 2. Sees workflow history in context
 3. Decides to either:
@@ -131,11 +143,13 @@ The `WorkflowAgent`:
    - Call `run_workflow` tool (to process new query)
 
 ### 4. Storage
+
 - **Workflow run**: Stored in `session.runs[]`
 
 ## Implementation Details
 
 ### WorkflowAgent Restrictions
+
 ```python
 # ✅ Allowed
 workflow_agent = WorkflowAgent(

@@ -39,10 +39,10 @@ streamlit run cookbook/examples/streamlit_apps/medical_imaging/app.py
 ```
 
 ### 📚 Educational Support
+
 - Sample questions for learning
 - Medical imaging guidance
 - Best practices and standards
-
 
 ### Usage Examples
 

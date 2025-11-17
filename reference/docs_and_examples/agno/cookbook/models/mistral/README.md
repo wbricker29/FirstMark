@@ -37,7 +37,6 @@ python cookbook/models/mistral/basic.py
 
 ### 5. Run Agent with Tools
 
-
 - DuckDuckGo search
 
 ```shell

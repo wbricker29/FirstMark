@@ -61,6 +61,7 @@ https://www.notion.so/../{database_id}?v={view_id}
 The `database_id` is the 32-character string (with hyphens) between the workspace name and the `?v=`.
 
 Example:
+
 ```
 https://www.notion.so/myworkspace/28fee27fd9128039b3f8f47cb7ade7cb?v=...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -80,6 +81,7 @@ export OPENAI_API_KEY="your_openai_api_key_here"
 ```
 
 Or in a `.env` file:
+
 ```
 NOTION_API_KEY=secret_your_integration_token_here
 NOTION_DATABASE_ID=your_database_id_here
@@ -95,4 +97,3 @@ python cookbook/examples/workflows/thoughts_dump_notion/thoughts_dump_notion.py
 The server will start on `http://localhost:7777` (or another port).
 
 Go to [AgentOS](https://os.agno.com/) and test!
-

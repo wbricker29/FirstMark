@@ -67,6 +67,7 @@ pip install opentelemetry-sdk opentelemetry-exporter-otlp openinference-instrume
 | **LangSmith** | LangChain's monitoring and debugging platform | `pip install langsmith` |
 
 **Files:**
+
 - **[Langfuse via OpenInference](./langfuse_via_openinference.py)** - Langfuse integration
 - **[Opik via OpenInference](./opik_via_openinference.py)** - Opik integration
 - **[Arize Phoenix via OpenInference](./arize_phoenix_via_openinference.py)** - Phoenix integration  

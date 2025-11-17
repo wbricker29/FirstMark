@@ -58,6 +58,7 @@ pip install -U agno fastapi uvicorn sqlalchemy pgvector psycopg openai
 ```
 
 For additional tools and integrations:
+
 ```bash
 pip install ddgs yfinance
 ```
@@ -79,22 +80,26 @@ For detailed documentation, visit the [Agno Documentation](https://docs.agno.com
 This directory contains comprehensive examples demonstrating different aspects of AgentOS:
 
 ### Core Examples
+
 - [`basic.py`](basic.py) - Minimal AgentOS setup with agent, team, and workflow
 - [`demo.py`](demo.py) - Full-featured demo with multiple agents, tools, and knowledge base
 - [`evals_demo.py`](evals_demo.py) - Agent evaluation and testing framework
 
 ### Customization Examples
+
 - [`customize/custom_fastapi.py`](customize/custom_fastapi.py) - Custom FastAPI app for the AgentOS
 - [`customize/custom_lifespan.py`](customize/custom_lifespan.py) - Custom lifespan for the AgentOS
 - [`customize/override_routes.py`](customize/override_routes.py) - Override AgentOS routes with your own
 
 ### MCP Examples
+
 - [`mcp/enable_mcp_example.py`](mcp/enable_mcp_example.py) - How to convert your AgentOS into an MCP server
 - [`mcp/mcp_tools_example.py`](mcp/mcp_tools_example.py) - How to use MCP tools in your AgentOS
 - [`mcp/mcp_tools_existing_lifespan.py`](mcp/mcp_tools_existing_lifespan.py) - MCP tools example with existing lifespan
 - [`mcp/mcp_tools_advanced_example.py`](mcp/mcp_tools_advanced_example.py) - MCP tools example with multiple MCP servers
 
 ### Database Integrations
+
 - [`dbs/postgres_demo.py`](dbs/postgres_demo.py) - Demo using PostgreSQL database
 - [`dbs/sqlite_demo.py`](dbs/sqlite_demo.py) - Demo using SQLite database
 - [`dbs/mongo_demo.py`](dbs/mongo_demo.py) - Demo using MongoDB database
@@ -108,6 +113,7 @@ This directory contains comprehensive examples demonstrating different aspects o
 - [`dbs/gcs_json_demo.py`](dbs/gcs_json_demo.py) - Demo using Google Cloud Storage JSON
 
 ### Workflow Examples
+
 - [`workflow/basic_workflow.py`](workflow/basic_workflow.py) - Simple linear workflow
 - [`workflow/basic_workflow_team.py`](workflow/basic_workflow_team.py) - Team-based workflow
 - [`workflow/workflow_with_steps.py`](workflow/workflow_with_steps.py) - Multi-step workflow
@@ -122,11 +128,13 @@ This directory contains comprehensive examples demonstrating different aspects o
 ### Interface Examples
 
 #### Slack Integration
+
 - [`interfaces/slack/basic.py`](interfaces/slack/basic.py) - Basic Slack bot
 - [`interfaces/slack/agent_with_user_memory.py`](interfaces/slack/agent_with_user_memory.py) - Slack bot with persistent memory
 - [`interfaces/slack/reasoning_agent.py`](interfaces/slack/reasoning_agent.py) - Advanced reasoning agent for Slack
 
 #### WhatsApp Integration
+
 - [`interfaces/whatsapp/basic.py`](interfaces/whatsapp/basic.py) - Basic WhatsApp bot
 - [`interfaces/whatsapp/agent_with_user_memory.py`](interfaces/whatsapp/agent_with_user_memory.py) - WhatsApp bot with memory
 - [`interfaces/whatsapp/agent_with_media.py`](interfaces/whatsapp/agent_with_media.py) - Media handling in WhatsApp
@@ -135,11 +143,13 @@ This directory contains comprehensive examples demonstrating different aspects o
 - [`interfaces/whatsapp/image_generation_tools.py`](interfaces/whatsapp/image_generation_tools.py) - Image generation tools
 
 #### AGUI Integration
+
 - [`interfaces/agui/basic.py`](interfaces/agui/basic.py) - Basic AGUI interface
 - [`interfaces/agui/agent_with_tool.py`](interfaces/agui/agent_with_tool.py) - AGUI interface with tool integration
 - [`interfaces/agui/research_team.py`](interfaces/agui/research_team.py) - Research team AGUI interface
 
 ### Advanced Examples
+
 - [`advanced/demo.py`](advanced/demo.py) - Advanced AgentOS features
 - [`advanced/teams_demo.py`](advanced/teams_demo.py) - Complex team coordination
 - [`advanced/reasoning_demo.py`](advanced/reasoning_demo.py) - Advanced reasoning capabilities

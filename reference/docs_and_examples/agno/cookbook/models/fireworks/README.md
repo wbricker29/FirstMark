@@ -43,11 +43,8 @@ python cookbook/models/fireworks/basic.py
 python cookbook/models/fireworks/tool_use.py
 ```
 
-
 ### 6. Run Agent that returns structured output
 
 ```shell
 python cookbook/models/fireworks/structured_output.py
 ```
-
-

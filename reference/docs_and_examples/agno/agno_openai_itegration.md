@@ -78,7 +78,6 @@ For more information, please refer to the [OpenAI Responses docs](https://platfo
 
 `OpenAIResponses` is a subclass of the [Model](/reference/models/model) class and has access to the same params.
 
-
 --- EXAMPLES ---
 
 # Websearch Builtin Tool

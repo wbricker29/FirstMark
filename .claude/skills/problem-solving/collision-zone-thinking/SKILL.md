@@ -38,6 +38,7 @@ Revolutionary insights come from forcing unrelated concepts to collide. Treat X 
 **Collision:** "What if we treated services like electrical circuits?"
 
 **Emergent properties:**
+
 - Circuit breakers (disconnect on overload)
 - Fuses (one-time failure protection)
 - Ground faults (error isolation)

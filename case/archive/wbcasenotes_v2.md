@@ -113,6 +113,7 @@ Demonstrate how the agent:
 ### Day 1 - Saturday Nov 16: Foundation & Derisking (10 hours)
 
 **Morning (4 hours): Data & Infrastructure**
+
 - [ ] 9-10am: Generate mock data (see tech_specs_v2.md for schemas)
   - Mock_Guilds.csv (15-20 guild members)
   - Exec_Network.csv (additional 10 candidates)
@@ -126,6 +127,7 @@ Demonstrate how the agent:
   - Test with mock data
 
 **Afternoon (4 hours): Core Research Capability**
+
 - [ ] 2-3pm: Set up Flask webhook server + ngrok
   - Test webhook trigger from Airtable
 - [ ] 3-5pm: Build candidate research module
@@ -137,12 +139,14 @@ Demonstrate how the agent:
   - Create markdown export
 
 **Evening (2 hours): Role Spec Framework**
+
 - [ ] 6-8pm: Design and generate role spec framework
   - Define spec structure (dimensions, weights, scales)
   - Create 2 base specs (CFO, CTO)
   - Generate custom specs for 4 demo roles
 
 **End of Day 1 Checkpoint:**
+
 - ✓ Mock data loaded into Airtable
 - ✓ Webhook infrastructure working
 - ✓ Research API functional with examples
@@ -153,6 +157,7 @@ Demonstrate how the agent:
 ### Day 2 - Sunday Nov 17: Core Demo Build (12 hours)
 
 **Morning (4 hours): Assessment Engine**
+
 - [ ] 9-11am: Build candidate assessment module
   - Assessment prompt engineering
   - Structured output for scores + reasoning
@@ -163,6 +168,7 @@ Demonstrate how the agent:
   - Iterate on prompts
 
 **Afternoon (4 hours): Full Screening Workflow**
+
 - [ ] 2-4pm: Complete `/screen` endpoint
   - Link Screen → Search → Role → Spec
   - Process multiple candidates
@@ -173,6 +179,7 @@ Demonstrate how the agent:
   - Export markdown reports
 
 **Evening (4 hours): UI & Visualization**
+
 - [ ] 6-8pm: Build Airtable interface views
   - Candidate ranking view (sorted by score)
   - Drill-down view (assessment details)
@@ -183,6 +190,7 @@ Demonstrate how the agent:
   - Test fallback scenarios
 
 **End of Day 2 Checkpoint:**
+
 - ✓ Full screening workflow functional
 - ✓ Pre-baked examples with complete audit trails
 - ✓ Airtable UI ready for demo
@@ -193,6 +201,7 @@ Demonstrate how the agent:
 ### Day 3 - Monday Nov 18: Polish & Presentation (10 hours)
 
 **Morning (4 hours): Presentation Materials**
+
 - [ ] 9-11am: Create presentation deck/document
   - Problem framing (Product Thinking - 25%)
   - Architecture overview (Technical Design - 25%)
@@ -205,6 +214,7 @@ Demonstrate how the agent:
   - Transitions between slides and live demo
 
 **Afternoon (3 hours): Demo Rehearsal & Refinement**
+
 - [ ] 2-3pm: Full demo dry run
   - Time each section
   - Identify rough spots
@@ -217,6 +227,7 @@ Demonstrate how the agent:
   - Ensure smooth flow
 
 **Evening (3 hours): Final Preparation**
+
 - [ ] 5-6pm: Prepare fallback materials
   - Screenshots of live demo in case of technical issues
   - Backup pre-recorded segments
@@ -231,6 +242,7 @@ Demonstrate how the agent:
   - Relax and get ready
 
 **End of Day 3 Checkpoint:**
+
 - ✓ Presentation complete and rehearsed
 - ✓ Demo script ready
 - ✓ Fallback plan in place
@@ -284,12 +296,14 @@ Demonstrate how the agent:
 #### Intro (15 minutes - separate from case presentation)
 
 **Key Messages:**
+
 - How I think about AI transformation in venture capital
 - My framework for evaluating and prioritizing AI opportunities
 - What I know and what I don't know about FirstMark
 - Why I'm excited about this role
 
 **Structure:**
+
 - Background: AI/ML engineering + product experience
 - Approach: Portfolio thinking for AI initiatives
   - Quick wins (immediate value)
@@ -307,6 +321,7 @@ Demonstrate how the agent:
 #### The Case Presentation (30 minutes)
 
 **Minute 0-5: Problem Framing (Product Thinking)**
+
 - The business context: Talent matching is core VC value-add
 - FirstMark's unique assets: Guilds provide differentiation
 - Current state: Manual, inconsistent, time-intensive
@@ -314,6 +329,7 @@ Demonstrate how the agent:
 - Success = augmentation, not replacement
 
 **Minute 5-12: Solution Approach (Technical Design + Data Integration)**
+
 - Three-tier thinking:
   - **Demo Solution:** What I built in 3 days (show pragmatism)
   - **MVP Solution:** What I'd build in 1 month for actual use (show product thinking)
@@ -328,6 +344,7 @@ Demonstrate how the agent:
   - Storage: Airtable for demo; future = centralized platform
 
 **Minute 12-23: Demo (Insight Generation)**
+
 - **Setup** (2 min): Show the scenario
   - 4 open roles across portfolio (2 CFO, 2 CTO)
   - 20 candidates from guilds + network
@@ -348,6 +365,7 @@ Demonstrate how the agent:
   - Counterfactuals aid decision-making
 
 **Minute 23-30: Extension & Next Steps (Communication + All Categories)**
+
 - What works now vs. what's conceptual
 - Known limitations and rough edges
 - Path to production (Tier 2 → Tier 1)
@@ -365,34 +383,40 @@ Demonstrate how the agent:
 #### Talking Points to Cover
 
 **Distinguish Demo from Other Scenarios:**
+
 - "In an ideal world with 18 months and full team, I'd build X"
 - "For MVP in 1 month to validate value, I'd do Y"
 - "For this 3-day demo to show thinking, I built Z"
 
 **Acknowledge What I Don't Know:**
+
 - Your current data hygiene and systems
 - How you currently use Affinity
 - Guild management process and cadence
 - Security requirements and constraints
 
 **Decision Framework:**
+
 - Ultimate design depends on Time, Value, Security
 - Security is firm-level decision (needs clarity upfront)
 - Build vs. Buy analysis for each component
 - Standard frameworks compound value across use cases
 
 **The FirstMark AI Guild Model:**
+
 - Centralized foundation (data platform, standards, frameworks)
 - Forward-deployed development (use-case specific agents)
 - Knowledge sharing and iteration across use cases
 
 **Key Complexity Points:**
+
 - Boundaries: What's universal vs. use-case specific?
 - LLM scope: Where do we need AI vs. deterministic logic?
 - Human engagement: How do we optimize the human-in-loop?
 - Messy corners: Non-normalized titles, disambiguation, edge cases
 
 **Decision to Skip Candidate Profiles:**
+
 - Could maintain standardized profiles for certain people
 - Trade-off: Data freshness vs. storage/maintenance cost
 - Not mission critical for demo
@@ -407,12 +431,14 @@ Demonstrate how the agent:
 **Scenario:** FirstMark talent team has 4 open executive roles across portfolio
 
 **Roles:**
+
 1. Pigment (Series B B2B SaaS, enterprise, international) - CFO
 2. Mockingbird (Series A Consumer DTC, physical product) - CFO
 3. Synthesia (Series C AI/ML SaaS, global scale) - CTO
 4. Estuary (Series A Data infrastructure, developer tools) - CTO
 
 **Candidate Pool:**
+
 - 15-20 executives from Guild members + partner networks
 - Mix of obviously qualified, edge cases, and clear mismatches
 - 3 candidates that look similar on paper but differ in key ways
@@ -433,6 +459,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 ### Demo Script (Detailed)
 
 **[Minute 12-14: Setup & Context]**
+
 - Screen share Airtable base
 - "Here's what we're working with today..."
 - Show People table: "20 executives from FirstMark guilds and partner networks"
@@ -441,6 +468,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - **Key talking point:** "Pigment is Series B, B2B SaaS, scaling internationally - they need a CFO who can handle hypergrowth and complex finance ops"
 
 **[Minute 14-16: Role Spec Framework]**
+
 - Open Search detail view, show linked Role Spec
 - "This is the role specification framework we've defined..."
 - Walk through dimensions:
@@ -453,6 +481,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - **Key talking point:** "These specs are customizable - start with template, refine based on hiring manager input"
 
 **[Minute 16-19: Research Trail]**
+
 - Show Workflows table (pre-run examples)
 - Open Workflow for Candidate A: "Sarah Chen, CFO at Airtable"
 - Show research report:
@@ -464,8 +493,10 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - Quick peek at 1-2 other candidate research summaries
 
 **[Minute 19-22: Assessment & Reasoning]**
+
 - Open Assessment view for Sarah Chen
 - Show structured output:
+
   ```
   Overall Score: 4.2/5.0
   Confidence: High
@@ -480,10 +511,12 @@ AI must surface differentiating signals that aren't obvious from titles alone
   - Fundraising: 4.0/5 (High confidence)
   - Cultural Fit: 3.5/5 (Medium confidence)
   ```
+
 - **Key talking point:** "Notice the confidence levels - helps prioritize where we need human verification"
 - Show counterfactuals: "What would make this a 5.0? → Evidence of APAC scaling experience"
 
 **[Minute 22-24: Ranked Results & Differentiation]**
+
 - Switch to Ranked Candidates view
 - Show top 5 ranked for Pigment CFO role:
   1. Sarah Chen (4.2/5)
@@ -497,12 +530,14 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - **Key talking point:** "This is where AI adds value - surfaces the nuance"
 
 **[Minute 24-26: Live Demo (if time)]**
+
 - "Let me show you this running live..."
 - Create new Screen record
 - Link to different Search (CTO role)
 - Select 3-4 candidates
 - Click "Start Screening" button
 - Show terminal output:
+
   ```
   🔍 Starting screening for CTO @ Synthesia...
   📝 Researching candidate 1/4: Alex Johnson...
@@ -510,11 +545,13 @@ AI must surface differentiating signals that aren't obvious from titles alone
   🎯 Running assessment...
   ✅ Assessment complete (Score: 3.8/5)
   ```
+
 - "While this runs, let's look at the architecture..."
 - Show quick architecture diagram
 - Check back: "Results are populating in Airtable now..."
 
 **[Minute 26-28: What Works / What Doesn't]**
+
 - "Let's be clear about what's real and what's conceptual..."
 - **What works:**
   - ✅ Data ingestion from CSVs
@@ -533,6 +570,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
   - 📋 Historical candidate profiling
 
 **[Minute 28-30: Extension & Questions]**
+
 - Show Tier 2 (MVP) and Tier 1 (Target) slides
 - "Here's how this evolves..."
 - Tier 2 (1 month): Real enrichment APIs, better UI, production infrastructure
@@ -552,27 +590,32 @@ AI must surface differentiating signals that aren't obvious from titles alone
 ### Slide Outline (Notion or Google Slides - 8-10 slides)
 
 **Slide 1: Title**
+
 - Talent Signal Agent: AI-Powered Executive Matching for FirstMark
 - Will Bricker | Nov 19, 2025
 
 **Slide 2: The Problem**
+
 - Challenge: Match 100+ guild/network executives to portfolio roles
 - Current: Manual, time-intensive, inconsistent
 - Opportunity: Rationalize and augment with AI
 - Success = Better matches, faster, with clear reasoning
 
 **Slide 3: Solution Approach - Three Tiers**
+
 - Demo (3 days): Prove thinking quality and technical approach
 - MVP (1 month): Production-ready for hypothesis validation
 - Target (12-18 mo): Enterprise talent intelligence platform
 
 **Slide 4: Architecture Overview**
+
 - Data Layer: Airtable (meet you where you are)
 - Research Layer: OpenAI Deep Research API
 - Assessment Layer: GPT-5 + structured prompting
 - Output Layer: Ranked candidates with reasoning trails
 
 **Slide 5: Key Design Decisions**
+
 | Decision | Rationale | Trade-off |
 |----------|-----------|-----------|
 | Airtable vs. custom DB | Integration with existing stack | Flexibility vs. familiarity |
@@ -580,18 +623,21 @@ AI must surface differentiating signals that aren't obvious from titles alone
 | Role specs vs. freeform | Standardization, explainability | Flexibility vs. consistency |
 
 **Slide 6: Data Integration**
+
 - Structured: CSVs (guilds, networks) → normalized → Airtable
 - Unstructured: Bios, job descriptions → embeddings → research prompts
 - Enrichment: LinkedIn, Apollo (stubbed for demo)
 - Storage: Airtable + markdown exports
 
 **Slide 7: Demo Results Summary**
+
 - 20 candidates evaluated across 4 roles
 - Research: Avg 12 citations per candidate, 2-3 min per deep research
 - Assessment: Dimension-level scores, confidence, reasoning, counterfactuals
 - Output: Ranked lists with clear differentiation
 
 **Slide 8: Extension Roadmap**
+
 - Near-term (Tier 2 MVP):
   - Real enrichment APIs (Apollo, Harmonic)
   - Affinity integration
@@ -604,12 +650,14 @@ AI must surface differentiating signals that aren't obvious from titles alone
   - Model flexibility and consensus approaches
 
 **Slide 9: Broader Applications**
+
 - Founder evaluation for new investments
 - LP profiling and relationship management
 - Portfolio company talent mapping
 - Retroactive analysis of successful hires
 
 **Slide 10: Open Questions & Next Steps**
+
 - FirstMark input needed:
   - Current Affinity usage and data schemas
   - Security requirements
@@ -633,24 +681,28 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Data Platform (Foundation)
 
 **Centralized Storage:**
+
 - Central tables for: People, Companies, Roles, Relationships
 - Canonical title mapping table and reconciliation mechanism
 - Immutable event log (append-only, time-series)
 - Operations log for all system events
 
 **ETL Pipelines:**
+
 - Extract from multiple sources (Affinity, CSVs, APIs, manual entry)
 - Normalize schemas and field mappings
 - Reconcile entities (detect duplicates, merge records)
 - Append new records with version tracking
 
 **Standardized Operations:**
+
 - Enrichment: Apollo, Harmonic, LinkedIn for people/companies
 - Research: Standardized LLM web search + deep research
 - Assessment: Role spec framework + LLM evaluation
 - Storage: Raw inputs, processed outputs, intermediate artifacts
 
 **Human-in-the-Loop:**
+
 - Disambiguation workflows for unclear entity matches
 - Role spec customization and approval
 - Assessment review and override capability
@@ -658,11 +710,13 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Integration Layer
 
 **Affinity Integration:**
+
 - Bi-directional sync: People, companies, relationships
 - Event streaming for real-time updates
 - Investigate if Affinity can be source of truth vs. parallel system
 
 **API Access:**
+
 - GraphQL API for portfolio companies to query talent data
 - Webhooks for real-time notifications
 - REST endpoints for standard CRUD operations
@@ -670,21 +724,25 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Use Case Modules
 
 **Talent Matching (this demo):**
+
 - Executive search for portfolio roles
 - Automated screening and ranking
 - Research trails and assessment reasoning
 
 **Founder Evaluation:**
+
 - Background research and pattern matching
 - Track record analysis
 - Network mapping
 
 **LP Profiling:**
+
 - Relationship intelligence
 - Investment pattern analysis
 - Engagement recommendations
 
 **Portfolio Analytics:**
+
 - Talent density mapping across portfolio
 - Hiring velocity and quality metrics
 - Network effects and relationship graphs
@@ -708,22 +766,26 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Technical Stack
 
 **Data & Storage:**
+
 - Airtable or lightweight Postgres database
 - Basic deduplication and entity resolution
 - Manual data hygiene processes
 
 **APIs & Integrations:**
+
 - Apollo for enrichment (or Harmonic if available)
 - OpenAI Deep Research API
 - Tavily for incremental search if needed
 - Affinity read-only integration (if feasible)
 
 **LLM Framework:**
+
 - Agno or LangGraph for agent orchestration
 - GPT-5 for assessment and synthesis
 - Structured outputs for all LLM calls
 
 **Infrastructure:**
+
 - Flask + production WSGI server (Gunicorn)
 - Cloud hosting (Render, Railway, or similar)
 - Proper webhook authentication and rate limiting
@@ -731,6 +793,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Features
 
 **Enhanced from Demo:**
+
 - Real enrichment via Apollo API
 - Better error handling and retry logic
 - Deduplication and entity resolution
@@ -740,6 +803,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - Export to Google Sheets or Notion
 
 **New Capabilities:**
+
 - Historical candidate profiling (optional)
 - Batch processing for large candidate pools
 - A/B testing different assessment prompts
@@ -748,12 +812,14 @@ AI must surface differentiating signals that aren't obvious from titles alone
 #### Validation Criteria
 
 **Quantitative:**
+
 - Research quality: 80%+ of citations relevant and accurate
 - Assessment accuracy: Human review agrees with AI ranking 70%+ of time
 - Time savings: 10x reduction in initial screening time
 - Coverage: Can handle 100+ candidates per search
 
 **Qualitative:**
+
 - Talent team actually uses it for real searches
 - Hiring managers trust the reasoning and recommendations
 - Clear value demonstrated vs. manual process
@@ -771,6 +837,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 **Scope:** 3-day demo to show thinking quality and technical approach
 
 **What's Real:**
+
 - ✅ Data ingestion from CSVs to Airtable
 - ✅ Flask webhook server with ngrok tunnel
 - ✅ OpenAI Deep Research API integration
@@ -780,6 +847,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - ✅ Airtable interface for viewing results
 
 **What's Simplified:**
+
 - ⚠️ Enrichment stubbed (mock Apollo data)
 - ⚠️ Limited error handling
 - ⚠️ No deduplication logic
@@ -787,6 +855,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - ⚠️ Small candidate pool (20 people)
 
 **What's Conceptual:**
+
 - 📋 Centralized data platform
 - 📋 Affinity integration
 - 📋 Historical candidate profiles
@@ -794,6 +863,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - 📋 Production infrastructure
 
 **Purpose:**
+
 - Demonstrate quality of thinking
 - Prove technical approach is sound
 - Show understanding of VC talent workflows
@@ -832,18 +902,21 @@ AI must surface differentiating signals that aren't obvious from titles alone
 ### What I Know About FirstMark
 
 **Facts:**
+
 - Use Airtable for various operations
 - Have active guild system (competitive advantage)
 - Data quality is a known challenge ("their data is crap")
 - Ryan is building things but adoption is unclear
 
 **Assumptions:**
+
 - Need to demonstrate quick value to build credibility
 - Meeting them in their stack (Airtable) reduces friction
 - Prototype-first approach aligns with startup mentality
 - Quality of thinking matters more than polish
 
 **What I Don't Know:**
+
 - Current systems and where data lives
 - Project frequency and relative priorities
 - How they use Affinity day-to-day
@@ -852,6 +925,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 ### Success Factors
 
 **For the Role:**
+
 - Understanding the "what is" - current systems, data, workflows
 - Paying all stakeholders - investors, COO, platform team
 - Making progress on foundation while delivering quick wins
@@ -859,6 +933,7 @@ AI must surface differentiating signals that aren't obvious from titles alone
 - Learning FirstMark's investment approach and culture
 
 **For This Presentation:**
+
 - Show I can think strategically about product and technology
 - Demonstrate I understand VC and talent workflows
 - Prove I can build functional prototypes quickly

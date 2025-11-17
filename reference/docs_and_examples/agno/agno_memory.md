@@ -350,7 +350,6 @@ agent_1.print_response(
   </Step>
 </Steps>
 
-
 # Custom Memory Manager
 
 This example shows how you can configure the Memory Manager.
@@ -786,5 +785,3 @@ pprint(memories)
     </CodeGroup>
   </Step>
 </Steps>
-
-

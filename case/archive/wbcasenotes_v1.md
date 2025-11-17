@@ -116,7 +116,7 @@ High Priority
   - [ ] assessment/match score
 - [ ] design and generate prompts
 - [ ] Identify platform
-  - [ ] Agno 
+  - [ ] Agno
   - [ ] Airtable
   - [ ]
 
@@ -157,7 +157,7 @@ Optional
 <https://github.com/Arindam200/awesome-ai-apps/tree/main/advance_ai_agents/candidate_analyser>
 
 Tools
-https://github.com/Alibaba-NLP/DeepResearch
+<https://github.com/Alibaba-NLP/DeepResearch>
 
 <https://huggingface.co/spaces?q=Web&sort=likes>
 
@@ -455,4 +455,3 @@ Ideal/Target design open questions:
 - What does apollo api look like?
 - WOuld addfinity be ideal source of truth?
 - Where and how is guild managed now?
-

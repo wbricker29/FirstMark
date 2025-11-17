@@ -71,7 +71,7 @@ Create a better folder structure for my [work/projects/photos/etc]
 When a user requests file organization help:
 
 1. **Understand the Scope**
-   
+
    Ask clarifying questions:
    - Which directory needs organization? (Downloads, Documents, entire home folder?)
    - What's the main problem? (Can't find things, duplicates, too messy, no structure?)
@@ -79,8 +79,9 @@ When a user requests file organization help:
    - How aggressively to organize? (Conservative vs. comprehensive cleanup)
 
 2. **Analyze Current State**
-   
+
    Review the target directory:
+
    ```bash
    # Get overview of current structure
    ls -la [target_directory]
@@ -94,7 +95,7 @@ When a user requests file organization help:
    # Count file types
    find [target_directory] -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn
    ```
-   
+
    Summarize findings:
    - Total files and folders
    - File type breakdown
@@ -103,9 +104,9 @@ When a user requests file organization help:
    - Obvious organization issues
 
 3. **Identify Organization Patterns**
-   
+
    Based on the files, determine logical groupings:
-   
+
    **By Type**:
    - Documents (PDFs, DOCX, TXT)
    - Images (JPG, PNG, SVG)
@@ -114,22 +115,23 @@ When a user requests file organization help:
    - Code/Projects (directories with code)
    - Spreadsheets (XLSX, CSV)
    - Presentations (PPTX, KEY)
-   
+
    **By Purpose**:
    - Work vs. Personal
    - Active vs. Archive
    - Project-specific
    - Reference materials
    - Temporary/scratch files
-   
+
    **By Date**:
    - Current year/month
    - Previous years
    - Very old (archive candidates)
 
 4. **Find Duplicates**
-   
+
    When requested, search for duplicates:
+
    ```bash
    # Find exact duplicates by hash
    find [directory] -type f -exec md5 {} \; | sort | uniq -d
@@ -140,7 +142,7 @@ When a user requests file organization help:
    # Find similar-sized files
    find [directory] -type f -printf '%s %p\n' | sort -n
    ```
-   
+
    For each set of duplicates:
    - Show all file paths
    - Display sizes and modification dates
@@ -148,9 +150,9 @@ When a user requests file organization help:
    - **Important**: Always ask for confirmation before deleting
 
 5. **Propose Organization Plan**
-   
+
    Present a clear plan before making changes:
-   
+
    ```markdown
    # Organization Plan for [Directory]
    
@@ -163,6 +165,7 @@ When a user requests file organization help:
    ## Proposed Structure
    
    ```
+
    [Directory]/
    ├── Work/
    │   ├── Projects/
@@ -175,6 +178,7 @@ When a user requests file organization help:
    └── Downloads/
        ├── To-Sort/
        └── Archive/
+
    ```
    
    ## Changes I'll Make
@@ -195,9 +199,9 @@ When a user requests file organization help:
    ```
 
 6. **Execute Organization**
-   
+
    After approval, organize systematically:
-   
+
    ```bash
    # Create folder structure
    mkdir -p "path/to/new/folders"
@@ -208,7 +212,7 @@ When a user requests file organization help:
    # Rename files with consistent patterns
    # Example: "YYYY-MM-DD - Description.ext"
    ```
-   
+
    **Important Rules**:
    - Always confirm before deleting anything
    - Log all moves for potential undo
@@ -217,9 +221,9 @@ When a user requests file organization help:
    - Stop and ask if you encounter unexpected situations
 
 7. **Provide Summary and Maintenance Tips**
-   
+
    After organizing:
-   
+
    ```markdown
    # Organization Complete! ✨
    
@@ -255,8 +259,9 @@ When a user requests file organization help:
    # Find duplicates
    [custom command]
    ```
-   
+
    Want to organize another folder?
+
    ```
 
 ## Examples
@@ -266,6 +271,7 @@ When a user requests file organization help:
 **User**: "My Downloads folder is a mess with 500+ files. Help me organize it."
 
 **Process**:
+
 1. Analyzes Downloads folder
 2. Finds patterns: work docs, personal photos, installers, random PDFs
 3. Proposes structure:
@@ -284,6 +290,7 @@ When a user requests file organization help:
 **User**: "Find duplicate files in my Documents and help me decide which to keep."
 
 **Output**:
+
 ```markdown
 # Found 23 Sets of Duplicates (156 MB total)
 
@@ -303,6 +310,7 @@ Delete the other 2 copies?
 **User**: "Review my ~/Projects directory and suggest improvements."
 
 **Output**:
+
 ```markdown
 # Analysis of ~/Projects
 
@@ -315,6 +323,7 @@ Delete the other 2 copies?
 ## Proposed Structure
 
 ```
+
 Projects/
 ├── Active/
 │   ├── client-work/
@@ -325,6 +334,7 @@ Projects/
 │   ├── 2023/
 │   └── 2024/
 └── Templates/
+
 ```
 
 ## Specific Changes
@@ -341,6 +351,7 @@ Want me to implement this?
 **User**: "Organize my photo folders by year and month."
 
 **Output**: Creates structure like:
+
 ```
 Photos/
 ├── 2023/
@@ -358,6 +369,7 @@ Then moves photos based on EXIF data or file modification dates.
 ## Common Organization Tasks
 
 ### Downloads Cleanup
+
 ```
 Organize my Downloads folder - move documents to Documents, 
 images to Pictures, keep installers separate, and archive files 
@@ -365,30 +377,35 @@ older than 3 months.
 ```
 
 ### Project Organization
+
 ```
 Review my Projects folder structure and help me separate active 
 projects from old ones I should archive.
 ```
 
 ### Duplicate Removal
+
 ```
 Find all duplicate files in my Documents folder and help me 
 decide which ones to keep.
 ```
 
 ### Desktop Cleanup
+
 ```
 My Desktop is covered in files. Help me organize everything into 
 my Documents folder properly.
 ```
 
 ### Photo Organization
+
 ```
 Organize all photos in this folder by date (year/month) based 
 on when they were taken.
 ```
 
 ### Work/Personal Separation
+
 ```
 Help me separate my work files from personal files across my 
 Documents folder.
@@ -406,18 +423,21 @@ Documents folder.
 ## Best Practices
 
 ### Folder Naming
+
 - Use clear, descriptive names
 - Avoid spaces (use hyphens or underscores)
 - Be specific: "client-proposals" not "docs"
 - Use prefixes for ordering: "01-current", "02-archive"
 
 ### File Naming
+
 - Include dates: "2024-10-17-meeting-notes.md"
 - Be descriptive: "q3-financial-report.xlsx"
 - Avoid version numbers in names (use version control instead)
 - Remove download artifacts: "document-final-v2 (1).pdf" → "document.pdf"
 
 ### When to Archive
+
 - Projects not touched in 6+ months
 - Completed work that might be referenced later
 - Old versions after migration to new systems
@@ -430,4 +450,3 @@ Documents folder.
 - Cleaning up before storage cleanup
 - Organizing shared team folders
 - Structuring new project directories
-

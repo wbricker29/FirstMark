@@ -1,215 +1,144 @@
 ---
 name: verify
-description: Run Python Verification Gates
+description: Run Verification Gates
 ---
 
-# /verify - Run Python Verification Gates
+# /verify SLUG - Run Verification Gates
 
-## Purpose
-Run all verification gates defined in unit plan to ensure implementation meets quality standards.
+<objective>
+Run all verification gates for a unit to ensure quality standards are met before considering it complete.
 
-## Usage
-```
-/verify <slug>
-```
+Validate unit quality through automated gates:
 
-**Example:**
-```
-/verify csv-parser
-/verify user-authentication
-```
+- Code analysis to validate implementation
+- Tests (correctness)
+- Coverage target (test thoroughness)
+- Acceptance criteria (functionality)
+</objective>
 
 ## Prerequisites
-- `spec/units/###-SLUG/plan.md` must exist
-- All tasks in plan should be "done"
 
-## Process
+- plan.md must exist for the specified unit
+- At least some tasks should be complete
+- Verification section must be defined in plan.md (commands, gates, coverage_target)
 
-### Step 1: Load Plan
-- Read `plan.md` for unit ###-SLUG
-- Extract verification commands
-- Extract verification gates
-- Extract coverage target
+## Execution Pattern
 
-### Step 2: Check Task Completion
-- Count tasks with status="done"
-- If incomplete tasks exist, warn user:
-  ```
-  ⚠️ Warning: 2 tasks still incomplete
-  - TK-05: Write unit tests (ready)
-  - TK-07: Performance optimization (blocked)
+### Step 0: Review Workflow
 
-  Continue verification anyway? [y/N]
-  ```
+**Before proceeding, invoke the aidev-workflow skill to review:**
 
-### Step 3: Run Verification Commands
-Execute each command from plan.md in order:
+- Verification gate definitions and must_pass logic
+- Coverage measurement and acceptance criteria validation
+- Quality gate evaluation patterns and reporting standards
 
-#### Command 1: Run Tests
-```bash
-uv run pytest tests/ -v
-```
-- Capture output
-- Check exit code
-- Gate: Must pass (exit code 0) ✅
+### Phase 1: Validate
 
-#### Command 2: Check Coverage
-```bash
-uv run pytest --cov=src --cov-report=term-missing --cov-report=html
-```
-- Parse coverage percentage
-- Compare to target from plan.md
-- Gate: Coverage ≥ target ✅
+Before proceeding, verify:
 
-#### Command 3: Type Check
-```bash
-uv run pyright src/
-# OR
-uv run mypy src/
-```
-- Capture error count
-- Gate: Zero type errors ✅
+- Unit directory exists at `spec/units/###-SLUG/`
+- plan.md exists for unit
+- plan.md contains verification section with commands and gates
+- At least one task has status "done"
 
-#### Command 4: Linting
-```bash
-uv run ruff check src/
-```
-- Capture error/warning count
-- Gate: Zero errors ✅
+### Phase 2: Gather
 
-#### Command 5: Format Check
-```bash
-uv run ruff format --check src/
-```
-- Check if reformatting needed
-- Gate: No changes needed ✅
+Load verification plan from plan.md:
 
-### Step 4: Additional Python Checks
-Run optional but recommended checks:
+- Read verification.commands (linting, type_checking, tests, coverage)
+- Read verification.gates (gate definitions with must_pass flags)
+- Read verification.coverage_target (from constitution)
+- Read verification.acceptance_refs (design.md criteria IDs)
+- Load design.md acceptance criteria for validation
 
-#### Security Audit
-```bash
-uv pip audit
-```
-- Check for known vulnerabilities
-- Report findings (not a gate, but informational)
+### Phase 3: Generate
 
-#### Import Order
-```bash
-uv run ruff check --select I src/
-```
-- Verify import organization (handled by ruff)
+Execute verification commands and evaluate gates:
 
-### Step 5: Evaluate Gates
-For each gate in plan.md:
-- **tests:** Did all tests pass?
-- **type_check:** Zero type errors?
-- **coverage:** Met or exceeded target?
-- **linting:** Zero linting errors?
-- **formatting:** No formatting changes?
+**Run Linting:**
 
-### Step 6: Validate Acceptance Criteria
-For each acceptance criterion in design.md:
-- Which test(s) verify this criterion?
-- Are those tests passing?
-- Mark criteria as verified ✅ or failed ❌
+- Execute linting command from plan.md (e.g., `pnpm lint`, `ruff check`)
+- Capture exit code and output
+- Determine pass/fail status
 
-### Step 7: Update Plan
-In `plan.md`:
-- Update **Coverage** in Status section with actual value
-- Update **Blockers** if any gates failed
-- Add verification timestamp
+**Run Type Checking:**
 
-### Step 8: Generate Report
-Create comprehensive verification report:
+- Execute type checking command from plan.md (e.g., `pnpm type-check`, `pyright`)
+- Capture exit code and output
+- Determine pass/fail status
 
-```
-Verification Report: Unit 001-csv-parser
-Generated: 2025-01-15 10:30:00
+**Run Tests:**
 
-Task Completion:
-✅ 7/7 tasks completed (100%)
+- Execute test command from plan.md (e.g., `pnpm test`, `pytest`)
+- Capture exit code, output, and coverage metrics
+- Determine pass/fail status
 
-Verification Commands:
-✅ pytest tests/ -v (8 passed)
-✅ pytest --cov (Coverage: 92%)
-✅ pyright src/ (0 errors)
-✅ ruff check src/ (0 errors)
-✅ ruff format --check src/ (compliant)
+**Check Coverage:**
 
-Gates:
-✅ tests: PASSED (8/8 tests passing)
-✅ type_check: PASSED (0 errors)
-✅ coverage: PASSED (92% ≥ 85% target)
-✅ linting: PASSED (0 errors)
-✅ formatting: PASSED (no changes needed)
+- Parse coverage percentage from test output
+- Compare against coverage_target from constitution
+- Determine pass/fail (pass if >= target)
 
-Acceptance Criteria:
-✅ AC-001-01: Parse Valid CSV (verified by test_parse_valid_csv)
-✅ AC-001-02: Handle Empty File (verified by test_parse_empty_csv)
-✅ AC-001-03: Validate Against Schema (verified by test_validate_schema)
-✅ AC-001-04: Stream Large Files (verified by test_large_file_memory)
-✅ AC-001-05: Error Messages (verified by test_error_messages)
+**Evaluate Gates:**
 
-Additional Checks:
-ℹ️  Security Audit: 0 known vulnerabilities
-ℹ️  Import Order: Compliant
+- For each gate, determine if passed based on command results
+- Check must_pass flag (critical if true, warning if false)
+- Calculate overall pass/fail (all must_pass gates must pass)
 
-Result: ✅ ALL GATES PASSED
+**Check Acceptance Criteria:**
 
-Coverage Report:
-HTML coverage report generated: htmlcov/index.html
-View with: open htmlcov/index.html
+- Review each criterion from design.md
+- Determine if satisfied based on implementation
+- Flag any unmet criteria
 
-Unit 001-csv-parser is ready for integration.
-```
+Generate comprehensive report with gate results, coverage metrics, and acceptance status.
 
-### Step 9: Update CLAUDE.md
-Add verification results to working memory:
-- Verification timestamp
-- All gates passed/failed
-- Actual coverage achieved
-- Any issues found
+### Phase 4: Validate
 
-### Step 10: Suggest Next Steps
-If all gates passed:
-```
-✅ Unit verification complete!
+Ensure verification completeness:
 
-Next steps:
-- Review implementation for final polish
-- Run /check to validate alignment with spec.md
-- Integrate with other units
-- Consider /reflect to capture learnings
-```
-
-If any gates failed:
-```
-❌ Verification failed
-
-Failed gates:
-- coverage: 78% < 85% target
-
-Required actions:
-1. Run /work csv-parser to add more tests
-2. Focus on uncovered lines (see htmlcov/index.html)
-3. Re-run /verify csv-parser when ready
-```
-
-## Output
-- **Console:** Comprehensive verification report
-- **HTML:** Coverage report (htmlcov/index.html)
-- **Updated:** plan.md with actual coverage
-- **Updated:** CLAUDE.md with verification results
-
-## Validation
 - ✅ All verification commands executed
-- ✅ All gates evaluated
-- ✅ Acceptance criteria checked
-- ✅ Coverage report generated
-- ✅ plan.md updated
-- ✅ CLAUDE.md updated
+- ✅ All gates evaluated with correct must_pass logic
+- ✅ Coverage measured and compared to target
+- ✅ Acceptance criteria reviewed
+- ✅ Overall pass/fail status determined
+- ✅ Clear feedback provided for failures
+- ✅ Actionable next steps identified
 
-## Next Steps
-- If passed: Run `/check` to validate alignment
-- If failed: Run `/work SLUG` to fix issues, then re-verify
+### Phase 5: Confirm
+
+Display verification report:
+
+- **Command Results**: Each verification command (linting, type checking, tests) with pass/fail and output
+- **Gate Evaluation**: Each gate result with must_pass status
+- **Coverage**: Achieved percentage vs. target (✅ if met, ❌ if not)
+- **Acceptance Criteria**: Status of each criterion from design.md
+- **Overall Status**: ✅ PASS if all must_pass gates pass, ❌ FAIL otherwise
+- **Blockers**: List of failures requiring attention
+- **Next Steps**: If PASS, consider unit ready; if FAIL, fix issues and re-run
+
+## Error Handling
+
+**plan.md missing verification section:**
+
+- Solution: Re-run /plan to regenerate with verification section
+
+**Verification command fails:**
+
+- Solution: Check command syntax, ensure tools installed
+
+**Invalid SLUG:**
+
+- Solution: List available units, prompt for valid SLUG
+
+**No completed tasks:**
+
+- Solution: Complete at least one task with /work before verifying
+
+## Reference
+
+For detailed gate evaluation logic, acceptance criteria validation, and examples:
+
+```
+aidev-workflow skill → execution-framework.md, commands-reference.md
+```

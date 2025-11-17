@@ -25,11 +25,13 @@ Stable intent and acceptance criteria for Python feature
 ## Behavior
 
 ### Description
+
 [Detailed description of expected behavior]
 
 ### Inputs
 
 #### Parameter: `file_path`
+
 - **Type:** `pathlib.Path`
 - **Description:** Path to CSV file
 - **Examples:**
@@ -38,6 +40,7 @@ Stable intent and acceptance criteria for Python feature
 - **Constraints:** File must exist and be readable
 
 #### Parameter: `encoding`
+
 - **Type:** `str`
 - **Description:** Character encoding
 - **Default:** `"utf-8"`
@@ -46,8 +49,10 @@ Stable intent and acceptance criteria for Python feature
 ### Outputs
 
 #### Return: `List[Dict[str, Any]]`
+
 - **Description:** Parsed records as dictionaries
 - **Examples:**
+
   ```python
   [
       {"name": "Alice", "age": 30, "email": "alice@example.com"},
@@ -58,42 +63,52 @@ Stable intent and acceptance criteria for Python feature
 ### Edge Cases
 
 #### Empty File
+
 - **Scenario:** File exists but has no rows
 - **Behavior:** Return empty list `[]`
 
 #### Invalid Encoding
+
 - **Scenario:** File cannot be decoded with specified encoding
 - **Behavior:** Raise `ValueError` with descriptive message
 
 #### Malformed CSV
+
 - **Scenario:** Row has wrong number of columns
 - **Behavior:** Log warning, skip row, continue processing
 
 ## Interfaces & Data
 
 ### Interfaces Touched
+
 [List interfaces from spec.md that this unit implements or modifies]
+
 - `parse_document` (implements)
 - `validate_record` (uses)
 
 ### Data Shapes Used
+
 [List entities from spec.md that this unit creates or manipulates]
+
 - `Record` (creates)
 - `User` (reads)
 
 ## Constraints
 
 ### Functional
+
 - Must support CSV files with headers
 - Must handle UTF-8 and Latin-1 encodings
 - Must validate each row against schema
 
 ### Non-Functional
+
 - **Performance:** Parse 10k rows in < 1 second
 - **Memory:** Stream large files (don't load entire file)
 - **Errors:** Provide clear error messages with line numbers
 
 ### Python-Specific
+
 - Use `csv.DictReader` for parsing
 - Use generators for memory efficiency
 - Type hints required for all functions
@@ -102,26 +117,31 @@ Stable intent and acceptance criteria for Python feature
 ## Acceptance Criteria
 
 ### AC-001-01: Parse Valid CSV
+
 - **Given** a valid CSV file with headers
 - **When** `parse_csv(file_path)` is called
 - **Then** return list of dictionaries with correct values
 
 ### AC-001-02: Handle Empty File
+
 - **Given** an empty CSV file
 - **When** parsing is attempted
 - **Then** return empty list without errors
 
 ### AC-001-03: Validate Against Schema
+
 - **Given** a CSV file and validation schema
 - **When** parsing with `validate=True`
 - **Then** raise `ValidationError` for invalid rows
 
 ### AC-001-04: Stream Large Files
+
 - **Given** a CSV file larger than 100MB
 - **When** parsing is attempted
 - **Then** process without exceeding 50MB memory usage
 
 ### AC-001-05: Error Messages
+
 - **Given** a malformed CSV row
 - **When** parsing encounters the error
 - **Then** error message includes line number and description
@@ -129,17 +149,22 @@ Stable intent and acceptance criteria for Python feature
 ## Dependencies
 
 ### Blocks This
+
 [What can't start until this unit is done?]
+
 - Unit 002-data-validation (requires parse_csv function)
 - Unit 003-api-endpoint (requires Record entity)
 
 ### Blocked By
+
 [What must be done before this can start?]
+
 - None (foundational unit)
 
 ## Implementation Notes
 
 ### Approach
+
 ```python
 from pathlib import Path
 from typing import List, Dict, Any
@@ -178,6 +203,7 @@ def parse_csv(
 ```
 
 ### Testing Strategy
+
 - Unit tests with pytest
 - Fixtures for sample CSV files
 - Parametrize tests for different encodings
@@ -185,6 +211,7 @@ def parse_csv(
 - Coverage target: 90%+ for this unit
 
 ### Test Examples
+
 ```python
 def test_parse_valid_csv(tmp_path):
     """Test parsing valid CSV file."""
@@ -210,12 +237,15 @@ def test_parse_empty_csv(tmp_path):
 ## References
 
 ### Spec References
+
 - `spec.md#Interfaces#parse_document`
 - `spec.md#Data Model#Record`
 
 ### PRD References
+
 - `prd.md#User Stories#Story 1`
 
 ### External Documentation
+
 - [Python csv module](https://docs.python.org/3/library/csv.html)
 - [Pandas CSV parsing](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html)

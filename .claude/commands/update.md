@@ -1,287 +1,166 @@
 ---
 name: update
-description: Update Python Project Documents
+description: Change & Propagate Updates
 ---
 
-# /update - Update Python Project Documents
+# /update DOCUMENT PATH - Change & Propagate Updates
+
+Make changes to L1 or L2 documents and automatically propagate updates to dependent documents.
 
 ## Purpose
-Apply coordinated updates across project artifacts (constitution, prd, spec, designs, plans) to maintain alignment.
 
-## Usage
-```
-/update <document> <path>
-/update spec interfaces#parse_document
-/update spec entities#User
-/update prd user-stories
-/update constitution quality-bars
-```
+Update documents and propagate changes to dependent documents to maintain system consistency.
 
 ## Prerequisites
-- Target document must exist
-- Should run `/check` first to identify what needs updating
 
-## Process
+- Target document must exist (constitution.md, PRD.md, spec.md, design.md, or plan.md)
+- PATH must be valid path within document structure
 
-### Step 1: Parse Update Target
-Extract:
-- Document name (constitution, prd, spec, design, plan)
-- Section path (e.g., interfaces#parse_document)
-- Unit slug (if updating unit-specific docs)
+## Execution Pattern
 
-### Step 2: Load Current Content
-- Read target document
-- Parse Markdown structure
-- Locate target section
+### Step 0: Review Workflow
 
-### Step 3: Gather Update Information
-Ask user:
-- What needs to change?
-- Why is this change needed?
-- What's the new value/content?
+**Before proceeding, invoke the aidev-workflow skill to review:**
 
-### Step 4: Validate Python Syntax
-If updating Python code sections:
+- Document dependency chains and propagation rules
+- Impact analysis methodology and severity assessment
+- Change propagation patterns across architectural levels
 
-#### For Interfaces
-Verify:
-- Function signature has complete type hints
-- Docstring follows Google/NumPy style
-- Parameters documented with types
-- Return type documented
-- Exceptions documented
+### Phase 1: Validate
 
-**Example:**
-```python
-from pathlib import Path
-from typing import List, Dict, Any, Optional
+Before proceeding, verify:
 
-def parse_document(
-    file_path: Path,
-    encoding: str = "utf-8",
-    validate: bool = False,
-    schema: Optional[Dict[str, Any]] = None  # NEW PARAMETER
-) -> List[Dict[str, Any]]:
-    """Parse document from file.
+- Parse DOCUMENT argument (which document to update)
+- Parse PATH argument (which section/field to update)
+- Verify target document exists
+- Verify PATH is valid within document structure
+- Load current document content
 
-    Args:
-        file_path: Path to document file
-        encoding: Character encoding (default: utf-8)
-        validate: Whether to validate against schema
-        schema: Validation schema (required if validate=True)  # NEW
+### Phase 2: Gather
 
-    Returns:
-        List of parsed records
+Collect change information with these exact prompts:
 
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        ValueError: If validation fails or schema invalid  # UPDATED
-    """
-    pass
-```
+**Show Current Value:**
 
-#### For Entities
-Verify:
-- Uses dataclass or Pydantic BaseModel
-- All fields have type hints
-- Field descriptions documented
-- Constraints specified
+- Navigate to PATH in document
+- Display current value to user
 
-**Example:**
-```python
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+**Prompt 1: "What should the new value be?"**
+→ Validate: New value is different from current value, appropriate type/format
 
-@dataclass
-class User:
-    """User entity."""
-    id: int
-    email: str
-    name: str
-    created_at: datetime
-    updated_at: datetime
-    last_login: Optional[datetime] = None  # NEW FIELD
-```
+**Prompt 2: "What is the rationale for this change?"**
+→ Validate: Rationale is clear and justifies the change
 
-### Step 5: Apply Update
-- Modify target document
-- Update version number
-- Update timestamp
-- Add change note (if applicable)
+**Prompt 3: "Should this change propagate automatically to dependent documents, or would you like to review dependencies first?"**
+→ Validate: User selects "automatic" or "review"
 
-### Step 6: Propagate Changes
+### Phase 3: Generate
 
-#### If Updating spec.md Interface
-Propagate to:
-1. **Affected unit designs:** Update interfaces_touched
-2. **Code implementation:** Flag for update
-3. **Tests:** Flag for review
+Make primary change and analyze impact:
 
-#### If Updating spec.md Entity
-Propagate to:
-1. **Affected unit designs:** Update data_shapes
-2. **Data models:** Flag for update
-3. **Database migrations:** Flag for creation
+**Update Target Document:**
 
-#### If Updating Constitution Quality Bars
-Propagate to:
-1. **All unit plans:** Update coverage target
-2. **CI configuration:** Update thresholds
-3. **CLAUDE.md:** Document change
+- Replace old value with new value at PATH
+- Update `updated_at` timestamp in frontmatter
+- Increment version if appropriate (major changes)
+- Save document
 
-### Step 7: Identify Impacted Units
-Scan all units to find:
-- Which designs reference updated interface/entity?
-- Which plans need verification commands updated?
-- Which implementations need code changes?
+**Identify Dependencies:**
+Based on DOCUMENT type, determine what depends on this change:
 
-### Step 8: Create Update Checklist
-Generate checklist of required changes:
+- **constitution.md** → All units' plan.md (coverage_target, quality standards), spec.md (principles)
+- **PRD.md** → spec.md (technical decisions), all units' design.md (outcomes alignment)
+- **spec.md** → All units' design.md (interface/entity references), all units' plan.md (verification), code implementations
+- **design.md** → Same unit's plan.md (tasks), dependent units (if this unit is a dependency)
+- **plan.md** → Dependent units (less impact, volatile document)
 
-```
-Update Checklist for spec.md Interface: parse_document
+**Analyze Impact:**
+For each dependent document:
 
-Spec Changes:
-✅ Updated parse_document signature (added schema parameter)
-✅ Updated docstring
-✅ Incremented version: 1.0 → 1.1
+- Check if it references the changed value (exact match or semantic reference)
+- Determine what needs updating (specific sections, values)
+- Assess severity (critical, high, medium, low)
+- Assess priority (immediate, soon, deferred)
 
-Propagation Required:
-⬜ Unit 001-csv-parser design.md (references parse_document)
-  - Review if new parameter affects design
+**Generate Impact Report:**
 
-⬜ src/package_name/parsers/csv_parser.py
-  - Add schema parameter to implementation
-  - Update type hints
-  - Update docstring
+- List primary change made
+- List affected documents with change details
+- Categorize by severity and priority
+- Provide recommendations
 
-⬜ tests/test_parsers/test_csv_parser.py
-  - Add tests for schema parameter
-  - Test validation logic
+### Phase 4: Validate
 
-⬜ Unit 001-csv-parser plan.md
-  - Add task for schema validation if not present
-  - Update verification to test new parameter
+Ensure update completeness:
 
-Next Steps:
-1. Review design: /check csv-parser
-2. Update code: /work csv-parser TK-NEW
-3. Run tests: /verify csv-parser
-```
+- ✅ Target document updated with new value
+- ✅ Version incremented (if appropriate)
+- ✅ Timestamp updated
+- ✅ All dependencies identified
+- ✅ Impact correctly assessed for each dependency
+- ✅ Severity and priority assigned
+- ✅ Propagation plan is sound
+- ✅ User prompted before automatic changes
 
-### Step 9: Execute Updates
-For each item in checklist:
-- Update document
-- Increment version if needed
-- Update timestamp
-- Mark as complete ✅
+### Phase 5: Confirm
 
-### Step 10: Validate Alignment
-Run `/check` to verify:
-- All references still valid
-- No new drift introduced
-- Python syntax correct
-- Type hints complete
+Display impact analysis and propagate changes:
 
-### Step 11: Update CLAUDE.md
-Document:
-- What was updated and why
-- Which units were affected
-- What actions were taken
-- Any learnings
+**Impact Report:**
 
-### Step 12: Generate Update Report
+- **Primary Change**: Document, PATH, old value → new value, rationale
+- **Affected Documents**: List each dependent document with required changes, severity, priority
+- **Propagation Plan**: Which changes will be made automatically (if approved)
+- **Deferred Updates**: Which changes flagged as blockers for later
+
+**Execute Propagation (if approved):**
+
+- Update approved dependencies
+- Maintain consistency across documents
+- Update timestamps for modified documents
+- Add deferred updates to blockers in state.json
+
+**Summary:**
+
+- Changes made (count)
+- Documents updated (list)
+- Blockers added (list)
+- Next steps (what user should review or do)
+
+## Integration
+
+- **Runs when changes needed**: Triggered by design changes, requirement evolution, or drift detected by `/check`
+- **Propagates from /constitution**: Quality bar changes cascade to all plan.md verification sections
+- **Propagates from /prd**: Requirement changes cascade to spec.md and design.md alignment
+- **Propagates from /spec**: Interface changes cascade to all design.md and plan.md that reference them
+- **Informs /check**: After propagation, `/check` should validate that all updates maintained consistency
+
+## Error Handling
+
+**Invalid DOCUMENT:**
+
+- Solution: List valid documents, prompt for correct one
+
+**Invalid PATH:**
+
+- Solution: Display document structure, prompt for valid PATH
+
+**New value same as old:**
+
+- Solution: Confirm user wants to proceed or cancel
+
+**Dependency update fails:**
+
+- Solution: Add to blockers, warn user, continue with other dependencies
+
+**Circular dependencies:**
+
+- Solution: Warn user, require manual resolution
+
+## Reference
+
+For dependency chain details, propagation patterns, and examples:
 
 ```
-Update Report: spec.md Interface parse_document
-Generated: 2025-01-15 10:30:00
-
-Changes Made:
-✅ Added 'schema' parameter (Optional[Dict[str, Any]])
-✅ Updated docstring with new parameter
-✅ Updated Raises section (added schema validation error)
-✅ Incremented version: 1.0 → 1.1
-
-Propagated To:
-✅ Unit 001-csv-parser design.md (reviewed, no changes needed)
-✅ src/package_name/parsers/csv_parser.py (updated)
-✅ tests/test_parsers/test_csv_parser.py (added 3 tests)
-✅ Unit 001-csv-parser plan.md (added TK-08 for schema validation)
-
-Verification:
-✅ All references valid
-✅ Type hints complete
-✅ Tests passing (11/11)
-✅ Coverage: 94% ≥ 85%
-
-Result: ✅ UPDATE COMPLETE AND VERIFIED
+aidev-workflow skill → execution-framework.md, commands-reference.md
 ```
-
-## Common Update Scenarios
-
-### Scenario 1: Add Field to Entity
-```
-/update spec entities#User
-
-What to add: last_login field
-Type: Optional[datetime]
-Default: None
-Reason: Track user activity for analytics
-```
-
-**Propagates to:**
-- Data models in src/
-- Database migrations
-- Unit designs using User entity
-- Tests for User entity
-
-### Scenario 2: Add Parameter to Interface
-```
-/update spec interfaces#parse_csv
-
-What to add: max_rows parameter
-Type: Optional[int]
-Default: None
-Reason: Allow limiting parsed rows for testing
-```
-
-**Propagates to:**
-- Function implementations
-- Function tests
-- Unit designs calling this interface
-
-### Scenario 3: Update Coverage Target
-```
-/update constitution quality-bars
-
-What to change: coverage_target
-New value: 0.90 (90%)
-Old value: 0.85 (85%)
-Reason: Raising quality standards
-```
-
-**Propagates to:**
-- All unit plans (coverage target)
-- CI configuration
-- Verification gates
-
-## Output
-- **Updated:** Target document with changes
-- **Checklist:** Required propagation actions
-- **Report:** Summary of changes and impacts
-- **CLAUDE.md:** Documentation of update
-
-## Validation
-- ✅ Python syntax valid
-- ✅ Type hints complete
-- ✅ Docstrings updated
-- ✅ Versions incremented
-- ✅ Timestamps updated
-- ✅ Propagation complete
-- ✅ Alignment verified
-
-## Next Steps
-- Run `/check` to verify alignment
-- Update affected code with `/work`
-- Run `/verify` on affected units

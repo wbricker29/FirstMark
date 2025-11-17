@@ -16,6 +16,7 @@ Stable intent and acceptance criteria for a unit of work
 **Summary:** [1-2 sentences: what this unit accomplishes]
 
 **Success Metrics:**
+
 - [Measurable outcome 1]
 - [Measurable outcome 2]
 
@@ -26,6 +27,7 @@ Stable intent and acceptance criteria for a unit of work
 ### Inputs
 
 #### [input_name]
+
 - **Type:** [type]
 - **Description:** [What this input represents]
 - **Examples:**
@@ -35,6 +37,7 @@ Stable intent and acceptance criteria for a unit of work
 ### Outputs
 
 #### [output_name]
+
 - **Type:** [type]
 - **Description:** [What this output represents]
 - **Examples:**
@@ -61,22 +64,26 @@ Stable intent and acceptance criteria for a unit of work
 ## Constraints
 
 ### Functional
+
 - [Functional constraint or requirement]
 - [Another constraint]
 
 ### Non-Functional
+
 - [Performance constraint]
 - [Security constraint]
 
 ## Acceptance Criteria
 
 ### AC-[UNIT]-01
+
 - **Given:** [Initial state]
 - **When:** [Action]
 - **Then:** [Expected outcome]
 - **Testable:** ✅
 
 ### AC-[UNIT]-02
+
 - **Given:** [Context]
 - **When:** [Action]
 - **Then:** [Outcome]

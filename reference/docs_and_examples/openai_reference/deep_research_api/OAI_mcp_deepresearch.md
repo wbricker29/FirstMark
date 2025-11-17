@@ -32,7 +32,7 @@ ngrok config add-authtoken <your_token>
 ngrok http 8000
 ```
 
-You should now be able to reach your local server from your client. 
+You should now be able to reach your local server from your client.
 
 ## Files
 

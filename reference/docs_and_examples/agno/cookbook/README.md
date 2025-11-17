@@ -171,7 +171,6 @@ When an Agent with reasoning=True is given a task, a separate “Reasoning Agent
 
 See the [examples](./agents/).
 
-
 ## Scripts
 
 Some utility scripts to make your work with Agno easier.

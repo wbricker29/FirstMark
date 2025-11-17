@@ -2,7 +2,6 @@
 
 Agent dependency management for injecting context and runtime dependencies.
 
-
 ## Examples
 
 - **[reference_dependencies.py](./reference_dependencies.py)** - Reference dependencies in instructions

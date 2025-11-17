@@ -34,16 +34,19 @@ Test your approach at extreme scales to find what breaks and what surprisingly s
 ## Examples
 
 ### Example 1: Error Handling
+
 **Normal scale:** "Handle errors when they occur" works fine
 **At 1B scale:** Error volume overwhelms logging, crashes system
 **Reveals:** Need to make errors impossible (type systems) or expect them (chaos engineering)
 
 ### Example 2: Synchronous APIs
+
 **Normal scale:** Direct function calls work
 **At global scale:** Network latency makes synchronous calls unusable
 **Reveals:** Async/messaging becomes survival requirement, not optimization
 
 ### Example 3: In-Memory State
+
 **Normal duration:** Works for hours/days
 **At years:** Memory grows unbounded, eventual crash
 **Reveals:** Need persistence or periodic cleanup, can't rely on memory

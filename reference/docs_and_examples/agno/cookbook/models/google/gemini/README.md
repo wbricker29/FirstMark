@@ -138,4 +138,3 @@ python cookbook/models/google/gemini/grounding.py
 ```shell
 python cookbook/models/google/gemini/vertex_ai_search.py
 ```
-

@@ -11,9 +11,11 @@ Engineering contract for Python implementation
 ## Architecture
 
 ### System Overview
+
 [High-level description of the system architecture]
 
 ### Component Diagram
+
 ```
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
 │   Client    │─────▶│   API       │─────▶│  Database   │
@@ -26,6 +28,7 @@ Engineering contract for Python implementation
 ```
 
 ### Technology Stack
+
 - **Language:** Python 3.10+
 - **Framework:** [FastAPI, Flask, Django, etc.]
 - **Database:** [PostgreSQL, MongoDB, etc.]
@@ -34,6 +37,7 @@ Engineering contract for Python implementation
 - **Package Manager:** UV
 
 ### Project Structure
+
 ```
 src/
 ├── package_name/
@@ -60,9 +64,11 @@ tests/
 ## Interfaces
 
 ### [parse_document]
+
 **Purpose:** Parse document into structured data
 
 **Signature:**
+
 ```python
 from typing import Optional
 from pathlib import Path
@@ -90,6 +96,7 @@ def parse_document(
 ```
 
 **Examples:**
+
 ```python
 # Success case
 doc = parse_document(Path("data.json"))
@@ -102,9 +109,11 @@ assert doc is None
 ```
 
 ### [validate_record]
+
 **Purpose:** Validate record against schema
 
 **Signature:**
+
 ```python
 from typing import Dict, Any, List
 
@@ -127,6 +136,7 @@ def validate_record(
 ## Data Model
 
 ### Entity: [User]
+
 ```python
 from dataclasses import dataclass
 from datetime import datetime
@@ -145,6 +155,7 @@ class User:
 ```
 
 **Fields:**
+
 - `id`: Unique identifier (auto-increment)
 - `email`: User email (unique, indexed)
 - `name`: Display name
@@ -154,11 +165,13 @@ class User:
 - `last_login`: Last login timestamp (nullable)
 
 **Constraints:**
+
 - email must be valid email format
 - email must be unique
 - name length: 1-100 characters
 
 ### Entity: [Record]
+
 ```python
 from typing import Optional, Dict, Any
 from enum import Enum
@@ -183,18 +196,21 @@ class Record:
 ## Non-Functional Requirements
 
 ### Performance
+
 - **API Response Time:** p95 < 200ms, p99 < 500ms
 - **Database Queries:** All queries < 100ms
 - **Throughput:** 1000 requests/second
 - **Memory Usage:** < 512MB per worker
 
 ### Scalability
+
 - **Horizontal Scaling:** Support 10+ worker processes
 - **Concurrency:** async/await for I/O operations
 - **Caching:** Redis for frequently accessed data
 - **Database:** Connection pooling (min=5, max=20)
 
 ### Security
+
 - **Authentication:** JWT tokens (1-hour expiry)
 - **Authorization:** Role-based access control (RBAC)
 - **Input Validation:** Pydantic models for all inputs
@@ -202,6 +218,7 @@ class Record:
 - **Secrets:** Environment variables (never in code)
 
 ### Reliability
+
 - **Uptime:** 99.9% availability
 - **Error Handling:** Graceful degradation
 - **Logging:** Structured JSON logs
@@ -209,12 +226,14 @@ class Record:
 - **Recovery:** Automatic retry with exponential backoff
 
 ### Testing
+
 - **Unit Tests:** pytest (85%+ coverage)
 - **Integration Tests:** Test database interactions
 - **API Tests:** Test all endpoints
 - **Type Checking:** pyright or mypy (strict mode)
 
 ### Deployment
+
 - **Environment:** Docker containers
 - **Configuration:** Environment variables + .env files
 - **Dependencies:** Locked with uv (pyproject.toml + uv.lock)
@@ -223,6 +242,7 @@ class Record:
 ## Dependencies
 
 ### Core Dependencies
+
 ```toml
 [project]
 name = "package-name"
@@ -238,6 +258,7 @@ dependencies = [
 ```
 
 ### Development Dependencies
+
 ```toml
 [project.optional-dependencies]
 dev = [
@@ -254,9 +275,11 @@ dev = [
 ### Endpoints
 
 #### POST /api/v1/records
+
 **Purpose:** Create new record
 
 **Request:**
+
 ```python
 {
     "data": {"field1": "value1", "field2": 123},
@@ -265,6 +288,7 @@ dev = [
 ```
 
 **Response (200):**
+
 ```python
 {
     "id": "rec_123abc",
@@ -274,6 +298,7 @@ dev = [
 ```
 
 **Response (400):**
+
 ```python
 {
     "error": "Validation failed",
@@ -282,9 +307,11 @@ dev = [
 ```
 
 #### GET /api/v1/records/{id}
+
 **Purpose:** Retrieve record by ID
 
 **Response (200):**
+
 ```python
 {
     "id": "rec_123abc",
@@ -298,6 +325,7 @@ dev = [
 ## Configuration
 
 ### Environment Variables
+
 ```bash
 # Application
 APP_NAME=my-app
@@ -319,6 +347,7 @@ API_WORKERS=4
 ```
 
 ### Configuration Files
+
 - `pyproject.toml`: Package metadata and dependencies
 - `.python-version`: Python version (3.10.0)
 - `ruff.toml`: Linter configuration
@@ -328,6 +357,7 @@ API_WORKERS=4
 ## Error Handling
 
 ### Error Hierarchy
+
 ```python
 class AppError(Exception):
     """Base application error."""
@@ -347,6 +377,7 @@ class DatabaseError(AppError):
 ```
 
 ### Error Response Format
+
 ```python
 {
     "error": "ValidationError",
@@ -362,6 +393,7 @@ class DatabaseError(AppError):
 ## Observability
 
 ### Logging
+
 ```python
 import structlog
 
@@ -370,12 +402,14 @@ logger.info("record_created", record_id="rec_123", user_id=456)
 ```
 
 ### Metrics
+
 - Request count (by endpoint, status)
 - Response time (p50, p95, p99)
 - Error rate (by type)
 - Database connection pool usage
 
 ### Tracing
+
 - Request ID propagation
 - Distributed tracing (OpenTelemetry)
 - Performance profiling (py-spy)

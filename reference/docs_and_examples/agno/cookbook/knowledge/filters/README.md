@@ -9,6 +9,7 @@ pip install agno lancedb pandas
 ```
 
 Set your API key:
+
 ```bash
 export OPENAI_API_KEY=your_api_key
 ```
@@ -76,6 +77,7 @@ agent.run("Query", knowledge_filters=[filter])
 ```
 
 **Operators:**
+
 - `EQ(key, value)` - Equality
 - `IN(key, [values])` - Value in list
 - `GT(key, value)` - Greater than

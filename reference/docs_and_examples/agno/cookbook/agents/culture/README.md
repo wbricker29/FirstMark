@@ -41,19 +41,22 @@ Each recipe builds on the previous one, so you can run them in sequence.
 ## Quick Setup
 
 1. Create and activate a virtual environment:
+
 ```shell
 uv venv --python 3.12
 source .venv/bin/activate
 ```
 
-2. Install dependencies:
+1. Install dependencies:
+
 ```shell
 uv pip install agno anthropic sqlalchemy
 ```
 
-3. Set your Anthropic API key: `export ANTHROPIC_API_KEY="sk-ant-..."`
+1. Set your Anthropic API key: `export ANTHROPIC_API_KEY="sk-ant-..."`
 
-4. Run any recipe
+2. Run any recipe
+
 ```shell
 python cookbook/culture/01_create_cultural_knowledge.py
 ```
@@ -65,7 +68,9 @@ A local SQLite database (tmp/demo.db) will store and persist shared cultural kno
 ## File Overviews
 
 #### 01_create_cultural_knowledge.py
+
 Create cultural knowledge using the `CultureManager` and a model.
+
 - Demonstrates how to feed insights or guiding principles to the system
 - Persists cultural knowledge (e.g., *Operational Thinking*) into a shared SQLite DB
 - Run this first to seed the knowledge base
@@ -75,18 +80,21 @@ Command: `python cookbook/culture/01_create_cultural_knowledge.py`
 ---
 
 #### 02_use_cultural_knowledge_in_agent.py
+
 Use existing cultural knowledge inside an Agent.
+
 - Shows how to initialize an Agent with `add_culture_to_context=True`
 - The Agent automatically loads shared culture and applies it during reasoning
 - Demonstrates how cultural knowledge changes the tone and structure of responses
-
 
 Command: `python cookbook/culture/02_use_cultural_knowledge_in_agent.py`
 
 ---
 
 #### 03_automatic_cultural_management.py
+
 Let your Agent autonomously update cultural knowledge.
+
 - Enables `update_cultural_knowledge=True`
 - After each run, the Agent reflects on its response and updates the shared culture
 - Great for experiments where agents evolve their own principles over time
@@ -96,7 +104,9 @@ Command: `python cookbook/culture/03_automatic_cultural_management.py`
 ---
 
 #### 04_manually_add_culture.py
+
 Manually seed cultural knowledge without using a model.
+
 - Adds reusable best practices directly via the `CulturalKnowledge` dataclass
 - Useful for organization-wide rules, tone guides, or safety policies
 - Combines manual seeding with running an Agent that benefits from it
@@ -106,7 +116,9 @@ Command: `python cookbook/culture/04_manually_add_culture.py`
 ---
 
 #### 05_test_agent_with_cultural_knowledge.py
+
 Freestyle test file — interact with an Agent that has culture enabled.
+
 - Use this file to test arbitrary prompts and observe cultural influence
 - The Agent both *reads* and (optionally) *updates* shared cultural knowledge
 

@@ -3,6 +3,7 @@
 ## What are Claude Agent Skills?
 
 [Claude Agent Skills](https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills/quickstart) enable Claude to improve how it performs specific tasks:
+
 - **PowerPoint (pptx)**: Create professional presentations with slides, layouts, and formatting
 - **Excel (xlsx)**: Generate spreadsheets with formulas, charts, and data analysis
 - **Word (docx)**: Create and edit documents with rich formatting
@@ -27,6 +28,7 @@ Before you can use Claude Agent Skills, you'll need:
 ## Installation
 
 1. Install the required packages:
+
 ```bash
 pip install anthropic agno
 
@@ -34,12 +36,14 @@ pip install anthropic agno
 pip install python-pptx openpyxl python-docx PyPDF2 pdfplumber
 ```
 
-2. Set up your Anthropic API key:
+1. Set up your Anthropic API key:
+
 ```bash
 export ANTHROPIC_API_KEY="your_api_key_here"
 ```
 
 Or create a `.env` file:
+
 ```
 ANTHROPIC_API_KEY=your_api_key_here
 ```
@@ -101,6 +105,7 @@ agent.print_response("Create a sales presentation with 5 slides")
 **Available Skills**: `pptx`, `xlsx`, `docx`, `pdf`
 
 You can enable multiple skills at once:
+
 ```python
 model=Claude(
     id="claude-sonnet-4-5-20250929",
@@ -113,6 +118,7 @@ model=Claude(
 ```
 
 The framework automatically:
+
 - Configures the required betas (`code-execution-2025-08-25`, `skills-2025-10-02`)
 - Adds the code execution tool
 - Uses the beta API client
@@ -121,25 +127,33 @@ The framework automatically:
 ## Available Examples
 
 ### 1. `agent_with_powerpoint.py`
+
 Shows how to create an Agno agent specialized in PowerPoint presentations:
+
 - Business presentation generation
 - Market analysis reports
 - Slide design and formatting
 
 ### 2. `agent_with_excel.py`
+
 Demonstrates Excel/spreadsheet capabilities:
+
 - Data analysis and visualization
 - Financial calculations
 - CSV to Excel conversion
 
 ### 3. `agent_with_documents.py`
+
 Examples for Word and PDF processing:
+
 - Document creation and editing
 - PDF analysis and extraction
 - Format conversion
 
 ### 4. `multi_skill_agent.py`
+
 Advanced example combining multiple skills:
+
 - Complete business workflow (Excel → PowerPoint → PDF)
 - Progressive skill loading
 - Skill orchestration patterns
@@ -157,6 +171,7 @@ Advanced example combining multiple skills:
 **Files created by Agent Skills are NOT automatically saved to your local filesystem.**
 
 When Claude creates a document (e.g., .pptx, .xlsx) using Agent Skills, it:
+
 1. Creates the file in a sandboxed execution environment
 2. Returns a **file ID** in the tool result
 3. You must download the file separately using the [Anthropic Files API](https://docs.anthropic.com/en/docs/build-with-claude/files)
@@ -197,18 +212,23 @@ See `test_with_file_download.py` for a complete example.
 ## Configuration
 
 ### Model Requirements
+
 - Recommended: `claude-sonnet-4-5-20250929` or later
 - Minimum: `claude-3-5-sonnet-20241022`
 - Skills require models with code execution capability
 
 ### Beta Version
+
 Skills require the beta parameter:
+
 ```python
 betas=["skills-2025-10-02"]
 ```
 
 ### Enabling Skills
+
 Specify skills in the container parameter:
+
 ```python
 container={
     "skills": ["pptx"]  # Enable only PowerPoint
@@ -227,24 +247,28 @@ container={
 ## Use Cases
 
 ### Business Applications
+
 - Automated report generation (Excel data → PowerPoint presentation)
 - Financial analysis and visualization
 - Contract and proposal creation
 - Meeting notes and documentation
 
 ### Data Analysis
+
 - CSV/Excel data visualization
 - Statistical analysis with charts
 - Data transformation and cleaning
 - Interactive dashboards
 
 ### Document Processing
+
 - PDF text extraction and analysis
 - Document format conversion
 - Template-based document generation
 - Batch document processing
 
 ### Education
+
 - Lecture slide generation
 - Assignment and quiz creation
 - Course material formatting
@@ -267,16 +291,19 @@ container={
 ## Troubleshooting
 
 ### "Skills not available" Error
+
 - Ensure you're using the correct beta version: `betas=["skills-2025-10-02"]`
 - Verify your API key has access to Claude models with skills
 - Check that your account has skills beta access
 
 ### Code Execution Timeout
+
 - Reduce document complexity or size
 - Split large operations into smaller tasks
 - Use simpler formatting when possible
 
 ### File Not Generated
+
 - Check for errors in the response
 - Verify the code execution completed successfully
 - Ensure proper file paths and permissions
@@ -284,6 +311,7 @@ container={
 ## Support
 
 If you encounter any issues or have questions, please:
+
 1. Check the [Anthropic Documentation](https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills/quickstart)
 2. Check the [Agno documentation](https://docs.agno.com)
 3. Open an issue on the Agno GitHub repository

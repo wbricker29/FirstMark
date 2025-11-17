@@ -19,6 +19,7 @@ Claude Code uses hooks to automatically activate skills based on context. Unders
 **Purpose**: Suggest relevant skills BEFORE Claude processes the user's prompt
 
 **How it works**:
+
 1. User submits prompt
 2. Hook executes and reads prompt from stdin (JSON)
 3. Hook loads skill-rules.json
@@ -31,6 +32,7 @@ Claude Code uses hooks to automatically activate skills based on context. Unders
 **Exit code**: Always 0 (non-blocking, advisory only)
 
 **Input format**:
+
 ```json
 {
   "session_id": "abc-123",
@@ -43,6 +45,7 @@ Claude Code uses hooks to automatically activate skills based on context. Unders
 ```
 
 **Output format** (stdout → Claude's context):
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 SKILL ACTIVATION CHECK
@@ -56,6 +59,7 @@ ACTION: Use Skill tool BEFORE responding
 ```
 
 **Use cases**:
+
 - Topic-based skills (e.g., "error tracking", "database")
 - Implicit work detection (e.g., "create API")
 - Technology mentions (e.g., "Prisma", "React")
@@ -69,6 +73,7 @@ ACTION: Use Skill tool BEFORE responding
 **Purpose**: BLOCK file edits until critical skill is used (enforcement)
 
 **How it works**:
+
 1. Claude calls Edit or Write tool
 2. Hook executes and reads tool details from stdin (JSON)
 3. Hook loads skill-rules.json
@@ -84,10 +89,12 @@ ACTION: Use Skill tool BEFORE responding
    - Exit with code 0 (ALLOW)
 
 **Exit codes**:
+
 - **0**: Allow tool execution
 - **2**: Block tool execution + send message to Claude (stderr)
 
 **Input format**:
+
 ```json
 {
   "session_id": "abc-123",
@@ -105,6 +112,7 @@ ACTION: Use Skill tool BEFORE responding
 ```
 
 **Output format** (stderr → Claude when blocked):
+
 ```
 ⚠️ BLOCKED - Database Operation Detected
 
@@ -121,6 +129,7 @@ File: form/src/services/user.ts
 ```
 
 **Use cases**:
+
 - Critical guardrails (database verification, security checks)
 - File-based activation (editing specific files)
 - Content-based activation (code uses specific libraries)
@@ -136,6 +145,7 @@ File: form/src/services/user.ts
 **Purpose**: Gentle reminder AFTER Claude responds to self-assess code quality
 
 **How it works**:
+
 1. Claude finishes responding
 2. Hook executes and analyzes edited files
 3. Hook detects risky patterns (missing error handling, etc.)
@@ -144,6 +154,7 @@ File: form/src/services/user.ts
 **Philosophy** (2025-10-27): Gentle post-response reminders instead of blocking PreToolUse. Maintains awareness without workflow friction.
 
 **Use cases**:
+
 - Error handling awareness
 - Code quality reminders
 - Non-blocking best practice suggestions
@@ -173,6 +184,7 @@ Triggers determine WHEN skills activate. Claude Code supports four trigger types
 **Use for**: Topic-based activation where user explicitly mentions the subject
 
 **Configuration**:
+
 ```json
 "promptTriggers": {
   "keywords": ["layout", "grid", "toolbar", "submission"]
@@ -180,11 +192,13 @@ Triggers determine WHEN skills activate. Claude Code supports four trigger types
 ```
 
 **Example**:
+
 - User prompt: "how does the **layout** system work?"
 - Matches: "layout" keyword
 - Activates: skill
 
 **Best practices**:
+
 - ✅ Use specific, unambiguous terms
 - ✅ Include common variations ("layout", "layout system", "grid layout")
 - ✅ Test with real prompts
@@ -199,6 +213,7 @@ Triggers determine WHEN skills activate. Claude Code supports four trigger types
 **Use for**: Action-based activation where user describes what they want to do
 
 **Configuration**:
+
 ```json
 "promptTriggers": {
   "intentPatterns": [
@@ -211,22 +226,26 @@ Triggers determine WHEN skills activate. Claude Code supports four trigger types
 **Examples**:
 
 User prompt: "add user tracking feature"
+
 - Matches: `(add).*?(feature)`
 - Activates: skill
 
 User prompt: "create a dashboard widget"
+
 - Matches: `(create).*?(component)` (if component in pattern)
 - Activates: skill
 
 **Best practices**:
+
 - ✅ Capture common action verbs: `(create|add|modify|build|implement)`
 - ✅ Include domain-specific nouns: `(feature|endpoint|component|workflow)`
 - ✅ Use non-greedy matching: `.*?` instead of `.*`
-- ✅ Test patterns thoroughly (https://regex101.com/)
+- ✅ Test patterns thoroughly (<https://regex101.com/>)
 - ❌ Don't make patterns too broad (false positives)
 - ❌ Don't make patterns too specific (false negatives)
 
 **Common patterns**:
+
 ```regex
 # Database Work
 (add|create|implement).*?(user|login|auth|feature)
@@ -253,6 +272,7 @@ User prompt: "create a dashboard widget"
 **Use for**: Domain/area-specific activation based on file location
 
 **Configuration**:
+
 ```json
 "fileTriggers": {
   "pathPatterns": [
@@ -267,6 +287,7 @@ User prompt: "create a dashboard widget"
 ```
 
 **Glob pattern syntax**:
+
 - `**` = Any number of directories (including zero)
 - `*` = Any characters within a directory name
 - Examples:
@@ -275,11 +296,13 @@ User prompt: "create a dashboard widget"
   - `form/src/**/*.ts` = All .ts files in form/src subdirs
 
 **Example**:
+
 - File being edited: `frontend/src/components/Dashboard.tsx`
 - Matches: `frontend/src/**/*.tsx`
 - Activates: skill
 
 **Best practices**:
+
 - ✅ Be specific to avoid false positives
 - ✅ Use exclusions for test files: `**/*.test.ts`
 - ✅ Consider subdirectory structure
@@ -287,6 +310,7 @@ User prompt: "create a dashboard widget"
 - ✅ Use narrower patterns: `form/src/services/**` not `form/**`
 
 **Common patterns**:
+
 ```glob
 # Frontend
 frontend/src/**/*.tsx        # All React components
@@ -318,6 +342,7 @@ database/src/**/*.ts        # Database scripts
 **Use for**: Technology-specific activation based on what the code imports or uses
 
 **Configuration**:
+
 ```json
 "contentTriggers": {
   "patterns": [
@@ -331,14 +356,17 @@ database/src/**/*.ts        # Database scripts
 **Examples**:
 
 File contains: `import { PrismaClient } from '@prisma/client'`
+
 - Matches: `import.*?PrismaClient`
 - Activates: database-verification skill
 
 File contains: `@Controller('users')`
+
 - Matches: `@Controller`
 - Activates: backend-dev-guidelines skill
 
 **Best practices**:
+
 - ✅ Match import statements: `import.*?LibraryName`
 - ✅ Match class decorators: `@Decorator`
 - ✅ Match specific patterns: `class.*?Controller`
@@ -347,6 +375,7 @@ File contains: `@Controller('users')`
 - ❌ Remember performance: content matching reads entire file
 
 **Common patterns**:
+
 ```regex
 # Prisma
 import.*?PrismaClient
@@ -382,21 +411,25 @@ test\(
 ### Trigger Selection
 
 **Use keyword triggers when**:
+
 - User will explicitly mention the topic
 - Clear, unambiguous terminology
 - Simple substring matching sufficient
 
 **Use intent patterns when**:
+
 - User describes actions ("create", "add", "fix")
 - Need to detect implicit work
 - Want to catch variations of intent
 
 **Use file path triggers when**:
+
 - Skill applies to specific directories or file types
 - Domain-specific by location (frontend/, backend/, database/)
 - Technology-specific by extension (.tsx, .prisma, .sql)
 
 **Use content triggers when**:
+
 - Skill applies to specific libraries or frameworks
 - Detection based on imports or decorators
 - Technology-specific by usage (Prisma, NestJS, React)
@@ -406,12 +439,14 @@ test\(
 ### Testing Triggers
 
 **Manual testing - UserPromptSubmit**:
+
 ```bash
 echo '{"session_id":"test","prompt":"your test prompt"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts
 ```
 
 **Manual testing - PreToolUse**:
+
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"session_id":"test","tool_name":"Edit","tool_input":{"file_path":"test.ts"}}
@@ -419,6 +454,7 @@ EOF
 ```
 
 **Test checklist**:
+
 - [ ] Triggers on expected prompts (no false negatives)
 - [ ] Doesn't trigger on unrelated prompts (no false positives)
 - [ ] File path patterns match actual project structure
@@ -431,18 +467,22 @@ EOF
 ### Performance Considerations
 
 **Keyword triggers**: Fast (~1-5ms)
+
 - Simple substring matching
 - Always enabled
 
 **Intent patterns**: Moderate (~5-20ms)
+
 - Regex matching, depends on pattern complexity
 - Keep patterns simple
 
 **File path triggers**: Fast (~1-5ms)
+
 - Glob matching against single path
 - Always enabled for PreToolUse
 
 **Content triggers**: Slow (~50-200ms)
+
 - Reads entire file content
 - Regex matching against potentially large files
 - Use sparingly
@@ -457,6 +497,7 @@ EOF
 Most effective skills use **multiple trigger types**:
 
 **Example - Database Verification Skill**:
+
 ```json
 {
   "database-verification": {
@@ -489,6 +530,7 @@ Most effective skills use **multiple trigger types**:
 ```
 
 This skill activates when:
+
 - User mentions "prisma" or "database" (keyword)
 - User wants to "add user feature" (intent)
 - Editing service files (file path)

@@ -40,6 +40,7 @@ An advanced AI research agent built using the Agno Agent framework, Together AI'
    composio add googledocs
    composio add perplexityai
    ```
+
 2. **Configure API Keys**
 
    - Get Together AI API key from [Together AI](https://together.ai)

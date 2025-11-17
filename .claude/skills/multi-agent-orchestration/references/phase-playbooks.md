@@ -21,6 +21,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Scenario**: User requests "Add search filters to the product catalog" but provides no design specifications.
 
 **Analysis steps:**
+
 1. **Identify gaps in requirements:**
    - Which fields should be filterable?
    - What UI patterns exist for filters?
@@ -34,6 +35,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    - Look for similar filter implementations
 
 3. **Ask clarifying questions:**
+
    ```
    Before proceeding, need clarity on:
    - Filter fields: [price, category, brand, rating]?
@@ -48,6 +50,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    - Map dependencies (UI → API → Database)
 
 **Tool usage:**
+
 - `Glob`: Find existing filter implementations (`**/*filter*.{ts,tsx}`)
 - `Grep`: Search for filter patterns (`"Filter|filter" --type typescript`)
 - `Read`: Examine product catalog files
@@ -60,7 +63,9 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Scenario**: "Refactor the authentication system" - too vague, potentially massive scope.
 
 **Analysis steps:**
+
 1. **Explore current implementation:**
+
    ```
    - Use Grep to find all auth-related files
    - Map authentication flow (login → session → authorization)
@@ -68,6 +73,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    ```
 
 2. **Scope boundaries:**
+
    ```
    Ask user:
    - What's driving this refactor? (Security, maintainability, performance?)
@@ -77,6 +83,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    ```
 
 3. **Break down potential sub-tasks:**
+
    ```
    Possible scopes:
    A. Minimal: Refactor auth middleware only (narrow, safe)
@@ -91,6 +98,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    - Rollback strategy (if refactor fails)
 
 **Tool usage:**
+
 - `Grep`: Map auth usage (`"auth|Auth" --type typescript -C 2`)
 - `Read`: Review critical auth files (middleware, session handler)
 - `Bash`: Run tests to establish baseline (`pnpm test auth`)
@@ -103,12 +111,14 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Scenario**: "Fix the race condition in data sync" - potentially touches many components.
 
 **Analysis steps:**
+
 1. **Understand the bug:**
    - Reproduce the issue (if possible)
    - Identify affected components
    - Map data flow involved in race condition
 
 2. **Assess blast radius:**
+
    ```
    Components involved:
    - Data sync service
@@ -119,6 +129,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    ```
 
 3. **Identify dependencies:**
+
    ```
    Fix requires:
    - Understanding async operation sequencing
@@ -133,6 +144,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
    - What tests are needed?
 
 **Tool usage:**
+
 - `Grep`: Find sync-related code (`"sync|Sync" --type typescript`)
 - `Read`: Study sync service implementation
 - `Bash`: Check for existing race condition tests
@@ -147,6 +159,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Situation**: Orchestration requires project constitution/standards, but files don't exist.
 
 **Handling:**
+
 ```
 1. Ask user: "No project standards found. Options:
    a. Create constitution.md first (recommended)
@@ -170,6 +183,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Situation**: User requests "optimize for performance" AND "keep code simple" but these conflict for specific task.
 
 **Handling:**
+
 ```
 1. Identify specific conflict:
    "Performance optimization requires caching layer (adds complexity).
@@ -191,6 +205,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Situation**: Task A requires Task B, but Task B requires Task A (impossible to sequence).
 
 **Handling:**
+
 ```
 1. Document circular dependency:
    "Task A (implement UI) needs API shape from Task B
@@ -208,6 +223,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 ```
 
 **Tool usage:**
+
 - Visual: Draw dependency graph to show cycle
 - Document: Create interface definitions to break cycle
 
@@ -216,6 +232,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Situation**: Pre-flight validation shows estimated 250k tokens (exceeds 200k limit).
 
 **Handling:**
+
 ```
 1. Run scripts/check_context_bounds.py to identify token usage
 
@@ -236,6 +253,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 ```
 
 **Tool usage:**
+
 - `Bash`: Run `scripts/check_context_bounds.py --phase 1 --files <list>`
 - Output: Token usage report with breakdown
 
@@ -248,6 +266,7 @@ Establish comprehensive understanding of work requirements, gather necessary con
 **Root cause**: Skipped clarifying questions during analysis.
 
 **Prevention:**
+
 ```
 Checklist before planning:
   ✅ Deliverables are clearly defined (what files, what changes)
@@ -266,6 +285,7 @@ Checklist before planning:
 **Root cause**: Incomplete context gathering during analysis.
 
 **Prevention:**
+
 ```
 Context gathering checklist:
   ✅ Project structure understood (where things live)
@@ -284,6 +304,7 @@ Context gathering checklist:
 **Root cause**: Didn't break down task into sub-tasks during analysis.
 
 **Prevention:**
+
 ```
 Complexity assessment:
   - Single agent task should be completable in ~15-30 minutes
@@ -308,6 +329,7 @@ Complexity assessment:
 - ✅ Context budget validated (won't exceed token limits)
 
 **Quality check questions:**
+
 ```
 1. Can I describe each sub-task in one sentence? (If no: scope unclear)
 2. Do I know which files each agent will modify? (If no: incomplete analysis)
@@ -329,6 +351,7 @@ Complexity assessment:
 | `Task` | Deploy exploration agent | `Task(subagent_type="Explore", prompt="Map auth flows")` |
 
 **Tool selection criteria:**
+
 - Use `Glob` when searching by filename pattern
 - Use `Grep` when searching by code content
 - Use `Read` when examining specific known files
@@ -340,12 +363,14 @@ Complexity assessment:
 #### Decision 1: Explore Agent vs Direct Analysis
 
 **When to deploy Explore agent:**
+
 - Codebase unfamiliar
 - Task touches many unknown files
 - Need to map architectural patterns
 - Analysis itself is complex (>30 min)
 
 **When to analyze directly:**
+
 - Small, focused scope
 - Familiar codebase
 - Clear requirements
@@ -356,6 +381,7 @@ Complexity assessment:
 #### Decision 2: Ask User vs Make Assumption
 
 **Ask user when:**
+
 - Design decisions (UI patterns, API structure)
 - Requirement ambiguities (what features to include)
 - Trade-off choices (performance vs simplicity)
@@ -363,6 +389,7 @@ Complexity assessment:
 - Priority conflicts (what's more important?)
 
 **Make assumption when:**
+
 - Following established patterns (use existing conventions)
 - Technical implementation details (how to structure code)
 - File organization (where to put new files)
@@ -373,12 +400,14 @@ Complexity assessment:
 #### Decision 3: Validate Feasibility Before Planning
 
 **Always validate:**
+
 - Context budget (run check_context_bounds.py)
 - Dependency cycles (check for circular dependencies)
 - Agent availability (do necessary agent types exist?)
 - Resource availability (files, APIs, data exist?)
 
 **Proceed only if:**
+
 - ✅ Context budget sufficient
 - ✅ Dependencies are acyclic
 - ✅ Agent types available
@@ -401,7 +430,9 @@ Design optimal sub-agent deployment strategy, establish coordination protocols, 
 **Scenario**: Add validation functions for 4 different data types (independent tasks).
 
 **Planning steps:**
+
 1. **Identify sub-tasks:**
+
    ```
    Task 1: Email validation function
    Task 2: Phone number validation function
@@ -410,6 +441,7 @@ Design optimal sub-agent deployment strategy, establish coordination protocols, 
    ```
 
 2. **Validate independence:**
+
    ```
    ✅ Each creates separate file (lib/validators/email.ts, etc.)
    ✅ No shared types (each self-contained)
@@ -419,6 +451,7 @@ Design optimal sub-agent deployment strategy, establish coordination protocols, 
    ```
 
 3. **Define agent scopes:**
+
    ```
    Agent A (task-implementor):
      Scope: Implement email validation with regex patterns
@@ -436,6 +469,7 @@ Design optimal sub-agent deployment strategy, establish coordination protocols, 
    ```
 
 4. **Establish coordination:**
+
    ```
    Execution: Parallel (all 4 agents deploy simultaneously)
    Handoff: None required (independent)
@@ -444,6 +478,7 @@ Design optimal sub-agent deployment strategy, establish coordination protocols, 
    ```
 
 **Plan presentation:**
+
 ```
 🤖 Sub-Agent Orchestration Plan
 
@@ -469,7 +504,9 @@ Proceed? (y/n)
 **Scenario**: Optimize database queries - requires analysis, implementation, validation, documentation.
 
 **Planning steps:**
+
 1. **Identify phases:**
+
    ```
    Phase A: Analysis (identify slow queries)
    Phase B: Implementation (optimize queries)
@@ -478,6 +515,7 @@ Proceed? (y/n)
    ```
 
 2. **Map dependencies:**
+
    ```
    B depends on A (needs list of slow queries)
    C depends on B (needs optimized code)
@@ -486,6 +524,7 @@ Proceed? (y/n)
    ```
 
 3. **Define agent scopes:**
+
    ```
    Agent A (Explore):
      Scope: Profile database queries, identify top 5 slowest
@@ -512,6 +551,7 @@ Proceed? (y/n)
    ```
 
 4. **Design handoff protocol:**
+
    ```
    A → B: Pass query-analysis.md (top 3 queries + file locations)
    B → C: Pass modified files + optimization summary
@@ -519,6 +559,7 @@ Proceed? (y/n)
    ```
 
 **Plan presentation:**
+
 ```
 🤖 Sub-Agent Orchestration Plan
 
@@ -553,7 +594,9 @@ Proceed? (y/n)
 **Scenario**: Add i18n support across UI, API, and email templates.
 
 **Planning steps:**
+
 1. **Identify workflow structure:**
+
    ```
    Wave 1 (Sequential): Setup i18n infrastructure
    Wave 2 (Parallel): Apply i18n to different areas
@@ -561,6 +604,7 @@ Proceed? (y/n)
    ```
 
 2. **Design agent deployment:**
+
    ```
    Wave 1:
      Agent A: Create i18n infrastructure (lib/i18n.ts, locale files)
@@ -578,6 +622,7 @@ Proceed? (y/n)
    ```
 
 3. **Define coordination:**
+
    ```
    A completes → Handoff i18n API to B, C, D
    B, C, D complete → Wait for all, then deploy E
@@ -585,6 +630,7 @@ Proceed? (y/n)
    ```
 
 **Plan presentation:**
+
 ```
 🤖 Sub-Agent Orchestration Plan
 
@@ -629,6 +675,7 @@ Proceed? (y/n)
 **Situation**: Need specialized agent (e.g., "SQL optimizer") but no such agent type exists.
 
 **Handling:**
+
 ```
 Option A: Use general-purpose agent with detailed instructions
   Agent: task-implementor
@@ -652,6 +699,7 @@ Choose: Usually Option A (general-purpose with instructions)
 **Situation**: User says "deploy all agents in parallel" but tasks have dependencies.
 
 **Handling:**
+
 ```
 1. Explain dependency conflict:
    "Agent B (API implementation) requires types from Agent A (schema).
@@ -675,6 +723,7 @@ Choose: Usually Option A (general-purpose with instructions)
 **Situation**: Plan exceeds context budget during planning phase.
 
 **Handling:**
+
 ```
 1. Run scripts/check_context_bounds.py on planned agents
 
@@ -700,6 +749,7 @@ Choose: Usually Option A (general-purpose with instructions)
 **Situation**: User request doesn't specify how to validate success.
 
 **Handling:**
+
 ```
 1. Propose validation based on task type:
    - Code implementation: Tests pass + coverage ≥80%
@@ -729,6 +779,7 @@ Choose: Usually Option A (general-purpose with instructions)
 **Root cause**: Incorrectly assumed task independence, skipped independence validation.
 
 **Prevention:**
+
 ```
 Independence validation checklist (perform during planning):
   For each pair of parallel agents:
@@ -750,6 +801,7 @@ Independence validation checklist (perform during planning):
 **Root cause**: Agent brief was too vague, lacked specific constraints.
 
 **Prevention:**
+
 ```
 Scope definition checklist:
   ✅ Specific task described in 1-2 sentences
@@ -772,6 +824,7 @@ Good scope: "Add price range filter to product search in components/ProductSearc
 **Root cause**: Handoff protocol not defined during planning.
 
 **Prevention:**
+
 ```
 Handoff definition checklist:
   For each sequential transition (Agent A → Agent B):
@@ -803,6 +856,7 @@ Example handoff plan:
 - ✅ User approval obtained (plan presented and confirmed)
 
 **Quality check questions:**
+
 ```
 1. Can each agent scope be described in 1-2 sentences? (If no: scope too vague)
 2. Is execution order unambiguous? (If no: dependencies unclear)
@@ -829,12 +883,14 @@ Example handoff plan:
 #### Decision 1: Parallel vs Sequential
 
 **Choose parallel when:**
+
 - ✅ Tasks are independent (validated)
 - ✅ No information flow between agents
 - ✅ Speed is important
 - ✅ Context budget allows multiple agents
 
 **Choose sequential when:**
+
 - ✅ Dependencies exist
 - ✅ Information must flow between agents
 - ✅ Later agents need outputs from earlier agents
@@ -845,16 +901,19 @@ Example handoff plan:
 #### Decision 2: How Many Agents?
 
 **Too few agents** (under-decomposition):
+
 - Single agent takes >45 minutes
 - Agent scope spans multiple domains
 - High risk of failure due to complexity
 
 **Too many agents** (over-decomposition):
+
 - Each agent takes <5 minutes
 - Coordination overhead > execution time
 - Context budget wasted on handoffs
 
 **Right-sizing**:
+
 - Target: 15-30 minutes per agent
 - Max: 3-5 agents per orchestration (sweet spot)
 - Consider: Can 2 agents be combined? Should 1 agent be split?
@@ -862,12 +921,14 @@ Example handoff plan:
 #### Decision 3: When to Present Plan to User
 
 **Always present plan when:**
+
 - Complex orchestration (3+ agents)
 - User provided high-level request (need confirmation on approach)
 - Multiple valid strategies exist (user should choose)
 - Significant time investment (>30 min total)
 
 **Can skip presentation when:**
+
 - User provided detailed, explicit plan
 - Trivial orchestration (2 simple agents)
 - User explicitly requested auto-execution
@@ -891,6 +952,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
 **Execution steps:**
 
 1. **Prepare all agent briefings:**
+
    ```
    [Prepare 4 detailed briefings offline before deploying]
 
@@ -901,6 +963,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 2. **Deploy all agents simultaneously (single message with 4 Task calls):**
+
    ```
    Deploy all 4 task-implementor agents in parallel:
    - Agent A: Email validation
@@ -910,6 +973,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 3. **Wait for all agents to complete:**
+
    ```
    Monitor progress:
    ✅ Agent A: Completed in 18 minutes
@@ -921,6 +985,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 4. **Collect outputs:**
+
    ```
    Agent A delivered: lib/validators/email.ts, lib/validators/email.test.ts
    Agent B delivered: lib/validators/phone.ts, lib/validators/phone.test.ts
@@ -931,6 +996,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 **Coordination notes:**
+
 - No handoffs needed (parallel execution)
 - No conflicts (different files)
 - Proceed directly to validation phase
@@ -942,6 +1008,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
 **Execution steps:**
 
 1. **Deploy Agent A (Explore):**
+
    ```
    Deploy: Agent A (Explore)
    Scope: Profile database queries, identify slow queries
@@ -956,6 +1023,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 2. **Extract handoff information for Agent B:**
+
    ```
    Read query-analysis.md (lines showing top 3 queries)
 
@@ -966,6 +1034,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 3. **Deploy Agent B (task-implementor):**
+
    ```
    Deploy: Agent B (task-implementor)
    Scope: Optimize top 3 slow queries
@@ -986,6 +1055,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 4. **Extract handoff information for Agent C:**
+
    ```
    Handoff info:
    - Modified files: lib/users.ts, lib/posts.ts
@@ -994,6 +1064,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 5. **Deploy Agent C (systematic-debugger):**
+
    ```
    Deploy: Agent C (systematic-debugger)
    Scope: Run performance benchmarks, verify improvements
@@ -1015,6 +1086,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
    ```
 
 6. **Deploy Agent D (documentation-manager):**
+
    ```
    Deploy: Agent D (documentation-manager)
    Scope: Update performance documentation
@@ -1042,6 +1114,7 @@ Deploy sub-agents with clear briefings, manage coordination and handoffs, monito
 **Execution steps:**
 
 **Wave 1 (Sequential - Foundation):**
+
 ```
 Deploy: Agent A (task-implementor)
 Scope: Create i18n infrastructure
@@ -1056,6 +1129,7 @@ Deliverables: lib/i18n.ts, locales/en.json, locales/es.json
 ```
 
 **Wave 2 (Parallel - Implementation):**
+
 ```
 Extract handoff info from Agent A:
   - i18n API: useTranslation() hook
@@ -1099,6 +1173,7 @@ Total Wave 2 time: 30 minutes (longest agent)
 ```
 
 **Wave 3 (Sequential - Validation):**
+
 ```
 Deploy: Agent E (principle-evaluator)
 Scope: Validate i18n consistency
@@ -1133,6 +1208,7 @@ Deliverables: docs/i18n-guide.md
 **Situation**: Agent expected to complete in 20 minutes, still running after 40 minutes.
 
 **Handling:**
+
 ```
 1. Check agent status:
    - Is it making progress? (new outputs appearing)
@@ -1161,6 +1237,7 @@ Deliverables: docs/i18n-guide.md
 **Situation**: Agent runs out of context mid-execution.
 
 **Handling:**
+
 ```
 1. Immediate action:
    "Agent C encountered context overflow.
@@ -1186,6 +1263,7 @@ Deliverables: docs/i18n-guide.md
 **Situation**: Agent completes but output doesn't match expectations.
 
 **Handling:**
+
 ```
 1. Analyze mismatch:
    Expected: Modified 3 files with caching logic
@@ -1215,6 +1293,7 @@ Deliverables: docs/i18n-guide.md
 **Situation**: Two parallel agents modified same file, creating conflict.
 
 **Handling:**
+
 ```
 1. Detect conflict:
    "Merge conflict detected:
@@ -1251,6 +1330,7 @@ Deliverables: docs/i18n-guide.md
 **Root cause**: Briefing lacked critical information or context.
 
 **Prevention:**
+
 ```
 Briefing completeness checklist:
   ✅ Task scope: Exactly what to do (1-2 sentences)
@@ -1282,6 +1362,7 @@ Good brief:
 **Root cause**: Handoff information wasn't explicitly passed.
 
 **Prevention:**
+
 ```
 Handoff execution pattern:
 1. Agent A completes
@@ -1314,6 +1395,7 @@ Template:
 **Root cause**: Scope imbalance - agents not evenly sized.
 
 **Prevention:**
+
 ```
 Load balancing for parallel agents:
 1. During planning, estimate each agent's time
@@ -1349,6 +1431,7 @@ Rule: In parallel wave, no agent should be >2x longest other agent
 - ✅ Preliminary validation passed (agents self-validated)
 
 **Quality check questions:**
+
 ```
 1. Did each agent complete its assigned scope? (If no: incomplete execution)
 2. Were handoffs successful? (If no: information loss)
@@ -1370,6 +1453,7 @@ Rule: In parallel wave, no agent should be >2x longest other agent
 **Deployment patterns:**
 
 **Parallel deployment (single message):**
+
 ```
 Deploy all agents in parallel by using multiple Task tool calls in one message:
 - Task(agent A)
@@ -1379,6 +1463,7 @@ Deploy all agents in parallel by using multiple Task tool calls in one message:
 ```
 
 **Sequential deployment (multiple messages):**
+
 ```
 Message 1: Task(agent A)
 [Wait for response]
@@ -1393,12 +1478,14 @@ Message 3: Extract handoff, Task(agent C)
 #### Decision 1: Continue or Abort After Agent Failure
 
 **Continue if:**
+
 - ✅ Failure is isolated (other agents unaffected)
 - ✅ Retry likely to succeed
 - ✅ Partial completion has value
 - ✅ Remaining work is substantial
 
 **Abort if:**
+
 - ❌ Failure invalidates entire orchestration
 - ❌ Multiple retry attempts failed
 - ❌ Fundamental assumption wrong
@@ -1410,11 +1497,13 @@ Message 3: Extract handoff, Task(agent C)
 #### Decision 2: Provide Additional Context vs Redeploy
 
 **Provide additional context when:**
+
 - Agent asks clarifying question
 - Agent on right track but needs guidance
 - Quick context addition will unblock
 
 **Redeploy when:**
+
 - Agent went wrong direction
 - Brief was fundamentally inadequate
 - Scope needs adjustment
@@ -1425,12 +1514,14 @@ Message 3: Extract handoff, Task(agent C)
 #### Decision 3: Intervene or Let Agent Finish
 
 **Intervene when:**
+
 - Agent clearly going wrong direction
 - Agent exceeding scope significantly
 - Agent will violate constraints
 - Agent stuck in loop
 
 **Let finish when:**
+
 - Agent making progress (even if slow)
 - Approach is valid (even if not expected)
 - Near completion
@@ -1455,6 +1546,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Validation steps:**
 
 1. **Collect all outputs:**
+
    ```
    Agent A: lib/validators/email.ts, lib/validators/email.test.ts
    Agent B: lib/validators/phone.ts, lib/validators/phone.test.ts
@@ -1465,6 +1557,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 2. **Verify completeness:**
+
    ```
    ✅ All 4 agents completed their scopes
    ✅ All expected files created
@@ -1472,6 +1565,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 3. **Check for conflicts:**
+
    ```
    ✅ No file conflicts (each agent wrote to different files)
    ✅ No type name conflicts (run Grep for duplicate exports)
@@ -1480,12 +1574,14 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 4. **Synthesize outputs:**
+
    ```
    No synthesis needed - outputs are independent modules.
    Ready for validation gates.
    ```
 
 5. **Run validation gates:**
+
    ```
    Bash("pnpm format") → ✅ All files formatted
    Bash("pnpm lint") → ✅ No linting errors
@@ -1497,6 +1593,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 6. **Verify quality standards:**
+
    ```
    ✅ Format: All files formatted per project style
    ✅ Lint: No linting violations
@@ -1507,6 +1604,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 7. **Evidence of completion:**
+
    ```
    ✅ 8 files created as expected
    ✅ Test output shows 32 passing tests
@@ -1522,6 +1620,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Validation steps:**
 
 1. **Collect outputs from each phase:**
+
    ```
    Agent A: query-analysis.md (identified slow queries)
    Agent B: Modified lib/users.ts, lib/posts.ts, migrations/add-index.sql
@@ -1530,6 +1629,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 2. **Verify completeness of pipeline:**
+
    ```
    Phase 1 (Analysis): ✅ query-analysis.md present, identifies 5 slow queries
    Phase 2 (Implementation): ✅ Top 3 queries optimized as planned
@@ -1540,6 +1640,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 3. **Synthesize into coherent story:**
+
    ```
    Analysis identified 5 slow queries (850ms, 650ms, 550ms, 380ms, 320ms).
    Optimized top 3 queries:
@@ -1552,6 +1653,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 4. **Verify end-to-end:**
+
    ```
    Read lib/users.ts → ✅ N+1 fix implemented correctly (JOIN used)
    Read lib/posts.ts → ✅ Queries optimized as described
@@ -1561,6 +1663,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 5. **Run validation gates:**
+
    ```
    Bash("pnpm format") → ✅ Formatted
    Bash("pnpm lint") → ✅ No errors
@@ -1572,6 +1675,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 6. **Check for gaps:**
+
    ```
    ✅ All top 3 queries optimized (scope met)
    ⚠️  Queries 4 and 5 not optimized (expected, lower priority)
@@ -1583,6 +1687,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 7. **Evidence of completion:**
+
    ```
    ✅ Performance metrics demonstrate success (quantified improvements)
    ✅ All tests pass (no functional regressions)
@@ -1598,6 +1703,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Validation steps:**
 
 1. **Collect outputs from all waves:**
+
    ```
    Wave 1 (Foundation):
      Agent A: lib/i18n.ts, locales/en.json, locales/es.json, modified app/layout.tsx
@@ -1613,6 +1719,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 2. **Synthesize multi-wave outputs:**
+
    ```
    Infrastructure created: i18n system with 2 locales (en, es)
 
@@ -1628,6 +1735,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 3. **Verify integration across waves:**
+
    ```
    Check: Do all waves use consistent i18n API?
      Read 5 random components → ✅ All use useTranslation() hook
@@ -1641,6 +1749,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 4. **Check for conflicts/inconsistencies:**
+
    ```
    Grep for hardcoded strings:
    Grep('"[A-Z][a-z]+ [a-z]+"', glob="**/*.{ts,tsx}")
@@ -1652,6 +1761,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 5. **Run validation gates:**
+
    ```
    Bash("pnpm format") → ✅
    Bash("pnpm lint") → ✅
@@ -1665,6 +1775,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 6. **Verify requirements met:**
+
    ```
    Original requirement: Add multi-language support
 
@@ -1678,6 +1789,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
    ```
 
 7. **Evidence of completion:**
+
    ```
    ✅ Agent E validation report (quantified: 98% strings externalized)
    ✅ Manual testing confirms translation works
@@ -1694,6 +1806,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Situation**: Two agents modified same file differently, changes conflict.
 
 **Handling:**
+
 ```
 1. Identify conflict:
    Read lib/config.ts from Agent B → Added cache config (lines 20-30)
@@ -1729,6 +1842,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Situation**: Agent reported completion but expected file doesn't exist.
 
 **Handling:**
+
 ```
 1. Verify claim:
    Agent D claimed: "Created docs/api-guide.md"
@@ -1761,6 +1875,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Situation**: Agent completed but tests fail.
 
 **Handling:**
+
 ```
 1. Identify failure:
    Bash("pnpm test") → 3 tests failing in lib/search.test.ts
@@ -1803,6 +1918,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Situation**: Agents completed but some requirements not met.
 
 **Handling:**
+
 ```
 1. Compare deliverables to requirements:
    Requirement: "Add filters for price, category, and brand"
@@ -1848,6 +1964,7 @@ Synthesize sub-agent outputs into coherent result, verify completeness and quali
 **Root cause**: Assume agents validated their own work, skip comprehensive validation.
 
 **Prevention:**
+
 ```
 Mandatory validation checklist:
   ✅ Format check: pnpm format:check (or pnpm format)
@@ -1870,6 +1987,7 @@ NEVER skip these gates. They catch issues agents missed.
 **Root cause**: Trust agents completed work without verification.
 
 **Prevention:**
+
 ```
 Completeness verification:
 1. List original requirements (from Phase 1)
@@ -1892,6 +2010,7 @@ If ANY requirement not met → Investigate and address before reporting.
 **Root cause**: Validate only functionality, ignore code quality.
 
 **Prevention:**
+
 ```
 Quality standards checklist:
   ✅ Code follows project conventions (naming, structure)
@@ -1922,6 +2041,7 @@ If quality issues found → Fix before reporting (manual edits or redeploy agent
 - ✅ No critical issues remaining
 
 **Quality check questions:**
+
 ```
 1. Did all agents produce expected deliverables? (If no: investigate gaps)
 2. Do validation gates pass? (If no: fix issues)
@@ -1943,6 +2063,7 @@ If quality issues found → Fix before reporting (manual edits or redeploy agent
 | `Glob` | Find deliverables | `Glob("lib/**/*.test.ts")` to find all tests |
 
 **Validation pattern:**
+
 ```
 1. Collect outputs: Use Read/Glob to gather all deliverables
 2. Check completeness: Map deliverables to requirements
@@ -1956,18 +2077,21 @@ If quality issues found → Fix before reporting (manual edits or redeploy agent
 #### Decision 1: Accept or Reject Agent Output
 
 **Accept when:**
+
 - ✅ Deliverables match expectations
 - ✅ Validation gates pass
 - ✅ Quality standards met
 - ✅ No critical issues
 
 **Reject when:**
+
 - ❌ Missing deliverables
 - ❌ Validation failures
 - ❌ Poor quality (violates standards)
 - ❌ Doesn't meet requirements
 
 **Partial accept when:**
+
 - ⚠️  Most work is good but has fixable issues
 - ⚠️  Core functionality present, refinement needed
 - Fix minor issues manually or with small agent deployment
@@ -1975,12 +2099,14 @@ If quality issues found → Fix before reporting (manual edits or redeploy agent
 #### Decision 2: Fix Issues Manually or Redeploy Agent
 
 **Fix manually when:**
+
 - Issue is trivial (typo, formatting, simple logic fix)
 - Fix takes <5 minutes
 - High confidence in correctness
 - Redeploy would take longer
 
 **Redeploy agent when:**
+
 - Issue is complex (requires design thought)
 - Multiple related issues (systematic problem)
 - Uncertain about correct fix
@@ -1991,12 +2117,14 @@ If quality issues found → Fix before reporting (manual edits or redeploy agent
 #### Decision 3: Continue or Deploy Additional Agents
 
 **Continue to reporting when:**
+
 - ✅ All requirements met
 - ✅ All validation passes
 - ✅ Quality acceptable
 - ✅ No critical gaps
 
 **Deploy additional agents when:**
+
 - ❌ Requirement not met (scope gap)
 - ❌ Quality issues need dedicated agent (e.g., test coverage too low)
 - ❌ Integration work needed (outputs need coordination)
@@ -2021,6 +2149,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
 **Reporting steps:**
 
 1. **Generate synthesis report:**
+
    ```
    📊 Multi-Agent Orchestration Complete
 
@@ -2066,12 +2195,14 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 2. **Update project documentation (if applicable):**
+
    ```
    No documentation updates needed - validators are self-documenting
    with TypeScript types and docstrings.
    ```
 
 3. **Prompt user for next action:**
+
    ```
    Orchestration complete. What would you like to do next?
    - Continue: Integrate validators into application
@@ -2088,6 +2219,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
 **Reporting steps:**
 
 1. **Generate synthesis report:**
+
    ```
    📊 Multi-Agent Orchestration Complete
 
@@ -2147,6 +2279,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 2. **Update project documentation:**
+
    ```
    Documentation already updated by Agent D:
    - docs/performance.md now includes query optimization case study
@@ -2157,6 +2290,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 3. **Document decision log (if significant decisions made):**
+
    ```
    No architectural decisions made. Implementation followed standard
    optimization patterns (eliminate N+1, add indexes, optimize joins).
@@ -2164,6 +2298,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 4. **Prompt user for next action:**
+
    ```
    Orchestration complete. Database migration pending.
 
@@ -2187,6 +2322,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
 **Reporting steps:**
 
 1. **Generate comprehensive synthesis report:**
+
    ```
    📊 Multi-Agent Orchestration Complete
 
@@ -2272,19 +2408,21 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 2. **Update project documentation:**
+
    ```
    Agent F already updated:
    - docs/i18n-guide.md (new developer guide)
    - README.md (added i18n section)
 
    Additional recommended updates:
-   - specs/constitution.md: Add i18n as project standard
-   - specs/spec.md: Update to reflect i18n requirement
+   - spec/constitution.md: Add i18n as project standard
+   - spec/spec.md: Update to reflect i18n requirement
 
    Would you like me to update these files? (y/n)
    ```
 
 3. **Document decision log:**
+
    ```
    Significant architectural decision made:
 
@@ -2302,6 +2440,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
    ```
 
 4. **Prompt user for next action:**
+
    ```
    Orchestration complete. i18n fully implemented.
 
@@ -2338,6 +2477,7 @@ Generate comprehensive synthesis report, document orchestration results, update 
 **Situation**: Some agents succeeded, some failed, proceeded with partial completion.
 
 **Handling:**
+
 ```
 📊 Multi-Agent Orchestration: Partial Completion
 
@@ -2415,6 +2555,7 @@ What would you like to do?
 **Situation**: During confirmation phase, user asks "also add feature X".
 
 **Handling:**
+
 ```
 Current orchestration complete (4 agents deployed successfully).
 
@@ -2452,6 +2593,7 @@ c. Extend current orchestration with logging agent
 **Situation**: Work is complete but no obvious next action.
 
 **Handling:**
+
 ```
 📊 Multi-Agent Orchestration Complete
 
@@ -2501,6 +2643,7 @@ What would you like to do?
 **Situation**: All validation gates passed but user says "this isn't what I wanted".
 
 **Handling:**
+
 ```
 All validation gates passed but output doesn't meet expectations.
 
@@ -2548,6 +2691,7 @@ How would you like to proceed?
 **Root cause**: Report omits key details or uses vague language.
 
 **Prevention:**
+
 ```
 Synthesis report must include:
   ✅ All agents deployed (with types and scopes)
@@ -2570,6 +2714,7 @@ Good: "Implemented product search with price filters (components/ProductSearch.t
 **Root cause**: Assume orchestration fully complete, don't prompt for continuation.
 
 **Prevention:**
+
 ```
 Always end reporting phase with clear next action prompt:
 
@@ -2595,6 +2740,7 @@ Provide specific options relevant to completed work.
 **Root cause**: Forget to check if documentation needs updates.
 
 **Prevention:**
+
 ```
 Documentation update checklist:
   ✅ API changes → Update API reference docs
@@ -2626,6 +2772,7 @@ Never assume documentation updates can be skipped.
 - ✅ Session can be closed cleanly
 
 **Quality check questions:**
+
 ```
 1. Does report clearly communicate what was accomplished? (If no: add detail)
 2. Are all deliverables listed and described? (If no: complete list)
@@ -2646,6 +2793,7 @@ Never assume documentation updates can be skipped.
 | `Write` | Save report to file | `Write("reports/orchestration-report.md", content)` (if needed) |
 
 **Reporting pattern:**
+
 ```
 1. Gather information from all phases
 2. Structure using template or manual format
@@ -2660,12 +2808,14 @@ Never assume documentation updates can be skipped.
 #### Decision 1: Detailed vs Summary Report
 
 **Detailed report when:**
+
 - Complex orchestration (5+ agents)
 - Multiple waves or phases
 - Significant architectural changes
 - Many deliverables
 
 **Summary report when:**
+
 - Simple orchestration (2-3 agents)
 - Single straightforward task
 - Few deliverables
@@ -2676,11 +2826,13 @@ Never assume documentation updates can be skipped.
 #### Decision 2: Update Documentation Now or Defer
 
 **Update now when:**
+
 - Documentation-manager agent already deployed
 - Quick updates (<5 minutes)
 - Critical documentation (must be in sync with code)
 
 **Defer when:**
+
 - Documentation updates are extensive (>15 minutes)
 - User prefers to handle documentation separately
 - Documentation can wait for PR review
@@ -2690,12 +2842,14 @@ Never assume documentation updates can be skipped.
 #### Decision 3: Close Session or Continue
 
 **Close session when:**
+
 - All work complete
 - User satisfied
 - No immediate follow-up
 - Natural stopping point
 
 **Continue when:**
+
 - User requests additional work
 - Follow-up orchestration needed
 - Issues discovered requiring fixes
@@ -2751,6 +2905,7 @@ Question or issue arises
 ### Common Anti-Patterns to Avoid
 
 **Anti-pattern 1: Over-orchestration**
+
 ```
 Bad: Deploy 10 agents for simple task
 Good: Deploy 3-5 agents for complex tasks, fewer for simple tasks
@@ -2758,6 +2913,7 @@ Rule: If task can be done in <30 min without orchestration, don't orchestrate
 ```
 
 **Anti-pattern 2: Under-specification**
+
 ```
 Bad: "Agent A: Fix bugs"
 Good: "Agent A (systematic-debugger): Debug failing test in lib/search.test.ts
@@ -2766,6 +2922,7 @@ Rule: Every agent scope should be 1-2 specific sentences
 ```
 
 **Anti-pattern 3: Assuming success**
+
 ```
 Bad: Agent completes → Move to next phase (no validation)
 Good: Agent completes → Verify deliverables → Check quality → Then proceed
@@ -2773,6 +2930,7 @@ Rule: Always validate before proceeding to next phase
 ```
 
 **Anti-pattern 4: Context bloat**
+
 ```
 Bad: Pass entire conversation history to each agent
 Good: Pass only specific handoff information (file paths, summaries)
@@ -2780,6 +2938,7 @@ Rule: Minimal context principle - only what's needed for agent's specific task
 ```
 
 **Anti-pattern 5: Silent failures**
+
 ```
 Bad: Agent fails → Proceed anyway, report success
 Good: Agent fails → Analyze → Retry or adjust → Report actual status

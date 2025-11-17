@@ -39,6 +39,7 @@ export GROQ_API_KEY=your_groq_key_here
 ```shell
 streamlit run cookbook/examples/streamlit_apps/paperpal/app.py
 ```
+
 ### Research Workflow
 
 1. **Topic Definition**: Enter your research topic or select from trending topics
@@ -50,7 +51,7 @@ streamlit run cookbook/examples/streamlit_apps/paperpal/app.py
 ### Supported Research Areas
 
 - **Artificial Intelligence & Machine Learning**
-- **Computer Science & Software Engineering** 
+- **Computer Science & Software Engineering**
 - **Data Science & Analytics**
 - **Emerging Technologies**
 - **Healthcare & Biotechnology**
@@ -58,11 +59,11 @@ streamlit run cookbook/examples/streamlit_apps/paperpal/app.py
 - **Cross-disciplinary Research**
 
 ### Research Configuration
+
 - **Academic Focus**: Enable ArXiv search for peer-reviewed papers
 - **Industry Focus**: Enable web search for current developments
 - **Comprehensive**: Use both sources for complete coverage
 - **Search Terms**: 2-3 terms for balanced coverage vs. speed
-
 
 ## 📚 Documentation
 

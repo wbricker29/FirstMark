@@ -1,8 +1,9 @@
 User Query:
 
 What are the size, growth and dynamics of the market that the company Quantera (quantera.io) operates in?
- 
+
 Parameters:
+
 * Reasoning Model: o3-mini
 * Main Model: gpt-4o-mini
 * Fast Model: gpt-4o-mini
@@ -41,11 +42,11 @@ In parallel, the **AI in asset management market** was valued at **$2.61 billion
 
 Several notable trends emerge as defining characteristics of the market that Quantera operates within:
 
-- **Mergers and Acquisitions (M&A)**: Analysts predict a rise in M&A activities within the FinTech space as companies seek to consolidate resources, increase operational efficiencies, and scale their technological capabilities.
+* **Mergers and Acquisitions (M&A)**: Analysts predict a rise in M&A activities within the FinTech space as companies seek to consolidate resources, increase operational efficiencies, and scale their technological capabilities.
 
-- **Generative AI Integration**: There is a sharp increase in interest in generative AI applications within investment research, indicating a shift towards utilizing AI not just for data analysis, but also for generating insights and automating client interactions [3].
+* **Generative AI Integration**: There is a sharp increase in interest in generative AI applications within investment research, indicating a shift towards utilizing AI not just for data analysis, but also for generating insights and automating client interactions [3].
 
-- **Sustainability**: The trend of sustainable investing continues to grow, driven by consumer awareness and regulatory pushes towards environmentally-friendly practices. This shift necessitates the integration of sustainability metrics into investment analysis, creating additional layers of data for platforms like Quantera to process.
+* **Sustainability**: The trend of sustainable investing continues to grow, driven by consumer awareness and regulatory pushes towards environmentally-friendly practices. This shift necessitates the integration of sustainability metrics into investment analysis, creating additional layers of data for platforms like Quantera to process.
 
 ### Investment Research Technology Trends
 
@@ -79,10 +80,10 @@ In summary, with a combination of technological prowess, strategic positioning, 
 
 ## References
 
-[1] https://explodingtopics.com/blog/fintech-market  
-[2] https://www.grandviewresearch.com/industry-analysis/artificial-intelligence-asset-management-market  
-[3] https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-top-trends-in-tech  
-[4] https://www.capgemini.com/insights/research-library/investment-trends-2025/  
-[5] https://medium.com/@guillemsague/what-is-the-tam-of-ai-in-the-investment-industry-43398d506ce7  
-[6] https://agencyanalytics.com/kpi-definitions/serviceable-obtainable-market  
-[7] https://agencyanalytics.com/kpi-definitions/serviceable-obtainable-market
+[1] <https://explodingtopics.com/blog/fintech-market>  
+[2] <https://www.grandviewresearch.com/industry-analysis/artificial-intelligence-asset-management-market>  
+[3] <https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-top-trends-in-tech>  
+[4] <https://www.capgemini.com/insights/research-library/investment-trends-2025/>  
+[5] <https://medium.com/@guillemsague/what-is-the-tam-of-ai-in-the-investment-industry-43398d506ce7>  
+[6] <https://agencyanalytics.com/kpi-definitions/serviceable-obtainable-market>  
+[7] <https://agencyanalytics.com/kpi-definitions/serviceable-obtainable-market>

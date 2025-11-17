@@ -48,4 +48,3 @@ python cookbook/models/deepseek/tool_use.py
 ```shell
 python cookbook/models/deepseek/structured_output.py
 ```
-

@@ -12,6 +12,7 @@ Recursively scrape web pages with concurrent processing, extracting clean text c
 ## When to Use This Skill
 
 Use this skill when users request:
+
 - Scraping content from websites
 - Downloading documentation from online sources
 - Extracting text from web pages at scale
@@ -30,6 +31,7 @@ pip install aiohttp beautifulsoup4 lxml aiofiles
 ```
 
 These libraries provide:
+
 - `aiohttp` - Async HTTP client for concurrent requests
 - `beautifulsoup4` - HTML parsing and content extraction
 - `lxml` - Fast HTML/XML parser
@@ -46,6 +48,7 @@ python scripts/scrape.py <URL> <output-directory> --depth 0
 ```
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://example.com/article output/
 ```
@@ -61,11 +64,13 @@ python scripts/scrape.py <URL> <output-directory> --depth <N>
 ```
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://docs.example.com output/ --depth 2
 ```
 
 Depth levels:
+
 - `--depth 0` - Only the start URL(s)
 - `--depth 1` - Start URLs + all links on those pages
 - `--depth 2` - Start URLs + links + links found on those linked pages
@@ -80,11 +85,13 @@ python scripts/scrape.py <URL> <output-directory> --depth 3 --max-pages 100
 ```
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://docs.example.com output/ --depth 3 --max-pages 50
 ```
 
 Useful for:
+
 - Testing scraper configuration before full run
 - Limiting resource usage
 - Sampling content from large sites
@@ -99,6 +106,7 @@ python scripts/scrape.py <URL> <output-directory> --concurrent <N>
 ```
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://docs.example.com output/ --depth 2 --concurrent 20
 ```
@@ -106,6 +114,7 @@ python scripts/scrape.py https://docs.example.com output/ --depth 2 --concurrent
 Default is 10 concurrent requests. Increase for faster scraping, decrease for more conservative resource usage.
 
 **Guidelines:**
+
 - Small sites or slow servers: `--concurrent 5`
 - Medium sites: `--concurrent 10` (default)
 - Large, fast sites: `--concurrent 20-30`
@@ -116,21 +125,25 @@ Default is 10 concurrent requests. Increase for faster scraping, decrease for mo
 By default, the scraper only follows links on the same domain as the start URL. This can be controlled:
 
 **Same domain only (default):**
+
 ```bash
 python scripts/scrape.py https://example.com output/ --depth 2
 ```
 
 **Follow external links:**
+
 ```bash
 python scripts/scrape.py https://example.com output/ --depth 2 --follow-external
 ```
 
 **Specify allowed domains:**
+
 ```bash
 python scripts/scrape.py https://example.com output/ --depth 2 --allowed-domains example.com docs.example.com blog.example.com
 ```
 
 Use `--allowed-domains` when:
+
 - Documentation is split across multiple subdomains
 - Content spans related domains
 - You want to limit to specific trusted domains
@@ -144,6 +157,7 @@ python scripts/scrape.py <URL1> <URL2> <URL3> <output-directory>
 ```
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://example.com/docs https://example.com/guides https://example.com/tutorials output/ --depth 2
 ```
@@ -159,10 +173,12 @@ python scripts/scrape.py <URL> <output-directory> --user-agent "MyBot/1.0" --tim
 ```
 
 **Options:**
+
 - `--user-agent` - Custom User-Agent header (default: "Mozilla/5.0 (compatible; WebScraper/1.0)")
 - `--timeout` - Request timeout in seconds (default: 30)
 
 **Example:**
+
 ```bash
 python scripts/scrape.py https://example.com output/ --depth 2 --user-agent "MyResearchBot/1.0 (+https://mysite.com/bot)" --timeout 45
 ```
@@ -176,6 +192,7 @@ python scripts/scrape.py <URL> <output-directory> --verbose
 ```
 
 Verbose mode shows:
+
 - Each URL being fetched
 - Successful saves with file paths
 - Errors and timeouts
@@ -264,6 +281,7 @@ The scraper extracts clean text content by:
 ### What Gets Filtered Out
 
 Common unwanted patterns automatically removed:
+
 - "Accept cookies" / "Reject all"
 - "Cookie settings"
 - "Privacy policy"
@@ -356,11 +374,13 @@ When users request web scraping:
 ## Quick Reference
 
 **Command structure:**
+
 ```bash
 python scripts/scrape.py <URL> [URL2 ...] <output-dir> [options]
 ```
 
 **Essential options:**
+
 - `-d, --depth N` - Maximum link depth (default: 2)
 - `-m, --max-pages N` - Maximum pages to scrape
 - `-c, --concurrent N` - Concurrent requests (default: 10)
@@ -371,6 +391,7 @@ python scripts/scrape.py <URL> [URL2 ...] <output-dir> [options]
 - `-t, --timeout` - Request timeout in seconds
 
 **Get full help:**
+
 ```bash
 python scripts/scrape.py --help
 ```

@@ -82,7 +82,7 @@ python cookbook/demo/run.py
 ### 7. Connect to the AgentOS UI
 
 - Open the web interface: [os.agno.com](https://os.agno.com/)
-- Connect to http://localhost:7777 to interact with the demo AgentOS.
+- Connect to <http://localhost:7777> to interact with the demo AgentOS.
 
 ---
 
@@ -90,5 +90,5 @@ python cookbook/demo/run.py
 
 Additional Resources
 
-📘 Documentation: https://docs.agno.com
-💬 Discord: https://agno.link/discord
+📘 Documentation: <https://docs.agno.com>
+💬 Discord: <https://agno.link/discord>

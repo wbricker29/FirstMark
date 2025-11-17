@@ -21,7 +21,7 @@
 The AIdev system organizes projects using a canonical directory structure:
 
 ```
-specs/
+spec/
 ├── constitution.md         # Project governance (non-negotiable)
 ├── PRD.md                 # Project requirements (unified document)
 └── units/###-SLUG/        # Per-feature directories
@@ -56,16 +56,16 @@ reports/
 
 Establish one authoritative location for each type of information:
 
-- **specs/PRD.md** — All project requirements
+- **spec/PRD.md** — All project requirements
   - Single unified document with standard sections (Problem, Outcomes, Success Metrics, Scope, Acceptance Criteria, Roadmap)
   - Links to unit directories for implementation details (reference-based, NOT duplicating content)
 
-- **specs/units/###-SLUG/design.md** — Stable architecture and design intent per feature
+- **spec/units/###-SLUG/design.md** — Stable architecture and design intent per feature
   - Architecture decisions, design rationale, dependencies
   - Maintains single source of truth for feature design
   - Can exceed 75 lines (stable reference document)
 
-- **specs/units/###-SLUG/plan.md** — Volatile task execution per feature
+- **spec/units/###-SLUG/plan.md** — Volatile task execution per feature
   - Task breakdown with checkboxes, priorities, estimates, evidence
   - YAML frontmatter for metadata
   - Should be ≤75 lines (archive completed tasks if exceeding)
@@ -91,7 +91,7 @@ PRD should link to unit directories for implementation details, not duplicate th
 
 Establish non-negotiable project principles:
 
-- **specs/constitution.md** contains core principles that guide all decisions
+- **spec/constitution.md** contains core principles that guide all decisions
 - Violations block progress at /plan, /work, /check commands
 - Updates require strong evidence (≥2 occurrences of violation patterns)
 - Constitution checks prevent drift from foundational decisions
@@ -145,10 +145,10 @@ Standard sections in a single unified document:
 
 **Reference-Based Maintenance:**
 
-- Link to `specs/units/###-SLUG/` directories for implementation details
+- Link to `spec/units/###-SLUG/` directories for implementation details
 - Do NOT duplicate content from design.md or plan.md
 - Use brief descriptions with links, not full summaries
-- Example: `Feature 014: Corpus Analytics ([design](specs/units/014-corpus-analytics-remediation/design.md) | [plan](specs/units/014-corpus-analytics-remediation/plan.md))`
+- Example: `Feature 014: Corpus Analytics ([design](spec/units/014-corpus-analytics-remediation/design.md) | [plan](spec/units/014-corpus-analytics-remediation/plan.md))`
 
 ### Expanded PRD Variant (Optional)
 
@@ -159,12 +159,14 @@ Some teams prefer a single PRD that also orients stakeholders with a concise, li
 - No task lists: Do not copy task breakdowns from plan.md into PRD.
 
 Allowed optional sections (link-first, concise):
+
 - Feature Inventory: One-line per feature table with columns like `ID | Name | Status Tag | Documentation`. Optional `Effort Range` and `Blocks Deployment?` columns are acceptable. No raw task lists.
 - Current Project State: A short narrative on phase/focus with explicit pointers to `.claude/logs/state.json` and `/status` for live metrics.
 - Critical Path: Bulleted blockers with links to the relevant unit `plan.md` and evidence reports.
 - Document Hierarchy: Brief orientation for new contributors showing how PRD, spec, design, and plan relate.
 
 Formatting and hygiene rules:
+
 - Percentages or counts shown in PRD must be noted as “derived from state.json” and include a date (e.g., “as of 2025-10-30”).
 - Keep each feature summary to one line; link to `design.md` and `plan.md` for depth.
 - Avoid duplicating acceptance criteria from unit docs; PRD maintains only project-level criteria.
@@ -218,7 +220,7 @@ Create foundational governance documents:
 
 ```
 /constitution
-  → specs/constitution.md (project governance, non-negotiable principles)
+  → spec/constitution.md (project governance, non-negotiable principles)
 ```
 
 Run once per project to establish baseline principles.
@@ -229,7 +231,7 @@ Define project strategy:
 
 ```
 /prd
-  → specs/PRD.md (project requirements, unified document)
+  → spec/PRD.md (project requirements, unified document)
 ```
 
 Run /prd once per project. Update iteratively as requirements evolve.
@@ -240,8 +242,8 @@ Plan, implement, and validate one feature at a time:
 
 ```
 /plan FEATURE_NAME
-  → specs/units/###-SLUG/design.md (stable architecture, constitution check)
-  → specs/units/###-SLUG/plan.md (task execution)
+  → spec/units/###-SLUG/design.md (stable architecture, constitution check)
+  → spec/units/###-SLUG/plan.md (task execution)
   → Validates against constitution.md (blocks if violated)
 
 /work NNN x.y
@@ -271,7 +273,7 @@ Before running /work NNN x.y, verify four critical conditions:
 
 Verify the task does not violate project governance:
 
-- Read specs/constitution.md
+- Read spec/constitution.md
 - Check if task aligns with core principles
 - /work command auto-checks this (blocks if violated)
 
@@ -279,7 +281,7 @@ Verify the task does not violate project governance:
 
 Verify dependencies are complete:
 
-- Read specs/units/###-SLUG/plan.md
+- Read spec/units/###-SLUG/plan.md
 - Check task's "Depends:" field in task list
 - Confirm all dependencies are marked complete [x]
 - /work command auto-checks this (fails if blocked)
@@ -296,7 +298,7 @@ Verify task scope is manageable:
 
 Verify task maps to project requirements:
 
-- Find task in specs/units/###-SLUG/plan.md
+- Find task in spec/units/###-SLUG/plan.md
 - Check "Depends:" for parent feature/task
 - Trace back to PRD feature description
 - Confirm task implements part of planned feature
@@ -318,7 +320,7 @@ Run after each file change:
 
 2. **state-tracker.py** (~1-2s)
    - Auto-update state.json with task progress
-   - Scans: specs/units/###-SLUG/plan.md checkboxes
+   - Scans: spec/units/###-SLUG/plan.md checkboxes
    - Updates: .claude/logs/state.json completion percentages
    - Never edit state.json manually
 
@@ -326,17 +328,17 @@ Run after each file change:
 
 Run once when Claude finishes:
 
-3. **test.sh** (~60-120s)
+1. **test.sh** (~60-120s)
    - Run full Vitest test suite
    - Disabled by default (ENABLE_TESTS=0)
    - Enable with: `export ENABLE_TESTS=1` before running Claude Code
 
-4. **git-commit.sh** (~2s)
+2. **git-commit.sh** (~2s)
    - Auto-commit when parent tasks complete
    - Enabled by default (ENABLE_AUTOCOMMIT=1)
    - Disable with: `export ENABLE_AUTOCOMMIT=0` before running Claude Code
 
-5. **notification**
+3. **notification**
    - Desktop notification (macOS/Linux only)
    - Alerts when tests/commits complete
    - Non-blocking (does not affect workflow)

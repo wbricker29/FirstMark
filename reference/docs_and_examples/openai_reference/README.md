@@ -24,6 +24,7 @@ openai_reference/
 ## How to Use
 
 ### 1. Deep Research API Integration
+
 Use patterns from `deep_research_api/` when calling OpenAI's Deep Research API from Agno agents:
 
 ```python
@@ -44,13 +45,17 @@ def deep_research_candidate(candidate_name: str) -> dict:
 ```
 
 ### 2. Research Workflow Patterns
+
 Reference `research_patterns/oaisdk_research_bot/` for:
+
 - Breaking research into planning → execution → synthesis
 - Prompt engineering for high-quality research outputs
 - Structured output schemas (Pydantic models)
 
 ### 3. GPT-5 Prompting
+
 See `guides/gpt-5-1_prompting_guide.ipynb` for:
+
 - Best practices with GPT-5
 - Reasoning and structured outputs
 - Cost optimization strategies

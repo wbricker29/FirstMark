@@ -12,6 +12,7 @@ Volatile task breakdown and verification plan
 ## Tasks
 
 ### TK-01
+
 - **Title:** [Task title]
 - **Description:** [Detailed description of what needs to be done]
 - **Status:** ready
@@ -21,6 +22,7 @@ Volatile task breakdown and verification plan
 - **Completed:** null
 
 ### TK-02
+
 - **Title:** [Another task]
 - **Description:** [Description]
 - **Status:** ready
@@ -30,6 +32,7 @@ Volatile task breakdown and verification plan
 - **Completed:** null
 
 ### TK-03
+
 - **Title:** [Final task]
 - **Description:** [Description]
 - **Status:** ready

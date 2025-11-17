@@ -27,17 +27,20 @@ Last Updated: 2025-11-16
 ### Core Stack
 
 **Database & UI:**
+
 - **Airtable** - Primary data storage and user interface
   - Rationale: Meet FirstMark in their existing stack, rapid development
   - Trade-off: Less flexibility vs. faster adoption
 
 **Backend:**
+
 - **Python 3.11+** - Primary language for all logic
 - **Flask** - Lightweight webhook server
 - **ngrok** - Tunnel for local demo (production would use cloud hosting)
 
 **LLM & AI:**
-- **Framework:** Agno (https://docs.agno.com)
+
+- **Framework:** Agno (<https://docs.agno.com>)
   - Rationale: Modern agent framework, good observability, structured outputs
   - Alternative considered: LangGraph (more complex), OpenAI SDK (less structure)
 - **Primary Model:** GPT-5 (gpt-5-1)
@@ -51,11 +54,13 @@ Last Updated: 2025-11-16
   - Rationale: Fast, reliable web search
 
 **APIs & Integrations:**
+
 - **pyairtable** - Airtable Python SDK
 - **openai** - OpenAI Python SDK
 - **tavily-python** - Tavily search SDK (optional)
 
 **Development Tools:**
+
 - **python-dotenv** - Environment variable management
 - **pydantic** - Data validation and structured outputs
 - **requests** - HTTP client for webhooks
@@ -213,6 +218,7 @@ gm_002,CTO Guild,exec_002,Michael Torres,Stripe,stripe.com,CTO,CTO,C-Level,San F
 ```
 
 **Fields:**
+
 - `guild_member_id` (string) - Unique row ID
 - `guild_name` (string) - e.g., "CTO Guild", "CFO Guild"
 - `exec_id` (string) - Stable ID used across all tables
@@ -237,6 +243,7 @@ exec_015,Jennifer Wu,CFO,Notion,notion.com,CFO,Finance,San Francisco,Growth,B2B 
 ```
 
 **Fields:**
+
 - `exec_id` (string) - Primary key (matches Mock_Guilds.csv)
 - `exec_name` (string)
 - `current_title` (string) - Raw title
@@ -296,6 +303,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** All executives in the system (guild members, network, candidates)
 
 **Fields:**
+
 - `person_id` (Auto-number, Primary Key)
 - `exec_id` (Single line text) - External stable ID
 - `name` (Single line text) - Full name
@@ -319,6 +327,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** All companies (portfolio and external)
 
 **Fields:**
+
 - `company_id` (Auto-number, Primary Key)
 - `name` (Single line text)
 - `domain` (Single line text) - e.g., "airtable.com"
@@ -334,6 +343,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** Subset of Companies that are FirstMark portfolio
 
 **Fields:**
+
 - `portco_id` (Auto-number, Primary Key)
 - `company` (Link to Companies table)
 - `stage` (Single select) - Series A, B, C, D, Growth
@@ -349,6 +359,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** All open roles at portfolio companies
 
 **Fields:**
+
 - `role_id` (Auto-number, Primary Key)
 - `portco` (Link to Portcos table)
 - `role_type` (Single select) - CFO, CTO, CPO, CRO, CMO, COO
@@ -364,6 +375,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** Standardized evaluation frameworks for roles
 
 **Fields:**
+
 - `spec_id` (Auto-number, Primary Key)
 - `name` (Single line text) - e.g., "Series B CFO - B2B SaaS"
 - `role_type` (Single select) - CFO, CTO, CPO, etc.
@@ -374,6 +386,7 @@ from $30M to $100M ARR. The ideal candidate has:
 - `searches` (Link to Searches table) - Searches using this spec
 
 **Dimensions JSON Structure:**
+
 ```json
 {
   "dimensions": [
@@ -404,6 +417,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** Active executive searches FirstMark is assisting with
 
 **Fields:**
+
 - `search_id` (Auto-number, Primary Key)
 - `role` (Link to Portco Roles table)
 - `role_spec` (Link to Role Specs table)
@@ -420,6 +434,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** Batch screening runs for a search
 
 **Fields:**
+
 - `screen_id` (Auto-number, Primary Key)
 - `search` (Link to Searches table)
 - `candidates` (Link to People table, multiple) - Who to evaluate
@@ -435,6 +450,7 @@ from $30M to $100M ARR. The ideal candidate has:
 **Purpose:** Individual candidate research + assessment runs (audit trail)
 
 **Fields:**
+
 - `workflow_id` (Auto-number, Primary Key)
 - `screen` (Link to Screens table)
 - `candidate` (Link to People table)
@@ -498,6 +514,7 @@ def load_to_airtable(records: List[Dict], table_name: str):
 ```
 
 **Demo Scope:**
+
 - ✅ Basic CSV parsing
 - ✅ Field normalization
 - ✅ Simple deduplication by ID
@@ -589,6 +606,7 @@ response = openai.beta.deep_research.create(
 ```
 
 **Demo Scope:**
+
 - ✅ OpenAI Deep Research API integration
 - ✅ Structured research prompts
 - ✅ Citation extraction and storage
@@ -700,6 +718,7 @@ assessment = assessment_agent.run(
 ```
 
 **Demo Scope:**
+
 - ✅ GPT-5 with Agno framework
 - ✅ Structured outputs (Pydantic models)
 - ✅ Dimension-level scoring
@@ -952,6 +971,7 @@ Body:
 **Filter:** `Search = [specific search]` AND `Status = Complete`
 **Sort:** `assessment_overall_score` DESC
 **Fields Shown:**
+
 - Candidate (linked)
 - Overall Score
 - Confidence
@@ -964,6 +984,7 @@ Body:
 **Table:** Workflows
 **Layout:** Expanded record view
 **Sections:**
+
 - Candidate Info
 - Research Summary + Citations
 - Assessment Scores (all dimensions)
@@ -976,10 +997,13 @@ Body:
 **Table:** Searches
 **Filter:** `Status = Active`
 **Fields:**
+
 - Role (linked)
 - Priority
 - Status
+
 - # Candidates Screened
+
 - Top 3 Candidates (linked, sorted by score)
 - Last Updated
 
@@ -992,6 +1016,7 @@ Body:
 A Role Spec defines **what "good" looks like** for a specific role type at a specific company stage/context.
 
 **Components:**
+
 1. **Dimensions** - Key evaluation criteria (typically 4-6)
 2. **Weights** - Relative importance of each dimension (sum to 1.0)
 3. **Scales** - Definition of scores 1-5 for each dimension
@@ -1146,6 +1171,7 @@ A Role Spec defines **what "good" looks like** for a specific role type at a spe
 ### Customization Process
 
 **Option 1: Start from Template**
+
 1. Select base template (CFO or CTO)
 2. Adjust weights based on role specifics
 3. Modify scale definitions for company context
@@ -1153,12 +1179,14 @@ A Role Spec defines **what "good" looks like** for a specific role type at a spe
 5. Add custom notes
 
 **Option 2: Generate with AI** (Future enhancement)
+
 1. Input: Job description + company context
 2. LLM generates draft spec based on templates
 3. Human reviews and edits
 4. Saves as custom spec
 
 **Option 3: Manual Creation**
+
 1. Define 4-6 dimensions
 2. Set weights (sum to 1.0)
 3. Write scale definitions for each dimension
@@ -1167,6 +1195,7 @@ A Role Spec defines **what "good" looks like** for a specific role type at a spe
 ### Usage in Assessment
 
 When assessing a candidate:
+
 1. Load role spec dimensions and weights
 2. For each dimension:
    - LLM scores 1-5 based on scale definition
@@ -1211,17 +1240,20 @@ When assessing a candidate:
 ### Confidence Levels
 
 **High Confidence:**
+
 - Direct evidence from multiple sources
 - Clear, specific information
 - Consistent across sources
 - Recent and relevant
 
 **Medium Confidence:**
+
 - Some direct evidence, some inference
 - Limited sources or older information
 - Reasonable extrapolation from related experience
 
 **Low Confidence:**
+
 - Minimal direct evidence
 - Significant inference required
 - Conflicting information
@@ -1232,6 +1264,7 @@ When assessing a candidate:
 **Purpose:** Help humans understand what's missing for a perfect score
 
 **Template:**
+
 ```
 For this candidate to achieve a 5.0 on [Dimension X], we would need to see:
 1. [Specific evidence type 1]
@@ -1242,6 +1275,7 @@ Current gap: [What's missing or weak]
 ```
 
 **Example:**
+
 ```
 For this candidate to achieve a 5.0 on International Operations, we would need to see:
 1. Direct experience managing finance across 5+ countries including complex markets (China, Brazil, etc.)
@@ -1254,6 +1288,7 @@ Current gap: Limited to US + basic EMEA. No evidence of APAC or complex regulato
 ### Red Flags & Gaps
 
 **Red Flags:**
+
 - Inconsistencies in timeline or role descriptions
 - Short tenures at multiple companies (without clear explanation)
 - Gaps in employment
@@ -1261,6 +1296,7 @@ Current gap: Limited to US + basic EMEA. No evidence of APAC or complex regulato
 - Evidence of poor judgment or ethics
 
 **Gaps:**
+
 - Missing critical information
 - Areas where research couldn't find evidence
 - Dimensions where confidence is low
@@ -1450,27 +1486,32 @@ if __name__ == "__main__":
 ### Running the Demo
 
 **Terminal 1: Start Flask Server**
+
 ```bash
 python webhook_server.py
 ```
 
 **Terminal 2: Start ngrok**
+
 ```bash
 ngrok http 5000
 ```
 
 **Terminal 3: Load Mock Data (one-time)**
+
 ```bash
 python -m src.ingestion
 ```
 
 **In Airtable:**
+
 1. Configure automation with ngrok URL
 2. Create Screen record
 3. Link Search and Candidates
 4. Click "Start Screening" or change Status to "Ready"
 
 **Monitor Progress:**
+
 - Watch Terminal 1 for real-time logs
 - Refresh Airtable to see results populate
 
@@ -1480,7 +1521,7 @@ python -m src.ingestion
 
 ### OpenAI Deep Research API
 
-**Documentation:** https://platform.openai.com/docs/api-reference/deep-research
+**Documentation:** <https://platform.openai.com/docs/api-reference/deep-research>
 
 **Example Call:**
 
@@ -1563,7 +1604,7 @@ assessment = completion.choices[0].message.parsed
 
 ### Tavily Search API
 
-**Documentation:** https://docs.tavily.com
+**Documentation:** <https://docs.tavily.com>
 
 **Example Call:**
 
@@ -1596,7 +1637,7 @@ response = tavily.search(
 
 ### Airtable API (via pyairtable)
 
-**Documentation:** https://pyairtable.readthedocs.io
+**Documentation:** <https://pyairtable.readthedocs.io>
 
 **Example Operations:**
 
@@ -1642,6 +1683,7 @@ records = table.batch_create([
 ### Demo Scope & Limitations
 
 **What Works:**
+
 - ✅ End-to-end workflow from data ingestion to ranked output
 - ✅ Real OpenAI Deep Research API integration
 - ✅ Structured assessment with GPT-5
@@ -1651,6 +1693,7 @@ records = table.batch_create([
 - ✅ Markdown exports
 
 **What's Simplified:**
+
 - ⚠️ Enrichment is stubbed (mock Apollo data)
 - ⚠️ Limited error handling and retry logic
 - ⚠️ No deduplication or entity resolution
@@ -1660,6 +1703,7 @@ records = table.batch_create([
 - ⚠️ Local hosting (ngrok, not production)
 
 **What's Conceptual:**
+
 - 📋 Centralized data platform
 - 📋 Affinity integration
 - 📋 Historical candidate profiles
@@ -1670,18 +1714,21 @@ records = table.batch_create([
 ### Future Enhancements (Tier 2 MVP)
 
 **Data Quality:**
+
 - Real enrichment via Apollo or Harmonic
 - Fuzzy matching for deduplication
 - Entity resolution across sources
 - Data validation and cleansing
 
 **Assessment Quality:**
+
 - Multi-model consensus (GPT-5 + Claude + others)
 - Human calibration loop
 - Historical assessment quality tracking
 - A/B testing of assessment prompts
 
 **Infrastructure:**
+
 - Production hosting (Render, Railway, or AWS)
 - Queue system for async processing (Celery + Redis)
 - Rate limiting and retry logic
@@ -1689,12 +1736,14 @@ records = table.batch_create([
 - Monitoring and alerting (Sentry, DataDog)
 
 **User Experience:**
+
 - Better Airtable interface design
 - Email notifications for completed screenings
 - Export to Google Sheets or Notion
 - Bulk operations and batch processing
 
 **Extensibility:**
+
 - Plugin architecture for new research sources
 - Customizable assessment frameworks
 - Multi-use case support (founders, LPs, etc.)
@@ -1707,6 +1756,7 @@ records = table.batch_create([
 ### Mock Companies (Portcos)
 
 **Pigment:**
+
 - Stage: Series B
 - Sector: B2B SaaS
 - Description: Business planning platform for enterprise finance teams
@@ -1714,6 +1764,7 @@ records = table.batch_create([
 - Open Role: CFO
 
 **Mockingbird:**
+
 - Stage: Series A
 - Sector: Consumer DTC
 - Description: Direct-to-consumer premium kitchenware brand
@@ -1721,6 +1772,7 @@ records = table.batch_create([
 - Open Role: CFO
 
 **Synthesia:**
+
 - Stage: Series C
 - Sector: AI/ML SaaS
 - Description: AI video generation platform
@@ -1728,6 +1780,7 @@ records = table.batch_create([
 - Open Role: CTO
 
 **Estuary:**
+
 - Stage: Series A
 - Sector: Data Infrastructure
 - Description: Real-time data integration and CDC platform
@@ -1739,22 +1792,26 @@ records = table.batch_create([
 **Target: 15-20 candidates total**
 
 **CFO Candidates (10):**
+
 - 3 strong fits (scores 4.0-4.5)
 - 4 moderate fits (scores 3.0-3.9)
 - 3 weak fits (scores 2.0-2.9)
 
 **CTO Candidates (10):**
+
 - 3 strong fits (scores 4.0-4.5)
 - 4 moderate fits (scores 3.0-3.9)
 - 3 weak fits (scores 2.0-2.9)
 
 **Diversity:**
+
 - Mix of guild members and network connections
 - Range of company stages (Series A to Public)
 - Various sectors (B2B SaaS, Consumer, Fintech, etc.)
 - Geographic diversity (US-focused, some international)
 
 **Edge Cases:**
+
 - 2-3 candidates who look very similar on paper but differ in key dimensions
 - 1-2 candidates with incomplete LinkedIn profiles (test research limitations)
 - 1 candidate with potential red flags (short tenures, unclear gaps)
@@ -1764,6 +1821,7 @@ records = table.batch_create([
 **See data/job_descriptions/ for full text**
 
 Each JD should include:
+
 - Company context and stage
 - Role overview and key responsibilities
 - Required experience and qualifications

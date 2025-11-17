@@ -49,6 +49,7 @@ team.print_response("What are the latest trends in AI?")
 Teams organized by functionality and use case.
 
 ### Core Functionality
+
 - **[basic_flows/](./basic_flows/)** - Basic team coordination patterns and flows
 - **[async_flows/](./async_flows/)** - Asynchronous team execution with `arun` method
 - **[streaming/](./streaming/)** - Real-time response streaming and event handling
@@ -57,6 +58,7 @@ Teams organized by functionality and use case.
 - **[other/](./other/)** - Input formats, response handling, and basic operations
 
 ### Knowledge, Memory and Sessions
+
 - **[knowledge/](./knowledge/)** - Teams with shared knowledge bases
 - **[memory/](./memory/)** - Persistent memory management across interactions
 - **[session/](./session/)** - Session management and persistence
@@ -64,12 +66,14 @@ Teams organized by functionality and use case.
 - **[dependencies/](./dependencies/)** - Runtime dependency injection and context management
 
 ### Advanced Patterns
+
 - **[distributed_rag/](./distributed_rag/)** - Distributed retrieval-augmented generation
 - **[search_coordination/](./search_coordination/)** - Coordinated search across agents and sources
 - **[reasoning/](./reasoning/)** - Multi-agent reasoning and analysis
 - **[multimodal/](./multimodal/)** - Teams handling text, images, audio, and video
 
 ### Operations
+
 - **[metrics/](./metrics/)** - Team performance monitoring and metrics collection
 - **[hooks/](./hooks/)** - Pre and post-processing hooks for input/output
 - **[guardrails/](./guardrails/)** - Safety guardrails (moderation, PII, prompt injection)

@@ -72,7 +72,7 @@ Edit `ag-ui/typescript-sdk/apps/dojo/src/agents.ts` and update the Agno agent UR
 },
 ```
 
-4. You can now go to http://localhost:3000 in your browser and chat with your Agno Agent. The agent will be available as one of the available options.
+1. You can now go to <http://localhost:3000> in your browser and chat with your Agno Agent. The agent will be available as one of the available options.
 
 ## Examples
 
@@ -85,5 +85,6 @@ Check out these example agents and teams:
 - **[Structured Output](./structured_output.py)** - Agent with structured response formats
 
 **Environment Variables:**
+
 - `AGNO_URL=http://localhost:9001` - Point Dojo to your agent
 - `OPENAI_API_KEY=your_key` - Required for OpenAI models

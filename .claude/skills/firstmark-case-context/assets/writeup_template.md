@@ -17,6 +17,7 @@
 [2-3 sentences describing your agent design at a high level. What approach did you take and why does it fit this specific use case?]
 
 **Key Assumptions:**
+
 - [Assumption 1 about data availability, quality, or workflow]
 - [Assumption 2 about user needs or constraints]
 - [Assumption 3 about technical feasibility or scope]
@@ -28,17 +29,20 @@
 ### Data Integration Approach
 
 **Structured Data:**
+
 - `mock_guilds.csv` - [What this provides and how you use it]
 - `exec_network.csv` - [What this provides and how you use it]
 - `open_roles.csv` - [What this provides and how you use it]
 
 **Unstructured Data:**
+
 - `executive_bios.json` - [What this provides and how you use it]
 - `job_descriptions/` - [What this provides and how you use it]
 
 ### Technical Architecture
 
 [Option 1: Describe in text]
+
 ```
 1. Data Ingestion → [What happens here]
 2. Candidate Filtering → [What happens here]
@@ -48,6 +52,7 @@
 ```
 
 [Option 2: Include simple diagram using Mermaid or ASCII]
+
 ```
 CSV Data ──┐
            ├──> Data Loader ──> [Next Step] ──> [Final Step]
@@ -83,18 +88,22 @@ JSON Data ─┘
 ### What Would Change in Production
 
 **Data Integration:**
+
 - [How you'd connect to real data sources - Affinity CRM, LinkedIn API, etc.]
 - [Data quality and normalization pipelines]
 
 **Scalability:**
+
 - [How you'd handle 100s or 1000s of candidates]
 - [Performance optimizations needed]
 
 **User Experience:**
+
 - [How talent team would interact with this (UI, API, Slack bot, etc.)]
 - [Feedback loops and iteration]
 
 **Monitoring & Improvement:**
+
 - [How you'd measure success]
 - [How you'd improve matches over time]
 

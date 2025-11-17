@@ -12,7 +12,7 @@ This guide will help you set up and configure the Slack API integration for your
 
 ### 1. Create a Slack App
 
-1. Go to the Slack App Directory (https://api.slack.com/apps)
+1. Go to the Slack App Directory (<https://api.slack.com/apps>)
 2. Click "Create New App"
 3. Select "From scratch"
 4. Give your app a name and select a workspace
@@ -39,7 +39,6 @@ This guide will help you set up and configure the Slack API integration for your
 
 You'll have to repeat this step if you change any scopes/permissions.
 
-
 ### 4. Configure Environment Variables
 
 Save the following credentials as environment variables:
@@ -50,22 +49,25 @@ export SLACK_SIGNING_SECRET="your-signing-secret"  # App Signing Secret
 ```
 
 You can find these values in your Slack App settings:
+
 - Bot User OAuth Token: Under "OAuth & Permissions"
 - Signing Secret: Under "Basic Information" > "App Credentials"
 
 ### 5 Run Ngrok
+
    1. For local testing with Agno's SlackApp and agents, we recommend using ngrok to create a secure tunnel to your local server. It is also easier if you get a static url from ngrok.
    2. Run ngrok:
+
    ```bash
    ngrok http --url=your-url.ngrok-free.app http://localhost:7777
    ```
-   3. Run your app locally with `python <my-app>.py`
-   4. Subscribe to the following events:
+
+   1. Run your app locally with `python <my-app>.py`
+   2. Subscribe to the following events:
       - `app_mention`
       - `message.im`
       - `message.channels`
       - `message.groups`
-
 
 ### 6. Configure Event Subscriptions
 
@@ -85,7 +87,6 @@ To allow users to send messages to the bot:
 3. Check "Allow users to send Slash commands and messages from the messages tab"
 4. Reinstall the app to apply changes
 
-
 ## Testing the Integration
 
 1. Start your application locally with `python <my-app>.py` (ensure ngrok is running)
@@ -102,4 +103,4 @@ To allow users to send messages to the bot:
 
 ## Support
 
-If you encounter any issues, please check the Slack API documentation or open an issue in the repository. 
+If you encounter any issues, please check the Slack API documentation or open an issue in the repository.

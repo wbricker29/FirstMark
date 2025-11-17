@@ -10,6 +10,7 @@ Non-negotiable principles guiding all development
 ## Principles
 
 ### Sufficiency over assumptions
+
 - **Rule:** Ask questions early rather than fill gaps with guesses
 - **Rationale:** Reduces rework, ensures alignment with actual requirements
 - **Examples:**
@@ -17,6 +18,7 @@ Non-negotiable principles guiding all development
   - When encountering conflicting information, surface it immediately
 
 ### [Principle Name]
+
 - **Rule:** [Specific, enforceable requirement]
 - **Rationale:** [Why this matters]
 - **Examples:**
@@ -35,15 +37,18 @@ Non-negotiable principles guiding all development
 ## Constraints
 
 ### Runtime
+
 - Python 3.11+
 - [Other runtime requirements]
 
 ### Security
+
 - All user input must be validated via schemas
 - No secrets in code or logs
 - [Other security requirements]
 
 ### Dependencies
+
 - Minimize external dependencies
 - All dependencies must be pinned
 - [Other dependency rules]

@@ -75,10 +75,10 @@ Content is automatically adapted for:
 - **🌍 History & Culture**: Historical events and cultural analysis
 - **💻 Technology & Programming**: Technical concepts with hands-on examples
 
-
 ## 💡 Usage Examples
 
 ### Basic Learning Session
+
 ```python
 # Ask about any topic
 "Explain quantum physics for high school students"
@@ -87,6 +87,7 @@ Content is automatically adapted for:
 ```
 
 ### Interactive Learning
+
 ```python
 # Request specific learning structures
 "Create a complete learning module about the Renaissance with practice questions"
@@ -95,12 +96,14 @@ Content is automatically adapted for:
 ```
 
 ### Assessment & Practice
+
 ```python
 # Generate practice materials
 "Create a practice quiz on what we just learned"
 "Give me word problems for algebra practice" 
 "Test my understanding of the periodic table"
 ```
+
 ## 📚 Documentation
 
 For more detailed information:

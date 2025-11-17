@@ -12,8 +12,9 @@ Volatile task breakdown and verification plan for Python unit
 ## Tasks
 
 ### TK-01
+
 - **Title:** Set up module structure and type stubs
-- **Description:** Create Python module files, __init__.py, and type stubs. Set up basic imports and exports.
+- **Description:** Create Python module files, **init**.py, and type stubs. Set up basic imports and exports.
 - **Status:** ready
 - **Priority:** high
 - **Estimate:** 1h
@@ -21,6 +22,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-02
+
 - **Title:** Implement core parsing logic
 - **Description:** Implement the main parse_csv function with CSV.DictReader. Handle file opening, encoding, and basic parsing.
 - **Status:** ready
@@ -30,6 +32,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-03
+
 - **Title:** Add input validation
 - **Description:** Add validation for file_path (exists, readable) and encoding (valid encoding name). Raise appropriate exceptions.
 - **Status:** ready
@@ -39,6 +42,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-04
+
 - **Title:** Implement schema validation
 - **Description:** Add optional schema validation logic using Pydantic or custom validation. Handle validation errors gracefully.
 - **Status:** ready
@@ -48,6 +52,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-05
+
 - **Title:** Write unit tests
 - **Description:** Write comprehensive pytest tests for all functions. Use fixtures for test CSV files. Test happy paths and edge cases. Aim for 90%+ coverage.
 - **Status:** ready
@@ -57,6 +62,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-06
+
 - **Title:** Add type hints and docstrings
 - **Description:** Ensure all functions have complete type hints. Add Google-style docstrings with Args, Returns, Raises sections.
 - **Status:** ready
@@ -66,6 +72,7 @@ Volatile task breakdown and verification plan for Python unit
 - **Completed:** null
 
 ### TK-07
+
 - **Title:** Performance optimization
 - **Description:** Profile CSV parsing performance. Implement streaming for large files using generators. Ensure memory usage stays under 50MB.
 - **Status:** ready
@@ -117,6 +124,7 @@ Volatile task breakdown and verification plan for Python unit
 ## Python-Specific Notes
 
 ### Package Structure
+
 ```
 src/
 ├── package_name/
@@ -138,6 +146,7 @@ tests/
 ```
 
 ### Test Fixtures Example
+
 ```python
 import pytest
 from pathlib import Path
@@ -162,6 +171,7 @@ def empty_csv_file(tmp_path: Path) -> Path:
 ```
 
 ### Type Hints Example
+
 ```python
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -177,6 +187,7 @@ def parse_csv(
 ```
 
 ### Performance Profiling
+
 ```bash
 # Profile with py-spy
 uv run py-spy record -o profile.svg -- python -m package_name.parsers.csv_parser

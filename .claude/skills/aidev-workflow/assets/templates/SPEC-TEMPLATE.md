@@ -17,11 +17,13 @@ Technical contract between product and implementation
 ### Modules
 
 #### [module_name]
+
 - **Responsibility:** [What this module does]
 - **Dependencies:** [other_module]
 - **Location:** [File path or package]
 
 #### [another_module]
+
 - **Responsibility:** [Responsibility]
 - **Dependencies:** None
 - **Location:** [Location]
@@ -36,30 +38,38 @@ Technical contract between product and implementation
 ## Interfaces
 
 ### [interface_name]
+
 - **Module:** [module_name]
 - **Description:** [What this interface does]
 
 #### Inputs
+
 - **[param_name]** ([type]): [Description] - Constraints: [e.g., non-empty, positive, etc.]
 
 #### Outputs
+
 - **[return_name]** ([type]): [Description]
 
 #### Errors
+
 - [ErrorType: when it occurs]
 - [AnotherError: condition]
 
 #### Preconditions
+
 - [Condition that must be true before calling]
 
 #### Postconditions
+
 - [Condition guaranteed true after successful call]
 
 ### [another_interface]
+
 - **Module:** [module_name]
 - **Description:** [Description]
 
 #### Outputs
+
 - **[result]** ([type]): [Description]
 
 ## Data Model
@@ -69,10 +79,12 @@ Technical contract between product and implementation
 **Description:** [What this entity represents]
 
 #### Fields
+
 - **[field_name]** ([type]): [Field purpose] - Constraints: [e.g., unique, non-null, max length]
 - **[another_field]** ([type]): [Description] - Constraints: [constraints]
 
 #### Relationships
+
 - [Relationship to other entities]
 
 ### Entity: [AnotherEntity]
@@ -80,22 +92,27 @@ Technical contract between product and implementation
 **Description:** [Description]
 
 #### Fields
+
 - **[field]** ([type]): [Description] - Constraints: [constraints]
 
 ## Non-Functional Requirements
 
 ### Performance
+
 - **Requirement:** [e.g., API endpoints respond in <200ms p95]
 - **Measurement:** [How to verify]
 
 ### Reliability
+
 - **Requirement:** [e.g., 99.9% uptime]
 - **Measurement:** [How to track]
 
 ### Observability
+
 - **Requirement:** [e.g., All errors logged with context]
 - **Measurement:** [Logging strategy]
 
 ### Security
+
 - **Requirement:** [e.g., All inputs validated]
 - **Measurement:** [How to verify]

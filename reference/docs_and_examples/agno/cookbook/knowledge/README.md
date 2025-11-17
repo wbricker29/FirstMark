@@ -62,6 +62,7 @@ agent.print_response("What can you tell me about Thai recipes?")
 Add docs, manuals, and databases so agents can search and cite specific sources instead of guessing.
 
 ### Basic Operations
+
 - **[from_path.py](./basic_operations/from_path.py)** - Add content from local files
 - **[from_url.py](./basic_operations/from_url.py)** - Add content from URLs  
 - **[from_multiple.py](./basic_operations/from_multiple.py)** - Add multiple sources
@@ -69,6 +70,7 @@ Add docs, manuals, and databases so agents can search and cite specific sources 
 - **[async_speedup.py](./basic_operations/async_speedup.py)** - Async processing for performance
 
 ### Other Topics
+
 - **[chunking/](./chunking/)** - Text chunking strategies
 - **[embedders/](./embedders/)** - Embedding model providers  
 - **[filters/](./filters/)** - Content filtering and access control

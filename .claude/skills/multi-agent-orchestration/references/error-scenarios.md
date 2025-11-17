@@ -5,6 +5,7 @@
 This reference provides a comprehensive catalog of errors encountered during multi-agent orchestrations, with structured resolution protocols, prevention strategies, and communication templates.
 
 Each error includes:
+
 - **Error code**: Unique identifier (ORG-001 through ORG-008)
 - **Symptoms**: How to detect the error
 - **Root causes**: Why the error occurs
@@ -33,20 +34,23 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 ## ORG-001: Missing Project Context
 
 ### Error Code
+
 `ORG-001: Missing Project Context`
 
 ### Symptoms
 
 **How to detect:**
-- Cannot locate expected documentation files (constitution.md, specs/, etc.)
+
+- Cannot locate expected documentation files (constitution.md, spec/, etc.)
 - Agent asks questions that should be answered by project docs
 - Agent produces work that violates project standards (unknown to orchestration)
 - References to standards or conventions fail (file not found)
 - User mentions "project follows X pattern" but no documentation found
 
 **Example symptoms:**
+
 ```
-- Error reading specs/constitution.md: File not found
+- Error reading spec/constitution.md: File not found
 - Agent asks: "What naming conventions should I use?"
 - Agent produces camelCase when project uses snake_case
 - Cannot validate against quality standards (no standards document)
@@ -55,6 +59,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 ### Root Causes
 
 **Why this occurs:**
+
 1. **New project**: Project doesn't have established documentation yet
 2. **Documentation missing**: Expected files deleted or never created
 3. **Wrong directory**: Orchestration running in wrong directory
@@ -62,6 +67,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 5. **Incomplete setup**: Project partially initialized
 
 **Common scenarios:**
+
 - Fresh repository without constitution/specs
 - Developer deleted docs thinking they were unnecessary
 - Working in subdirectory instead of project root
@@ -72,17 +78,19 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 **Step-by-step fix:**
 
 1. **Confirm missing context:**
+
    ```
-   Bash("ls specs/constitution.md") → File not found
+   Bash("ls spec/constitution.md") → File not found
    Bash("ls .claude/") → Directory exists
    Bash("pwd") → Verify current directory
    ```
 
 2. **Identify what's missing:**
+
    ```
    Critical:
-   - specs/constitution.md (project principles, quality standards)
-   - specs/spec.md (project specification)
+   - spec/constitution.md (project principles, quality standards)
+   - spec/spec.md (project specification)
 
    Optional:
    - Project-specific guidelines
@@ -91,8 +99,9 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
 3. **Present options to user:**
+
    ```
-   "Project context missing. Required file not found: specs/constitution.md
+   "Project context missing. Required file not found: spec/constitution.md
 
    This file should contain project principles, quality standards, and
    development guidelines.
@@ -116,6 +125,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 4. **Execute user choice:**
 
    **If option (a):**
+
    ```
    Pause current orchestration.
    Run /constitution command.
@@ -124,6 +134,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
    **If option (b):**
+
    ```
    Document assumption: "Proceeding with general best practices
                          (KISS, YAGNI, quality-first)"
@@ -132,6 +143,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
    **If option (c):**
+
    ```
    Collect standards from user.
    Document in conversation context.
@@ -140,6 +152,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
 5. **Resume orchestration:**
+
    ```
    With resolved context (constitution or general standards),
    proceed with planning phase using available standards.
@@ -150,10 +163,11 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 **How to avoid:**
 
 1. **Pre-flight context check:**
+
    ```
    Before starting any orchestration, verify:
-   ✅ specs/constitution.md exists
-   ✅ specs/spec.md exists (if project-specific)
+   ✅ spec/constitution.md exists
+   ✅ spec/spec.md exists (if project-specific)
    ✅ .claude/ directory present
    ✅ Running in project root directory
 
@@ -161,6 +175,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
 2. **Constitution as prerequisite:**
+
    ```
    For projects without constitution:
    - Suggest creating constitution first
@@ -169,6 +184,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
 3. **Graceful degradation:**
+
    ```
    If context missing:
    - Use general principles explicitly
@@ -177,6 +193,7 @@ Use this reference to quickly diagnose and resolve orchestration issues.
    ```
 
 4. **Directory validation:**
+
    ```
    At orchestration start:
    Bash("git rev-parse --show-toplevel")
@@ -186,10 +203,11 @@ Use this reference to quickly diagnose and resolve orchestration issues.
 ### User Communication Template
 
 **Initial detection:**
+
 ```
 ⚠️  Missing Project Context
 
-Required documentation not found: specs/constitution.md
+Required documentation not found: spec/constitution.md
 
 This file defines project principles, quality standards, and development
 guidelines. Without it, I'll need to make assumptions about project standards.
@@ -203,6 +221,7 @@ Which option works best for you?
 ```
 
 **After resolution:**
+
 ```
 Context resolved: [Using constitution.md / Using general standards]
 Proceeding with orchestration.
@@ -211,17 +230,20 @@ Proceeding with orchestration.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - File temporarily missing (can be created)
 - Wrong directory (can navigate to correct location)
 - File moved (can locate alternate location)
 
 **Escalate to user when:**
+
 - Missing context is critical and cannot be inferred
 - User input needed to create context
 - Multiple context files missing (systematic issue)
 - Unclear what standards to apply
 
 **Abort orchestration when:**
+
 - User declines to provide context
 - Context requirements cannot be met
 - Project structure fundamentally incompatible
@@ -231,11 +253,13 @@ Proceeding with orchestration.
 ## ORG-002: Ambiguous Requirements
 
 ### Error Code
+
 `ORG-002: Ambiguous Requirements`
 
 ### Symptoms
 
 **How to detect:**
+
 - User request has multiple valid interpretations
 - Critical details missing from request (scope, constraints, deliverables)
 - Agent asks clarifying questions during execution (should've been answered earlier)
@@ -243,6 +267,7 @@ Proceeding with orchestration.
 - Requirements conflict with each other
 
 **Example symptoms:**
+
 ```
 User: "Optimize the search feature"
 Ambiguities:
@@ -261,6 +286,7 @@ Ambiguities:
 ### Root Causes
 
 **Why this occurs:**
+
 1. **Vague user request**: High-level request without specifics
 2. **Assumed context**: User assumes shared understanding
 3. **Missing constraints**: No explicit boundaries or limitations
@@ -268,6 +294,7 @@ Ambiguities:
 5. **Multiple valid paths**: Several approaches possible, unclear which to take
 
 **Common scenarios:**
+
 - "Improve X" (improve how?)
 - "Fix the bug" (which bug, where?)
 - "Refactor the code" (which code, refactor how?)
@@ -278,6 +305,7 @@ Ambiguities:
 **Step-by-step fix:**
 
 1. **Identify specific ambiguities:**
+
    ```
    Parse user request, identify unclear aspects:
    - Scope: What exactly to modify?
@@ -288,6 +316,7 @@ Ambiguities:
    ```
 
 2. **Categorize ambiguities:**
+
    ```
    Critical (must resolve before planning):
    - Scope boundaries
@@ -305,6 +334,7 @@ Ambiguities:
    ```
 
 3. **Formulate clarifying questions:**
+
    ```
    Structure questions as:
    - Specific and focused (one aspect per question)
@@ -320,6 +350,7 @@ Ambiguities:
    ```
 
 4. **Present questions to user:**
+
    ```
    Template:
    "To plan the orchestration effectively, I need clarification on:
@@ -336,6 +367,7 @@ Ambiguities:
    ```
 
 5. **Collect user responses:**
+
    ```
    Wait for user responses.
    Incorporate into requirements understanding.
@@ -343,6 +375,7 @@ Ambiguities:
    ```
 
 6. **Verify understanding:**
+
    ```
    "Based on your responses, here's my understanding:
    - Scope: [Clarified scope]
@@ -354,6 +387,7 @@ Ambiguities:
    ```
 
 7. **Proceed to planning:**
+
    ```
    With clarified requirements, proceed to Phase 2 (planning).
    Use clarified requirements in agent briefings.
@@ -364,6 +398,7 @@ Ambiguities:
 **How to avoid:**
 
 1. **Requirement checklist during analysis:**
+
    ```
    Before planning, verify all are clear:
    ✅ Scope: Exactly what to modify (files, components, features)
@@ -377,6 +412,7 @@ Ambiguities:
    ```
 
 2. **Proactive questioning:**
+
    ```
    Don't wait for ambiguity to block progress.
    During Phase 1 (analysis), proactively ask about:
@@ -387,6 +423,7 @@ Ambiguities:
    ```
 
 3. **Clarify vague requests immediately:**
+
    ```
    User: "Optimize the API"
 
@@ -401,6 +438,7 @@ Ambiguities:
    ```
 
 4. **Provide examples to disambiguate:**
+
    ```
    "When you say 'improve search', here are some interpretations:
 
@@ -425,6 +463,7 @@ Ambiguities:
 ### User Communication Template
 
 **Initial detection:**
+
 ```
 ⚠️  Requirements Need Clarification
 
@@ -446,6 +485,7 @@ Once these are clarified, I can design a detailed multi-agent plan.
 ```
 
 **After clarification:**
+
 ```
 ✅ Requirements Clarified
 
@@ -459,6 +499,7 @@ Proceeding to create orchestration plan with these requirements.
 ```
 
 **If user provides partial clarification:**
+
 ```
 Thanks for clarifying [aspect]. I still need clarification on:
 - [Remaining ambiguity]: [Question]
@@ -469,17 +510,20 @@ This is needed to ensure the orchestration meets your expectations.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - Minor details unclear (can make reasonable assumptions)
 - User provides partial clarification (ask remaining questions)
 - Ambiguity can be resolved with examples/options
 
 **Escalate to user when:**
+
 - Critical scope/requirements unclear
 - Multiple valid interpretations exist
 - User intent is ambiguous
 - Assumptions would be risky
 
 **Abort orchestration when:**
+
 - User cannot or will not clarify
 - Requirements remain fundamentally unclear
 - Multiple escalation attempts unsuccessful
@@ -489,11 +533,13 @@ This is needed to ensure the orchestration meets your expectations.
 ## ORG-003: Sub-Agent Failure
 
 ### Error Code
+
 `ORG-003: Sub-Agent Failure`
 
 ### Symptoms
 
 **How to detect:**
+
 - Agent reports error or exception during execution
 - Agent produces no output or incomplete output
 - Agent exceeds time estimate significantly (>2x)
@@ -502,6 +548,7 @@ This is needed to ensure the orchestration meets your expectations.
 - Agent reports "cannot complete task"
 
 **Example symptoms:**
+
 ```
 Agent A (task-implementor): Error: "Cannot resolve module path"
 Agent B (systematic-debugger): Incomplete output (analysis only, no fix)
@@ -515,6 +562,7 @@ Agent E (Explore): Asks same clarifying question 3 times
 **Why this occurs:**
 
 **Category A: Scope Issues**
+
 1. **Scope too large**: Agent overwhelmed by task size
 2. **Scope too vague**: Agent doesn't understand what to do
 3. **Scope mismatch**: Agent type wrong for task
@@ -539,6 +587,7 @@ Agent E (Explore): Asks same clarifying question 3 times
 **Step-by-step fix:**
 
 1. **Analyze failure:**
+
    ```
    Identify failure type:
    - Error message? (technical failure)
@@ -549,6 +598,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 2. **Determine root cause:**
+
    ```
    Scope issues:
      - Read agent brief → Was scope clear and bounded?
@@ -570,6 +620,7 @@ Agent E (Explore): Asks same clarifying question 3 times
 3. **Choose resolution strategy:**
 
    **Strategy A: Adjust and retry (same agent type, modified brief)**
+
    ```
    Use when:
    - Root cause is fixable (scope adjustment, context correction)
@@ -584,6 +635,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
    **Strategy B: Split and redeploy (break into smaller agents)**
+
    ```
    Use when:
    - Scope too large for single agent
@@ -597,6 +649,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
    **Strategy C: Change agent type**
+
    ```
    Use when:
    - Wrong agent type for task
@@ -610,6 +663,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
    **Strategy D: Manual intervention**
+
    ```
    Use when:
    - Issue is trivial (<5 min fix)
@@ -623,6 +677,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
    **Strategy E: Escalate to user**
+
    ```
    Use when:
    - Multiple retries failed
@@ -637,6 +692,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 4. **Execute resolution:**
+
    ```
    Implement chosen strategy.
    Document resolution attempt.
@@ -645,6 +701,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 5. **Update orchestration state:**
+
    ```
    If resolved:
      - Mark agent as complete
@@ -662,6 +719,7 @@ Agent E (Explore): Asks same clarifying question 3 times
 **How to avoid:**
 
 1. **Scope validation before deployment:**
+
    ```
    Before deploying agent, verify:
    ✅ Scope is specific and bounded (1-2 sentences)
@@ -674,6 +732,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 2. **Clear agent briefings:**
+
    ```
    Every agent brief must include:
    ✅ Specific scope (exactly what to do)
@@ -687,6 +746,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 3. **Context budget checks:**
+
    ```
    Before deploying each agent:
    - Estimate token usage (files to read + brief + tools)
@@ -696,6 +756,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 4. **Right-size agent scopes:**
+
    ```
    Agent scope should be:
    - Completable in 15-30 minutes
@@ -707,6 +768,7 @@ Agent E (Explore): Asks same clarifying question 3 times
    ```
 
 5. **Pre-deployment validation:**
+
    ```
    Run pre-flight check:
    - Verify dependencies exist (files, tools)
@@ -720,6 +782,7 @@ Agent E (Explore): Asks same clarifying question 3 times
 ### User Communication Template
 
 **Initial failure:**
+
 ```
 ⚠️  Agent Failure: [Agent ID] ([Agent Type])
 
@@ -732,6 +795,7 @@ Analyzing failure...
 ```
 
 **After analysis (propose resolution):**
+
 ```
 Failure Analysis Complete
 
@@ -750,6 +814,7 @@ Proceeding with resolution? (y/n)
 ```
 
 **After successful resolution:**
+
 ```
 ✅ Agent Failure Resolved
 
@@ -761,6 +826,7 @@ Status: Continuing orchestration
 ```
 
 **If escalation needed:**
+
 ```
 ❌ Unable to Resolve Agent Failure
 
@@ -786,18 +852,21 @@ Which option would you like to pursue?
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Root cause identified and fixable
 - ✅ Retry likely to succeed (>70% confidence)
 - ✅ Retry count < 3 attempts
 - ✅ Adjustment is straightforward
 
 **Escalate to user when:**
+
 - ❌ 3 retry attempts exhausted
 - ❌ Root cause unclear or unfixable
 - ❌ Requires user decision (design choice, priority)
 - ❌ Fundamental issue (missing dependency, design flaw)
 
 **Abort orchestration when:**
+
 - ❌ Critical agent fails repeatedly
 - ❌ Failure invalidates entire orchestration
 - ❌ User requests cancellation
@@ -808,11 +877,13 @@ Which option would you like to pursue?
 ## ORG-004: Context Overflow
 
 ### Error Code
+
 `ORG-004: Context Overflow`
 
 ### Symptoms
 
 **How to detect:**
+
 - Agent reports "approaching context limit" or "token limit exceeded"
 - Agent slows significantly (processing large context)
 - Agent output truncated or incomplete
@@ -820,6 +891,7 @@ Which option would you like to pursue?
 - Warning from scripts/check_context_bounds.py
 
 **Example symptoms:**
+
 ```
 Agent A: Warning: "Context usage 185k/200k tokens (92%)"
 Agent B: Error: "Cannot load file - context limit exceeded"
@@ -830,6 +902,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 ### Root Causes
 
 **Why this occurs:**
+
 1. **Too many files loaded**: Agent brief includes many large files
 2. **Large file content**: Individual files very large (>10k lines)
 3. **Redundant context**: Same information loaded multiple times
@@ -837,6 +910,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 5. **Parallel agents**: Multiple agents deployed simultaneously (context multiplier)
 
 **Common scenarios:**
+
 - Agent asked to read entire codebase
 - Multiple agents loading same large files
 - Long sequential pipeline with context accumulation
@@ -848,6 +922,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 **Step-by-step fix:**
 
 1. **Assess context usage:**
+
    ```
    Run context check:
    Bash("python scripts/check_context_bounds.py --phase 3")
@@ -858,6 +933,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 2. **Identify context sources:**
+
    ```
    Break down token usage:
    - Agent briefs: [X]k tokens
@@ -871,6 +947,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 3. **Choose reduction strategy:**
 
    **Strategy A: Reduce file context (most common)**
+
    ```
    Instead of: "Read entire file"
    Use: "Read lines 50-150 (focus on function X)"
@@ -885,6 +962,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
    **Strategy B: Split into smaller agents**
+
    ```
    Instead of: 1 agent with large scope
    Use: 2-3 agents with focused scopes
@@ -896,6 +974,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
    **Strategy C: Sequential instead of parallel**
+
    ```
    Instead of: Deploy 5 agents in parallel
    Use: Deploy 2-3 agents at a time (waves)
@@ -907,6 +986,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
    **Strategy D: Remove optional context**
+
    ```
    Instead of: Loading reference docs + specs + examples
    Use: Loading only specs (essentials)
@@ -918,6 +998,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
    **Strategy E: Use smaller model**
+
    ```
    Instead of: Sonnet for all agents
    Use: Haiku for simple agents, Sonnet for complex
@@ -932,6 +1013,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 4. **Implement reduction:**
+
    ```
    Apply chosen strategy:
    - Modify agent briefs with reduced context
@@ -940,6 +1022,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 5. **Validate reduction:**
+
    ```
    After reduction:
    - Check token usage < 150k (safe buffer)
@@ -948,6 +1031,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 6. **Resume orchestration:**
+
    ```
    With reduced context, continue execution.
    Monitor token usage for remaining agents.
@@ -959,6 +1043,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 **How to avoid:**
 
 1. **Pre-flight context budget:**
+
    ```
    Before starting orchestration:
    - Estimate total token usage (all agents)
@@ -967,6 +1052,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 2. **Minimal context principle:**
+
    ```
    For every agent brief, ask:
    "Does agent NEED this file or is it nice-to-have?"
@@ -983,6 +1069,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 3. **Use file excerpts:**
+
    ```
    Instead of: "Read lib/large-file.ts"
    Use: "Read lib/large-file.ts (lines 100-250, focus on function processData)"
@@ -994,6 +1081,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 4. **Limit parallel agents:**
+
    ```
    Parallel agents multiply context usage:
    - 1 agent with 40k context = 40k total
@@ -1006,6 +1094,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 5. **Progressive context loading:**
+
    ```
    Start with minimal context:
    - Core files only
@@ -1018,6 +1107,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
    ```
 
 6. **Regular context checks:**
+
    ```
    During orchestration:
    - Check token usage after each agent deployment
@@ -1029,6 +1119,7 @@ scripts/check_context_bounds.py: "CRITICAL: 195k tokens used, 5k remaining"
 ### User Communication Template
 
 **Warning (approaching limit):**
+
 ```
 ⚠️  Context Budget Warning
 
@@ -1055,6 +1146,7 @@ Proceed with reduction? (y/n)
 ```
 
 **Critical (exceeded limit):**
+
 ```
 ❌ Context Limit Exceeded
 
@@ -1084,6 +1176,7 @@ Which option do you prefer?
 ```
 
 **After resolution:**
+
 ```
 ✅ Context Overflow Resolved
 
@@ -1097,16 +1190,19 @@ Continuing orchestration with reduced context.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Context reduction straightforward (remove files, use excerpts)
 - ✅ Agent scope can be split easily
 - ✅ Alternative deployment strategy available (sequential vs parallel)
 
 **Escalate to user when:**
+
 - ❌ Reduction requires scope changes (affects deliverables)
 - ❌ Multiple reduction strategies needed (user should choose)
 - ❌ Context overflow persists after reduction attempts
 
 **Abort orchestration when:**
+
 - ❌ Cannot reduce context sufficiently
 - ❌ Scope too large for available context budget
 - ❌ Need to redesign entire orchestration
@@ -1116,11 +1212,13 @@ Continuing orchestration with reduced context.
 ## ORG-005: Validation Failure
 
 ### Error Code
+
 `ORG-005: Validation Failure`
 
 ### Symptoms
 
 **How to detect:**
+
 - Tests fail after agent completes work
 - Linting errors in agent output
 - Type checking fails
@@ -1130,6 +1228,7 @@ Continuing orchestration with reduced context.
 - Custom validation fails (performance benchmarks, integration tests)
 
 **Example symptoms:**
+
 ```
 Bash("pnpm test") → 5 tests failing
 Bash("pnpm lint") → 12 linting errors
@@ -1143,6 +1242,7 @@ Bash("pnpm build") → Build failed with compilation errors
 **Why this occurs:**
 
 **Category A: Agent Quality Issues**
+
 1. **Agent didn't run validation**: Agent completed without testing
 2. **Agent introduced bugs**: Implementation incorrect
 3. **Agent broke existing code**: Unintended side effects
@@ -1166,6 +1266,7 @@ Bash("pnpm build") → Build failed with compilation errors
 **Step-by-step fix:**
 
 1. **Identify validation failures:**
+
    ```
    Run all validation gates:
    Bash("pnpm format:check") → Check formatting
@@ -1178,6 +1279,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 2. **Analyze failure severity:**
+
    ```
    Trivial (quick fixes):
    - Formatting issues (auto-fixable)
@@ -1198,6 +1300,7 @@ Bash("pnpm build") → Build failed with compilation errors
 3. **Choose resolution strategy:**
 
    **Strategy A: Auto-fix (for trivial issues)**
+
    ```
    Use when:
    - Formatting issues
@@ -1210,6 +1313,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
    **Strategy B: Manual fix (for moderate issues)**
+
    ```
    Use when:
    - Quick fixes (<5 minutes)
@@ -1224,6 +1328,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
    **Strategy C: Redeploy agent (for severe issues)**
+
    ```
    Use when:
    - Multiple related failures
@@ -1240,6 +1345,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
    **Strategy D: Deploy corrective agent (for complex issues)**
+
    ```
    Use when:
    - Validation failures require new agent expertise
@@ -1253,6 +1359,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 4. **Implement resolution:**
+
    ```
    Execute chosen strategy.
    Document fixes made.
@@ -1260,6 +1367,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 5. **Re-validate:**
+
    ```
    After fix, run all validation gates again:
    Bash("pnpm format:check && pnpm lint && pnpm type-check && pnpm test")
@@ -1274,6 +1382,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 6. **Document resolution:**
+
    ```
    Note in synthesis report:
    "Agent [ID] output required validation fixes:
@@ -1287,6 +1396,7 @@ Bash("pnpm build") → Build failed with compilation errors
 **How to avoid:**
 
 1. **Validate validation in agent briefs:**
+
    ```
    Every agent brief should include:
 
@@ -1302,6 +1412,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 2. **Set clear quality standards:**
+
    ```
    In agent briefs, specify:
    - Code must be formatted per project style
@@ -1313,6 +1424,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 3. **Emphasize testing:**
+
    ```
    For code-producing agents:
    "CRITICAL: Write tests for all new functionality.
@@ -1322,6 +1434,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 4. **Validation as acceptance criteria:**
+
    ```
    In orchestration planning phase:
    "Validation gates (all must pass):
@@ -1332,6 +1445,7 @@ Bash("pnpm build") → Build failed with compilation errors
    ```
 
 5. **Use validation-focused agents:**
+
    ```
    If quality issues persist:
    - Add principle-evaluator agent (validates KISS/YAGNI/Quality)
@@ -1342,6 +1456,7 @@ Bash("pnpm build") → Build failed with compilation errors
 ### User Communication Template
 
 **Validation failure detected:**
+
 ```
 ⚠️  Validation Failure
 
@@ -1358,6 +1473,7 @@ Analyzing failures...
 ```
 
 **After analysis (propose resolution):**
+
 ```
 Failure Analysis Complete
 
@@ -1375,6 +1491,7 @@ Proceeding with fix.
 ```
 
 **After successful resolution:**
+
 ```
 ✅ Validation Failures Resolved
 
@@ -1393,6 +1510,7 @@ Continuing orchestration.
 ```
 
 **If resolution fails:**
+
 ```
 ❌ Unable to Resolve Validation Failures
 
@@ -1415,17 +1533,20 @@ Which option do you prefer?
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Trivial fixes (auto-fixable)
 - ✅ Clear fix path (<5 min manual fix)
 - ✅ Moderate issues with known solution
 
 **Escalate to user when:**
+
 - ❌ Severe failures persisting after 2 fix attempts
 - ❌ Unclear how to fix (requires design decision)
 - ❌ Fixes introduce new failures (whack-a-mole)
 - ❌ Fundamental implementation issues
 
 **Abort orchestration when:**
+
 - ❌ Validation failures indicate agent produced unusable work
 - ❌ Multiple agents failing validation systematically
 - ❌ Cannot meet quality standards within reasonable effort
@@ -1435,11 +1556,13 @@ Which option do you prefer?
 ## ORG-006: Synthesis Conflicts
 
 ### Error Code
+
 `ORG-006: Synthesis Conflicts`
 
 ### Symptoms
 
 **How to detect:**
+
 - Multiple agents modified same file in conflicting ways
 - Duplicate type definitions from different agents
 - Conflicting imports or exports
@@ -1448,6 +1571,7 @@ Which option do you prefer?
 - Integration failures after combining agent work
 
 **Example symptoms:**
+
 ```
 Agent A: Created interface User { id: string; name: string; }
 Agent B: Created interface User { id: number; email: string; }
@@ -1465,6 +1589,7 @@ Agent F: Used pattern Y (promises/then)
 ### Root Causes
 
 **Why this occurs:**
+
 1. **Failed independence validation**: Parallel agents not actually independent
 2. **Insufficient coordination**: Agents lacked clear boundaries
 3. **Overlapping scopes**: Agent scopes not properly delineated
@@ -1472,6 +1597,7 @@ Agent F: Used pattern Y (promises/then)
 5. **Missing integration planning**: Didn't anticipate integration issues
 
 **Common scenarios:**
+
 - Parallel agents both updating shared configuration
 - Multiple agents creating types with same names
 - Agents using different coding patterns for similar tasks
@@ -1482,6 +1608,7 @@ Agent F: Used pattern Y (promises/then)
 **Step-by-step fix:**
 
 1. **Detect conflicts:**
+
    ```
    After parallel agents complete:
    - Check for duplicate files/types (Grep for exports)
@@ -1491,6 +1618,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 2. **Categorize conflicts:**
+
    ```
    Type A: File-level conflicts (same file modified by multiple agents)
    Type B: Type-level conflicts (duplicate type names)
@@ -1500,6 +1628,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 3. **Assess conflict severity:**
+
    ```
    Trivial (easy to merge):
    - Non-overlapping sections of same file
@@ -1520,6 +1649,7 @@ Agent F: Used pattern Y (promises/then)
 4. **Choose resolution strategy:**
 
    **Strategy A: Manual merge (for trivial conflicts)**
+
    ```
    Use when:
    - Changes are compatible
@@ -1534,6 +1664,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
    **Strategy B: Deploy resolution agent (for moderate conflicts)**
+
    ```
    Use when:
    - Multiple conflicts to resolve
@@ -1549,6 +1680,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
    **Strategy C: Prioritize one agent (when incompatible)**
+
    ```
    Use when:
    - Implementations are mutually exclusive
@@ -1563,6 +1695,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
    **Strategy D: Redesign and redeploy (for severe conflicts)**
+
    ```
    Use when:
    - Conflicts indicate fundamental design issue
@@ -1577,6 +1710,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 5. **Implement resolution:**
+
    ```
    Execute chosen strategy.
    Document resolution decisions.
@@ -1584,6 +1718,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 6. **Update orchestration state:**
+
    ```
    Document in synthesis report:
    "Synthesis conflicts detected between Agent [X] and Agent [Y]:
@@ -1597,6 +1732,7 @@ Agent F: Used pattern Y (promises/then)
 **How to avoid:**
 
 1. **Strict independence validation:**
+
    ```
    Before deploying parallel agents, verify:
    ✅ Each agent modifies DIFFERENT files
@@ -1609,6 +1745,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 2. **Pre-define shared interfaces:**
+
    ```
    If multiple agents need shared types:
    - Define types BEFORE deploying agents
@@ -1617,6 +1754,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 3. **Clear scope boundaries:**
+
    ```
    In agent briefs, specify explicitly:
    "Your scope:
@@ -1628,6 +1766,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 4. **File-level ownership:**
+
    ```
    Assign files to specific agents:
    Agent A: Owns components/A/
@@ -1640,6 +1779,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 5. **Integration agent for shared resources:**
+
    ```
    Pattern:
    Wave 1: Parallel agents (independent scopes)
@@ -1653,6 +1793,7 @@ Agent F: Used pattern Y (promises/then)
    ```
 
 6. **Pattern consistency enforcement:**
+
    ```
    In orchestration planning:
    - Define coding patterns for agents to follow
@@ -1668,6 +1809,7 @@ Agent F: Used pattern Y (promises/then)
 ### User Communication Template
 
 **Conflict detected:**
+
 ```
 ⚠️  Synthesis Conflicts Detected
 
@@ -1686,6 +1828,7 @@ Analyzing conflicts and determining resolution strategy...
 ```
 
 **After analysis (propose resolution):**
+
 ```
 Conflict Analysis Complete
 
@@ -1705,6 +1848,7 @@ Proceed with resolution? (y/n)
 ```
 
 **If user choice needed:**
+
 ```
 Conflict Resolution: User Decision Required
 
@@ -1730,6 +1874,7 @@ Which option do you prefer?
 ```
 
 **After resolution:**
+
 ```
 ✅ Synthesis Conflicts Resolved
 
@@ -1750,16 +1895,19 @@ Continuing orchestration.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Trivial conflicts (non-overlapping sections)
 - ✅ Clear merge strategy
 - ✅ Manual merge is straightforward
 
 **Escalate to user when:**
+
 - ❌ Incompatible implementations (user must choose)
 - ❌ Design decision required (architectural choice)
 - ❌ Multiple resolution attempts failed
 
 **Abort orchestration when:**
+
 - ❌ Conflicts indicate fundamental design flaw
 - ❌ Resolution would produce brittle/hacky code
 - ❌ Better to revert and restart with better planning
@@ -1769,11 +1917,13 @@ Continuing orchestration.
 ## ORG-007: Integration Issues
 
 ### Error Code
+
 `ORG-007: Integration Issues`
 
 ### Symptoms
 
 **How to detect:**
+
 - Agent outputs work individually but fail when integrated
 - Integration tests fail
 - Missing integration code (routing, imports, exports)
@@ -1782,6 +1932,7 @@ Continuing orchestration.
 - Incomplete feature end-to-end
 
 **Example symptoms:**
+
 ```
 Agent A created feature module → ✅ Works in isolation
 Agent B created API endpoint → ✅ Works in isolation
@@ -1797,6 +1948,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 ### Root Causes
 
 **Why this occurs:**
+
 1. **Missing integration agent**: No agent responsible for connecting pieces
 2. **Incomplete planning**: Integration not considered during planning
 3. **Agents too isolated**: Each agent worked independently, no communication
@@ -1804,6 +1956,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 5. **Interface mismatches**: Agents made incompatible assumptions
 
 **Common scenarios:**
+
 - Created components but didn't add to routing
 - Created API but didn't connect UI to call it
 - Created utilities but didn't export from index
@@ -1814,6 +1967,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 **Step-by-step fix:**
 
 1. **Identify integration gaps:**
+
    ```
    Review agent deliverables:
    - List all components created
@@ -1823,6 +1977,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 2. **Categorize integration issues:**
+
    ```
    Type A: Missing imports/exports
      - Module created but not exported
@@ -1848,6 +2003,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 3. **Choose resolution strategy:**
 
    **Strategy A: Deploy integration agent (recommended)**
+
    ```
    Use when:
    - Multiple integration points needed
@@ -1868,6 +2024,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
    **Strategy B: Manual integration (for simple cases)**
+
    ```
    Use when:
    - Few integration points (<5)
@@ -1882,6 +2039,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
    **Strategy C: Extend existing agents (if minor gaps)**
+
    ```
    Use when:
    - Agent almost integrated but missed one step
@@ -1895,6 +2053,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 4. **Implement resolution:**
+
    ```
    Execute chosen strategy.
    Document integration work.
@@ -1902,6 +2061,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 5. **Run integration validation:**
+
    ```
    After integration:
    - Run integration tests (if available)
@@ -1911,6 +2071,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 6. **Update documentation:**
+
    ```
    Document integration in synthesis report:
    "Integration work performed:
@@ -1925,6 +2086,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 **How to avoid:**
 
 1. **Plan integration during Phase 2:**
+
    ```
    During orchestration planning, explicitly identify:
    ✅ Integration agent needed? (yes, if >2 components)
@@ -1936,6 +2098,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 2. **Include integration in agent scopes:**
+
    ```
    In agent briefs, include integration requirements:
 
@@ -1950,6 +2113,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 3. **Use integration agent pattern:**
+
    ```
    Standard pattern for multi-component orchestrations:
 
@@ -1969,6 +2133,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 4. **Integration checklist in briefs:**
+
    ```
    For any agent creating user-facing components:
 
@@ -1981,6 +2146,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
    ```
 
 5. **End-to-end validation:**
+
    ```
    During validation phase (Phase 4):
    - Don't just test units in isolation
@@ -1994,6 +2160,7 @@ Tests: Unit tests pass ✅, Integration tests fail ❌
 ### User Communication Template
 
 **Integration issue detected:**
+
 ```
 ⚠️  Integration Issue Detected
 
@@ -2011,6 +2178,7 @@ Determining resolution strategy...
 ```
 
 **Propose resolution:**
+
 ```
 Integration Resolution Plan
 
@@ -2027,6 +2195,7 @@ Proceed with integration? (y/n)
 ```
 
 **After resolution:**
+
 ```
 ✅ Integration Complete
 
@@ -2046,16 +2215,19 @@ All components now fully integrated and functional.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Integration gaps identified and fixable
 - ✅ Clear path to resolution
 - ✅ Integration agent can handle it
 
 **Escalate to user when:**
+
 - ❌ Integration requirements unclear
 - ❌ Design decision needed (how to integrate)
 - ❌ Multiple integration attempts failed
 
 **Abort orchestration when:**
+
 - ❌ Components fundamentally incompatible
 - ❌ Integration not feasible without redesign
 - ❌ Better to restart with integration-aware planning
@@ -2065,11 +2237,13 @@ All components now fully integrated and functional.
 ## ORG-008: Performance Issues
 
 ### Error Code
+
 `ORG-008: Performance Issues`
 
 ### Symptoms
 
 **How to detect:**
+
 - Agent takes much longer than estimated (>2x time)
 - Orchestration overall very slow
 - Multiple agents timeout
@@ -2078,6 +2252,7 @@ All components now fully integrated and functional.
 - Repeated work (agents doing same tasks)
 
 **Example symptoms:**
+
 ```
 Agent A: Estimated 20 min, took 65 min
 Agent B: Estimated 15 min, took 45 min
@@ -2091,6 +2266,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 ### Root Causes
 
 **Why this occurs:**
+
 1. **Scope too large**: Individual agents doing too much
 2. **Inefficient approach**: Poor task decomposition
 3. **Redundant work**: Multiple agents doing same analysis
@@ -2099,6 +2275,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 6. **Agent exploration**: Agents exploring too broadly
 
 **Common scenarios:**
+
 - Single agent refactoring 50 files (should be split)
 - 3 agents each analyzing entire codebase (redundant)
 - Sequential pipeline when waves could be parallel
@@ -2109,6 +2286,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 **Step-by-step fix:**
 
 1. **Identify performance bottleneck:**
+
    ```
    Analyze time spent:
    - Which agents took longest?
@@ -2118,6 +2296,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 2. **Categorize performance issue:**
+
    ```
    Type A: Agent scope too large
      - Single agent doing work that should be split
@@ -2138,6 +2317,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 3. **Choose optimization strategy:**
 
    **Strategy A: Split large agents (most common)**
+
    ```
    Use when:
    - Agent scope too large (>45 minutes)
@@ -2152,6 +2332,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
    **Strategy B: Parallelize more aggressively**
+
    ```
    Use when:
    - Sequential execution but tasks are independent
@@ -2166,6 +2347,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
    **Strategy C: Eliminate redundant work**
+
    ```
    Use when:
    - Multiple agents doing same analysis
@@ -2180,6 +2362,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
    **Strategy D: Optimize context loading**
+
    ```
    Use when:
    - Large files loaded repeatedly
@@ -2193,6 +2376,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
    **Strategy E: Focus agent scopes**
+
    ```
    Use when:
    - Agents exploring too broadly
@@ -2206,6 +2390,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 4. **Implement optimization:**
+
    ```
    Apply chosen strategy to remaining agents.
    If already in progress:
@@ -2220,6 +2405,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 5. **Monitor performance:**
+
    ```
    After optimization:
    - Track agent completion times
@@ -2233,6 +2419,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 **How to avoid:**
 
 1. **Right-size agent scopes:**
+
    ```
    During planning, verify:
    ✅ Each agent: 15-30 minute estimate
@@ -2244,6 +2431,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 2. **Maximize parallelization:**
+
    ```
    During planning:
    - Identify all independent tasks
@@ -2254,6 +2442,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 3. **Avoid redundant work:**
+
    ```
    Pattern:
    If multiple agents need same information:
@@ -2266,6 +2455,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 4. **Optimize context from start:**
+
    ```
    In agent briefs:
    - Load only essential files
@@ -2279,6 +2469,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 5. **Use Explore agent efficiently:**
+
    ```
    If codebase exploration needed:
    - Deploy single Explore agent first
@@ -2290,6 +2481,7 @@ Multiple agents: Each profiling same codebase (redundant work)
    ```
 
 6. **Realistic time estimates:**
+
    ```
    Estimate agent time realistically:
    - Simple task (read 1 file, simple change): 10-15 min
@@ -2304,6 +2496,7 @@ Multiple agents: Each profiling same codebase (redundant work)
 ### User Communication Template
 
 **Performance issue detected:**
+
 ```
 ⚠️  Performance Issue Detected
 
@@ -2313,6 +2506,7 @@ Analyzing performance bottleneck...
 ```
 
 **After analysis:**
+
 ```
 Performance Analysis
 
@@ -2335,6 +2529,7 @@ Apply optimization to remaining agents? (y/n)
 ```
 
 **If major redesign needed:**
+
 ```
 ⚠️  Orchestration Performance Poor
 
@@ -2361,6 +2556,7 @@ Which option do you prefer?
 ```
 
 **After optimization:**
+
 ```
 ✅ Performance Optimized
 
@@ -2378,16 +2574,19 @@ Continuing orchestration with optimized approach.
 ### Escalation Criteria
 
 **Retry without escalation when:**
+
 - ✅ Optimization strategy clear (split agents, parallelize, etc.)
 - ✅ Performance issue isolated (doesn't affect entire orchestration)
 - ✅ Optimization can be applied to remaining work
 
 **Escalate to user when:**
+
 - ❌ Major redesign needed (abort and restart decision)
 - ❌ Performance unacceptable even with optimization
 - ❌ User should choose between speed and scope
 
 **Abort orchestration when:**
+
 - ❌ Performance makes orchestration impractical (>4 hours total)
 - ❌ Better to redesign entirely with performance in mind
 - ❌ User requests cancellation due to time
@@ -2416,22 +2615,26 @@ Use this quick reference to jump to specific error documentation:
 ### Detecting Errors Early
 
 **Phase 1 (Analysis) Warning Signs:**
+
 - Requirements unclear after initial review → **ORG-002 likely**
 - Cannot locate expected documentation → **ORG-001 likely**
 - Scope estimate >2 hours → **ORG-008 likely** (too large)
 
 **Phase 2 (Planning) Warning Signs:**
+
 - Parallel agents modifying same files → **ORG-006 likely**
 - Agent scopes vague or overlapping → **ORG-003 likely**
 - Estimated token usage >150k → **ORG-004 likely**
 - No integration agent in multi-component plan → **ORG-007 likely**
 
 **Phase 3 (Execution) Warning Signs:**
+
 - Agent running >2x estimate → **ORG-003 or ORG-008**
 - Agent asking clarifying questions → **ORG-002** (should've been resolved in Phase 1)
 - Context warnings appearing → **ORG-004**
 
 **Phase 4 (Validation) Warning Signs:**
+
 - Tests failing → **ORG-005**
 - Type conflicts → **ORG-006**
 - End-to-end flows broken → **ORG-007**
@@ -2441,15 +2644,19 @@ Use this quick reference to jump to specific error documentation:
 Some errors occur together:
 
 **ORG-002 + ORG-003**: Ambiguous requirements lead to agent failure
+
 - Resolution: Clarify requirements (ORG-002) before retrying agent (ORG-003)
 
 **ORG-004 + ORG-008**: Context overflow causes performance issues
+
 - Resolution: Reduce context (ORG-004) which often improves performance (ORG-008)
 
 **ORG-006 + ORG-007**: Synthesis conflicts prevent integration
+
 - Resolution: Resolve conflicts (ORG-006) then integrate (ORG-007)
 
 **ORG-003 + ORG-005**: Agent fails, produces output that fails validation
+
 - Resolution: Redeploy agent with validation emphasis (ORG-003), validate output (ORG-005)
 
 ---

@@ -31,31 +31,31 @@ git clone https://github.com/Arindam200/awesome-ai-apps.git
 cd simple_ai_agent/agno_ui_agent
 ```
 
-2. Install Python dependencies:
+1. Install Python dependencies:
 
 ```bash
 pip install -U openai duckduckgo-search yfinance sqlalchemy 'fastapi[standard]' agno
 ```
 
-3. Set up environment variables:
+1. Set up environment variables:
    Create a `.env` file in the project root and add your Nebius API key:
 
 ```
 NEBIUS_API_KEY=your_api_key_here
 ```
 
-4. Install and run the Agent UI:
+1. Install and run the Agent UI:
 
 ```bash
 npx create-agent-ui@latest
 cd agent-ui && npm run dev
 ```
 
-Open http://localhost:3000 to view the Agent UI.
+Open <http://localhost:3000> to view the Agent UI.
 
 ![Ui](./agent-ui-homepage.png)
 
-5. Start the Python backend:
+1. Start the Python backend:
 
 ```bash
 python playground.py
@@ -63,8 +63,8 @@ python playground.py
 
 ## Usage
 
-1. Open http://localhost:3000 in your browser
-2. Select the http://localhost:7777 endpoint
+1. Open <http://localhost:3000> in your browser
+2. Select the <http://localhost:7777> endpoint
 3. Choose between the Web Agent or Finance Agent
 4. Start interacting with your chosen agent
 

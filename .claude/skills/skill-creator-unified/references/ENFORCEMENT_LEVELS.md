@@ -18,17 +18,20 @@ Claude Code supports three enforcement levels that control how skills activate a
 **Mechanism**: Exit code 2 from PreToolUse hook, stderr → Claude
 
 **Behavior**:
+
 - Physically prevents Edit/Write tool execution
 - Claude sees block message and must use skill to proceed
 - Cannot bypass without using skill or skip condition
 
 **Use for**:
+
 - Critical mistakes that cause runtime errors
 - Data integrity concerns (database schema validation)
 - Security vulnerabilities
 - Breaking compatibility issues
 
 **Configuration**:
+
 ```json
 {
   "my-skill": {
@@ -42,6 +45,7 @@ Claude Code supports three enforcement levels that control how skills activate a
 ```
 
 **Example conversation flow**:
+
 ```
 User: "Add a new user service with Prisma"
 
@@ -65,12 +69,14 @@ Claude: "I need to use the database-verification skill first..."
 **Mechanism**: UserPromptSubmit hook injects context before Claude sees prompt
 
 **Behavior**:
+
 - Advisory, not mandatory
 - Claude is aware of relevant skills
 - Claude can choose to use skill or proceed without it
 - Non-blocking, maintains workflow momentum
 
 **Use for**:
+
 - Domain guidance (React best practices)
 - Complex systems requiring deep knowledge
 - Best practices documentation
@@ -78,6 +84,7 @@ Claude: "I need to use the database-verification skill first..."
 - Architectural patterns
 
 **Configuration**:
+
 ```json
 {
   "my-skill": {
@@ -91,6 +98,7 @@ Claude: "I need to use the database-verification skill first..."
 ```
 
 **Example conversation flow**:
+
 ```
 User: "Create a React dashboard component"
 
@@ -112,18 +120,21 @@ Claude: [Sees recommendation + user prompt]
 **Mechanism**: Similar to SUGGEST but lower priority
 
 **Behavior**:
+
 - Low priority suggestions
 - Advisory only, minimal enforcement
 - Mentioned but not emphasized
 - Minimal impact on workflow
 
 **Use for**:
+
 - Nice-to-have suggestions
 - Informational reminders
 - Optional optimizations
 - Context-aware tips
 
 **Configuration**:
+
 ```json
 {
   "my-skill": {
@@ -146,6 +157,7 @@ Claude: [Sees recommendation + user prompt]
 **Purpose**: Enforce critical best practices that prevent errors
 
 **Characteristics**:
+
 - Type: `"guardrail"`
 - Enforcement: `"block"`
 - Priority: `"critical"` or `"high"`
@@ -154,11 +166,13 @@ Claude: [Sees recommendation + user prompt]
 - Session-aware (don't repeat nag in same session)
 
 **Examples**:
+
 - `database-verification` - Verify table/column names before Prisma queries
 - `security-check` - Enforce security patterns before deployment
 - `schema-validation` - Validate data structures before API changes
 
 **When to use**:
+
 - Mistakes that cause runtime errors
 - Data corruption risks
 - Security vulnerabilities
@@ -166,6 +180,7 @@ Claude: [Sees recommendation + user prompt]
 - Critical compatibility issues
 
 **Configuration template**:
+
 ```json
 {
   "guardrail-skill": {
@@ -190,6 +205,7 @@ Claude: [Sees recommendation + user prompt]
 ```
 
 **Important**:
+
 - Always include `blockMessage` with clear actionable steps
 - Always include `skipConditions` with session tracking
 - Test thoroughly to avoid false positives
@@ -202,6 +218,7 @@ Claude: [Sees recommendation + user prompt]
 **Purpose**: Provide comprehensive guidance for specific areas
 
 **Characteristics**:
+
 - Type: `"domain"`
 - Enforcement: `"suggest"` or `"warn"`
 - Priority: `"high"`, `"medium"`, or `"low"`
@@ -210,12 +227,14 @@ Claude: [Sees recommendation + user prompt]
 - Comprehensive documentation
 
 **Examples**:
+
 - `frontend-dev-guidelines` - React/TypeScript best practices
 - `backend-dev-guidelines` - Node.js/Express/TypeScript patterns
 - `error-tracking` - Sentry integration guidance
 - `testing-patterns` - Unit/integration testing guide
 
 **When to use**:
+
 - Complex systems requiring deep knowledge
 - Best practices for frameworks or libraries
 - Architectural patterns and design principles
@@ -223,6 +242,7 @@ Claude: [Sees recommendation + user prompt]
 - Technology-specific workflows
 
 **Configuration template**:
+
 ```json
 {
   "domain-skill": {
@@ -256,6 +276,7 @@ Skip conditions provide escape hatches and prevent workflow disruption. Essentia
 **Purpose**: Don't nag repeatedly in same session
 
 **How it works**:
+
 - First edit → Hook blocks/suggests, updates session state
 - Second edit (same session) → Hook allows (already used skill)
 - Different session → Blocks/suggests again
@@ -264,6 +285,7 @@ Skip conditions provide escape hatches and prevent workflow disruption. Essentia
 **State file**: `.claude/hooks/state/skills-used-{session_id}.json`
 
 **Configuration**:
+
 ```json
 "skipConditions": {
   "sessionSkillUsed": true
@@ -271,6 +293,7 @@ Skip conditions provide escape hatches and prevent workflow disruption. Essentia
 ```
 
 **Example**:
+
 ```
 Session A:
   Edit 1: user.ts → BLOCKED "Use database-verification" → User uses skill
@@ -292,6 +315,7 @@ Session B (new day):
 **Marker**: `// @skip-validation` (or custom)
 
 **Usage**:
+
 ```typescript
 // @skip-validation
 import { PrismaClient } from "@prisma/client"
@@ -299,6 +323,7 @@ import { PrismaClient } from "@prisma/client"
 ```
 
 **Configuration**:
+
 ```json
 "skipConditions": {
   "fileMarkers": ["@skip-validation", "@verified"]
@@ -306,6 +331,7 @@ import { PrismaClient } from "@prisma/client"
 ```
 
 **How it works**:
+
 - Hook reads file content
 - Searches for marker comment
 - If found, skips activation for this file
@@ -320,17 +346,20 @@ import { PrismaClient } from "@prisma/client"
 **Purpose**: Emergency disable, temporary override
 
 **Global disable**:
+
 ```bash
 export SKIP_SKILL_GUARDRAILS=true  # Disables ALL PreToolUse blocks
 ```
 
 **Skill-specific**:
+
 ```bash
 export SKIP_DB_VERIFICATION=true
 export SKIP_SECURITY_CHECK=true
 ```
 
 **Configuration**:
+
 ```json
 "skipConditions": {
   "envOverride": "SKIP_DB_VERIFICATION"
@@ -338,11 +367,13 @@ export SKIP_SECURITY_CHECK=true
 ```
 
 **How it works**:
+
 - Hook checks if environment variable is set
 - If set to `"true"`, skips activation
 - Persists until variable unset or shell closed
 
 **Use cases**:
+
 - Emergency situations (broken hook, false positives)
 - Temporary disable during refactoring
 - Testing without guardrails
@@ -359,6 +390,7 @@ Use this guide to choose the right enforcement level and skill type:
 ### When to use BLOCK enforcement
 
 ✅ **Use BLOCK when**:
+
 - Mistakes cause runtime errors (database column names)
 - Data corruption or loss possible
 - Security vulnerabilities introduced
@@ -366,6 +398,7 @@ Use this guide to choose the right enforcement level and skill type:
 - Critical compatibility issues
 
 ❌ **Don't use BLOCK when**:
+
 - Best practices or style preferences
 - Performance optimizations
 - Code organization suggestions
@@ -378,6 +411,7 @@ Use this guide to choose the right enforcement level and skill type:
 ### When to use SUGGEST enforcement
 
 ✅ **Use SUGGEST when**:
+
 - Providing best practices
 - Complex domain knowledge needed
 - Architectural guidance helpful
@@ -386,6 +420,7 @@ Use this guide to choose the right enforcement level and skill type:
 - Most skills
 
 ❌ **Don't use SUGGEST when**:
+
 - Critical errors must be prevented (use BLOCK)
 - Suggestion is optional/nice-to-have (use WARN)
 
@@ -396,12 +431,14 @@ Use this guide to choose the right enforcement level and skill type:
 ### When to use WARN enforcement
 
 ✅ **Use WARN when**:
+
 - Optional nice-to-have suggestions
 - Informational tips
 - Context-aware reminders
 - Low-priority optimizations
 
 ❌ **Don't use WARN when**:
+
 - Guidance is important (use SUGGEST)
 - Enforcement is critical (use BLOCK)
 
@@ -428,6 +465,7 @@ Use this guide to choose the right enforcement level and skill type:
 ### For Guardrails (BLOCK)
 
 ✅ **Do**:
+
 - Test extensively before deploying
 - Provide clear, actionable block messages
 - Enable session tracking to prevent nagging
@@ -437,6 +475,7 @@ Use this guide to choose the right enforcement level and skill type:
 - Use specific file/content patterns to avoid false positives
 
 ❌ **Don't**:
+
 - Block for style preferences or best practices
 - Create overly broad patterns (blocks too much)
 - Forget to test with real workflows
@@ -448,6 +487,7 @@ Use this guide to choose the right enforcement level and skill type:
 ### For Domain Skills (SUGGEST)
 
 ✅ **Do**:
+
 - Provide comprehensive guidance in SKILL.md
 - Use clear, specific trigger keywords
 - Test activation with real prompts
@@ -455,6 +495,7 @@ Use this guide to choose the right enforcement level and skill type:
 - Make skill genuinely helpful
 
 ❌ **Don't**:
+
 - Create overly broad triggers (false positives)
 - Make triggers too specific (false negatives)
 - Forget to update YAML description with keywords

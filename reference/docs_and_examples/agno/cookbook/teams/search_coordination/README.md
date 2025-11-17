@@ -9,12 +9,12 @@ pip install agno openai anthropic cohere lancedb tantivy sqlalchemy
 ```
 
 Set your API key based on your provider:
+
 ```bash
 export OPENAI_API_KEY=xxx
 export ANTHROPIC_API_KEY=xxx
 export CO_API_KEY=xxx
 ```
-
 
 ## Examples
 

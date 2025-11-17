@@ -3,11 +3,13 @@
 > Demo flow, presentation structure, and delivery strategy for the FirstMark case study presentation
 
 **Format:** 1 Hour presentation
+
 - 15 minutes: Intro about me
 - 30 minutes: Presentation of case and demo
 - 15 minutes: Q&A
 
 **Logistical Note:**
+
 - Demo will be run live on my computer
 - We will need to have a pre-run example for the research section with full audit trails that I can walk them through
 
@@ -36,6 +38,7 @@
   - How are you using Affinity?
 
 **The biggest determining factors will be:**
+
 - Understanding the what is - what are current systems like, where does data live, what does it look like - and the why!
 - Paying all my sponsors - investors, COO, platform
 - While trying to make headway on foundation
@@ -51,15 +54,19 @@
 ### The Case (Part 1 of main presentation)
 
 #### The business context
+
 - Differentiation helps, have guild, use it
 - Case of thing that is done many times in peoples minds in different ways --> Get value from rationalizing and augmenting
 - People evaluation is a fundamental pillar of VC, especially early stage
 
 #### The Requirements and Components
+
 **Recall over precision:**
+
 - Rather not miss a great match vs see some dudes
 
 **The goal is not to make the decision, it's to filter and focus review:**
+
 - Needs to sufficiently filter who is reviewed
 - Needs to inform review of an individual (pop key info, enable quick action)
 - Needs to enable investigation
@@ -67,18 +74,21 @@
 **The target is augmentation, not replacement**
 
 **The goal is to:**
+
 - Validate the quality of research methods
 - Validate the quality of the evaluation and traces
 - Cut operational cost
 - Optimize execution time
 
 **Our future cases for extension are:**
+
 - Other people enrichment and research use cases - founders, LPs, hires
 - Applications could be current and or retroactive
 
 #### The key complexity points and decisions
 
 **Boundaries:**
+
 - What parts of this are central and universal
   - EG. Person intake and normalization
 - What parts of this are standard practices beyond this use case
@@ -88,6 +98,7 @@
   - Do we try to define refresh process?
 
 **Technical considerations:**
+
 - Where do we need LLM
 - What is the balance of enabling vs confining the LLM
 - How we guardrail LLM
@@ -96,6 +107,7 @@
   - And where start from scratch vs leverage existing methods
 
 **Know messy corners:**
+
 - Titles will be non-normalized
 - There will be a need for disambiguation
 - This happens too often to be centralized
@@ -109,11 +121,13 @@ Top-level approach breakdown to show thinking and contextualize the demo
 **Distinction and articulation of:**
 
 **Ideal solution** - What this would look like in an ideal state, both in terms of this feature and the surrounding ecosystem
+
 - Some centralization exists or is incorporated into it
 - Would be modular to lift and shift new methods and capabilities and use elsewhere
 - Model Agnostic
 
 **MVP Solution** - If asked to develop my first cut of this for use and evaluation, what it would look like
+
 - Actual ROI discussion and roadmapping
 - Some standard framework (but def just some)
 - Ideally leveraging central tools
@@ -128,6 +142,7 @@ Top-level approach breakdown to show thinking and contextualize the demo
 ### My Demo Method (Part 3 of main presentation)
 
 **What I know about FMC:**
+
 - I know you use Airtable
 - I know when I ask about data, you don't say a lot
 - I know that I need to demonstrate value quick
@@ -141,10 +156,12 @@ Top-level approach breakdown to show thinking and contextualize the demo
 **My process and decisions:**
 
 Bets:
+
 - I can meet you in Airtable
 - OpenAI deepresearch is a sufficient base when paired with subagents
 
 Trades:
+
 - Cheap - GPT for basic LLM usage, Fake Apollo
 
 **How the process led to demo**

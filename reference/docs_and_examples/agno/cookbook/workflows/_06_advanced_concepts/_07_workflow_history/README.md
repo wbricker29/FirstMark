@@ -14,6 +14,7 @@ Workflow history enables your workflows to remember and reference previous conve
 ---
 
 With this enabled the workflow history gets sent to the agent/team of the step in the following string format-
+
 ```bash
 <workflow_history_context>
 [run-1]
@@ -27,8 +28,10 @@ response: ...
 ```
 
 Along with this in case of custom function step you can access this history in the following ways-
+
 1. As a formatted context string as shown above
 2. In a structured format as well for more control
+
 ```bash
 [
     (<workflow input from run 1>)(<workflow output from run 1>),
@@ -37,6 +40,7 @@ Along with this in case of custom function step you can access this history in t
 ```
 
 Example-
+
 ```python
 def my_smart_function(step_input: StepInput) -> StepOutput:
     # Option 1: Structured data for analysis
@@ -55,6 +59,7 @@ def my_smart_function(step_input: StepInput) -> StepOutput:
 ## Control Levels
 
 ### Workflow-Level History
+
 Add workflow history to **all steps** in the workflow:
 
 ```python
@@ -65,6 +70,7 @@ workflow = Workflow(
 ```
 
 ### Step-Level History
+
 Add workflow history to **specific steps** only:
 
 ```python
@@ -112,6 +118,7 @@ Step("Analysis", agent=analysis_agent,
 ## Where to start?
 
 ### 1. Single-Step Conversational Workflow
+
 **File**: [`01_single_step_continuous_execution_workflow.py`](./01_single_step_continuous_execution_workflow.py)
 
 Learn the basics with a simple AI tutor that remembers your conversation:
@@ -124,7 +131,8 @@ workflow = Workflow(
 )
 ```
 
-**Try it**: 
+**Try it**:
+
 - Ask about calculus, then follow up with related questions
 - Notice how the tutor references your previous discussions
 - See how it avoids repeating information
@@ -132,6 +140,7 @@ workflow = Workflow(
 ---
 
 ### 2. Multi-Step with Smart Analysis  
+
 **File**: [`02_workflow_with_history_enabled_for_steps.py`](./02_workflow_with_history_enabled_for_steps.py)
 
 A meal planning workflow that learns your preferences through conversation:
@@ -146,6 +155,7 @@ steps = [
 ```
 
 **Key Features**:
+
 - Custom function analyzes conversation patterns
 - Agents adapt based on learned preferences  
 - Natural conversation flow across multiple steps
@@ -153,6 +163,7 @@ steps = [
 ---
 
 ### 3. Step-Level Control
+
 **File**: [`03_enable_history_for_step.py`](./03_enable_history_for_step.py)
 
 Learn when to enable history for specific steps only:
@@ -168,11 +179,13 @@ steps = [
 ```
 
 **Why Step-Level Control?**
+
 - **Performance**: Only steps that benefit get history
 - **Focus**: Reduces noise for steps that don't need context
 - **Flexibility**: Mix history-aware and stateless steps
 
 **Try it**:
+
 - Ask it to create a Twitter thread about productivity tips
 - After it responds, ask it to "Make it specifically about Software Engineering"
 - Notice how the content creator references previous content
@@ -180,6 +193,7 @@ steps = [
 ---
 
 ### 4. Custom Functions with History Access
+
 **File**: [`04_get_history_in_function.py`](./04_get_history_in_function.py)
 
 Show how custom Python functions can access and analyze workflow history:
@@ -197,18 +211,21 @@ def analyze_content_strategy(step_input: StepInput) -> StepOutput:
 ```
 
 **Powerful Features**:
+
 - **Dual access**: Get structured data OR formatted context
 - **Pattern analysis**: Detect topic overlaps and content gaps
 - **Strategic recommendations**: Guide subsequent agents
 - **Real business value**: Prevent duplicate content, ensure progression
 
 **Try it**:
+
 - Ask it to create content about AI in healthcare
 - After it responds, ask it to "Make it family focused"
 
 ---
 
 ### 5. Interactive CLI Demos
+
 **File**: [`05_multi_purpose_cli.py`](./05_multi_purpose_cli.py)
 
 Production-ready examples with full CLI interfaces:
@@ -226,6 +243,7 @@ python 05_multi_purpose_cli.py
 ```
 
 ### 6. Router with Shared History
+
 **File**: [`06_intent_routing_with_history.py`](./06_intent_routing_with_history.py)
 
 Demonstrates how different specialist agents can share the same conversation history, creating seamless handoffs:
@@ -256,6 +274,7 @@ Customer: "Could less funds be the reason for the above error?"
 ## API Reference
 
 ### Workflow Configuration
+
 ```python
 Workflow(
     add_workflow_history_to_steps: bool = False,  # Enable for all steps
@@ -264,6 +283,7 @@ Workflow(
 ```
 
 ### Step Configuration  
+
 ```python
 Step(
     add_workflow_history: bool = False,  # Enable for this step only
@@ -272,6 +292,7 @@ Step(
 ```
 
 ### History Access in Custom Functions
+
 ```python
 # Structured data access
 step_input.get_workflow_history(num_runs: int = 3) -> List[Tuple[str, str]]
@@ -280,4 +301,4 @@ step_input.get_workflow_history(num_runs: int = 3) -> List[Tuple[str, str]]
 step_input.get_workflow_history_context(num_runs: int = 3) -> Optional[str]
 ```
 
---- 
+---

@@ -9,6 +9,7 @@ pip install agno openai
 ```
 
 Set your OpenAI API key:
+
 ```bash
 export OPENAI_API_KEY=xxx
 ```

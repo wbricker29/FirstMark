@@ -9,6 +9,7 @@ This reference provides detailed coordination patterns for managing complex mult
 ### When to Use Sequential Execution
 
 Use sequential execution when:
+
 - **Task dependencies exist**: Agent B requires outputs from Agent A
 - **State must be preserved**: Each agent builds upon previous agent's work
 - **Resource constraints**: Cannot run multiple agents simultaneously
@@ -16,6 +17,7 @@ Use sequential execution when:
 - **Contextual learning**: Later agents need insights from earlier agents
 
 **Do not use sequential when:**
+
 - Tasks are independent and can run in parallel
 - No information flows between agents
 - Speed is critical and parallel execution is feasible
@@ -25,6 +27,7 @@ Use sequential execution when:
 Effective handoffs between sequential agents require clear information transfer.
 
 **Minimal handoff (preferred):**
+
 ```
 Agent A completes → Extract key artifacts → Brief Agent B with:
   - Location of artifacts (file paths)
@@ -34,6 +37,7 @@ Agent A completes → Extract key artifacts → Brief Agent B with:
 ```
 
 **Example handoff:**
+
 ```
 Agent A (task-implementor) completed:
 ✅ Created lib/vector-search.ts with HNSW implementation
@@ -48,6 +52,7 @@ Agent B (documentation-manager) brief:
 ```
 
 **What to pass:**
+
 - ✅ File paths and line ranges
 - ✅ High-level summaries
 - ✅ Validation results
@@ -61,6 +66,7 @@ Agent B (documentation-manager) brief:
 Track orchestration state to maintain coherence across sequential agents.
 
 **State tracking structure:**
+
 ```json
 {
   "orchestration_id": "orch-2025-01-30-001",
@@ -91,12 +97,14 @@ Track orchestration state to maintain coherence across sequential agents.
 ```
 
 **State update triggers:**
+
 - Agent deployment (add entry with status: "in_progress")
 - Agent completion (update status to "completed", record deliverables)
 - Validation completion (record validation results)
 - Context check (update token usage estimates)
 
 **Use state to:**
+
 - Prevent duplicate agent deployment
 - Skip completed phases during retry
 - Provide continuation context after interruptions
@@ -181,12 +189,14 @@ Agent D (documentation-manager):
 ### When to Use Parallel Execution
 
 Use parallel execution when:
+
 - **Tasks are independent**: No information flows between agents
 - **No shared resources**: Agents modify different files or isolated sections
 - **Speed is critical**: Need to complete multiple tasks quickly
 - **Validation can be deferred**: Can validate all outputs together at end
 
 **Do not use parallel when:**
+
 - Agents might conflict (modify same files)
 - Dependencies exist between tasks
 - Sequential learning is beneficial
@@ -197,6 +207,7 @@ Use parallel execution when:
 Before deploying agents in parallel, verify independence:
 
 **Independence checklist:**
+
 ```
 For each pair of parallel agents (A, B):
   ✅ Agent A and B modify different files
@@ -207,11 +218,13 @@ For each pair of parallel agents (A, B):
 ```
 
 **Common false independence:**
+
 - "Add feature X" + "Add feature Y" → May share files (e.g., routes, types)
 - "Refactor module A" + "Refactor module B" → May share interfaces
 - "Write tests for X" + "Write tests for Y" → May conflict in test setup
 
 **Verify independence:**
+
 ```
 1. List files each agent will modify
 2. Check for overlap → If overlap exists, agents are NOT independent
@@ -224,6 +237,7 @@ For each pair of parallel agents (A, B):
 When parallel agents complete, merge outputs into coherent result.
 
 **Strategy 1: File-based merging (preferred for independent files)**
+
 ```
 Agent A creates: lib/feature-a.ts, lib/feature-a.test.ts
 Agent B creates: lib/feature-b.ts, lib/feature-b.test.ts
@@ -242,6 +256,7 @@ Resolution:
 ```
 
 **Strategy 2: Section-based merging (for shared files)**
+
 ```
 Shared file: lib/config.ts
 
@@ -256,6 +271,7 @@ Merge:
 ```
 
 **Strategy 3: Aggregate merging (for reports/documentation)**
+
 ```
 Multiple agents generate analysis reports:
 
@@ -276,6 +292,7 @@ Merge:
 ```
 
 **Conflict detection:**
+
 ```
 After parallel execution, check for:
   - File overwrites (multiple agents modified same file)
@@ -389,6 +406,7 @@ Hybrid patterns combine sequential and parallel execution for complex workflows 
 ### Mixed Sequential + Parallel Workflows
 
 **Pattern: Parallel → Sequential**
+
 ```
 Use when: Multiple independent setup tasks, then unified integration
 
@@ -406,6 +424,7 @@ Integration phase (sequential):
 ```
 
 **Pattern: Sequential → Parallel**
+
 ```
 Use when: Foundation task required, then parallel implementation
 
@@ -421,6 +440,7 @@ Implementation phase (parallel):
 ```
 
 **Pattern: Sequential → Parallel → Sequential**
+
 ```
 Use when: Analysis, parallel work, then synthesis
 
@@ -447,6 +467,7 @@ Validation phase (sequential):
 Model complex dependencies using directed acyclic graphs (DAGs).
 
 **Example dependency graph:**
+
 ```
        A (Explore codebase)
        |
@@ -467,6 +488,7 @@ Model complex dependencies using directed acyclic graphs (DAGs).
 ```
 
 **Execution order:**
+
 ```
 Wave 1: A (sequential - must run first)
 Wave 2: B (sequential - depends on A)
@@ -476,6 +498,7 @@ Wave 5: H (sequential - depends on F+G)
 ```
 
 **Determining execution waves:**
+
 ```
 1. Start with nodes that have no dependencies (root nodes)
 2. Group all nodes with same maximum dependency depth
@@ -484,6 +507,7 @@ Wave 5: H (sequential - depends on F+G)
 ```
 
 **Complex dependency example:**
+
 ```
 Scope: Migrate authentication system
 
@@ -614,6 +638,7 @@ Efficient context sharing prevents redundant information transfer and manages to
 Pass only what the next agent needs to complete its specific task.
 
 **Good context handoff:**
+
 ```
 Agent A completed: Implemented feature X
 
@@ -630,6 +655,7 @@ Agent B brief:
 ```
 
 **Bad context handoff:**
+
 ```
 Agent A completed: Implemented feature X
 
@@ -655,6 +681,7 @@ Agent B brief:
 ### How to Brief Agents Without Duplication
 
 **Briefing structure:**
+
 ```
 Agent: [agent-type]
 Scope: [specific task, 1-2 sentences]
@@ -683,13 +710,14 @@ Validation:
 ```
 
 **Example brief:**
+
 ```
 Agent: task-implementor
 Scope: Add caching layer to vector search function
 
 Context to read:
   - lib/vector-search.ts (lines 45-120, focus on searchVectors function)
-  - specs/constitution.md (performance requirements section)
+  - spec/constitution.md (performance requirements section)
   - .env.example (cache configuration options)
 
 Background:
@@ -718,18 +746,21 @@ Validation:
 ### When to Use Shared Files vs In-Memory State
 
 **Use shared files when:**
+
 - Information needed by multiple agents across time
 - Information should persist beyond orchestration session
 - Information is structured and reusable (specs, reports, artifacts)
 - Agent needs to reference exact content (code, documentation)
 
 **Use in-memory state when:**
+
 - Temporary coordination data (status tracking)
 - Simple handoff information (file paths, summaries)
 - Metadata about orchestration (agent status, token usage)
 - Information not useful after orchestration completes
 
 **Shared file examples:**
+
 ```
 Create temporary shared files:
   - .claude/tmp/orchestration-state.json (agent status, dependencies)
@@ -742,6 +773,7 @@ Cleanup after orchestration:
 ```
 
 **In-memory state examples:**
+
 ```
 Track in orchestration conversation:
   - Agent deployment order
@@ -758,18 +790,21 @@ Handle failures gracefully and recover from partial completion.
 ### Retry Logic
 
 **When to retry:**
+
 - Transient errors (network timeouts, temporary resource unavailability)
 - Context overflow (can reduce context and retry)
 - Agent misunderstood instructions (can clarify and retry)
 - Validation failure with clear fix (can adjust and retry)
 
 **When NOT to retry:**
+
 - Fundamental design issue (need to revise plan)
 - Missing critical information (need to gather context first)
 - Task exceeds agent capabilities (need different approach)
 - Multiple retries already failed (need escalation)
 
 **Retry protocol:**
+
 ```
 1. Analyze failure:
    - What went wrong?
@@ -798,6 +833,7 @@ Handle failures gracefully and recover from partial completion.
 ```
 
 **Retry example:**
+
 ```
 Agent A (task-implementor) failed:
   Error: "Context overflow - approaching token limit"
@@ -821,6 +857,7 @@ Retry:
 ### Fallback Strategies
 
 **Fallback hierarchy:**
+
 ```
 Primary approach fails
   ↓
@@ -834,6 +871,7 @@ Escalate to user
 **Fallback strategy examples:**
 
 **Example 1: Parallel → Sequential fallback**
+
 ```
 Primary: Deploy 4 agents in parallel
 Failure: Context budget exceeded
@@ -845,6 +883,7 @@ Fallback:
 ```
 
 **Example 2: Automated → Manual fallback**
+
 ```
 Primary: Automated test generation
 Failure: Agent cannot determine test scenarios
@@ -856,6 +895,7 @@ Fallback:
 ```
 
 **Example 3: Complex → Simple fallback**
+
 ```
 Primary: Comprehensive refactoring
 Failure: Scope too large, agent overwhelmed
@@ -869,6 +909,7 @@ Fallback:
 ### Partial Completion Handling
 
 **Scenarios:**
+
 - Some agents succeed, others fail
 - Orchestration interrupted mid-execution
 - Validation passes for some outputs, fails for others
@@ -876,6 +917,7 @@ Fallback:
 **Handling strategy:**
 
 **1. Assess partial completion:**
+
 ```
 Completed agents: [A, B]
 Failed agents: [C]
@@ -890,6 +932,7 @@ Questions:
 **2. Determine continuation approach:**
 
 **Option A: Fix and continue**
+
 ```
 - Retry failed agent C
 - If succeeds, continue with D, E
@@ -897,6 +940,7 @@ Questions:
 ```
 
 **Option B: Partial acceptance**
+
 ```
 - Accept work from A, B
 - Defer C, D, E to later orchestration
@@ -905,6 +949,7 @@ Questions:
 ```
 
 **Option C: Rollback and redesign**
+
 ```
 - Outputs from A, B unusable without C
 - Rollback changes from A, B
@@ -913,6 +958,7 @@ Questions:
 ```
 
 **3. Document partial state:**
+
 ```json
 {
   "orchestration_id": "orch-2025-01-30-002",
@@ -939,6 +985,7 @@ Questions:
 ### When to Abort vs Continue
 
 **Abort orchestration when:**
+
 - Fundamental assumption invalidated (requirements changed)
 - Critical dependency unavailable (missing required files/APIs)
 - Multiple retry attempts exhausted
@@ -946,6 +993,7 @@ Questions:
 - Project state changed significantly (merge conflict, breaking changes)
 
 **Continue orchestration when:**
+
 - Failures are isolated and retriable
 - Partial outputs are useful
 - Remaining agents can proceed independently
@@ -953,6 +1001,7 @@ Questions:
 - User confirms continuation
 
 **Decision criteria:**
+
 ```
 Abort if:
   - Progress < 30% AND critical agent failed
@@ -974,12 +1023,14 @@ Continue if:
 Documentation managers ensure cross-document consistency and alignment.
 
 **When to involve documentation-manager:**
+
 - API changes requiring doc updates
 - Cross-cutting changes affecting multiple docs
 - Architecture decisions needing documentation
 - New features requiring user guides
 
 **Integration pattern:**
+
 ```
 Task agents complete implementation
   ↓
@@ -996,6 +1047,7 @@ Validate: Documentation consistency
 ```
 
 **Example integration:**
+
 ```
 Agent A (task-implementor):
   Completed: New vector search API
@@ -1025,6 +1077,7 @@ Context managers handle context loading, token budgets, and scope management.
 **Coordination touchpoints:**
 
 **1. Pre-orchestration context check:**
+
 ```
 Before deploying agents:
   - Estimate token usage for planned agents
@@ -1034,6 +1087,7 @@ Before deploying agents:
 ```
 
 **2. During execution monitoring:**
+
 ```
 While agents running:
   - Track cumulative token usage
@@ -1043,6 +1097,7 @@ While agents running:
 ```
 
 **3. Post-execution cleanup:**
+
 ```
 After orchestration:
   - Clear temporary context files
@@ -1051,6 +1106,7 @@ After orchestration:
 ```
 
 **Integration example:**
+
 ```
 Orchestration Plan:
   5 agents, estimated 150k tokens total
@@ -1075,12 +1131,14 @@ Post-execution:
 ### When to Use Specialized Agents vs General-Purpose
 
 **Specialized agents** (task-specific):
+
 - Focused on narrow, well-defined tasks
 - Deep expertise in particular domain
 - Prescribed workflow or methodology
 - Examples: systematic-debugger, principle-evaluator
 
 **General-purpose agents** (flexible):
+
 - Handle broad range of tasks
 - Adaptable to various contexts
 - No prescribed methodology
@@ -1121,6 +1179,7 @@ Reason: Specific focus on readability, prescribed refactoring patterns
 ```
 
 **Mixing specialized and general-purpose:**
+
 ```
 Wave 1: Explore (general-purpose) - Understand codebase
 Wave 2: task-implementor (general-purpose) - Implement changes

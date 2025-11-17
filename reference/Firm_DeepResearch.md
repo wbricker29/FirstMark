@@ -147,23 +147,27 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ### Timeline: Founding Through Current State
 
 **2008 - Founding**
+
 - Co-founders Rick Heitzmann and Amish Jani spun out from Pequot Capital Management
 - Core thesis: NYC would become dominant global tech hub
 - Focus: First institutional investor in early-stage technology companies
 
 **2008-2022 - Fund Evolution**
+
 - Raised 10 funds alternating between early-stage and opportunity funds
 - 2020: Fund V ($380M) + Opportunity Fund III ($270M) = $650M, $2.2B total AUM
 - **July 2022**: Fund VI + Opportunity Fund IV = **$1.1B in new commitments**
 - Strategy: Early-stage fund for seed/Series A, opportunity fund for growth follow-ons
 
 **2024 - Current State**
+
 - **Total committed capital: $3.5B**
 - 204 portfolio companies, 16 unicorns, 9 IPOs, 65 acquisitions
 - 4 investing partners + platform/operations team (~27 people total)
 - Rick Heitzmann: **Forbes Midas List #23 (2024, 5th consecutive year)**
 
 **Key Milestones:**
+
 - 2015: Shopify IPO (NYSE: SHOP) - early Series A investor
 - 2019: Pinterest IPO (NYSE: PINS) - first institutional investor
 - 2020: DraftKings public via SPAC (NASDAQ: DKNG)
@@ -173,11 +177,13 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ### Investment Thesis: Stage, Check Sizes, Sector Priorities
 
 **Stage Focus:**
+
 - **Primary**: Seed and Series A (first institutional investor positioning)
 - **Lead rate**: ~36% of investments led by FirstMark (127 of 352 total investments)
 - **Follow-on discipline**: Dedicated opportunity funds for growth-stage support
 
 **Check Sizes:**
+
 - Seed: $500K - $3M typical
 - Series A: $3M - $10M typical
 - Range: $100K - $10M for initial investments
@@ -193,6 +199,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 6. **Gaming & Entertainment** (~5-7%): Game development, infrastructure, creator economy
 
 **Geographic Focus:**
+
 - Primary: New York City (50%+ of portfolio)
 - Secondary: East Coast corridor (Boston, Toronto, Ottawa, Philadelphia, DC)
 - Growing: Europe (especially through Matt Turck)
@@ -205,12 +212,14 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Key Differentiators:**
 
 **1. The FirstMark Platform - "Unfair Access":**
+
 - **Guilds by FirstMark**: Invite-only C-level communities with 2,700+ members representing 60%+ of global tech unicorns
 - **Talent Network**: Full lifecycle recruiting support
 - **Corporate Network**: Fortune 1000 partner development and customer introductions
 - **Expert Network**: 100+ annual events with CEOs, CTOs, CROs, CMOs from leading companies
 
 **2. Flagship Community Events:**
+
 - **Data Driven NYC**: 20,000+ member AI/ML community (largest in US), monthly events, running 10+ years
 - **CloudNY**: Premier annual summit for 150 cloud CEOs at NYSE (co-hosted with Battery)
 - **CEO Summit & Founder Dinner**: 250 founders/VCs annually at NYSE
@@ -218,11 +227,13 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 - **Founders Guild**: Invite-only for NYC's most promising early-stage founders
 
 **3. NYC-Centric Identity:**
+
 - Champions of NYC as tech hub since 2008
 - "Nowhere on Earth matches the ambition, creativity, and sheer speed of New York City"
 - Deep local network effects and ecosystem building
 
 **Core Values:**
+
 - **Extreme Ownership**: "Doing our absolute best work every time, going the extra mile for founders"
 - **Relentless Learning**: "Being on the bleeding edge, seeing around corners"
 - **Community & Connection**: "Building community across founders, operators, and broader tech ecosystem"
@@ -232,9 +243,11 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ## 3. Partner Profiles
 
 ### Rick Heitzmann - Co-Founder & Managing Partner
+
 *Most likely interviewer as senior decision-maker*
 
 **Background:**
+
 - Co-founded FirstMark 2008 after spinning out from Pequot Capital
 - Previously: Entrepreneur who founded First Advantage (NASDAQ: FADV), sold to First American (NYSE: FAF)
 - Education: B.S. Georgetown University, MBA Harvard Business School
@@ -246,6 +259,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Recognition:** Forbes Midas List 2020-2024 (#23 in 2024), CB Insights Top VC, regular CNBC contributor
 
 **Recent Activity (<6 months):**
+
 - CNBC Closing Bell: IPO market rebound discussion
 - Jefferies Private Internet Conference (April 2025): AI progression, healthcare digitalization
 - RiskReversal Pod (Feb 2025): Generative AI trends, CapEx spending, IPO backlog
@@ -271,9 +285,11 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ---
 
 ### Amish Jani - Co-Founder & Partner
+
 *Likely interviewer for strategic/company-building assessment*
 
 **Background:**
+
 - Co-founded FirstMark 2008 with Rick Heitzmann
 - Previously: Partner at Pequot Ventures
 - Education: B.S. and M.B.A. from Wharton School, University of Pennsylvania
@@ -287,6 +303,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Recognition:** CB Insights & NY Times Top 100 VC Globally, Business Insider "Seed 100" and "50 Most Important VCs in NY"
 
 **Recent Activity:**
+
 - Inspired By Example Podcast (2024/2025): Leadership lessons from venture career
 - Led Momentum $13M Series A (2024) - AI-native workflow automation
 
@@ -308,9 +325,11 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ---
 
 ### Matt Turck - Partner ⚡ **PRIMARY CONTACT FOR AI/DATA ROLE**
+
 *Most likely lead interviewer given AI/data infrastructure focus*
 
 **Background:**
+
 - Joined FirstMark early 2010s
 - Previously: Managing Director at Bloomberg Ventures (helped start), Co-founder of TripleHop Technologies (enterprise AI search, acquired by Oracle), Executive at Oracle post-acquisition
 - Education: Sciences-Po Paris, LL.M. Yale Law School
@@ -319,6 +338,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Investment Focus:** **AI, Machine Learning, Data Infrastructure** (PRIMARY), Enterprise software (US & Europe)
 
 **AI/Data Leadership:**
+
 - Organizes **Data Driven NYC** (20,000+ members, largest data/AI meetup in US, 10+ years running)
 - Publishes annual **MAD (Machine Learning, AI, Data) Landscape** since 2012 - industry reference standard with 2,000+ companies mapped
 - Hosts **MAD Podcast** (weekly interviews with ML/AI founders and technical leaders)
@@ -327,6 +347,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Notable Investments:** Dataiku (led $14M Series A Oct 2016, board member), Synthesia (led $12.5M Series A 2020, board member), ClickHouse, Hyperscience (board member), Ada (board member), Lago (led $15M Series A Mar 2024, joined board), TensorZero (led $7.3M seed Aug 2025), Crossbeam (board member)
 
 **Recent Activity (<6 months):**
+
 - **August 2025**: Led TensorZero $7.3M seed for open-source LLM infrastructure
 - **May 2025**: ClickHouse $350M Series C follow-on
 - **March 2024**: Published MAD Landscape 2024 (10th edition, 2,011 logos)
@@ -356,9 +377,11 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ---
 
 ### Adam Nelson - Partner
+
 *May interview for fintech/operational expertise assessment*
 
 **Background:**
+
 - Joined FirstMark: July 2019
 - Previously: Partner at Social Capital, early Dropbox employee (led Partner Network & Revenue Partnerships)
 - Education: B.A. Brown University, MBA Stanford Graduate School of Business
@@ -366,6 +389,7 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 **Investment Focus:** **Fintech** (PRIMARY), PropTech, Vertical Software
 
 **Fintech Leadership:**
+
 - Launched **Fintech Driven** community in 2022 (invite-only for NYC fintech ecosystem)
 - Created "Negative CAC Market Map" (2023)
 - Champion of FirstMark Founders Guild
@@ -379,9 +403,11 @@ FirstMark Capital is a $3.5B New York-based early-stage VC (founded 2008) that b
 ---
 
 ### Dan Kozikowski - Partner and Head of Platform
+
 *New hire 2024/2025 - may be involved in process*
 
 **Background:**
+
 - Announcement: 2024/2025
 - Previously: MD & Partner at BCG (led global Digital Ventures/BCGX), GM at Kickstarter, CEO at Interbrand
 
@@ -453,14 +479,14 @@ This represents a **genuine greenfield opportunity** for the AI Lead role. Possi
 
 **Tier 2: Active AI/ML Companies (8+ companies):**
 
-8. **EvolutionIQ** - AI insurance claims automation, **ACQUIRED by CCC for $730M Dec 2024** (major AI exit validating thesis)
-9. **TensorZero** - Open-source LLM infrastructure, **led $7.3M seed Aug 2025** (most recent AI investment)
-10. **Lago** - Usage-based billing for AI companies, **led $15M Series A Mar 2024**, Matt Turck board member
-11. **Momentum** - AI-native workflow automation, **led $13M Series A 2024** by Amish Jani
-12. **H Company** - Autonomous AI agent platform
-13. **Guru** - AI-powered knowledge management
-14. **Estuary** - Real-time data integration
-15. **Crossbeam** - Data collaboration platform, Matt Turck board member
+1. **EvolutionIQ** - AI insurance claims automation, **ACQUIRED by CCC for $730M Dec 2024** (major AI exit validating thesis)
+2. **TensorZero** - Open-source LLM infrastructure, **led $7.3M seed Aug 2025** (most recent AI investment)
+3. **Lago** - Usage-based billing for AI companies, **led $15M Series A Mar 2024**, Matt Turck board member
+4. **Momentum** - AI-native workflow automation, **led $13M Series A 2024** by Amish Jani
+5. **H Company** - Autonomous AI agent platform
+6. **Guru** - AI-powered knowledge management
+7. **Estuary** - Real-time data integration
+8. **Crossbeam** - Data collaboration platform, Matt Turck board member
 
 **Pattern Analysis:**
 
@@ -474,6 +500,7 @@ This represents a **genuine greenfield opportunity** for the AI Lead role. Possi
 **PUBLIC POSITIONING:**
 
 FirstMark positions itself as:
+
 - **AI Market Experts** (investing in AI, analyzing landscape via MAD)
 - **Community Leaders** (Data Driven NYC, 20K+ AI/ML practitioners)
 - **Infrastructure Believers** (heavy portfolio concentration in data/AI infrastructure)
@@ -482,6 +509,7 @@ FirstMark positions itself as:
 **NOTABLE**: Despite deep AI expertise through portfolio and community, they have NOT publicly positioned themselves as an "AI-powered VC firm" using proprietary tools—differentiating from EQT Ventures (Motherbrain), SignalFire, InReach Ventures.
 
 **IMPLICATION FOR ROLE:** This creates authentic opportunity to build AI infrastructure that:
+
 1. Maintains human judgment and relationship-first culture
 2. Augments (not replaces) partner decision-making
 3. Systematizes platform/community advantages
@@ -494,12 +522,14 @@ FirstMark positions itself as:
 ### Current Portfolio Breakdown
 
 **Scale:**
+
 - **204 active portfolio companies**
 - **424 total investments** made since 2008
 - **16 unicorns**, **9 IPOs**, **65 acquisitions**
 - **Recent activity**: 15 new investments in 2024, 6 in 2025 (through August)
 
 **Sector Distribution:**
+
 - Enterprise Applications: ~51%
 - AI/ML/Data: ~20-25%
 - Consumer/Marketplace: ~15-20%
@@ -508,11 +538,13 @@ FirstMark positions itself as:
 - Gaming: ~5-7%
 
 **Stage Distribution:**
+
 - Series A: 90 investments (primary focus)
 - Seed: 52 investments
 - **Lead rate**: 36% of investments led by FirstMark
 
 **Geographic Distribution:**
+
 - United States: ~73%
 - Growing Europe focus (especially through Matt Turck)
 - Key hubs: NYC, Boston, Toronto, Ottawa
@@ -564,22 +596,26 @@ FirstMark positions itself as:
 **2025 INVESTMENTS (6 through August):**
 
 **August 19, 2025** - **TensorZero** ($7.3M Seed, FIRSTMARK LED)
+
 - Brooklyn-based open-source LLM infrastructure startup
 - **Matt Turck led the investment**
 - Co-investors: Bessemer Venture Partners, Bedrock, DRW, Coalition
 - **STRATEGIC SIGNAL**: Continued AI infrastructure thesis, LLM tooling focus
 
 **May 29, 2025** - **ClickHouse** ($350M Series C, FOLLOW-ON)
+
 - Real-time analytics database, AI/ML infrastructure
 - Total funding now $650M+
 - Notable customers: Anthropic, Tesla, Meta, Sony, Lyft
 - **STRATEGIC SIGNAL**: Doubling down on AI infrastructure winners
 
 **April 2025** - **Pickle** ($12M Series A, CO-LED WITH CRAFT VENTURES)
+
 - Peer-to-peer fashion rental marketplace
 - 55% MoM growth, 90% user retention
 
 **January 15, 2025** - **Synthesia** ($180M Series D, FOLLOW-ON)
+
 - AI video generation platform
 - Valuation: $2.1B
 - 60,000+ customers, 70% of Fortune 100 companies
@@ -588,12 +624,14 @@ FirstMark positions itself as:
 **2024 INVESTMENTS (15 total, selected highlights):**
 
 **March 14, 2024** - **Lago** ($22M, FIRSTMARK LED SERIES A)
+
 - Paris-based open-source billing platform
 - **Matt Turck joined board**
 - Usage-based pricing for AI companies
 - Early customers: Mistral.ai, Together.ai
 
 **Pattern Analysis 2024-2025:**
+
 - **AI infrastructure concentration**: 4 of 6 investments in 2025 are AI-related
 - **Matt Turck leading AI deals**: Led or joined board on TensorZero, Lago
 - **Follow-on discipline**: ClickHouse, Synthesia show support for winners
@@ -603,11 +641,13 @@ FirstMark positions itself as:
 **NEW HIRE - 2024/2025:**
 
 **Dan Kozikowski - Partner and Head of Platform**
+
 - Background: MD & Partner at BCG, GM at Kickstarter, CEO at Interbrand
 - Role: Systematizing portfolio support and platform delivery
 - **STRATEGIC SIGNAL**: Investing in systematizing portfolio support—opportunity for AI Lead to partner on data infrastructure
 
 **RECOGNITION:**
+
 - **Rick Heitzmann**: Forbes Midas List #23 (2024, 5th consecutive year)
 
 ### Portfolio Exits & Milestones
@@ -615,11 +655,13 @@ FirstMark positions itself as:
 **MAJOR EXITS:**
 
 **September 17, 2025** - **StubHub IPO**
+
 - NYSE debut, ticker: STUB
 - Market cap: $8.06B
 - FirstMark: Early investor
 
 **December 2024** - **EvolutionIQ** ← **MAJOR AI EXIT**
+
 - **Acquired by CCC Intelligent Solutions for $730M**
 - FirstMark was "very first investor" (2019)
 - AI-powered insurance claims automation
@@ -628,24 +670,29 @@ FirstMark positions itself as:
 **PORTFOLIO MILESTONES:**
 
 **2024** - **Pigment Achieved Unicorn Status**
+
 - Became unicorn 3 years after FirstMark first invested
 - Subsequently raised $145M Series D led by ICONIQ Growth
 
 **April 15, 2025** - **Synthesia Surpassed $100M ARR**
+
 - Received strategic investment from Adobe Ventures
 - 70% of Fortune 100 are customers
 
 ### Platform Initiatives
 
 **DATA DRIVEN NYC (Ongoing):**
+
 - 20,000+ member AI/ML/Data community
 - Monthly in-person events featuring leading AI researchers, founders, investors
 
 **2025 CTO SUMMIT:**
+
 - Featured discussions on AI's impact on engineering
 - Productivity gains, technical challenges, leadership adaptation
 
 **GUILDS BY FIRSTMARK (Ongoing):**
+
 - 2,700+ members representing 60%+ of global tech unicorns
 - 100+ annual company-building events
 
@@ -654,20 +701,24 @@ FirstMark positions itself as:
 **MATT TURCK - MAD LANDSCAPE:**
 
 **March 21, 2024** - **2024 MAD Landscape - 10TH EDITION**
+
 - 2,011 logos (up from 1,416 in 2023)
 - 578 new entrants to map
 - Interactive website: mad.firstmark.com
 
 **2025** - **2025 MAD Landscape Released**
+
 - Theme: "Bubble & Build"
 - Continues annual tradition
 
 **RICK HEITZMANN MEDIA APPEARANCES (2025):**
+
 - CNBC Closing Bell: IPO market rebound
 - Jefferies Private Internet Conference (April 2025): AI progression, healthcare digitalization
 - RiskReversal Pod (Feb 2025): Generative AI trends, CapEx spending
 
 **MATT TURCK MEDIA:**
+
 - MAD Podcast (Weekly): Episodes with Dataiku CEO, Crossbeam CEO, Runway CEO
 - The Data Chief (2025): 2025 AI/data predictions
 - Mark MacLeod Podcast (2024): AI investment opportunities
@@ -713,6 +764,7 @@ FirstMark positions itself as:
 "FirstMark has built exceptional assets over 17 years—the MAD Landscape as market intelligence, Data Driven NYC as deal flow, Guilds as portfolio support infrastructure. But I suspect much of this lives in partner heads, email inboxes, and one-off introductions. There's an opportunity to build data architecture and agent-based systems that capture institutional knowledge, automate pattern recognition at scale, and intelligently match portfolio needs to community resources—while preserving the relationship-first, conviction-driven culture that defines FirstMark."
 
 **EVIDENCE FROM RESEARCH:**
+
 - Matt Turck manually creates MAD Landscape annually → Could be continuously updated with AI-powered company categorization
 - 20K+ Data Driven NYC members, 2,700+ Guild members → Rich relationship graph for deal sourcing
 - 204 portfolio companies → Performance monitoring, risk detection, cross-portfolio insights opportunity
@@ -743,12 +795,14 @@ FirstMark positions itself as:
 **CRITICAL UNANSWERED QUESTIONS:**
 
 **1. Current Data Infrastructure & Systems:**
+
 - What CRM/deal flow tool does FirstMark currently use?
 - How is portfolio data currently tracked?
 - What's the data architecture for community management?
 - **ASK**: "Can you walk me through your current tech stack and data systems?"
 
 **2. AI Lead Role Scope & Autonomy:**
+
 - Is this a greenfield build or replacing existing systems?
 - Budget for tools, services, potential hires?
 - Direct reports or individual contributor?
@@ -756,34 +810,40 @@ FirstMark positions itself as:
 - **ASK**: "What does success look like in year 1?"
 
 **3. Partner Workflows & Pain Points:**
+
 - What manual processes take the most partner time?
 - What decisions do partners wish they had better data for?
 - How do partners currently share market intelligence?
 - **ASK**: "What's the most time-consuming manual task in your workflow that you wish could be automated?"
 
 **4. Data Access & Privacy Constraints:**
+
 - What data exists but isn't currently systematized?
 - Privacy constraints on Guild member data?
 - Legal/compliance considerations?
 - **ASK**: "What data do you have access to that isn't currently being leveraged?"
 
 **5. Platform Strategy & Priorities:**
+
 - What's Dan Kozikowski's roadmap as Head of Platform?
 - How does AI Lead role interact with Platform team?
 - **ASK**: "Dan, what are your top 3 priorities for the Platform this year?"
 
 **6. Success Metrics & Evaluation:**
+
 - How would you measure ROI of AI infrastructure?
 - KPIs for deal sourcing quality?
 - Portfolio support metrics?
 - **ASK**: "How would you evaluate whether the AI Lead role has been successful after 12-18 months?"
 
 **7. Investment Thesis Connection:**
+
 - Expectation to participate in AI investment diligence?
 - Relationship with Matt Turck's AI portfolio work?
 - **ASK**: "Would you expect the AI Lead to contribute to investment diligence for AI companies?"
 
 **8. Organizational Reporting:**
+
 - Who does AI Lead report to?
 - Who are key stakeholders?
 - **ASK**: "Who would I be reporting to, and who are my key stakeholders?"
@@ -795,18 +855,21 @@ FirstMark positions itself as:
 ### Key Citations with Publication Dates
 
 **FIRM BASICS:**
+
 - FirstMark official website (firstmark.com) - Nov 2025
 - Wikipedia - FirstMark Capital - Nov 2025
 - TechCrunch - "$1.1B fund announcement" - July 20, 2022
 - Venture Capital Journal - July 2022
 
 **PARTNER PROFILES:**
+
 - FirstMark team pages (firstmark.com/team) - Nov 2025
 - LinkedIn profiles (all partners) - Nov 2025
 - Forbes - "Rick Heitzmann Midas List #23" - 2024
 - Mark MacLeod podcast - "Matt Turck on AI Investment Opportunities" - 2024
 
 **PORTFOLIO & INVESTMENTS:**
+
 - Crunchbase FirstMark profile - 2025
 - PitchBook FirstMark profile - Oct 2025
 - Tracxn - "FirstMark 2025 Investor Profile" - Aug 2025
@@ -817,6 +880,7 @@ FirstMark positions itself as:
 - FirstMark blog - EvolutionIQ acquisition - Dec 2024
 
 **THOUGHT LEADERSHIP:**
+
 - Matt Turck blog (mattturck.com) - 2024-2025
 - MAD Landscape (mad.firstmark.com) - Mar 2024, 2025
 - FirstMark blog (firstmark.com/perspectives) - 2024-2025
@@ -825,6 +889,7 @@ FirstMark positions itself as:
 **CONFIDENCE RATINGS:**
 
 **HIGH CONFIDENCE (2+ independent sources verified):**
+
 - Total AUM: $3.5B ✓
 - Portfolio size: 204 companies ✓
 - Unicorns: 16 ✓
@@ -834,11 +899,13 @@ FirstMark positions itself as:
 - Recent investments (TensorZero, ClickHouse, Lago, Synthesia) ✓
 
 **MEDIUM CONFIDENCE (single authoritative source):**
+
 - Some Tier 2 AI company details
 - Exact sector percentages (estimated from available data)
 - Some partnership dynamics and internal processes
 
 **GAPS EXPLICITLY NOTED:**
+
 - No public discussion of internal VC operational AI use ✓
 - Current tech stack and data systems (requires interview clarification) ✓
 - AI Lead role scope and expectations (requires interview clarification) ✓

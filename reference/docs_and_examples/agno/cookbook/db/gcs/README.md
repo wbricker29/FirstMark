@@ -46,14 +46,11 @@ gcloud projects add-iam-policy-binding PROJECT_ID \
     --role="roles/storage.admin"
 ```
 
-
 Install the required Python packages:
-
 
 ```bash
 pip install google-auth google-cloud-storage openai ddgs
 ```
-
 
 ## Example Script
 
@@ -74,14 +71,12 @@ If you want to test the storage functionality locally without using real GCS, yo
 
 ### Setup Fake GCS with Docker
 
-
-2. **Install Docker:**
+1. **Install Docker:**
 
 Make sure Docker is installed on your system.
 
-4. **
+1. **
 Create a `docker-compose.yml` File**  in your project root with the following content:
-
 
 ```yaml
 version: '3.8'
@@ -95,8 +90,7 @@ services:
       - ./fake-gcs-data:/data
 ```
 
-6. **Start the Fake GCS Server:**
-
+1. **Start the Fake GCS Server:**
 
 ```bash
 docker-compose up -d
@@ -104,18 +98,13 @@ docker-compose up -d
 
 This will start the fake GCS server on `http://localhost:4443`.
 
-
 ### Configuring the Script to Use Fake GCS
 
-
 Set the environment variable so the GCS client directs API calls to the emulator:
-
-
 
 ```bash
 export STORAGE_EMULATOR_HOST="http://localhost:4443"
 python gcs_json_for_agent.py
 ```
-
 
 When using Fake GCS, authentication isn’t enforced. The client will automatically detect the emulator endpoint.

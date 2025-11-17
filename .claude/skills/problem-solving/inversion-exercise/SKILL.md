@@ -37,6 +37,7 @@ Flip every assumption and see what still works. Sometimes the opposite reveals t
 **Normal approach:** Make everything faster (caching, optimization, CDN)
 
 **Inverted:** Make things intentionally slower in some places
+
 - Debounce search (add latency → enable better results)
 - Rate limit requests (add friction → prevent abuse)
 - Lazy load content (delay → reduce initial load)

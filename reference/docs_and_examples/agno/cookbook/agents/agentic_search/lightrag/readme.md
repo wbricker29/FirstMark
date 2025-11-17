@@ -47,6 +47,7 @@ Add your API keys as required. For detailed configuration, visit the official [L
 > **Note:** The example uses OpenAI for both LLM and embedding provision.
 
 **Key configurations to update:**
+
 ```env
 LLM_BINDING_API_KEY=your_openai_api_key_here
 EMBEDDING_BINDING_API_KEY=your_embedding_api_key_here
@@ -75,9 +76,10 @@ python cookbook/agent_concepts/agentic_search/lightrag/agentic_rag_with_lightrag
 
 ## ⚠️ Important Note
 
-**Document Processing Time:** Loading documents into the LightRAG server requires processing time. 
+**Document Processing Time:** Loading documents into the LightRAG server requires processing time.
 
 **Recommended workflow:**
+
 1. Run the `knowledge_base.load()` function
 2. Navigate to your LightRAG server (`http://localhost:9621`)
 3. Monitor the file processing status
@@ -90,4 +92,3 @@ python cookbook/agent_concepts/agentic_search/lightrag/agentic_rag_with_lightrag
 - [LightRAG Official Repository](https://github.com/HKUDS/LightRAG)
 - [LightRAG API Documentation](https://github.com/HKUDS/LightRAG/blob/main/lightrag/api/README.md)
 - [Agno Documentation](https://agno.ai)
-

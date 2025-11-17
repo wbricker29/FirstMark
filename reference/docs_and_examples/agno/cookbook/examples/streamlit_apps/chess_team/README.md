@@ -82,12 +82,14 @@ Choose from various AI models for different playing styles:
 ## 💡 Usage Examples
 
 ### Basic Game
+
 ```python
 # Start a quick game with default models
 team = get_chess_team()
 ```
 
 ### Custom Match
+
 ```python
 # Set up a specific model matchup
 team = get_chess_team(
@@ -98,7 +100,9 @@ team = get_chess_team(
 ```
 
 ### Game Analysis
+
 Ask the Game Master for insights:
+
 - "Analyze the current position"
 - "What are the key strategic themes?"
 - "Evaluate material balance and piece activity"

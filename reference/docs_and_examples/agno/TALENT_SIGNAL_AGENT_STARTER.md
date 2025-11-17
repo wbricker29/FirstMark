@@ -1,34 +1,43 @@
 # Talent Signal Agent - Agno Quick Reference
 
 ## Your Case Study Goal
+
 Build an AI agent that matches executives from FirstMark's network to open roles in portfolio companies.
 
 ## Where to Start - 3-Step Learning Path
 
 ### Step 1: Understand Recruiter Patterns (30 min)
+
 **File**: `agno_recruiter.md`
 
 Key questions to answer:
+
 - How does Agno structure recruiter agents?
 - What data flows through the agent pipeline?
 - How are candidates ranked/matched?
 
 ### Step 2: Study a Real Example (45 min)
-**Files**: 
+
+**Files**:
+
 - `candidate_analyser/` - MOST RELEVANT
 - `agno_investmentalx.md` - VC context
 
 Key questions:
+
 - What does candidate analysis code look like?
 - How are multiple data sources combined?
 - How is reasoning explained to users?
 
 ### Step 3: Learn Multi-Agent Patterns (45 min)
+
 **Files**:
+
 - `multi_agent_researcher/`
 - `agno_reasoningteam.md`
 
 Key questions:
+
 - How do agents coordinate?
 - Can research and matching be separate agents?
 - How does data flow between agents?
@@ -38,18 +47,22 @@ Key questions:
 ## Code Patterns You'll Need
 
 ### Pattern 1: Load Structured Data
+
 **Where**: `cookbook/` - search for CSV examples
 **What you need**: How to load executive lists, role descriptions
 
 ### Pattern 2: Integrate Unstructured Data
+
 **Where**: `agno_deepknowledge.md`, `agno_crawl4ai.md`
 **What you need**: How to process bios, articles, LinkedIn profiles
 
 ### Pattern 3: Matching Logic
+
 **Where**: `candidate_analyser/`, `agno_recruiter.md`
 **What you need**: How to score/rank candidate-role fits
 
 ### Pattern 4: Reasoning Output
+
 **Where**: `multi_agent_researcher/`, all examples
 **What you need**: How to explain WHY a match works
 
