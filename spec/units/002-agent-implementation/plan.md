@@ -90,12 +90,12 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Title:** Write unit tests for scoring and quality check
 - **Description:** Create `tests/test_scoring.py` for calculate_overall_score() tests (all scored, partial scored, no scored, None handling). Create `tests/test_quality_check.py` for check_research_quality() tests (sufficient, insufficient citations, empty summary). Use pytest with fixtures for ExecutiveResearchResult and DimensionScore test data.
 - **Files:** `tests/test_scoring.py`, `tests/test_quality_check.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** high
 - **Estimate:** 1.5 hours
 - **Dependencies:** TK-01, TK-03, TK-04
 - **Note:** Core logic tests required by constitution. Focus on happy paths + evidence-aware None handling.
-- **Completed:** null
+- **Completed:** 2025-11-17T05:15:00Z
 
 ### TK-08
 
@@ -157,12 +157,11 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Status:** in_progress
 - **Created:** 2025-01-16
 - **Tasks Total:** 9
-- **Tasks Completed:** 7
-- **Progress:** 78%
+- **Tasks Completed:** 8
+- **Progress:** 89%
 
 ### Outstanding Work
 
-- **TK-07 (Unit Tests):** Still queued for Developer B to implement scoring/quality-check coverage.
 - **TK-09 (Integration Smoke Test - Optional):** Not started; remains optional confidence check before workflow demo.
 
 ## 2-Developer Parallel Execution Plan
