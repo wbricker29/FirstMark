@@ -96,36 +96,32 @@ The following Agno features are explicitly incorporated in Section 3.8:
 - `case/technical_spec_V2.md` requires:
   - Storage of "All logs and intermediate parts"
   - "Everything needs to have a markdown copy" for some users
-- `demo_planning/airtable_schema.md` defines `Research_Results.research_json` but does **not** explicitly mention storing the raw Deep Research markdown blob.
+- `spec/v1_minimal_spec.md` restricts Airtable scope to People, Portcos/Roles/Specs, Screens, and Assessments; there is no `Research_Results` table in v1. We need to explicitly store raw Deep Research output inside those allowed tables.
 
 **Decision:**
 - v1.0-minimal **must** retain the raw Deep Research markdown response per candidate-screen pair.
-- This should be done **in Airtable**, not in a separate file system or database.
+- Store both the raw markdown and the generated assessment narrative on the **Assessments** table (one record per candidate + role) to stay inside the v1 table contract.
 
-**Recommended design:**
-- Add a long-text field to `Research_Results`:
-  - Name: `raw_research_markdown`
-  - Type: Long Text (Markdown content)
-  - Purpose: Preserve the exact Deep Research API response (markdown + inline citations)
-- Add a long-text field to `Assessments`:
-  - Name: `assessment_markdown_report`
-  - Type: Long Text (Markdown content)
-  - Purpose: Human-readable assessment report combining research + scores
+**Recommended design (Assessments table):**
+- `research_structured_json` (Long Text, JSON) – serialized `ExecutiveResearchResult`
+- `research_markdown_raw` (Long Text) – Deep Research markdown blob with inline citations
+- `assessment_json` (Long Text, JSON) – serialized `AssessmentResult`
+- `assessment_markdown_report` (Long Text) – human-readable narrative (optional but recommended)
 
 **Implementation notes:**
 - AGNO agents:
-  - Deep Research agent returns both:
-    - Raw markdown (`research_markdown`)
-    - Structured `ExecutiveResearchResult`
-  - Assessment agent consumes structured research; markdown report generation happens in Python.
-- Airtable client:
-  - Writes `research_markdown` → `Research_Results.raw_research_markdown`
-  - Writes generated markdown report → `Assessments.assessment_markdown_report`
+  - Deep Research agent returns both raw markdown (`research_markdown`) and structured `ExecutiveResearchResult`
+  - Assessment agent consumes structured research; markdown report generation happens in Python
+- Airtable client writes everything to the **Assessments** record:
+  - `research_markdown` → `research_markdown_raw`
+  - `ExecutiveResearchResult.json()` → `research_structured_json`
+  - `AssessmentResult.json()` → `assessment_json`
+  - Markdown summary → `assessment_markdown_report`
 
 **Rationale:**
-- Satisfies "retain raw blob" requirement without adding new infra.
-- Keeps all canonical data (raw + structured + reports) in Airtable.
-- Aligns with KISS/YAGNI: one source of truth, no extra storage systems.
+- Satisfies "retain raw blob" requirement without adding any extra tables
+- Keeps raw + structured data and narratives in one source of truth per candidate-role pair
+- Aligns with KISS/YAGNI and the minimal Airtable footprint defined in `spec/v1_minimal_spec.md`
 
 ---
 
@@ -423,11 +419,18 @@ demo/
    - **Decision:** Use `SqliteDb(db_file="tmp/agno_sessions.db")` for quick local inspection
    - **Fallback:** `InMemoryDb()` remains documented if persistence becomes unnecessary
 3. ✅ Update Section 2.3, 3.2, and 4 language to clarify custom vs. internal DB usage
-4. ⬜ Add ReasoningTools as optional enhancement to Section 3.8
+4. ⬜ Update Airtable docs (demo_planning + spec) to add Assessment fields:
+   - `research_structured_json`, `research_markdown_raw`, `assessment_json`, `assessment_markdown_report`
+5. ⬜ Add ReasoningTools as optional enhancement to Section 3.8
 
 ### During Implementation
 
 1. ⬜ Implement with SqliteDb session storage (ensure `tmp/` is gitignored)
+2. ⬜ Extend Airtable client write-back so each candidate assessment updates:
+   - raw research markdown
+   - structured research JSON
+   - structured assessment JSON
+   - markdown narrative summary
 2. ⬜ Run first pre-run (Pigment CFO)
 3. ⬜ Evaluate assessment explanation quality
 4. ⬜ If explanations weak: Add ReasoningTools (~30 min)
@@ -436,7 +439,8 @@ demo/
 ### Documentation
 
 1. ⬜ Update implementation notes in `case/tracking.md` with chosen DB approach (SqliteDb)
-2. ⬜ Document ReasoningTools decision (included or skipped) in write-up
+2. ⬜ Document Airtable field additions + raw research persistence plan
+3. ⬜ Document ReasoningTools decision (included or skipped) in write-up
 
 ---
 
