@@ -1118,7 +1118,7 @@ For v1.0-minimal, log key metrics to terminal:
 
 ## Implementation Checklist
 
-### Phase 1: Setup (2 hours)
+### Stage 1: Setup (2 hours)
 
 - [x] Create minimal project structure (5 files)
 - [x] Set up Python environment (uv, .python-version)
@@ -1127,7 +1127,7 @@ For v1.0-minimal, log key metrics to terminal:
 - [ ] Create Pydantic models (models.py)
 - [ ] Validate against data_design.md schemas
 
-### Phase 2: Agent Implementation (6 hours)
+### Stage 2: Agent Implementation (6 hours)
 
 - [ ] Implement research agent (agents.py)
   - [ ] Deep Research mode (o4-mini-deep-research)
