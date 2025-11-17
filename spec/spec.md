@@ -1016,6 +1016,14 @@ For v1.0-minimal, log key metrics to terminal:
 - **Key fields extracted:** Overall score, confidence, summary for quick viewing
 - **Full Pydantic models:** Stored in `*_json` fields for complete audit trail
 
+**v1.0-minimal Changes:**
+- No Workflows table (Phase 2+)
+- Status and error tracking in Screens and Assessments tables
+- Research and Assessment JSON stored in respective tables
+- Raw research markdown stored in Research_Results.raw_research_markdown
+- Assessment markdown reports stored in Assessments.assessment_markdown_report
+- Agno session state in tmp/agno_sessions.db (SqliteDb, not exposed in Airtable)
+
 **For complete field definitions, types, options, and setup instructions, see `demo_planning/airtable_schema.md`.**
 
 ---

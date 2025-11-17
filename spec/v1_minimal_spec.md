@@ -462,10 +462,26 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   - Skip if timeline is tight and basic assessment is sufficient
   - Can be added incrementally without affecting other components
 
-- **Tool hooks for centralized logging (lower priority):**
+  - **Tool hooks for centralized logging (lower priority):**
   - Agno's `tool_hooks` can centralize Airtable update logging
   - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
   - Mark as Phase 2+ code quality enhancement
+
+### 3.9 Airtable Data Storage (Assessments-Only)
+
+**Goal:** Keep all canonical research + assessment outputs inside the existing Airtable tables while honoring the v1 scope (no `Research_Results` or custom `Workflows` tables).
+
+- Store per-candidate research + assessment artifacts on the **Assessments** record that already exists for each candidate-role pair.
+- Required Long Text fields (JSON or Markdown):
+  - `research_structured_json` – serialized `ExecutiveResearchResult`
+  - `research_markdown_raw` – Deep Research markdown blob with inline citations
+  - `assessment_json` – serialized `AssessmentResult`
+  - `assessment_markdown_report` – human-readable narrative for stakeholders
+- **Implication:** No additional Airtable tables are needed. When referring to “Research results” or “workflow logs” in the PRD/SPEC, the implementation must write to these Assessment fields plus Screen status/error columns.
+- **Auditability contract:**
+  - Airtable Screen + Assessment fields = source of truth for structured/raw data and statuses
+  - Terminal logs + Agno `SqliteDb(db_file="tmp/agno_sessions.db")` = transient execution detail for local inspection
+  - Custom WorkflowEvent tables or Research_Results tables are explicitly Phase 2+
 
 And v1.0-minimal should explicitly **not** use:
 
@@ -486,9 +502,10 @@ And v1.0-minimal should explicitly **not** use:
   - Pydantic models
   - Thin Airtable wrapper
 - Deep research as the primary mode; optional **single incremental search agent step** (which may perform up to two web/search calls) when quality is low; no fast-mode orchestration or multi-iteration supplemental search loops.
-- No custom SQLite event tables or workflow audit database; rely on Agno's `SqliteDb` (at `tmp/agno_sessions.db`) purely for session state you can inspect locally
-- Airtable (final results) + terminal logs (execution events) provide sufficient auditability for demo
-- Custom event persistence and observability database are Phase 2+ enhancements
+- No custom SQLite event tables or workflow audit database; rely on Agno's `SqliteDb` (at `tmp/agno_sessions.db`) purely for session state you can inspect locally.
+- Airtable (final results) + terminal logs (execution events) provide sufficient auditability for demo.
+- All raw + structured research/assessment artifacts are stored on the existing Assessments table (`research_structured_json`, `research_markdown_raw`, `assessment_json`, `assessment_markdown_report`); no `Research_Results` table in v1.
+- Custom event persistence and observability databases are Phase 2+ enhancements.
 - Basic testing and logging; correctness and clarity are prioritized over coverage metrics or production-grade observability.
 
 These changes keep the implementation aligned with `case/technical_spec_V2.md` while making the delivered code achievable, maintainable, and clearly scoped for a 48-hour interview demo.
