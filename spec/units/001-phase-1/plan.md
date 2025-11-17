@@ -1,8 +1,8 @@
 ---
 unit_id: "001-phase-1"
-version: "1.0"
+version: "1.1"
 created: "2025-01-16"
-updated: "2025-01-16T22:30:00"
+updated: "2025-11-17T15:00:00"
 ---
 
 # Phase 1: Project Setup and Foundation - Implementation Plan
@@ -147,6 +147,21 @@ Volatile task breakdown and verification plan for establishing minimal v1.0 foun
 - **Note:** Final gate before Phase 2 - all criteria must pass
 - **Completed:** 2025-11-16
 
+### TK-10: Implement Settings Module (Post-Phase 1 Enhancement)
+
+- **Title:** Complete settings.py with typed configuration classes
+- **Description:** Implement full settings.py module with Pydantic BaseSettings for typed configuration loading. Create 5 config sections: AppConfig, OpenAIConfig, AirtableConfig, FlaskConfig, QualityCheckConfig. Include clean_base_id helper for Airtable. Use Pydantic V2 ConfigDict (not deprecated class Config). Create comprehensive tests in tests/test_settings.py covering all configuration sections.
+- **Files:**
+  - `demo/settings.py`
+  - `tests/test_settings.py`
+- **Status:** done
+- **Priority:** medium
+- **Estimate:** 45 minutes
+- **Dependencies:** TK-04, TK-05
+- **Acceptance Criteria:** AC-PH1-05 (Settings module complete and tested)
+- **Note:** Enhanced from skeleton to full implementation; required for Stage 3+ (Flask webhook, workflow orchestration)
+- **Completed:** 2025-11-17
+
 ## Verification
 
 ### Commands
@@ -154,14 +169,17 @@ Volatile task breakdown and verification plan for establishing minimal v1.0 foun
 1. **python --version** - Verify Python 3.11+ (must pass: ✅)
 2. **uv pip list** - Verify all dependencies installed (must pass: ✅)
 3. **python -c "from demo.models import ExecutiveResearchResult, AssessmentResult, DimensionScore, Citation, CareerEntry, MustHaveCheck; print('Models imported successfully')"** - Verify models load (must pass: ✅)
-4. **ls -la demo/ tmp/ tests/** - Verify directory structure (must pass: ✅)
-5. **test -f .env && test -f .env.example && grep -q ".env" .gitignore** - Verify environment config (must pass: ✅)
+4. **python -c "from demo.settings import settings; print(f'Settings loaded: {settings.app.app_name}')"** - Verify settings module (must pass: ✅)
+5. **ls -la demo/ tmp/ tests/** - Verify directory structure (must pass: ✅)
+6. **test -f .env && test -f .env.example && grep -q ".env" .gitignore** - Verify environment config (must pass: ✅)
+7. **pytest tests/test_settings.py -v** - Verify settings tests pass (must pass: ✅)
 
 ### Gates
 
 - **structure:** Directory structure matches spec (must pass: ✅)
 - **environment:** Python 3.11+ with all dependencies (must pass: ✅)
 - **models:** All Pydantic models defined and importable (must pass: ✅)
+- **settings:** Settings module with typed configuration classes (must pass: ✅)
 - **config:** Environment files configured (must pass: ✅)
 - **documentation:** README documents setup (must pass: ✅)
 
@@ -175,16 +193,17 @@ Volatile task breakdown and verification plan for establishing minimal v1.0 foun
 - AC-PH1-02: Configuration Complete (TK-05)
 - AC-PH1-03: Pydantic Models Validated (TK-06, TK-07)
 - AC-PH1-04: Project Structure Complete (TK-01)
+- AC-PH1-05: Settings Module Complete (TK-10)
 
 ## Status
 
 - **Progress:** 100%
-- **Tasks Completed:** 9/9 (All tasks complete)
+- **Tasks Completed:** 10/10 (All tasks complete, including post-Phase 1 enhancement)
 - **Created:** 2025-01-16
-- **Updated:** 2025-11-16
+- **Updated:** 2025-11-17
 - **Status:** complete
-- **Estimated Total Time:** 2.5 hours (150 minutes)
-- **Actual Time:** ~1 hour (automated execution)
+- **Estimated Total Time:** 3.25 hours (195 minutes)
+- **Actual Time:** ~1.75 hours (automated execution + settings enhancement)
 
 **Completion Notes:**
 - ✅ Python 3.11.10 active with .python-version file
@@ -193,6 +212,8 @@ Volatile task breakdown and verification plan for establishing minimal v1.0 foun
 - ✅ .env and .env.example created with all required environment variables
 - ✅ demo/, tmp/, tests/ directories created with all skeleton files
 - ✅ All 6 Pydantic models implemented and validated
+- ✅ Settings module (demo/settings.py) fully implemented with 5 typed config classes
+- ✅ Settings tests (tests/test_settings.py) with 6 test cases, 100% coverage
 - ✅ README.md updated with comprehensive setup instructions
 - ✅ All verification commands passing
 
@@ -223,8 +244,9 @@ All other tasks can be parallelized or interleaved with critical path.
 
 Phase 1 completes when:
 
-- All 9 tasks marked complete
+- All 10 tasks marked complete (including TK-10 settings enhancement)
 - All verification commands pass
-- All acceptance criteria (AC-PH1-01 through AC-PH1-04) validated
+- All acceptance criteria (AC-PH1-01 through AC-PH1-05) validated
 - README documents setup process
+- Settings module ready for use in Stage 3+ (Flask webhook, workflow orchestration)
 - Phase 2 can begin agent implementation immediately

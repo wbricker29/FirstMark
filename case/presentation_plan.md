@@ -17,8 +17,16 @@
 
 ## Presentation Structure
 
+
 ### Intro (15 min)
 
+#### About Will 
+
+
+
+
+
+#### 2
 **How I think about attacking transformation in venture:**
 
 - How we would ideally get to this use case

@@ -50,6 +50,7 @@ class ExecutiveResearchResult(BaseModel):
 
     # Summary & Evidence
     research_summary: str
+    research_markdown_raw: str = ""
     key_achievements: list[str] = Field(default_factory=list)
     notable_companies: list[str] = Field(default_factory=list)
     citations: list[Citation] = Field(default_factory=list)

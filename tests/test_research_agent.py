@@ -41,10 +41,15 @@ class TestCreateResearchAgent:
 class TestRunResearch:
     """Tests for run_research function with mocked agent."""
 
+    @patch("demo.agents.create_research_parser_agent")
     @patch("demo.agents.create_research_agent")
-    def test_run_research_success_with_citations(self, mock_create_agent):
+    def test_run_research_success_with_citations(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
         """Test successful research with citations returns ExecutiveResearchResult."""
-        # Mock agent and result
+        # Mock Deep Research result
         mock_agent = Mock()
         mock_result = Mock()
         mock_result.content = """
@@ -82,6 +87,33 @@ Led finance teams of 20+ across multiple companies.
         mock_agent.run.return_value = mock_result
         mock_create_agent.return_value = mock_agent
 
+        # Mock parser output
+        parser_agent = Mock()
+        parser_agent.run.return_value = ExecutiveResearchResult(
+            exec_name="John Doe",
+            current_role="CFO",
+            current_company="Acme Corp",
+            research_summary="Parsed summary",
+            citations=[
+                Citation(
+                    url="https://linkedin.com/in/johndoe",
+                    title="John Doe - LinkedIn",
+                    snippet="",
+                ),
+                Citation(
+                    url="https://acmecorp.com/team",
+                    title="Acme Corp Team",
+                    snippet="",
+                ),
+                Citation(
+                    url="https://techcrunch.com/johndoe",
+                    title="John Doe raises $50M",
+                    snippet="",
+                ),
+            ],
+        )
+        mock_create_parser.return_value = parser_agent
+
         # Execute
         result = run_research(
             candidate_name="John Doe",
@@ -99,10 +131,16 @@ Led finance teams of 20+ across multiple companies.
         assert result.citations[0].url == "https://linkedin.com/in/johndoe"
         assert result.research_confidence == "Low"  # 3 citations + content < 2000
         assert result.research_model == "o4-mini-deep-research"
-        assert "John Doe is a seasoned CFO" in result.research_summary
+        assert result.research_summary == "Parsed summary"
+        assert result.research_markdown_raw.startswith("# Executive Summary")
 
+    @patch("demo.agents.create_research_parser_agent")
     @patch("demo.agents.create_research_agent")
-    def test_run_research_without_linkedin(self, mock_create_agent):
+    def test_run_research_without_linkedin(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
         """Test research works without LinkedIn URL."""
         mock_agent = Mock()
         mock_result = Mock()
@@ -112,6 +150,15 @@ Led finance teams of 20+ across multiple companies.
 
         mock_agent.run.return_value = mock_result
         mock_create_agent.return_value = mock_agent
+
+        parser_agent = Mock()
+        parser_agent.run.return_value = ExecutiveResearchResult(
+            exec_name="Jane Smith",
+            current_role="CTO",
+            current_company="Beta Inc",
+            research_summary="Structured",
+        )
+        mock_create_parser.return_value = parser_agent
 
         result = run_research(
             candidate_name="Jane Smith",
@@ -128,8 +175,13 @@ Led finance teams of 20+ across multiple companies.
         assert "Jane Smith" in call_args
         assert "LinkedIn: Not provided" in call_args
 
+    @patch("demo.agents.create_research_parser_agent")
     @patch("demo.agents.create_research_agent")
-    def test_run_research_handles_missing_citations(self, mock_create_agent):
+    def test_run_research_handles_missing_citations(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
         """Test research handles missing citations gracefully."""
         mock_agent = Mock()
         mock_result = Mock()
@@ -138,6 +190,16 @@ Led finance teams of 20+ across multiple companies.
 
         mock_agent.run.return_value = mock_result
         mock_create_agent.return_value = mock_agent
+
+        parser_agent = Mock()
+        parser_agent.run.return_value = ExecutiveResearchResult(
+            exec_name="Bob Test",
+            current_role="VP Eng",
+            current_company="Test Co",
+            research_summary="Summary",
+            citations=[],
+        )
+        mock_create_parser.return_value = parser_agent
 
         result = run_research(
             candidate_name="Bob Test",
@@ -149,13 +211,19 @@ Led finance teams of 20+ across multiple companies.
         assert result.research_confidence == "Low"
         assert len(result.gaps) > 0
 
+    @patch("demo.agents.create_research_parser_agent")
     @patch("demo.agents.create_research_agent")
-    def test_run_research_raises_on_agent_failure(self, mock_create_agent):
+    def test_run_research_raises_on_agent_failure(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
         """Test research raises RuntimeError when agent fails after retries."""
         mock_agent = Mock()
         mock_agent.run.side_effect = Exception("API timeout")
 
         mock_create_agent.return_value = mock_agent
+        mock_create_parser.return_value = Mock()
 
         with pytest.raises(RuntimeError, match="Research agent failed.*after retries"):
             run_research(
@@ -163,6 +231,69 @@ Led finance teams of 20+ across multiple companies.
                 current_title="CEO",
                 current_company="Fail Corp",
             )
+
+    @patch("demo.agents.create_research_parser_agent")
+    @patch("demo.agents.create_research_agent")
+    def test_run_research_parser_failure(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
+        """Parser failure should raise RuntimeError with context."""
+        mock_agent = Mock()
+        mock_result = Mock()
+        mock_result.content = "Research"
+        mock_result.citations = []
+        mock_agent.run.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        parser_agent = Mock()
+        parser_agent.run.side_effect = Exception("parser error")
+        mock_create_parser.return_value = parser_agent
+
+        with pytest.raises(RuntimeError, match="Research parser failed"):
+            run_research(
+                candidate_name="Parser Fail",
+                current_title="CFO",
+                current_company="Acme",
+            )
+
+    @patch("demo.agents.create_research_parser_agent")
+    @patch("demo.agents.create_research_agent")
+    def test_run_research_handles_list_citations(
+        self,
+        mock_create_agent,
+        mock_create_parser,
+    ) -> None:
+        """Deep Research citations provided as list should be parsed."""
+        mock_agent = Mock()
+        mock_result = Mock()
+        mock_result.content = "Research"
+        mock_result.citations = [
+            {"url": "https://example.com/one", "title": "One"},
+            {"url": "https://example.com/two", "title": "Two"},
+        ]
+        mock_agent.run.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        parser_agent = Mock()
+        parser_agent.run.return_value = ExecutiveResearchResult(
+            exec_name="List Case",
+            current_role="CTO",
+            current_company="Sample",
+            research_summary="Summary",
+            citations=[],
+        )
+        mock_create_parser.return_value = parser_agent
+
+        result = run_research(
+            candidate_name="List Case",
+            current_title="CTO",
+            current_company="Sample",
+        )
+
+        assert len(result.citations) == 2
+        assert result.citations[0].url == "https://example.com/one"
 
 
 class TestExtractSummary:

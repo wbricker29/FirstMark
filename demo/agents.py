@@ -4,6 +4,7 @@ This module defines the three core agents (Deep Research, Incremental Search, As
 and the linear screening workflow that coordinates them.
 """
 
+import json
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional, TypeVar
 
@@ -88,6 +89,29 @@ Be explicit about:
 - What you found with supporting citations
 - What you couldn't find (gaps)
 - Confidence level based on evidence quality/quantity
+        """.strip(),
+        exponential_backoff=True,
+        retries=2,
+        delay_between_retries=1,
+    )
+
+
+def create_research_parser_agent() -> Agent:
+    """Create parser agent that converts markdown into structured results."""
+
+    return Agent(
+        name="Research Parser Agent",
+        model=OpenAIResponses(id="gpt-5-mini"),
+        output_schema=ExecutiveResearchResult,
+        instructions="""
+Convert the provided Deep Research markdown and citations into the
+ExecutiveResearchResult schema.
+
+Requirements:
+- Extract career timeline, achievements, sector/stage exposure
+- Reference citations explicitly (use citation URLs when uncertain)
+- Surface gaps or missing public information
+- Leave scores/assessments untouched; focus only on research structure
         """.strip(),
         exponential_backoff=True,
         retries=2,
@@ -230,60 +254,50 @@ Research this executive comprehensively.
             f"Research agent failed for {candidate_name} after retries: {e}"
         ) from e
 
-    # Extract markdown and citations with type checking
     research_markdown: str = str(result.content) if hasattr(result, "content") else ""
-    citations_raw = (
-        result.citations.urls
-        if hasattr(result, "citations") and result.citations
-        else []
-    )
+    citation_dicts = _extract_citation_dicts(result)
+    fallback_citations = _convert_dicts_to_citations(citation_dicts)
 
-    # Build Citation objects with safe type handling
-    citations = [
-        Citation(
-            url=str(c.url) if hasattr(c, "url") else "",
-            title=str(c.title) if hasattr(c, "title") and c.title else str(c.url),
-            snippet="",  # Deep Research doesn't provide snippets directly
-            relevance_note=None,
-        )
-        for c in (citations_raw if citations_raw else [])
-    ]
-
-    # Parse markdown for summary (first 2000 chars or up to first major section)
-    research_summary = _extract_summary(research_markdown)
-
-    # Estimate confidence based on citation count and content length
-    confidence = _estimate_confidence(citations, research_markdown)
-
-    # Create structured result
-    # NOTE: v1 does minimal markdown parsing - just stores markdown and extracts summary
-    # Phase 2+ can add structured extraction for career_timeline, expertise_areas, etc.
-    return ExecutiveResearchResult(
-        exec_name=candidate_name,
-        current_role=current_title,
+    parser_agent = create_research_parser_agent()
+    parser_prompt = _build_parser_prompt(
+        candidate_name=candidate_name,
+        current_title=current_title,
         current_company=current_company,
-        # Career fields (v1: empty - parsed from markdown in Phase 2+)
-        career_timeline=[],
-        total_years_experience=None,
-        # Domain fields (v1: empty - parsed from markdown in Phase 2+)
-        fundraising_experience=None,
-        operational_finance_experience=None,
-        technical_leadership_experience=None,
-        team_building_experience=None,
-        sector_expertise=[],
-        stage_exposure=[],
-        # Summary & Evidence
-        research_summary=research_summary,
-        key_achievements=[],  # v1: empty - parsed in Phase 2+
-        notable_companies=[],  # v1: empty - parsed in Phase 2+
-        citations=citations,
-        # Confidence & Gaps
-        research_confidence=confidence,
-        gaps=_identify_gaps(research_markdown, citations),
-        # Metadata
-        research_timestamp=datetime.now(),
-        research_model="o4-mini-deep-research",
+        research_markdown=research_markdown,
+        citations=citation_dicts,
     )
+
+    try:
+        parser_output = parser_agent.run(parser_prompt)
+    except Exception as exc:  # pragma: no cover - API failure path
+        raise RuntimeError(
+            f"Research parser failed for {candidate_name} after Deep Research: {exc}"
+        ) from exc
+
+    structured = _coerce_model(parser_output, ExecutiveResearchResult)
+
+    structured.research_markdown_raw = research_markdown
+    structured.citations = _merge_citation_models(
+        structured.citations,
+        fallback_citations,
+    )
+    structured.research_summary = (
+        structured.research_summary.strip()
+        if structured.research_summary.strip()
+        else _extract_summary(research_markdown)
+    )
+    structured.research_confidence = _estimate_confidence(
+        structured.citations,
+        research_markdown,
+    )
+    structured.gaps = structured.gaps or _identify_gaps(
+        research_markdown,
+        structured.citations,
+    )
+    structured.research_timestamp = datetime.now()
+    structured.research_model = "o4-mini-deep-research"
+
+    return structured
 
 
 def run_incremental_search(
@@ -467,6 +481,152 @@ def calculate_overall_score(
         return None
 
     return (sum(scored) / len(scored)) * 20
+
+
+def _extract_citation_dicts(result: Any) -> list[dict[str, str]]:
+    """Normalize citations emitted by the Deep Research API."""
+
+    sources: list[Any] = []
+    if hasattr(result, "citations") and result.citations:
+        sources.append(result.citations)
+
+    messages = getattr(result, "messages", None)
+    if isinstance(messages, (list, tuple)) and messages:
+        last_message = messages[-1]
+        last_citations = getattr(last_message, "citations", None)
+        if last_citations:
+            sources.append(last_citations)
+
+    normalized: list[dict[str, str]] = []
+    seen: set[str] = set()
+
+    for source in sources:
+        if hasattr(source, "urls") and getattr(source, "urls") is not None:
+            items = list(source.urls)
+        elif isinstance(source, (list, tuple)):
+            items = list(source)
+        else:
+            items = [source]
+
+        for item in items:
+            citation_dict = _coerce_citation_like(item)
+            url = citation_dict.get("url", "").strip()
+            title = citation_dict.get("title", "").strip()
+            snippet = citation_dict.get("snippet", "").strip()
+            key = url or f"{title}:{snippet}"
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            normalized.append(
+                {
+                    "url": url,
+                    "title": title or url or "Unknown Source",
+                    "snippet": snippet,
+                }
+            )
+
+    return normalized
+
+
+def _coerce_citation_like(item: Any) -> dict[str, str]:
+    """Convert an arbitrary citation-like object into a simple dict."""
+
+    if isinstance(item, Citation):
+        return {
+            "url": item.url,
+            "title": item.title,
+            "snippet": item.snippet,
+        }
+
+    if isinstance(item, dict):
+        return {
+            "url": str(item.get("url", "")),
+            "title": str(item.get("title", "")),
+            "snippet": str(
+                item.get("snippet") or item.get("text") or item.get("quote") or ""
+            ),
+        }
+
+    url = str(getattr(item, "url", ""))
+    title = str(getattr(item, "title", ""))
+    snippet = str(
+        getattr(item, "snippet", "")
+        or getattr(item, "text", "")
+        or getattr(item, "quote", "")
+    )
+
+    return {
+        "url": url,
+        "title": title,
+        "snippet": snippet,
+    }
+
+
+def _convert_dicts_to_citations(citation_dicts: list[dict[str, str]]) -> list[Citation]:
+    """Convert normalized citation dicts into Citation models."""
+
+    converted: list[Citation] = []
+    seen_urls: set[str] = set()
+
+    for data in citation_dicts:
+        url = data.get("url", "").strip()
+        title = data.get("title", "").strip() or url or "Unknown Source"
+        snippet = data.get("snippet", "")
+        if url and url in seen_urls:
+            continue
+        converted.append(
+            Citation(
+                url=url,
+                title=title,
+                snippet=snippet,
+                relevance_note=None,
+            )
+        )
+        if url:
+            seen_urls.add(url)
+
+    return converted
+
+
+def _merge_citation_models(
+    primary: Optional[list[Citation]], supplemental: list[Citation]
+) -> list[Citation]:
+    """Merge two citation lists while preserving order and removing duplicates."""
+
+    merged = list(primary or [])
+    seen_urls = {citation.url for citation in merged if citation.url}
+
+    for citation in supplemental:
+        if citation.url and citation.url in seen_urls:
+            continue
+        merged.append(citation)
+        if citation.url:
+            seen_urls.add(citation.url)
+
+    return merged
+
+
+def _build_parser_prompt(
+    candidate_name: str,
+    current_title: str,
+    current_company: str,
+    research_markdown: str,
+    citations: list[dict[str, str]],
+) -> str:
+    """Create instructions for the parser agent."""
+
+    citations_block = json.dumps(citations, indent=2) if citations else "[]"
+    markdown_block = research_markdown.strip() or "(no research markdown provided)"
+
+    return (
+        f"Candidate: {candidate_name}\n"
+        f"Current Role: {current_title} at {current_company}\n\n"
+        "You are a parser that converts Deep Research markdown into the "
+        "ExecutiveResearchResult schema. Extract structured data, preserve "
+        "citations, and list explicit gaps when information is missing."
+        "\n\nRESEARCH MARKDOWN:\n"
+        f"{markdown_block}\n\nCITATIONS:\n{citations_block}"
+    ).strip()
 
 
 def _extract_summary(markdown: str, max_length: int = 2000) -> str:

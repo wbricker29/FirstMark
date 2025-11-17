@@ -26,15 +26,15 @@ Volatile task breakdown and verification plan for implementing core AI agents
 
 ### TK-02
 
-- **Title:** Implement research agent with Deep Research mode
-- **Description:** Create `create_research_agent()` and `run_research()` functions in `demo/agents.py`. Configure Agno Agent with OpenAIResponses(id="o4-mini-deep-research"), exponential_backoff=True, retries=2. Handle markdown output from Deep Research API (NOT structured output). Extract citations from result.citations. Return ExecutiveResearchResult.
-- **Files:** `demo/agents.py`, `tests/test_research_agent.py`
+- **Title:** Implement research agent with Deep Research + parser flow
+- **Description:** Create `create_research_agent()`, `create_research_parser_agent()`, and `run_research()` in `demo/agents.py`. Configure Deep Research agent with OpenAIResponses(id="o4-mini-deep-research"), exponential_backoff=True, retries=2. Capture markdown + citations, normalize API responses, and invoke a parser agent (`gpt-5-mini` + `output_schema=ExecutiveResearchResult`) to produce structured payloads. Persist the raw markdown (`research_markdown_raw`), merge citations, recompute confidence/gaps, and expose everything via `ExecutiveResearchResult`. Update `tests/test_research_agent.py` with mocks that cover parser success/failure, list vs. object citations, and raw-markdown handling.
+- **Files:** `demo/agents.py`, `demo/models.py`, `tests/test_research_agent.py`
 - **Status:** done
 - **Priority:** high
 - **Estimate:** 2 hours
 - **Dependencies:** TK-01
-- **Note:** Deep Research does NOT support output_schema. Must parse markdown manually or use incremental search agent.
-- **Completed:** 2025-01-16T23:58:00Z
+- **Note:** Deep Research does **not** support `output_schema`; the parser agent converts markdown+citation JSON into the canonical model while ensuring Airtable fields (e.g., `research_markdown_raw`) are available.
+- **Completed:** 2025-11-19T09:05:00Z
 
 ### TK-03
 
@@ -176,6 +176,12 @@ All 8 required tasks completed successfully:
 ### Optional Work
 
 - **TK-09 (Integration Smoke Test):** Optional; deferred to Stage 3 (Workflow Orchestration) for end-to-end testing
+
+### Update Summary (2025-11-19)
+
+- Reworked TK-02 deliverable to match `reference/deep_research_test_results.md` by pairing o4-mini Deep Research with a dedicated parser agent, normalizing citations, and storing raw markdown on `ExecutiveResearchResult`.
+- Tests now assert the parser handshake, error paths, and citation deduplication, so the Stage 2 checklist reflects the real behavior exercised in code.
+- This keeps Airtable storage (structured JSON + markdown) aligned with the schema contract while preserving evidence provenance for later workflow stages.
 
 ## 2-Developer Parallel Execution Plan
 
