@@ -146,6 +146,7 @@ Below are concrete changes to align the PRD with v1.0-minimal. References are by
 **Current:** PRD requires custom SQLite database for workflow event storage and audit trails.
 
 **Change (v1-minimal):**
+
 - In "Python-Specific Considerations → Memory" and "Data Requirements":
   - Remove **custom WorkflowEvent table and event storage** as required components
   - **Standardize on Agno's `SqliteDb` for workflow session state** so we can inspect local runs:
@@ -156,6 +157,7 @@ Below are concrete changes to align the PRD with v1.0-minimal. References are by
   - Relegate rich audit logging (custom events DB) to Phase 2+ enhancement
 
 **Clarification:**
+
 - "No SQLite" = no custom event capture beyond Agno's built-in capabilities
 - Agno Workflow internals **will** use `SqliteDb` for quick local review; `InMemoryDb` remains an optional swap if persistence is not needed later
 - This is distinct from custom WorkflowEvent persistence
@@ -254,12 +256,14 @@ demo/
 For v1, use Agno's built-in session management without custom event tables, but **persist sessions via `SqliteDb`** so we can review local runs.
 
 **Key distinction:**
+
 - ❌ Do NOT create custom `WorkflowEvent` model or event logging tables
 - ✅ DO use Agno's internal `SqliteDb` for workflow session state (file lives in `tmp/` and is gitignored)
 - ✅ Persist final results in Airtable only
 - ✅ Use terminal logs for execution visibility
 
 **Audit trail for v1:**
+
 - Airtable: Final assessment JSON, status, error messages, execution metadata
 - Stdout: Streaming events via `stream_events=True`
 - No custom event database
@@ -411,7 +415,6 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
 - **Use built-in OpenAI tools for search:**
   - Implement the incremental search agent using AGNO's OpenAI/web-search tools instead of hand-written HTTP calls.
 
-
 **Built-in Reasoning (Required):**
 
 - **ReasoningTools for the assessment agent:**
@@ -422,10 +425,10 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
 
 **Optional Enhancements (if time permits):**
 
-  - **Tool hooks for centralized logging (lower priority):**
-    - Agno's `tool_hooks` can centralize Airtable update logging
-    - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
-  - Mark as Phase 2+ code quality enhancement
+- **Tool hooks for centralized logging (lower priority):**
+  - Agno's `tool_hooks` can centralize Airtable update logging
+  - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
+- Mark as Phase 2+ code quality enhancement
 
 ### 3.9 Airtable Visibility Plan
 
@@ -502,11 +505,13 @@ These changes keep the implementation aligned with `case/technical_spec_V2.md` w
 ### 📋 Bonus Additions (Beyond Specification)
 
 **Document Control** - Both PRD and SPEC now include:
+
 - Version tracking (`updated: "2025-01-17"`)
 - Related documents cross-references
 - Approval metadata
 
 **Enhanced Agno Guidance** (SPEC §3.8) - Added comprehensive implementation patterns:
+
 - Structured outputs with `output_schema`
 - Built-in retry/backoff configuration
 - Event streaming for logging

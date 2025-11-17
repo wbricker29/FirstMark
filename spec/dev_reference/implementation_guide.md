@@ -14,6 +14,7 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 **Purpose:** Practical implementation guide consolidating Pydantic models, agent configurations, workflow orchestration, and Deep Research API limitations for the v1.0-minimal prototype.
 
 **Related Documents:**
+
 - **Authoritative scope**: `spec/v1_minimal_spec.md` (v1 contract)
 - **Product requirements**: `spec/prd.md`
 - **Technical specification**: `spec/spec.md`
@@ -42,6 +43,7 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 ### Core Contract (from spec/v1_minimal_spec.md)
 
 **Functional Scope:**
+
 - **One primary workflow:** Module 4 (Screen) - sequential candidate processing
 - **Research mode:** Deep Research (`o4-mini-deep-research`) only - no fast mode
 - **Optional enhancement:** Single incremental search pass (≤2 web tool calls) when quality check fails
@@ -49,6 +51,7 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 - **UI:** Airtable-only (no custom interfaces)
 
 **Technical Constraints:**
+
 - **Execution:** Synchronous, single-process (no async/concurrent processing)
 - **Database:** Agno's `SqliteDb(db_file="tmp/agno_sessions.db")` for session state only
 - **No custom tables:** No WorkflowEvent model, no custom event logging tables
@@ -56,6 +59,7 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 - **Audit trail:** Airtable status fields + terminal logs (no separate Workflows/Research_Results tables)
 
 **Phase 2+ (NOT in v1):**
+
 - Fast mode (gpt-5 + web search)
 - Multi-iteration supplemental search loops
 - Async/concurrent candidate processing
@@ -80,6 +84,7 @@ deep_research_agent = Agent(
 ```
 
 **Error Message:**
+
 ```
 OpenAI API Error 400: Invalid parameter: 'text.format' of type 'json_schema'
 is not supported with model version `o4-mini-deep-research`.
@@ -88,16 +93,19 @@ is not supported with model version `o4-mini-deep-research`.
 ### V1 Implementation Approach
 
 **Deep Research returns markdown** with inline citations. Structure the data through:
+
 1. **Prompting**: Request well-organized markdown sections
 2. **Lightweight parsing**: Extract citations from RunOutput object
 3. **Direct storage**: Save markdown blob + metadata to Airtable
 
 **What IS accessible:**
+
 - ✅ `result.content` - Markdown research text with inline citations
 - ✅ `result.citations.urls` - List of UrlCitation objects (url, title)
 - ✅ `result.metrics` - Token usage and cost data
 
 **Characteristics:**
+
 - **Time:** 2-6 minutes per candidate (with `max_tool_calls=1`)
 - **Cost:** ~$0.36 per candidate (~36K tokens @ $10/1M)
 - **Quality:** Comprehensive, well-cited research
@@ -218,11 +226,13 @@ class AssessmentResult(BaseModel):
 ### Evidence-Aware Scoring Notes
 
 **Critical Design Principle:**
+
 - Use `None` (Python) / `null` (JSON) for "Unknown/Insufficient Evidence"
 - **Never use:** NaN, 0, or empty string for missing scores
 - Prevents forced guessing when public data is thin
 
 **Example:**
+
 ```python
 # Checking for unknown scores
 if dimension.score is None:
@@ -854,6 +864,7 @@ def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[
 ### Agent-Level Retries
 
 All agents configured with:
+
 ```python
 exponential_backoff=True,
 retries=2,  # or 1 for incremental search
@@ -861,6 +872,7 @@ retry_delay=1,
 ```
 
 **Behavior:**
+
 - Retries on model provider errors (rate limits, timeouts)
 - Exponential backoff between retries
 - Max 2 retry attempts per agent call
@@ -903,6 +915,7 @@ def check_research_quality(step_input: StepInput) -> StepOutput:
 ### Execution Time Estimates
 
 **Per Candidate:**
+
 - Deep Research: 2-6 minutes
 - Quality Check: <1 second
 - Incremental Search (if triggered): 30-90 seconds
@@ -910,12 +923,14 @@ def check_research_quality(step_input: StepInput) -> StepOutput:
 - **Total:** 3-7 minutes per candidate
 
 **Batch Processing (10 Candidates, Sequential):**
+
 - Best case: 30-60 minutes
 - Worst case: 40-70 minutes
 
 ### Cost Estimates
 
 **Per Candidate:**
+
 - Deep Research: ~$0.36 (dominant cost)
 - Incremental Search (if triggered): ~$0.01-0.02
 - Assessment: <$0.01
@@ -972,4 +987,3 @@ Before starting implementation, verify:
 **Last Updated:** 2025-01-19
 **Status:** Implementation Ready
 **Authority:** Implements spec/v1_minimal_spec.md
-

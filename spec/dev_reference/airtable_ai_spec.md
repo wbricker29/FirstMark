@@ -1,14 +1,17 @@
 # Airtable Database Spec: Talent Signal Agent
 
 ## Purpose
+
 Track executive candidates and evaluate their fit for portfolio company roles (CFO/CTO positions).
 
 ## Tables & Fields
 
 ### 1. People
+
 Stores executive profiles from FirstMark's talent network.
 
 **Fields:**
+
 - Name (Single Line Text) - Executive's full name
 - Current Title (Single Line Text) - Job title
 - Current Company (Single Line Text) - Company name
@@ -23,9 +26,11 @@ Stores executive profiles from FirstMark's talent network.
 ---
 
 ### 2. Portco (Portfolio Companies)
+
 Companies in FirstMark's portfolio with active hiring needs.
 
 **Fields:**
+
 - Company Name (Single Line Text) - Portfolio company name
 - Stage (Single Select: Seed, Series A, Series B, Series C, Growth, Public)
 - Sector (Single Select: B2B SaaS, Consumer, AI/ML, Infrastructure, FinTech, HealthTech, Other)
@@ -37,9 +42,11 @@ Companies in FirstMark's portfolio with active hiring needs.
 ---
 
 ### 3. Portco_Roles
+
 Open executive roles at portfolio companies.
 
 **Fields:**
+
 - Role Name (Single Line Text) - e.g., "CFO - Pigment"
 - Portco (Link to Portco) - Link to company
 - Role Type (Single Select: CFO, CTO, CPO, CRO, COO)
@@ -51,9 +58,11 @@ Open executive roles at portfolio companies.
 ---
 
 ### 4. Role_Specs
+
 Structured evaluation criteria for roles.
 
 **Fields:**
+
 - Spec Name (Single Line Text) - e.g., "CFO - Series B SaaS"
 - Role Type (Single Select: CFO, CTO)
 - Is Template (Checkbox) - True for reusable base specs
@@ -64,9 +73,11 @@ Structured evaluation criteria for roles.
 ---
 
 ### 5. Searches
+
 Active executive searches FirstMark is supporting.
 
 **Fields:**
+
 - Search Name (Single Line Text) - Descriptive name
 - Role (Link to Portco_Roles) - Associated role
 - Role Spec (Link to Role_Specs) - Evaluation criteria being used
@@ -78,9 +89,11 @@ Active executive searches FirstMark is supporting.
 ---
 
 ### 6. Screens
+
 Batch evaluations of candidates for a search.
 
 **Fields:**
+
 - Screen ID (Auto Number)
 - Search (Link to Searches) - Associated search
 - Candidates (Link to People - Multiple) - Executives being evaluated
@@ -92,9 +105,11 @@ Batch evaluations of candidates for a search.
 ---
 
 ### 7. Assessments
+
 Candidate evaluations against role specifications **and** storage for research outputs (per v1 minimal spec).
 
 **Fields:**
+
 - Assessment ID (Auto Number)
 - Screen (Link to Screens) - Batch run identifier
 - Candidate (Link to People) - Executive evaluated

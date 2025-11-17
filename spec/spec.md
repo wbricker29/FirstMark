@@ -17,6 +17,7 @@ Engineering contract for Python implementation of AI-powered executive matching 
 The Talent Signal Agent is a demo-quality Python application that uses AI agents to research and evaluate executive candidates against role specifications. The system integrates with Airtable for data storage and UI, uses OpenAI's Deep Research API for candidate research, and employs structured LLM outputs for evidence-aware assessments.
 
 **Key Design Principles:**
+
 - **Evidence-Aware Scoring:** Explicit handling of "Unknown" when public data is insufficient (using `None`/`null`, not 0 or NaN)
 - **Quality-Gated Research:** Optional single incremental search agent step when initial research has quality issues
 - **Minimal Audit Trail:** Airtable fields + terminal logs (no separate event DB for v1)
@@ -125,6 +126,7 @@ README.md               # Implementation guide
 ```
 
 **Phase 2+ Enhancements:**
+
 - Further decomposition into subpackages (`agents/`, `models/`, `workflows/`)
 - CLI interface
 - SQLite workflow event storage
@@ -140,12 +142,14 @@ README.md               # Implementation guide
 **Purpose:** Conduct comprehensive executive research using OpenAI Deep Research.
 
 **⚠️ IMPORTANT - Deep Research API Limitations:**
+
 - **Deep Research models (o4-mini-deep-research) do NOT support structured outputs (`output_schema`)**
 - Returns markdown text via `result.content` (not Pydantic model)
 - Citations available via `result.citations` (built-in API feature)
 - See `spec/dev_reference/implementation_guide.md` Section 2 for complete Deep Research patterns
 
 **Signature:**
+
 ```python
 from pathlib import Path
 from typing import Optional
@@ -203,6 +207,7 @@ def run_research(
 ```
 
 **Examples:**
+
 ```python
 # Deep research mode (v1.0-minimal required path)
 result = run_research(
@@ -221,6 +226,7 @@ assert len(result.citations) >= 3
 **Purpose:** Evaluate candidate against role specification using provided research.
 
 **Signature:**
+
 ```python
 from models import AssessmentResult, ExecutiveResearchResult
 
@@ -253,6 +259,7 @@ def assess_candidate(
 **Purpose:** Evaluate research sufficiency and determine if incremental search is needed.
 
 **Signature:**
+
 ```python
 from models import ExecutiveResearchResult
 
@@ -283,6 +290,7 @@ def check_research_quality(research: ExecutiveResearchResult) -> bool:
 **Purpose:** Calculate overall score from dimension scores using simple average.
 
 **Signature:**
+
 ```python
 from typing import Optional
 from models import DimensionScore
@@ -325,6 +333,7 @@ def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[
 **Purpose:** Read and write data to Airtable database.
 
 **Signature:**
+
 ```python
 from typing import Optional, Any
 
@@ -413,28 +422,33 @@ class AirtableClient:
 ### Key Models
 
 **ExecutiveResearchResult** - Structured research output from Deep Research agent
+
 - **Note:** Deep Research returns markdown (not structured output); must parse manually or use incremental search agent
 - Contains career timeline, expertise areas, citations, confidence metadata
 - Citations extracted from `result.citations` (built-in Deep Research API feature)
 - See `spec/dev_reference/implementation_guide.md` lines 113-162 for complete definition and Deep Research patterns
 
 **AssessmentResult** - Structured assessment from evaluation agent
+
 - Evidence-aware dimension scores (1-5 scale with `None` for Unknown)
 - Overall score computed in Python from dimension scores
 - Must-haves checks, red/green flags, counterfactuals
 - See `spec/dev_reference/implementation_guide.md` lines 358-382 for complete definition
 
 **DimensionScore** - Evidence-aware scoring for evaluation dimensions
+
 - `score: Optional[int]` - Uses `None` (not 0, NaN, or empty) for Unknown/Insufficient Evidence
 - Includes reasoning, evidence quotes, citation URLs
 - See `spec/dev_reference/implementation_guide.md` lines 334-350 for complete definition
 
 **Supporting Models:**
+
 - `Citation` - Source citation with URL, title, snippet
 - `CareerEntry` - Timeline entry for career history
 - `MustHaveCheck` - Must-have requirement evaluation
 
 **Important Design Patterns:**
+
 - Evidence-aware scoring: Use `None`/`null` for unknown dimensions (never 0 or NaN)
 - Overall score calculated in Python, not by LLM
 - Type safety via Pydantic for all structured outputs
@@ -446,6 +460,7 @@ class AirtableClient:
 **Note:** WorkflowEvent entity and custom SQLite event tables are **Phase 2+ enhancements**, not required for v1.0-minimal.
 
 For v1.0-minimal:
+
 - Use Agno's `SqliteDb` at `tmp/agno_sessions.db` for workflow session state (Agno-managed tables only)
 - Rely on Airtable fields for final results (status, error messages, assessment JSON)
 - Use terminal logs (Python `logging` module) for execution visibility
@@ -453,6 +468,7 @@ For v1.0-minimal:
 - No custom WorkflowEvent model or event logging tables
 
 **Phase 2+ WorkflowEvent Model:**
+
 ```python
 from pydantic import BaseModel
 from typing import Literal, Optional, Any
@@ -493,12 +509,14 @@ class WorkflowEvent(BaseModel):
 ### Scalability
 
 **For Demo (v1.0-minimal):**
+
 - **Concurrency:** Synchronous execution (one candidate at a time)
 - **Throughput:** 1 screen request per Flask worker
 - **Workers:** Single Flask process sufficient for demo
 - **Candidates:** Up to ~10 candidates per Screen
 
 **For Production (Phase 2+):**
+
 - **Horizontal Scaling:** Multiple Flask workers (3-5 per server)
 - **Async Processing:** asyncio.gather() for concurrent candidate screening
 - **Queue-Based:** Celery/RQ for long-running workflows
@@ -527,6 +545,7 @@ class WorkflowEvent(BaseModel):
 ### Testing
 
 **v1.0-minimal Testing Scope:**
+
 - **Core Logic Tests:** Basic tests for scoring and quality check
 - **Test Files:**
   - `test_scoring.py` - calculate_overall_score, etc.
@@ -538,6 +557,7 @@ class WorkflowEvent(BaseModel):
 - **Linting:** ruff check
 
 **Phase 2+ Testing Enhancements:**
+
 - 50%+ coverage target
 - Comprehensive integration tests
 - Strict mypy mode
@@ -598,6 +618,7 @@ dev = [
 **Trigger:** Airtable automation when Screen.status changes to "Ready to Screen"
 
 **Request:**
+
 ```json
 {
     "screen_id": "recABC123"
@@ -605,11 +626,13 @@ dev = [
 ```
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Response (200 - Success):**
+
 ```json
 {
     "status": "success",
@@ -632,6 +655,7 @@ Content-Type: application/json
 ```
 
 **Response (200 - Partial Failure):**
+
 ```json
 {
     "status": "partial",
@@ -649,6 +673,7 @@ Content-Type: application/json
 ```
 
 **Response (400 - Bad Request):**
+
 ```json
 {
     "error": "ValidationError",
@@ -661,6 +686,7 @@ Content-Type: application/json
 ```
 
 **Response (500 - Server Error):**
+
 ```json
 {
     "error": "InternalError",
@@ -673,6 +699,7 @@ Content-Type: application/json
 ```
 
 **Implementation:**
+
 ```python
 @app.route('/screen', methods=['POST'])
 def run_screening():
@@ -778,6 +805,7 @@ MIN_CITATIONS=3
 For v1.0-minimal, use basic Python exceptions and error logging. No custom error hierarchy needed.
 
 **Agent-Level (Agno built-in):**
+
 ```python
 agent = Agent(
     model=OpenAIResponses(id="o4-mini-deep-research"),
@@ -788,6 +816,7 @@ agent = Agent(
 ```
 
 **Workflow-Level (Basic Exception Handling):**
+
 ```python
 try:
     result = await workflow.arun(input=prompt)
@@ -798,12 +827,14 @@ except Exception as e:
 ```
 
 **Graceful Degradation:**
+
 - If one candidate fails, continue processing others
 - Update Airtable status individually per candidate
 - Return partial results with error details
 - Update Screen status to "Partial" if any candidates failed
 
 **Phase 2+ Enhancements:**
+
 - Custom error hierarchy (TalentSignalError, ResearchError, etc.)
 - Structured error responses
 - Error recovery strategies
@@ -828,6 +859,7 @@ logger = logging.getLogger(__name__)
 ```
 
 **Usage:**
+
 ```python
 logger.info(f"🔍 Starting research for {candidate.name}")
 logger.info(f"✅ Research complete - {len(citations)} citations found")
@@ -835,6 +867,7 @@ logger.error(f"❌ Assessment failed: {error}")
 ```
 
 **Phase 2+ Enhancements:**
+
 - Structured logging with `structlog`
 - Log aggregation
 - Metrics collection
@@ -843,6 +876,7 @@ logger.error(f"❌ Assessment failed: {error}")
 ### Metrics (Terminal Output)
 
 For v1.0-minimal, log key metrics to terminal:
+
 - Workflow execution time (per candidate)
 - Quality check pass/fail
 - Overall score distribution
@@ -851,11 +885,13 @@ For v1.0-minimal, log key metrics to terminal:
 ### Audit Trail
 
 **v1.0-minimal Audit Trail:**
+
 - **Primary:** Airtable fields (status, error messages, assessment JSON, research JSON)
 - **Secondary:** Terminal logs during execution
 - **Agno Events:** Enable `stream_events=True` for stdout logging only (not persisted)
 
 **Phase 2+ Enhancements:**
+
 - SQLite database for workflow events (`tmp/screening_workflows.db`)
 - Full event capture and persistence
 - Event replay capability
@@ -900,6 +936,7 @@ For v1.0-minimal, log key metrics to terminal:
 **Use These Agno Patterns:**
 
 1. **Structured Outputs (Native):**
+
    ```python
    from agno import Agent, OpenAIResponses
    from agno.tools.reasoning import ReasoningTools
@@ -912,11 +949,13 @@ For v1.0-minimal, log key metrics to terminal:
        output_schema=AssessmentResult,  # Returns Pydantic model directly
    )
    ```
+
    - Applies to gpt-5-mini assessment agent (Deep Research models reject `output_schema`; see warning above)
    - No separate parser agent needed
    - No custom JSON parsing prompts
 
 2. **Single Workflow for Orchestration:**
+
    ```python
    from agno import Workflow
 
@@ -925,11 +964,13 @@ For v1.0-minimal, log key metrics to terminal:
        stream_events=True,  # Log to stdout
    )
    ```
+
    - Linear workflow (no teams, no nested workflows in v1)
    - Simple, sequential steps
    - Event streaming for visibility
 
 3. **Built-in Retry/Backoff:**
+
    ```python
    agent = Agent(
        model=OpenAIResponses(id="o4-mini-deep-research"),
@@ -938,11 +979,13 @@ For v1.0-minimal, log key metrics to terminal:
        retry_delay=1,
    )
    ```
+
    - No custom retry wrappers needed
    - Handles transient API failures
    - Configurable backoff strategy
 
 4. **OpenAI Web Search Tools:**
+
    ```python
    from agno.tools.openai import web_search
 
@@ -952,11 +995,13 @@ For v1.0-minimal, log key metrics to terminal:
        tools=[web_search],  # Built-in web search
    )
    ```
+
    - Use Agno's built-in OpenAI tools
    - No hand-written HTTP calls
    - Integrated with agent framework
 
 5. **Session State Management with SqliteDb (Required for v1):**
+
    ```python
    from agno.db.sqlite import SqliteDb
    from agno.workflow import Workflow
@@ -982,6 +1027,7 @@ For v1.0-minimal, log key metrics to terminal:
        stream_events=True,
    )
    ```
+
    - **v1 requires SqliteDb** for reviewable local workflow history
    - File stored at `tmp/agno_sessions.db` (gitignored)
    - Contains only Agno-managed session tables, **no custom schema**
@@ -989,6 +1035,7 @@ For v1.0-minimal, log key metrics to terminal:
    - **Critical:** No custom WorkflowEvent model or event logging tables in v1
 
 6. **ReasoningTools for Assessment Agent (Required):**
+
    ```python
    from agno.tools.reasoning import ReasoningTools
 
@@ -1004,6 +1051,7 @@ For v1.0-minimal, log key metrics to terminal:
        ]
    )
    ```
+
    - Enables built-in "think → analyze" pattern for assessment quality
    - Generates explicit reasoning trails (aligns with PRD AC-PRD-04)
    - Minimal implementation cost (~5 lines of code)
@@ -1026,6 +1074,7 @@ For v1.0-minimal, log key metrics to terminal:
 ### V1 Tables Overview (6 core + 1 helper = 7 tables)
 
 **Core Tables (v1):**
+
 1. **People (64 records)** - Executive candidates from guildmember_scrape.csv
 2. **Portco (4 records)** - Portfolio companies for demo scenarios
 3. **Portco_Roles (4 records)** - Open roles at portfolio companies
@@ -1037,6 +1086,7 @@ For v1.0-minimal, log key metrics to terminal:
 7. **Role_Specs (6 records)** - 2 templates + 4 customized specs (referenced by Searches)
 
 **Phase 2+ Tables (NOT in v1):**
+
 - ~~**Workflows**~~ - Execution audit trail (deferred; use Agno SqliteDb + Airtable status fields)
 - ~~**Research_Results**~~ - Structured research outputs (deferred; stored in Assessments table instead)
 
@@ -1054,6 +1104,7 @@ For v1.0-minimal, log key metrics to terminal:
 - **Full Pydantic models:** Stored in `*_json` fields for complete audit trail
 
 **v1.0-minimal Changes:**
+
 - No Workflows table (Phase 2+)
 - Status and error tracking in Screens and Assessments tables
 - Research and Assessment JSON stored in respective tables
@@ -1068,6 +1119,7 @@ For v1.0-minimal, log key metrics to terminal:
 ## Implementation Checklist
 
 ### Phase 1: Setup (2 hours)
+
 - [x] Create minimal project structure (5 files)
 - [x] Set up Python environment (uv, .python-version)
 - [ ] Install dependencies (pyproject.toml)
@@ -1076,6 +1128,7 @@ For v1.0-minimal, log key metrics to terminal:
 - [ ] Validate against data_design.md schemas
 
 ### Phase 2: Agent Implementation (6 hours)
+
 - [ ] Implement research agent (agents.py)
   - [ ] Deep Research mode (o4-mini-deep-research)
   - [ ] Agno structured outputs (output_schema)
@@ -1090,6 +1143,7 @@ For v1.0-minimal, log key metrics to terminal:
   - [ ] Research merging
 
 ### Phase 3: Workflow Implementation (4 hours)
+
 - [ ] Create workflow in agents.py
   - [ ] Step 1: Deep Research
   - [ ] Step 2: Quality Check (simple function)
@@ -1101,6 +1155,7 @@ For v1.0-minimal, log key metrics to terminal:
 - [ ] Test workflow end-to-end with mock data
 
 ### Phase 4: Integrations (4 hours)
+
 - [ ] Implement Airtable client (airtable_client.py)
   - [ ] Read operations (get_screen, get_role_spec, etc.)
   - [ ] Write operations (write_assessment, update_screen_status)
@@ -1112,6 +1167,7 @@ For v1.0-minimal, log key metrics to terminal:
 - [ ] Set up ngrok tunnel
 
 ### Phase 5: Testing (2 hours)
+
 - [ ] Basic tests (tests/)
   - [ ] test_scoring.py - overall score calculation
   - [ ] test_quality_check.py - quality heuristics
@@ -1119,6 +1175,7 @@ For v1.0-minimal, log key metrics to terminal:
 - [ ] Run tests and verify core logic
 
 ### Phase 6: Demo Preparation (3 hours)
+
 - [ ] Pre-run 3 scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
 - [ ] Verify results in Airtable
 - [ ] Prepare Estuary CTO for live demo
@@ -1149,6 +1206,7 @@ This specification succeeds if:
 ## Document Control
 
 **Related Documents:**
+
 - `spec/constitution.md` - Project governance and principles
 - `spec/prd.md` - Product requirements document
 - `spec/v1_minimal_spec.md` - Minimal scope definition (this document's basis)
@@ -1157,6 +1215,7 @@ This specification succeeds if:
 - `spec/dev_reference/role_spec_design.md` - Role specification framework
 
 **Approval:**
+
 - Created: 2025-01-16
 - Updated: 2025-01-17 (v1.0-minimal refactor)
 - Status: Ready for Implementation

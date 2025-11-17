@@ -10,9 +10,11 @@
 ## 1. Overview
 
 ### Purpose
+
 A **Role Spec** is a structured evaluation framework that defines what "good fit" means for a specific executive role. It enables consistent candidate assessment by both human reviewers and AI agents.
 
 ### Goals
+
 - Provide standardized evaluation criteria for CFO/CTO roles
 - Enable AI to produce explainable, dimension-level assessments
 - Balance reusability (templates) with customization (role-specific needs)
@@ -20,6 +22,7 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 - Keep evaluations grounded in realistically observable, web-available signals
 
 ### Non-Goals (for demo)
+
 - Version control system
 - Collaborative editing features
 - Analytics on spec effectiveness
@@ -38,6 +41,7 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 ## 2. Requirements
 
 ### Functional Requirements
+
 - **FR1:** Create role specs from pre-built templates (CFO, CTO)
 - **FR2:** Customize specs by editing dimensions, weights, and criteria
 - **FR3:** Store specs in format consumable by both humans and LLMs
@@ -47,12 +51,14 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 - **FR7:** For each dimension, define how observable it is from public/web data and allow the system to return “unknown/insufficient evidence” rather than forcing a score
 
 ### Technical Requirements
+
 - **TR1:** Store in Airtable (no additional database)
 - **TR2:** Use markdown format for LLM parsing
 - **TR3:** Enable duplication for customization
 - **TR4:** Support GPT-5 structured evaluation prompts
 
 ### User Experience Requirements
+
 - **UX1:** Templates get user to 80% complete spec in <2 min
 - **UX2:** Customization is intuitive (edit text, no complex UI)
 - **UX3:** Spec is readable in Airtable without external tools
@@ -119,6 +125,7 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 ### 3.3 Standard Dimensions
 
 #### CFO Roles (6 dimensions)
+
 Below are standard CFO dimensions with their intended weight in the *human* spec and an **Evidence Level** indicating how reliably they can be scored from public/web data.
 
 1. **Fundraising & Investor Relations (25%, Evidence: High)**  
@@ -141,6 +148,7 @@ Below are standard CFO dimensions with their intended weight in the *human* spec
    - Web signals: stage labels in press (Series A/B/C, growth equity), “took company from X to Y ARR,” IPO/M&A timing.
 
 #### CTO Roles (6 dimensions)
+
 Similarly, CTO dimensions are defined with Evidence Levels:
 
 1. **Technical Leadership & Architecture (25%, Evidence: Medium)**  
@@ -181,6 +189,7 @@ Similarly, CTO dimensions are defined with Evidence Levels:
 ### 3.4 User Flows
 
 #### Flow A: Create from Template
+
 ```
 1. Navigate to Role Specs table
 2. Click "New from Template" button
@@ -191,6 +200,7 @@ Similarly, CTO dimensions are defined with Evidence Levels:
 ```
 
 #### Flow B: Link to Search
+
 ```
 1. Create Search record (links to Role + Portco)
 2. Select Role Spec from dropdown (existing specs)
@@ -199,6 +209,7 @@ Similarly, CTO dimensions are defined with Evidence Levels:
 ```
 
 #### Flow C: Duplicate & Customize
+
 ```
 1. Find similar existing spec
 2. Click "Duplicate" button
@@ -216,11 +227,13 @@ Similarly, CTO dimensions are defined with Evidence Levels:
 #### Tables & Views
 
 **Role Specs Table**
+
 - Grid View (default): All specs
 - Template Library View: Filter `is_template = true`
 - By Role Type View: Group by `base_role_type`
 
 **Automation: Duplicate Spec**
+
 ```
 Trigger: Button field clicked
 Actions:
@@ -231,18 +244,21 @@ Actions:
 ```
 
 **Interface (optional for demo)**
+
 - Spec detail view with markdown preview
 - Template gallery for quick selection
 
 ### 4.2 Template Creation
 
 **Pre-build 4 templates:**
+
 1. `Series A/B SaaS CFO` (is_template=true)
 2. `Series B/C SaaS CTO` (is_template=true)
 3. `Growth Stage CFO - Consumer` (is_template=true)
 4. `Early Stage CTO - Infrastructure` (is_template=true)
 
 **Customize 4 specs for demo roles:**
+
 - Pigment - CFO (from template #1, customized)
 - Mockingbird - CFO (from template #3, customized)
 - Synthesia - CTO (from template #2, customized)
@@ -461,6 +477,7 @@ class AssessmentResult(BaseModel):
 ```
 
 **Usage with Agno:**
+
 ```python
 from agno import Agent, OpenAIResponses
 
@@ -481,28 +498,34 @@ assessment_agent = Agent(
 ### 5.1 Test Cases
 
 **TC1: Template Usage**
+
 - Action: Create spec from "Series B SaaS CFO" template
 - Expected: Record created with pre-filled markdown, all 6 dimensions present
 
 **TC2: Customization**
+
 - Action: Edit template spec, change weight from 25% to 30%
 - Expected: Markdown updates, parser extracts correct weight
 
 **TC3: AI Parsing**
+
 - Action: Run `parse_role_spec()` on template markdown
 - Expected: Returns dict with 6 dimensions, weights sum to 100%
 
 **TC4: Assessment Integration**
+
 - Action: Run screening with custom spec
 - Expected: Assessment includes all spec dimensions, weighted score calculated
 
 **TC5: Must-Haves Validation**
+
 - Action: Assess candidate missing must-have
 - Expected: `must_haves_check` shows false for that requirement
 
 ### 5.2 Demo Validation
 
 **Success Criteria:**
+
 - [ ] 4 specs created (1 per demo role)
 - [ ] All specs parse correctly via Python
 - [ ] Assessment returns dimension-level scores
@@ -517,21 +540,25 @@ assessment_agent = Agent(
 ### Production Enhancements
 
 **Structured Fields (vs Markdown)**
+
 - Migrate to individual fields per dimension for analytics
 - Enable programmatic spec generation
 - Support A/B testing of dimension weights
 
 **Spec Analytics**
+
 - Track which dimensions correlate with successful hires
 - Optimize weights based on outcomes
 - Benchmark scores across searches
 
 **Collaborative Features**
+
 - Hiring manager + talent team co-authoring
 - Comment threads on dimensions
 - Approval workflows
 
 **Dynamic Generation**
+
 - AI drafts spec from job description
 - Human reviews and refines
 - Learning from past specs
@@ -548,29 +575,34 @@ assessment_agent = Agent(
 ## 7. Implementation Checklist
 
 **Phase 1: Setup (2 hours)**
+
 - [ ] Create Role Specs table in Airtable with schema
 - [ ] Add Single Select fields (role type, stage, sector)
 - [ ] Create Template Library view
 - [ ] Add "Duplicate" button automation
 
 **Phase 2: Templates (3 hours)**
+
 - [ ] Write 2 base templates (CFO, CTO) with full dimensions
 - [ ] Create 4 customized specs for demo companies
 - [ ] Test markdown formatting in Airtable
 
 **Phase 3: Python Integration (4 hours)**
+
 - [ ] Implement `parse_role_spec()` function
 - [ ] Implement `build_assessment_prompt()` function
 - [ ] Test parsing on all 4 demo specs
 - [ ] Validate structured output schema
 
 **Phase 4: Assessment Integration (3 hours)**
+
 - [ ] Update `assess_candidate()` to consume specs
 - [ ] Calculate weighted scores correctly
 - [ ] Add must-haves/red flags checking
 - [ ] Test end-to-end screening workflow
 
 **Phase 5: Validation (1 hour)**
+
 - [ ] Run all test cases
 - [ ] Verify demo flow works
 - [ ] Check markdown rendering in Airtable

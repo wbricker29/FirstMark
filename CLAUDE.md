@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 ---
+
 ## ⚠️ V1 CRITICAL SCOPE - READ FIRST
 
 **Architecture:** Linear workflow ONLY (Deep Research → Quality Check → Optional Single Incremental Search → Assessment)
@@ -14,6 +15,7 @@
 **Authority:** `spec/v1_minimal_spec*.md` > `spec/prd.md` > `spec/dev_reference/implementation_guide.md`
 
 **Before ANY architectural work:**
+
 1. Read spec/v1_minimal_spec.md + addendum
 2. Build explicit design model
 3. Scope filter (what to DELETE) before detail check
@@ -28,6 +30,7 @@
 **Framework:** Agno (Python agent framework)
 
 **Status:** ✅ READY FOR IMPLEMENTATION
+
 - All specs aligned with v1 minimal scope
 - Master implementation guide: `spec/dev_reference/implementation_guide.md`
 - Estimated: 34-38 hours implementation
@@ -39,6 +42,7 @@
 3. **Documentation:** README or Loom video explaining implementation
 
 ## Evaluation Criteria
+
 - Product Thinking (25%): VC/talent workflow understanding
 - Technical Design (25%): Modern LLM/agent frameworks, modular design, retrieval/context/prompting
 - Data Integration (20%): Structured + unstructured data handling
@@ -48,6 +52,7 @@
 ## Technology Stack
 
 **Core:**
+
 - Python 3.11+ (uv package manager) + virtual environment in `.venv/`
 - Agno framework (agent orchestration) - see `spec/dev_reference/AGNO_REFERENCE.md`
 - OpenAI: o4-mini-deep-research (research), gpt-5/gpt-5-mini (assessment)
@@ -55,9 +60,11 @@
 - Pydantic (structured outputs via `output_schema`)
 
 **Dependencies:**
+
 - flask, pyairtable, openai, python-dotenv, pydantic
 
 **Demo Data:**
+
 - 64 executives from `reference/guildmember_scrape.csv`
 - 4 scenarios: Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO
 - 3 pre-runs + 1 live demo
@@ -65,6 +72,7 @@
 ## Documentation Hierarchy
 
 **Authority (in order):**
+
 1. `spec/v1_minimal_spec.md` + `spec/v1_minimal_spec_agno_addendum.md` (HIGHEST)
 2. `spec/prd.md` - Product requirements
 3. `spec/spec.md` - Technical specification
@@ -74,27 +82,32 @@
 7. `spec/dev_reference/AGNO_REFERENCE.md` - Framework patterns
 
 **V1 Exclusions (Phase 2+ Only):**
+
 - Parser agent pipeline | Workflows/Research_Results tables | Fast mode | Multi-iteration loops | Async processing
 
 ## Key Design Decisions
 
 **Scope:**
+
 - Module 4 (Screen workflow) ONLY - Modules 1-3 pre-populated manually
 - Linear workflow: Deep Research → Quality Check → Optional Incremental Search → Assessment
 - Synchronous/sequential processing (async deferred to Phase 2+)
 
 **Data & Integration:**
+
 - Airtable (6 tables) via Flask webhook + ngrok
 - Deep Research API (o4-mini-deep-research) + Web Search builtin
 - No third-party search APIs (LinkedIn/web via Deep Research only)
 - Direct structured outputs via Pydantic (no parser agent)
 
 **Assessment:**
+
 - Spec-guided assessment with evidence-aware scoring
 - LLM self-assessment confidence + evidence count threshold
 - Counterfactuals: "Why candidate might NOT be ideal" + key assumptions
 
 **V1 Simplifications:**
+
 - No candidate profiles (bespoke research per role)
 - No deduplication (assume clean data)
 - No Apollo enrichment (stub/mock only)
@@ -105,6 +118,7 @@
 **Constraints:** 48 hours | Demonstrate quality of thinking | Minimal, quick-to-stand-up components
 
 **Decision Matrix:**
+
 ```
 always          → explain → code → verify
 ambiguous?      → clarify
@@ -118,11 +132,13 @@ Simple > Perfect | Clear > Clever | Working > Optimal | Request > BestPractice |
 **Process:** Understand → Plan → Code → Test → Validate
 
 **Key Rules:**
+
 - **SIMPLICITY:** Minimal changes | No feature creep | Smallest working increment | Target <100 LOC per change
 - **QUALITY:** Types, docstrings, comments | No placeholders | Complete code
 - **COMMUNICATION:** Clarify ambiguity | Never assume, always verify
 
 **Strategic Focus:**
+
 1. Domain calibration before solution design (VC/talent workflow understanding first)
 2. Incremental value delivery (complete value units, not infrastructure speculation)
 3. Maximize expected value (quick wins that demonstrate thinking quality)

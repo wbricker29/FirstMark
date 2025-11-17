@@ -16,6 +16,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 **Summary:** Set up Python environment and install all required dependencies to prepare for agent implementation. Establish the minimal 5-file project structure and validate Pydantic models against spec schemas.
 
 **Success Metrics:**
+
 - Python 3.11+ environment active with all dependencies installed via uv
 - All Pydantic models defined and validated against `spec/dev_reference/implementation_guide.md`
 - Project ready for Phase 2 (Agent Implementation)
@@ -27,6 +28,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 ### Inputs
 
 #### spec/dev_reference/implementation_guide.md
+
 - **Type:** Markdown documentation
 - **Description:** Canonical source for Pydantic model definitions
 - **Examples:**
@@ -35,6 +37,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
   - DimensionScore schema (lines 334-350)
 
 #### .env.example
+
 - **Type:** Environment variable template
 - **Description:** Template for required configuration variables
 - **Examples:**
@@ -45,6 +48,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 ### Outputs
 
 #### demo/ directory
+
 - **Type:** Python package directory
 - **Description:** Contains 5 core implementation files
 - **Examples:**
@@ -55,6 +59,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
   - `demo/settings.py` (config/env loading)
 
 #### models.py
+
 - **Type:** Python module
 - **Description:** Pydantic models validated against implementation guide
 - **Examples:**
@@ -64,6 +69,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
   - Supporting models: `Citation`, `CareerEntry`, `MustHaveCheck`
 
 #### .env
+
 - **Type:** Environment configuration file
 - **Description:** Populated environment variables (gitignored)
 - **Examples:**
@@ -101,6 +107,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 ## Constraints
 
 ### Functional
+
 - Must use Python 3.11+ as specified in `.python-version`
 - Must use UV package manager (not pip) for dependency management
 - Exactly 5 files in `demo/` directory for v1.0-minimal scope
@@ -108,6 +115,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - No implementation code in Phase 1 (setup only, no agent/workflow logic)
 
 ### Non-Functional
+
 - Setup should complete in < 15 minutes on standard development machine
 - All dependencies must install without compilation (pure Python or wheels)
 - .env file must never be committed (in .gitignore)
@@ -116,6 +124,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 ## Acceptance Criteria
 
 ### AC-PH1-01: Environment Ready
+
 - **Given:** Clean development environment
 - **When:** `python --version` is run
 - **Then:** Output shows Python 3.11 or later
@@ -124,6 +133,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - **Testable:** ✅
 
 ### AC-PH1-02: Configuration Complete
+
 - **Given:** Project root directory
 - **When:** Environment files are checked
 - **Then:** `.env` exists with all required variables (OPENAI_API_KEY, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, FLASK_HOST, FLASK_PORT, USE_DEEP_RESEARCH, MIN_CITATIONS)
@@ -132,6 +142,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - **Testable:** ✅
 
 ### AC-PH1-03: Pydantic Models Validated
+
 - **Given:** `demo/models.py` file created
 - **When:** Models are imported in Python REPL
 - **Then:** All models can be instantiated without errors
@@ -140,6 +151,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - **Testable:** ✅
 
 ### AC-PH1-04: Project Structure Complete
+
 - **Given:** Project root directory
 - **When:** Directory structure is validated
 - **Then:** All 5 files exist in `demo/` directory (app.py, agents.py, models.py, airtable_client.py, settings.py)
@@ -151,6 +163,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 ## Dependencies
 
 **Blocks:**
+
 - 002-phase-2-agents (cannot implement agents without models and environment)
 
 **Blocked by:** None (initial setup phase)

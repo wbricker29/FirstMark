@@ -23,6 +23,7 @@ FirstMark Capital's talent team manages relationships with hundreds of executive
 - **No Reasoning Trail:** Hard to explain why specific candidates were/weren't recommended
 
 **Key Pain Points:**
+
 1. Takes significant partner/talent time to generate initial candidate shortlists for open roles
 2. Risk of missing strong matches when network data isn't top-of-mind
 3. Hard to explain match quality objectively to portfolio CEOs
@@ -39,6 +40,7 @@ An AI-powered system that:
 5. **Enables Self-Service:** Portfolio companies can see match rationale, talent team focuses on high-value relationship work
 
 **Success Looks Like:**
+
 - Talent team says "I'd actually use these rankings to prioritize my outreach"
 - Portfolio CEOs understand why candidates were recommended (transparent reasoning)
 - Faster turnaround on search requests without sacrificing match quality
@@ -47,6 +49,7 @@ An AI-powered system that:
 ### Gap Analysis
 
 **What's Missing:**
+
 1. **Structured Executive Data:** Network data exists in scattered sources (LinkedIn exports, email threads, CRM notes)
 2. **Role Evaluation Framework:** No standardized way to define "what good looks like" for CFO vs CTO roles
 3. **Research Automation:** Manual research on each candidate (LinkedIn, news, company background)
@@ -54,12 +57,14 @@ An AI-powered system that:
 5. **Audit Trail:** No record of searches run, candidates evaluated, reasoning provided
 
 **Why This Gap Exists:**
+
 - Talent work has been relationship-first, not data-first
 - Small team size prioritizes execution over tooling
 - No AI expertise in-house to build sophisticated matching systems
 - Insufficient time to build production infrastructure from scratch
 
 **Why Now:**
+
 - Agno and modern LLM frameworks make rapid prototyping feasible
 - OpenAI Deep Research API enables automated executive research
 - Airtable provides no-code UI layer for talent team adoption
@@ -79,6 +84,7 @@ An AI-powered system that:
 ### Success Metrics
 
 **Product Evaluation (From Case Rubric):**
+
 - **Product Thinking (25%):** Understanding of VC/talent workflows, stakeholder needs, UX considerations
 - **Technical Design (25%):** Modern frameworks, modular architecture, retrieval/context/prompting patterns
 - **Data Integration (20%):** Structured + unstructured data handling, vector stores, metadata joins
@@ -86,6 +92,7 @@ An AI-powered system that:
 - **Communication (10%):** Clear explanation of approach, tradeoffs, next steps
 
 **Demo Success Metrics:**
+
 - ✅ Process 10-15 candidates across 4 portfolio company scenarios
 - ✅ Generate ranked lists with dimension-level scores (0-100 scale)
 - ✅ Provide evidence-based reasoning for each assessment
@@ -93,6 +100,7 @@ An AI-powered system that:
 - ✅ Export results to Airtable + markdown reports
 
 **Team Adoption Indicators (Qualitative):**
+
 - "I'd use this ranking to prioritize my outreach calls"
 - "The reasoning helps me explain matches to portfolio CEOs"
 - "This surfaces candidates I wouldn't have thought of immediately"
@@ -105,21 +113,25 @@ An AI-powered system that:
 ### In Scope (Demo v1.0-minimal)
 
 **Module 1: Data Upload**
+
 - ✅ CSV ingestion via Airtable webhook
 - ✅ People table population (64 executives from guild scrape)
 - ✅ Basic deduplication logic (name + company matching)
 
 **Module 2: New Open Role**
+
 - ✅ Airtable-only workflow (no Python backend)
 - ✅ Create role records linking to portfolio companies
 - ✅ Attach role specifications (CFO/CTO templates)
 
 **Module 3: New Search**
+
 - ✅ Airtable-only workflow (no Python backend)
 - ✅ Link searches to open roles
 - ✅ Attach custom search guidance/notes
 
 **Module 4: Candidate Screening (PRIMARY DEMO)**
+
 - ✅ Webhook-triggered screening workflow
 - ✅ **Deep Research – primary and only required mode for v1.0-minimal** (OpenAI Deep Research API)
 - ✅ **Incremental Search – optional single-pass supplement when quality is low** (up to two web/search calls)
@@ -132,6 +144,7 @@ An AI-powered system that:
 - ✅ Markdown assessment report generation (human-readable exports)
 
 **Data & Infrastructure:**
+
 - ✅ Mock data from guildmember_scrape.csv (64 real executives)
 - ✅ 4 portfolio scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO)
 - ✅ Airtable database with 7 tables (v1: 6 core + 1 helper - People, Portco, Portco_Roles, Searches, Screens, Assessments, Role_Specs; Phase 2+: Workflows, Research_Results)
@@ -139,6 +152,7 @@ An AI-powered system that:
 - ✅ Synchronous execution for demo simplicity (single-process)
 
 **Technical Stack:**
+
 - ✅ Agno agent framework
 - ✅ OpenAI models: o4-mini-deep-research (research), gpt-5-mini (assessment)
 - ✅ Pydantic structured outputs (ExecutiveResearchResult, AssessmentResult)
@@ -148,6 +162,7 @@ An AI-powered system that:
 ### Out of Scope (Phase 2+)
 
 **Not in Demo:**
+
 - ❌ Company/role uploads via Module 1 (only people uploads)
 - ❌ Production authentication/authorization
 - ❌ Real Apollo API enrichment (using mock data instead)
@@ -163,6 +178,7 @@ An AI-powered system that:
 - ❌ **Concurrent workers and parallel processing** – Phase 2+ performance optimization
 
 **Explicitly Deferred:**
+
 - Alternative evaluation path (model-generated dimensions)
 - Comprehensive error handling and edge cases
 - Performance optimization and load testing
@@ -175,6 +191,7 @@ An AI-powered system that:
 ### Future Considerations
 
 **Phase 2 Enhancements:**
+
 1. **Fast Mode:** Web search fallback for quicker candidate screening
 2. **Multi-iteration supplemental search:** Adaptive quality thresholds with iterative research
 3. **Research Caching:** Avoid re-researching same candidates
@@ -183,6 +200,7 @@ An AI-powered system that:
 6. **Production Deployment:** Cloud hosting, monitoring, observability
 
 **Phase 3+ Vision:**
+
 - Two-way sync with portfolio company ATS systems
 - Proactive candidate recommendations ("You should meet X for Y role")
 - Network growth suggestions ("Add executives from sector Z")
@@ -199,6 +217,7 @@ An AI-powered system that:
 **So that** I can move fast on a critical leadership hire without starting from scratch
 
 **Acceptance Criteria:**
+
 - Given CEO submits open role details to FirstMark talent team
 - When talent team creates a new search and runs screening
 - Then CEO receives ranked shortlist within 1-2 days with clear reasoning for each candidate
@@ -211,6 +230,7 @@ An AI-powered system that:
 **So that** I can focus my time on relationship building vs manual research
 
 **Acceptance Criteria:**
+
 - Given open role with attached role specification (CFO/CTO template)
 - When I link 10-15 candidate records and click "Start Screening"
 - Then system automatically researches each candidate and generates assessments
@@ -224,6 +244,7 @@ An AI-powered system that:
 **So that** I can explain recommendations to portfolio CEOs and make judgment calls
 
 **Acceptance Criteria:**
+
 - Given completed candidate screening
 - When I review assessment results
 - Then I see dimension-level scores (1-5) with evidence quotes and citations
@@ -239,6 +260,7 @@ An AI-powered system that:
 **So that** evaluations match portfolio company's specific needs vs generic criteria
 
 **Acceptance Criteria:**
+
 - Given base CFO or CTO template
 - When I duplicate and customize dimension weights/definitions
 - Then new spec is saved and can be attached to searches
@@ -252,6 +274,7 @@ An AI-powered system that:
 **So that** I know which assessments are reliable vs need manual review
 
 **Acceptance Criteria:**
+
 - Given completed screening workflow
 - When I review assessment results
 - Then I see overall confidence (High/Medium/Low)
@@ -266,6 +289,7 @@ An AI-powered system that:
 ### Performance Requirements
 
 **Throughput:**
+
 - For v1.0-minimal:
   - Process candidates sequentially per Screen
   - One Flask worker is sufficient
@@ -273,6 +297,7 @@ An AI-powered system that:
 - Not a high-throughput system (talent use case, not consumer product)
 
 **Latency:**
+
 - **Deep Research (Primary Mode):** 3-6 minutes per candidate (acceptable for v1.0-minimal demo)
 - **Incremental Search (Optional):** +30-60 seconds when quality check triggers (up to two web/search calls)
 - **Fast Mode:** Phase 2+ optimization (1-2 minutes per candidate using web search fallback)
@@ -280,12 +305,14 @@ An AI-powered system that:
 - **Target:** <10 seconds for quality check and assessment logic (excluding LLM API calls)
 
 **Memory:**
+
 - <512MB per Flask worker (small dataset, no heavy computation)
 - Airtable handles primary data storage
 - Agno's built-in `SqliteDb` persists workflow session state locally (e.g., `tmp/agno_sessions.db`, gitignored) so we can review runs without custom tables
 - `InMemoryDb` remains an optional swap if persistence isn't needed; custom SQLite audit/event stores stay Phase 2+
 
 **Concurrency:**
+
 - Synchronous execution for v1.0-minimal (simpler implementation)
 - Single-process, single Flask worker
 - Concurrent workers and async/await are Phase 2+ optimizations
@@ -293,31 +320,37 @@ An AI-powered system that:
 ### Integration Points
 
 **APIs:**
+
 - OpenAI API (Deep Research, GPT-5-mini, Web Search)
 - Airtable API (data read/write via pyairtable)
 - Flask webhook server (receive triggers from Airtable automations)
 
 **Databases:**
+
 - Airtable (primary database for all tables)
 - Agno `SqliteDb` (stored at `tmp/agno_sessions.db`) for agent session persistence only; no custom workflow-event tables in v1.0-minimal
 - No PostgreSQL/MongoDB needed for demo
 
 **Message Queues:**
+
 - Not needed for demo (synchronous execution)
 - Phase 2+: Consider Celery/RQ for async background jobs
 
 **External Services:**
+
 - ngrok (local tunnel for webhook testing)
 - No cloud deployment for demo (local Flask server)
 
 ### Data Requirements
 
 **Input Formats:**
+
 - CSV (guildmember_scrape.csv → People table)
 - Markdown (role specifications)
 - JSON (Airtable API responses, structured outputs)
 
 **Output Formats:**
+
 - Markdown (raw Deep Research API responses, assessment reports)
 - JSON (AssessmentResult → Airtable)
 - Airtable records (primary output destination)
@@ -327,12 +360,14 @@ An AI-powered system that:
   - Assessments.assessment_markdown_report (long text field - human-readable summary)
 
 **Data Volume:**
+
 - 64 executive records (mock data from guild scrape)
 - 4 portfolio company scenarios
 - 10-15 assessments per scenario
 - ~40-60 total assessment records for demo
 
 **Data Retention:**
+
 - All data persists in Airtable indefinitely
 - Raw research markdown + structured JSON stored in Assessments table (v1: no separate Research_Results table)
 - Assessment JSON + markdown reports stored in Assessments table
@@ -355,6 +390,7 @@ An AI-powered system that:
 ### Dependencies
 
 **Core:**
+
 - `agno-ai` - Agent framework with workflow orchestration
 - `pydantic` - Data validation and structured outputs
 - `flask` - Webhook server for Airtable integration
@@ -362,30 +398,35 @@ An AI-powered system that:
 - `python-dotenv` - Environment variable management
 
 **Dev/Test:**
+
 - `pytest` - Testing framework
 - `pytest-cov` - Coverage reporting (basic tests, no strict threshold)
 - `ruff` - Formatting and linting
 - `mypy` - Type checking (standard mode)
 
 **Optional:**
+
 - `structlog` - Structured logging (Phase 2+, not required for v1.0-minimal)
 - `requests` - HTTP client (pyairtable dependency)
 
 ### Deployment
 
 **Environment:**
+
 - Local development (Mac/Linux with Python 3.11+)
 - Flask server on localhost:5000
 - ngrok tunnel for Airtable webhook connectivity
 - No Docker/cloud deployment for demo
 
 **Configuration:**
+
 - Environment variables via `.env` file
 - API keys: OpenAI, Airtable
 - Feature flags: USE_DEEP_RESEARCH (default: true)
 - Quality gate thresholds (MIN_EXPERIENCES, MIN_CITATIONS, etc.)
 
 **Monitoring:**
+
 - Terminal logs (stdout) for execution visibility
 - Airtable status fields for workflow state (Status, error message)
 - No SQLite event storage for v1.0-minimal (Phase 2+ enhancement)
@@ -465,12 +506,14 @@ An AI-powered system that:
 ### Phase 2: Core Implementation (Hours 9-24)
 
 **Data Layer (2 hours):**
+
 - Create Airtable database with 7 tables (6 core + 1 helper)
 - Populate portco data (Pigment, Mockingbird, Synthesia, Estuary)
 - Load people records from guildmember_scrape.csv
 - Create role spec templates (CFO, CTO)
 
 **Agent Implementation (6 hours):**
+
 - Implement ExecutiveResearchResult and AssessmentResult Pydantic models
 - Build deep research agent (o4-mini-deep-research + structured outputs)
 - Build assessment agent (gpt-5-mini with structured outputs)
@@ -478,12 +521,14 @@ An AI-powered system that:
 - Build research merging function
 
 **Workflow Implementation (4 hours):**
+
 - Assemble Agno workflow (linear: deep research → quality check → optional incremental search → assessment)
 - Implement custom step functions (quality check, merge, coordination)
 - Add event streaming for logging (stdout only, no SQLite storage)
 - Test workflow end-to-end with mock data
 
 **Flask Integration (4 hours):**
+
 - Build /screen endpoint (single webhook)
 - Implement Airtable read/write functions
 - Add status field updates and error handling
@@ -492,12 +537,14 @@ An AI-powered system that:
 ### Phase 3: Testing & Pre-Run Scenarios (Hours 25-32)
 
 **Testing (4 hours):**
+
 - Basic tests for core scoring logic (calculate_overall_score)
 - Unit tests for quality check logic
 - Happy-path workflow smoke test with mocks (if time permits)
 - Validate structured output schemas
 
 **Pre-Run Scenarios (4 hours):**
+
 - Execute Pigment CFO screening (3-5 candidates)
 - Execute Mockingbird CFO screening (3-5 candidates)
 - Execute Synthesia CTO screening (3-5 candidates)
@@ -506,12 +553,14 @@ An AI-powered system that:
 ### Phase 4: Documentation & Demo Prep (Hours 33-40)
 
 **Documentation (4 hours):**
+
 - Write implementation README with architecture diagram
 - Document design decisions and tradeoffs
 - Create demo script with talking points
 - Prepare markdown exports of sample assessments
 
 **Demo Rehearsal (4 hours):**
+
 - Practice full demo flow (Modules 1-4)
 - Test live execution of Estuary CTO screening
 - Prepare backup plans for common failures
@@ -520,12 +569,14 @@ An AI-powered system that:
 ### Phase 5: Presentation & Buffer (Hours 41-48)
 
 **Presentation Creation (4 hours):**
+
 - Create slide deck or written deliverable
 - Highlight product thinking and technical decisions
 - Prepare production roadmap discussion
 - Polish visualizations and examples
 
 **Final Review & Buffer (4 hours):**
+
 - Final testing and bug fixes
 - Review against case rubric
 - Practice presentation delivery
@@ -538,16 +589,19 @@ An AI-powered system that:
 ### Functional
 
 **AC-PRD-01: Data Upload**
+
 - ✅ CSV upload via Airtable webhook
 - ✅ People records created with proper field mapping
 - ✅ Deduplication prevents duplicate records
 
 **AC-PRD-02: Role & Search Creation**
+
 - ✅ Can create role records via Airtable UI
 - ✅ Can link role specs to roles
 - ✅ Can create search records linking to roles
 
 **AC-PRD-03: Candidate Screening**
+
 - ✅ Webhook triggers Flask /screen endpoint
 - ✅ Deep research executes and returns ExecutiveResearchResult
 - ✅ Quality gate correctly evaluates research sufficiency
@@ -557,6 +611,7 @@ An AI-powered system that:
 - ✅ Raw Deep Research markdown and assessment markdown reports stored in Airtable long text fields
 
 **AC-PRD-04: Assessment Quality**
+
 - ✅ Dimension scores use 1-5 scale with None for Unknown
 - ✅ Overall score calculated in Python (0-100 scale, simple average of scored dimensions)
 - ✅ Evidence quotes and citations captured
@@ -567,6 +622,7 @@ An AI-powered system that:
 ### Non-Functional
 
 **AC-PRD-05: Performance**
+
 - ✅ Deep research completes in 2-6 minutes per candidate
 - ✅ Quality check executes in <1 second
 - ✅ Incremental search (when triggered) adds 30-60 seconds
@@ -574,6 +630,7 @@ An AI-powered system that:
 - ✅ Synchronous, single-process execution is sufficient for v1.0-minimal
 
 **AC-PRD-06: Code Quality**
+
 - ✅ All public functions have type hints
 - ✅ Core matching and scoring logic is covered by smoke tests
 - ✅ Type hints are present on public functions
@@ -581,6 +638,7 @@ An AI-powered system that:
 - ✅ No strict coverage threshold required for 48-hour demo
 
 **AC-PRD-07: Reliability**
+
 - ✅ Agent retry logic handles transient API errors (basic exponential backoff)
 - ✅ Failed workflows marked in Airtable with error messages
 - ✅ Minimal audit trail via:
@@ -591,18 +649,21 @@ An AI-powered system that:
 ### Documentation
 
 **AC-PRD-08: Implementation Docs**
+
 - ✅ README explains architecture and design decisions
 - ✅ All Pydantic models have docstrings
 - ✅ Custom workflow functions have inline comments
 - ✅ Demo script with talking points
 
 **AC-PRD-09: Deliverables**
+
 - ✅ Working prototype demonstrating Module 4 workflow
 - ✅ Markdown reports for pre-run scenarios
 - ✅ Slide deck or written deliverable (1-2 pages)
 - ✅ Loom video or live demo walkthrough
 
 **AC-PRD-10: Case Rubric Alignment**
+
 - ✅ Demonstrates understanding of VC talent workflows (Product Thinking)
 - ✅ Uses modern agent framework with modular design (Technical Design)
 - ✅ Integrates structured + unstructured data (Data Integration)
@@ -616,12 +677,14 @@ An AI-powered system that:
 ### Demo Validation Checklist
 
 **Pre-Demo:**
+
 - [ ] All 3 pre-run scenarios completed with results in Airtable
 - [ ] Flask server + ngrok tunnel tested and stable
 - [ ] Estuary CTO scenario ready for live execution (candidates loaded, spec attached)
 - [ ] Demo script rehearsed with timing estimates
 
 **During Demo:**
+
 - [ ] Show Airtable UI (People, Roles, Searches, Screens tables)
 - [ ] Explain role spec framework (CFO/CTO templates)
 - [ ] Walk through pre-run results (dimension scores, reasoning, rankings)
@@ -630,6 +693,7 @@ An AI-powered system that:
 - [ ] Export markdown report and discuss
 
 **Post-Demo:**
+
 - [ ] Gather feedback on match quality and reasoning clarity
 - [ ] Document lessons learned and implementation surprises
 - [ ] Identify highest-value Phase 2 enhancements
@@ -637,6 +701,7 @@ An AI-powered system that:
 ### Next Steps (Phase 2+)
 
 **Immediate Priorities:**
+
 1. Fast Mode fallback (web search for quicker screening)
 2. Multi-iteration supplemental search with adaptive quality thresholds
 3. SQLite workflow audit trail for persistent event storage
@@ -645,12 +710,14 @@ An AI-powered system that:
 6. Enhanced error handling and observability
 
 **Medium-Term Enhancements:**
+
 1. Vector stores for semantic candidate search
 2. Model-generated rubric evaluation (alternative assessment)
 3. Integration with portfolio company ATS systems
 4. Historical search analytics and outcome tracking
 
 **Long-Term Vision:**
+
 1. Proactive candidate recommendations
 2. Network growth suggestions (identify gaps)
 3. Multi-tenant support (other VC firms)
@@ -671,8 +738,8 @@ This PRD succeeds if:
 
 **Remember:** The goal is demonstrating quality of thinking through minimal, working code—not building production infrastructure.
 
-
 **Approval:**
+
 - Created: 2025-01-16
 - Updated: 2025-01-17 (v1.0-minimal scope alignment)
 - Status: Approved for v1.0-minimal implementation
