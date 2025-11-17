@@ -468,21 +468,22 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
     - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
   - Mark as Phase 2+ code quality enhancement
 
-### 3.9 Airtable Data Storage (Assessments-Only)
+### 3.9 Airtable Visibility Plan
 
-**Goal:** Keep all canonical research + assessment outputs inside the existing Airtable tables while honoring the v1 scope (no `Research_Results` or custom `Workflows` tables).
+**Goal:** Ensure **all user-facing information lives in Airtable** while keeping the technical implementation small.
 
-- Store per-candidate research + assessment artifacts on the **Assessments** record that already exists for each candidate-role pair.
-- Required Long Text fields (JSON or Markdown):
-  - `research_structured_json` – serialized `ExecutiveResearchResult`
-  - `research_markdown_raw` – Deep Research markdown blob with inline citations
-  - `assessment_json` – serialized `AssessmentResult`
-  - `assessment_markdown_report` – human-readable narrative for stakeholders
-- **Implication:** No additional Airtable tables are needed. When referring to “Research results” or “workflow logs” in the PRD/SPEC, the implementation must write to these Assessment fields plus Screen status/error columns.
+- **Screens table:** Add/retain fields such as `Status`, `Error Message`, `Last Run Timestamp`, and optionally `Runtime Seconds` so each batch shows whether it is queued, running, complete, or failed.
+- **Assessments table (per candidate-role):** Add four long-text fields to capture everything previously stored across Workflows + Research_Results:
+  - `research_structured_json` – serialized `ExecutiveResearchResult` (includes summary, citations, confidence, gaps, timestamps, model id).
+  - `research_markdown_raw` – the raw Deep Research markdown blob with inline citations (the “raw research result”).
+  - `assessment_json` – serialized `AssessmentResult` (dimension scores, must-haves, confidence, counterfactuals).
+  - `assessment_markdown_report` – human-readable narrative for recruiters/PMs.
+- **Optional metadata fields:** `runtime_seconds`, `last_updated` on Assessments if you want quick glances at execution duration.
+- **No additional tables:** There is no `Research_Results` or `Workflows` table in v1. All user-visible data is on Screens + Assessments; deep execution traces stay in Agno `SqliteDb`.
 - **Auditability contract:**
-  - Airtable Screen + Assessment fields = source of truth for structured/raw data and statuses
-  - Terminal logs + Agno `SqliteDb(db_file="tmp/agno_sessions.db")` = transient execution detail for local inspection
-  - Custom WorkflowEvent tables or Research_Results tables are explicitly Phase 2+
+  - Airtable = source of truth for raw + structured outputs and statuses.
+  - Agno `SqliteDb(db_file="tmp/agno_sessions.db")` = developer-facing session history (agent transcripts, tool calls, retries).
+  - If richer Airtable audit slices are needed later (e.g., Workflows table), add them in Phase 2.
 
 And v1.0-minimal should explicitly **not** use:
 
@@ -505,7 +506,8 @@ And v1.0-minimal should explicitly **not** use:
 - Deep research as the primary mode; optional **single incremental search agent step** (which may perform up to two web/search calls) when quality is low; no fast-mode orchestration or multi-iteration supplemental search loops.
 - No custom SQLite event tables or workflow audit database; rely on Agno's `SqliteDb` (at `tmp/agno_sessions.db`) purely for session state you can inspect locally.
 - Airtable (final results) + terminal logs (execution events) provide sufficient auditability for demo.
-- All raw + structured research/assessment artifacts are stored on the existing Assessments table (`research_structured_json`, `research_markdown_raw`, `assessment_json`, `assessment_markdown_report`); no `Research_Results` table in v1.
+- All raw + structured research/assessment artifacts are stored on the existing Assessments table (`research_structured_json`, `research_markdown_raw`, `assessment_json`, `assessment_markdown_report`); Screens carry batch-level status/error fields. No `Research_Results` table in v1.
+- Assessment agent runs with Agno `ReasoningTools` enabled to guarantee structured reasoning trails (PRD AC-PRD-04).
 - Custom event persistence and observability databases are Phase 2+ enhancements.
 - Basic testing and logging; correctness and clarity are prioritized over coverage metrics or production-grade observability.
 
