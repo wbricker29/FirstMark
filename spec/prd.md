@@ -123,7 +123,7 @@ An AI-powered system that:
 - ✅ Webhook-triggered screening workflow
 - ✅ **Deep Research – primary and only required mode for v1.0-minimal** (OpenAI Deep Research API)
 - ✅ **Incremental Search – optional single-pass supplement when quality is low** (up to two web/search calls)
-- ✅ Spec-guided assessment with evidence-aware scoring
+- ✅ Spec-guided assessment with evidence-aware scoring (uses Agno ReasoningTools for structured reasoning trails)
 - ✅ Dimension-level scores (1-5 scale with None for Unknown)
 - ✅ Overall score calculation (0-100 scale)
 - ✅ Reasoning, counterfactuals, confidence tracking
@@ -562,6 +562,7 @@ An AI-powered system that:
 - ✅ Evidence quotes and citations captured
 - ✅ Counterfactuals and confidence levels provided
 - ✅ Reasoning is clear and evidence-based
+- ✅ Assessment agent uses Agno ReasoningTools to generate explicit reasoning trails
 
 ### Non-Functional
 
@@ -670,17 +671,6 @@ This PRD succeeds if:
 
 **Remember:** The goal is demonstrating quality of thinking through minimal, working code—not building production infrastructure.
 
----
-
-## Document Control
-
-**Related Documents:**
-- `spec/constitution.md` - Project governance and principles
-- `spec/v1_minimal_spec.md` - v1.0-minimal scope definition and required changes
-- `case/technical_spec_V2.md` - Detailed technical architecture
-- `spec/dev_reference/implementation_guide.md` - Data models and schemas
-- `spec/dev_reference/role_spec_design.md` - Role specification framework
-- `spec/dev_reference/airtable_ai_spec.md` - Airtable database schema
 
 **Approval:**
 - Created: 2025-01-16

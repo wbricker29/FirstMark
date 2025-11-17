@@ -139,6 +139,12 @@ README.md               # Implementation guide
 
 **Purpose:** Conduct comprehensive executive research using OpenAI Deep Research.
 
+**⚠️ IMPORTANT - Deep Research API Limitations:**
+- **Deep Research models (o4-mini-deep-research) do NOT support structured outputs (`output_schema`)**
+- Returns markdown text via `result.content` (not Pydantic model)
+- Citations available via `result.citations` (built-in API feature)
+- See `spec/dev_reference/implementation_guide.md` Section 2 for complete Deep Research patterns
+
 **Signature:**
 ```python
 from pathlib import Path
@@ -160,7 +166,8 @@ def create_research_agent(use_deep_research: bool = True) -> Agent:
     Notes:
         - v1 implementation only requires use_deep_research=True
         - Fast mode (gpt-5 + web_search) is future enhancement
-        - Use Agno's native structured outputs (output_schema parameter)
+        - Deep Research returns markdown (NOT structured output)
+        - DO NOT use output_schema with Deep Research models
     """
     pass
 
@@ -188,7 +195,8 @@ def run_research(
 
     Notes:
         - Uses Agno's built-in retry with exponential_backoff=True
-        - Returns structured output directly via output_schema
+        - Deep Research returns markdown via result.content (NOT structured output)
+        - Citations extracted from result.citations (built-in API feature)
         - No separate parser agent needed
     """
     pass
@@ -405,9 +413,10 @@ class AirtableClient:
 ### Key Models
 
 **ExecutiveResearchResult** - Structured research output from Deep Research agent
-- Produced directly by Agno agent with `output_schema` parameter
+- **Note:** Deep Research returns markdown (not structured output); must parse manually or use incremental search agent
 - Contains career timeline, expertise areas, citations, confidence metadata
-- See `spec/dev_reference/implementation_guide.md` lines 298-328 for complete definition
+- Citations extracted from `result.citations` (built-in Deep Research API feature)
+- See `spec/dev_reference/implementation_guide.md` lines 113-162 for complete definition and Deep Research patterns
 
 **AssessmentResult** - Structured assessment from evaluation agent
 - Evidence-aware dimension scores (1-5 scale with `None` for Unknown)
