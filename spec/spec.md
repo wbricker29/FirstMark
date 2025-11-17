@@ -397,166 +397,37 @@ class AirtableClient:
 
 ## Data Models
 
-All data models use Pydantic for validation and structured outputs. Complete definitions are in `demo_planning/data_design.md`.
+**All Pydantic models are defined in `demo_planning/data_design.md` (canonical source).**
 
-### Entity: ExecutiveResearchResult
+### Key Models
 
-```python
-from pydantic import BaseModel, Field
-from typing import Optional, Literal
-from datetime import datetime
+**ExecutiveResearchResult** - Structured research output from Deep Research agent
+- Produced directly by Agno agent with `output_model` parameter
+- Contains career timeline, expertise areas, citations, confidence metadata
+- See `demo_planning/data_design.md` lines 298-328 for complete definition
 
-class Citation(BaseModel):
-    """Source citation from research."""
-    url: str
-    title: str
-    snippet: str
-    relevance_note: Optional[str] = None
+**AssessmentResult** - Structured assessment from evaluation agent
+- Evidence-aware dimension scores (1-5 scale with `None` for Unknown)
+- Overall score computed in Python from dimension scores
+- Must-haves checks, red/green flags, counterfactuals
+- See `demo_planning/data_design.md` lines 358-382 for complete definition
 
-class CareerEntry(BaseModel):
-    """Timeline entry for career history."""
-    company: str
-    role: str
-    start_date: Optional[str] = None
-    end_date: Optional[str] = None
-    key_achievements: list[str] = Field(default_factory=list)
+**DimensionScore** - Evidence-aware scoring for evaluation dimensions
+- `score: Optional[int]` - Uses `None` (not 0, NaN, or empty) for Unknown/Insufficient Evidence
+- Includes reasoning, evidence quotes, citation URLs
+- See `demo_planning/data_design.md` lines 334-350 for complete definition
 
-class ExecutiveResearchResult(BaseModel):
-    """Structured research output from Deep Research agent.
+**Supporting Models:**
+- `Citation` - Source citation with URL, title, snippet
+- `CareerEntry` - Timeline entry for career history
+- `MustHaveCheck` - Must-have requirement evaluation
 
-    This model is produced directly by Agno agent with output_model parameter.
-    No separate parser agent needed in v1.0-minimal.
-    """
-    exec_name: str
-    current_role: str
-    current_company: str
+**Important Design Patterns:**
+- Evidence-aware scoring: Use `None`/`null` for unknown dimensions (never 0 or NaN)
+- Overall score calculated in Python, not by LLM
+- Type safety via Pydantic for all structured outputs
 
-    # Career & Experience
-    career_timeline: list[CareerEntry] = Field(default_factory=list)
-    total_years_experience: Optional[int] = None
-
-    # Dimension-Aligned Fields (CFO)
-    fundraising_experience: Optional[str] = None
-    operational_finance_experience: Optional[str] = None
-
-    # Dimension-Aligned Fields (CTO)
-    technical_leadership_experience: Optional[str] = None
-
-    # Universal Fields
-    team_building_experience: Optional[str] = None
-    sector_expertise: list[str] = Field(default_factory=list)
-    stage_exposure: list[str] = Field(default_factory=list)
-
-    # Summary & Evidence
-    research_summary: str
-    key_achievements: list[str] = Field(default_factory=list)
-    notable_companies: list[str] = Field(default_factory=list)
-    citations: list[Citation] = Field(default_factory=list)
-
-    # Quality Metadata
-    research_confidence: Literal["High", "Medium", "Low"] = "Medium"
-    gaps: list[str] = Field(default_factory=list)
-
-    # Audit Metadata
-    research_timestamp: datetime = Field(default_factory=datetime.now)
-    research_model: str = "o4-mini-deep-research"
-```
-
-**Fields:**
-- `exec_name`: Full name
-- `current_role`: Current job title
-- `current_company`: Current company
-- `career_timeline`: Structured work history
-- `total_years_experience`: Total career years
-- `fundraising_experience`: CFO dimension (nullable)
-- `operational_finance_experience`: CFO dimension (nullable)
-- `technical_leadership_experience`: CTO dimension (nullable)
-- `team_building_experience`: Universal leadership dimension
-- `sector_expertise`: List of industry sectors (e.g., ["B2B SaaS", "Fintech"])
-- `stage_exposure`: Company stages (e.g., ["Series A", "Series B", "Growth"])
-- `research_summary`: 2-3 sentence executive summary
-- `key_achievements`: Notable accomplishments with evidence
-- `notable_companies`: Recognized companies worked at
-- `citations`: Source citations with URLs and quotes
-- `research_confidence`: Overall confidence (High/Medium/Low)
-- `gaps`: Information not found or unclear
-- `research_timestamp`: When research was conducted
-- `research_model`: Model used (e.g., "o4-mini-deep-research")
-
-**Constraints:**
-- `exec_name` must be non-empty
-- `research_confidence` must be one of: High, Medium, Low
-- `citations` should have ≥3 entries for High confidence
-- `gaps` should be ≤2 entries for High confidence
-
-### Entity: AssessmentResult
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional, Literal
-
-class DimensionScore(BaseModel):
-    """Evidence-aware dimension score.
-
-    Uses Optional[int] with None to represent Unknown/Insufficient Evidence.
-    DO NOT use NaN, 0, or empty values - use None exclusively.
-    """
-    dimension: str
-    score: Optional[int] = Field(None, ge=1, le=5)
-    evidence_level: Literal["High", "Medium", "Low"]
-    confidence: Literal["High", "Medium", "Low"]
-    reasoning: str
-    evidence_quotes: list[str] = Field(default_factory=list)
-    citation_urls: list[str] = Field(default_factory=list)
-
-class MustHaveCheck(BaseModel):
-    """Must-have requirement evaluation."""
-    requirement: str
-    met: bool
-    evidence: Optional[str] = None
-
-class AssessmentResult(BaseModel):
-    """Structured assessment from gpt-5-mini agent."""
-
-    # Overall Assessment
-    overall_score: Optional[float] = Field(None, ge=0, le=100)
-    overall_confidence: Literal["High", "Medium", "Low"]
-
-    # Dimension-Level Scores
-    dimension_scores: list[DimensionScore]
-
-    # Requirements Checking
-    must_haves_check: list[MustHaveCheck] = Field(default_factory=list)
-    red_flags_detected: list[str] = Field(default_factory=list)
-    green_flags: list[str] = Field(default_factory=list)
-
-    # Qualitative Assessment
-    summary: str
-    counterfactuals: list[str] = Field(default_factory=list)
-
-    # Audit Metadata
-    assessment_timestamp: datetime = Field(default_factory=datetime.now)
-    assessment_model: str = "gpt-5-mini"
-    role_spec_used: Optional[str] = None
-```
-
-**Fields:**
-- `overall_score`: 0-100 scale (nullable, computed in Python)
-- `overall_confidence`: Combined confidence level
-- `dimension_scores`: List of DimensionScore objects (4-6 dimensions)
-- `must_haves_check`: Boolean checks for hard requirements
-- `red_flags_detected`: Disqualifying factors found
-- `green_flags`: Positive signals worth highlighting
-- `summary`: 2-3 sentence topline assessment
-- `counterfactuals`: Critical assumptions that must be true
-- `assessment_timestamp`: When assessment ran
-- `assessment_model`: Model used (e.g., "gpt-5-mini")
-- `role_spec_used`: Spec identifier for audit trail
-
-**Constraints:**
-- `overall_score` is nullable (None if no dimensions scored)
-- `dimension_scores.score` uses None for Unknown (not 0, NaN, or empty)
-- `summary` should be 2-3 sentences
+**For complete field definitions, constraints, and usage examples, see `demo_planning/data_design.md`.**
 
 ### Entity: WorkflowEvent (Phase 2+)
 
@@ -981,69 +852,31 @@ For v1.0-minimal, log key metrics to terminal:
 
 ## Workflow Specification Reference
 
-### v1.0-Minimal Workflow
+**Complete workflow implementation details in `demo_planning/screening_workflow_spec.md` (canonical source).**
 
-**Linear Flow (4 steps):**
+### High-Level Flow (4 steps)
 
-1. **Deep Research Agent**
-   - Use `o4-mini-deep-research` model
-   - Configure with Agno's `output_model=ExecutiveResearchResult`
-   - Returns structured research directly (no parser needed)
-   - Built-in retry: `exponential_backoff=True, retries=2`
+1. **Deep Research Agent** - Conduct comprehensive executive research using o4-mini-deep-research
+2. **Quality Check** - Evaluate research sufficiency (simple heuristics)
+3. **Conditional Incremental Search** - Optional single-pass supplement if quality is low
+4. **Assessment Agent** - Evaluate candidate against role spec with evidence-aware scoring
 
-2. **Quality Check**
-   - Pure Python function: `check_research_quality(research) -> bool`
-   - Simple criteria: ≥3 citations, non-empty summary
-   - Returns True (sufficient) or False (needs incremental search)
+### Key Design Patterns
 
-3. **Conditional Incremental Search (Optional)**
-   - Triggered only if quality check returns False
-   - Single agent step (not a loop)
-   - Agent may perform up to 2 web/search calls internally
-   - Merge results with original research
-   - No multi-iteration loops in v1
+- **Linear execution** - Sequential steps (no teams, no nested workflows in v1)
+- **Quality-gated research** - Optional incremental search triggered by quality check
+- **Evidence-aware scoring** - Explicit handling of Unknown dimensions using `None`
+- **Agno native features** - Structured outputs via `output_model`, built-in retry/backoff
+- **Event streaming** - `stream_events=True` for stdout logging (no persistence in v1)
 
-4. **Assessment Agent**
-   - Use `gpt-5-mini` model
-   - Configure with Agno's `output_model=AssessmentResult`
-   - Returns structured assessment directly (no parser needed)
-   - Overall score calculated in Python: `calculate_overall_score(dimension_scores)`
+### Implementation References
 
-**Implementation Pattern:**
-```python
-from agno import Workflow, Agent
+- **Step-by-step execution logic:** `demo_planning/screening_workflow_spec.md`
+- **Agent creation patterns:** `demo_planning/AGNO_REFERENCE.md`
+- **Quality gate thresholds:** `demo_planning/screening_workflow_spec.md`
+- **Score calculation:** See `calculate_overall_score()` interface in this document (line 279)
 
-# Create workflow
-workflow = Workflow(
-    name="candidate_screening",
-    stream_events=True,  # Log events to stdout
-)
-
-# Step 1: Deep Research
-research_agent = create_research_agent(use_deep_research=True)
-research = await research_agent.arun(prompt)
-
-# Step 2: Quality Check
-is_sufficient = check_research_quality(research)
-
-# Step 3: Conditional Incremental Search
-if not is_sufficient:
-    search_agent = create_incremental_search_agent()
-    supplement = await search_agent.arun(prompt)
-    research = merge_research(research, supplement)
-
-# Step 4: Assessment
-assessment_agent = create_assessment_agent()
-assessment = await assessment_agent.arun(prompt)
-assessment.overall_score = calculate_overall_score(assessment.dimension_scores)
-```
-
-**Phase 2+ Enhancements:**
-- Multi-iteration supplemental search loops
-- Fast mode (gpt-5 + web_search)
-- Parallel candidate processing
-- Team-based agent coordination
-- Advanced quality metrics
+**For complete workflow pseudocode, error handling, and execution patterns, see `demo_planning/screening_workflow_spec.md`.**
 
 ---
 
@@ -1120,28 +953,34 @@ assessment.overall_score = calculate_overall_score(assessment.dimension_scores)
 
 ## Airtable Schema Reference
 
-Complete Airtable schema is in `demo_planning/airtable_schema.md`.
+**Complete Airtable schema is in `demo_planning/airtable_schema.md` (canonical source).**
 
-**Key Tables:**
-- **People (64 records):** Executive candidates from guildmember_scrape.csv
-- **Portcos (4 records):** Portfolio companies (Pigment, Mockingbird, Synthesia, Estuary)
-- **Portco_Roles (4 records):** Open roles at portfolio companies
-- **Role_Specs (6 records):** 2 templates + 4 customized specs
-- **Searches (4 records):** Active talent searches linking roles to specs
-- **Screens (4 records):** Screening batches (3 pre-run + 1 live demo)
-- **Research_Results (~12-15 records):** Structured research outputs
-- **Assessments (~12-15 records):** Assessment results with dimension scores
+### Tables Overview (9 tables)
 
-**Webhook Trigger:**
-- Table: Screens
-- Trigger Field: `status`
-- Trigger Value: "Ready to Screen" (change from "Draft")
-- Action: POST to Flask `/screen` endpoint with `screen_id`
+1. **People (64 records)** - Executive candidates from guildmember_scrape.csv
+2. **Portco (4 records)** - Portfolio companies for demo scenarios
+3. **Portco_Roles (4 records)** - Open roles at portfolio companies
+4. **Role_Specs (6 records)** - 2 templates + 4 customized specs
+5. **Searches (4 records)** - Active talent searches linking roles to specs
+6. **Screens (4 records)** - Screening batches (webhook trigger table)
+7. **Workflows (~12-15 records)** - Execution audit trail per candidate
+8. **Research_Results (~12-15 records)** - Structured research outputs
+9. **Assessments (~12-15 records)** - Assessment results with dimension scores
 
-**v1.0-minimal Changes:**
-- No Workflows table (Phase 2+)
-- Status and error tracking in Screens and Assessments tables
-- Research and Assessment JSON stored in respective tables
+### Webhook Automation
+
+- **Trigger Table:** Screens
+- **Trigger Field:** `status` changes to "Ready to Screen"
+- **Action:** POST to Flask `/screen` endpoint with `{screen_id: <record_id>}`
+- **Processing:** Python sets status to "Processing" → "Complete" or "Failed"
+
+### Data Storage Pattern
+
+- **Complex nested data:** Stored as JSON in Long Text fields
+- **Key fields extracted:** Overall score, confidence, summary for quick viewing
+- **Full Pydantic models:** Stored in `*_json` fields for complete audit trail
+
+**For complete field definitions, types, options, and setup instructions, see `demo_planning/airtable_schema.md`.**
 
 ---
 

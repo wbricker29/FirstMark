@@ -141,20 +141,24 @@ Below are concrete changes to align the PRD with v1.0-minimal. References are by
   - One Flask worker is sufficient
   - Demo expectation: up to ~10 candidates per Screen in <10 minutes total (dominated by Deep Research API latency)."
 
-### 2.3 SQLite Workflow Events
+### 2.3 Custom SQLite Event Storage
 
-**Current:** PRD requires SQLite for workflow event storage and includes it in performance/memory constraints.
+**Current:** PRD requires custom SQLite database for workflow event storage and audit trails.
 
 **Change (v1-minimal):**
-
 - In "Python-Specific Considerations → Memory" and "Data Requirements":
-  - Remove SQLite as a **required** component.
-  - If needed, relegate SQLite audit logging to a **Phase 2** enhancement.
-- In "Non-Functional → Reliability" and "Acceptance Criteria":
-  - Replace "Workflow events captured for complete audit trail" with:
-    - "Minimal audit trail via:
-      - Status and summary fields in Airtable
-      - Terminal logs during execution"
+  - Remove **custom WorkflowEvent table and event storage** as required components
+  - **Standardize on Agno's `SqliteDb` for workflow session state** so we can inspect local runs:
+    - Store Agno's internal DB at `tmp/agno_sessions.db` (gitignored)
+    - Keep Agno-managed tables only; no custom schema
+  - Document `InMemoryDb()` as an optional fallback if persistence is ever unnecessary
+  - Do NOT implement custom event logging, audit tables, or workflow event schemas
+  - Relegate rich audit logging (custom events DB) to Phase 2+ enhancement
+
+**Clarification:**
+- "No SQLite" = no custom event capture beyond Agno's built-in capabilities
+- Agno Workflow internals **will** use `SqliteDb` for quick local review; `InMemoryDb` remains an optional swap if persistence is not needed later
+- This is distinct from custom WorkflowEvent persistence
 
 ### 2.4 Code Quality & Testing Targets
 
@@ -242,6 +246,47 @@ demo/
 - In "Observability → Audit Trail":
   - Replace SQLite storage description with:
     - "For v1.0-minimal, rely on Airtable fields + logs; SQLite audit DB is an optional future enhancement."
+
+**Implementation Guidance:**
+
+For v1, use Agno's built-in session management without custom event tables, but **persist sessions via `SqliteDb`** so we can review local runs:
+
+```python
+from agno.db.sqlite import SqliteDb       # Default: minimal persistence for review
+from agno.db.in_memory import InMemoryDb  # Optional fallback
+from agno.workflow import Workflow
+
+# Default path: SqliteDb with Agno-managed tables only
+workflow = Workflow(
+    name="Screening Workflow",
+    db=SqliteDb(db_file="tmp/agno_sessions.db"),  # Quick local history for demos
+    session_state={
+        "screen_id": None,
+        "candidates_processed": [],
+        "total_candidates": 0
+    },
+    steps=[research_step, assess_step, airtable_step]
+)
+
+# Optional future swap if persistence stops being useful
+stateless_workflow = Workflow(
+    name="Screening Workflow",
+    db=InMemoryDb(),  # Clears on restart
+    session_state={"screen_id": None},
+    steps=[research_step, assess_step, airtable_step]
+)
+```
+
+**Key distinction:**
+- ❌ Do NOT create custom `WorkflowEvent` model or event logging tables
+- ✅ DO use Agno's internal `SqliteDb` for workflow session state (file lives in `tmp/` and is gitignored)
+- ✅ Persist final results in Airtable only
+- ✅ Use terminal logs for execution visibility
+
+**Audit trail for v1:**
+- Airtable: Final assessment JSON, status, error messages, execution metadata
+- Stdout: Streaming events via `stream_events=True`
+- No custom event database
 
 ### 3.3 Single Research Mode + Optional Incremental Search
 
@@ -386,7 +431,41 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   - Do not persist events in a separate database; Airtable + logs are the v1 audit trail.
 
 - **Use built-in OpenAI tools for search:**
-  - Implement the incremental search agent using AGNO’s OpenAI/web-search tools instead of hand-written HTTP calls.
+  - Implement the incremental search agent using AGNO's OpenAI/web-search tools instead of hand-written HTTP calls.
+
+**Optional Enhancements (if time permits):**
+
+- **ReasoningTools for assessment agent:**
+  - Agno's `ReasoningTools` toolkit provides built-in "think → analyze" pattern for complex decisions
+  - Enhances assessment quality with minimal implementation cost (~5 lines, ~30 minutes)
+  - Generates explicit reasoning trails for match explanations (aligns with PRD AC-PRD-04)
+  - Low risk, high value for demonstration quality
+
+  **Example:**
+  ```python
+  from agno.tools.reasoning import ReasoningTools
+
+  assessment_agent = Agent(
+      model=OpenAIChat(id="gpt-5-mini"),
+      output_schema=AssessmentResult,
+      tools=[ReasoningTools(add_instructions=True)],  # Optional enhancement
+      instructions=[
+          "Use reasoning tools to think through candidate matches systematically",
+          "Consider evidence quality, spec alignment, and potential concerns",
+          "Provide clear explanations for match scores and confidence levels"
+      ]
+  )
+  ```
+
+  **Decision criteria:**
+  - Include if assessment quality needs improvement during pre-runs
+  - Skip if timeline is tight and basic assessment is sufficient
+  - Can be added incrementally without affecting other components
+
+- **Tool hooks for centralized logging (lower priority):**
+  - Agno's `tool_hooks` can centralize Airtable update logging
+  - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
+  - Mark as Phase 2+ code quality enhancement
 
 And v1.0-minimal should explicitly **not** use:
 
@@ -407,7 +486,9 @@ And v1.0-minimal should explicitly **not** use:
   - Pydantic models
   - Thin Airtable wrapper
 - Deep research as the primary mode; optional **single incremental search agent step** (which may perform up to two web/search calls) when quality is low; no fast-mode orchestration or multi-iteration supplemental search loops.
-- No SQLite or extra databases; Airtable + logs provide sufficient auditability.
+- No custom SQLite event tables or workflow audit database; rely on Agno's `SqliteDb` (at `tmp/agno_sessions.db`) purely for session state you can inspect locally
+- Airtable (final results) + terminal logs (execution events) provide sufficient auditability for demo
+- Custom event persistence and observability database are Phase 2+ enhancements
 - Basic testing and logging; correctness and clarity are prioritized over coverage metrics or production-grade observability.
 
 These changes keep the implementation aligned with `case/technical_spec_V2.md` while making the delivered code achievable, maintainable, and clearly scoped for a 48-hour interview demo.
