@@ -27,7 +27,7 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      AIRTABLE DATABASE                       │
-│  People (64) | Portcos (4) | Roles (4) | Specs (6)         │
+│  People (64) | Portco (4) | Portco_Roles (4) | Role_Specs (6)│
 │  Searches (4) | Screens (4) | Assessments (research+scores)│
 └────────────────────┬────────────────────────────────────────┘
                      │
@@ -481,7 +481,7 @@ class WorkflowEvent(BaseModel):
 ### Performance
 
 - **Research Phase:**
-  - Deep Research mode: 2-5 minutes per candidate
+  - Deep Research mode: 2-6 minutes per candidate
   - Quality check: <1 second
   - Optional incremental search: 30-60 seconds (single agent step, up to 2 web/search calls)
 - **Assessment Phase:**
