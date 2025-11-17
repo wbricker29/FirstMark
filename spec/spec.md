@@ -1186,6 +1186,182 @@ For v1.0-minimal, log key metrics to terminal:
 
 ---
 
+## 2-Developer Parallel Implementation Track
+
+### **Stage 1: Foundation Setup** (2 hours parallel)
+
+**Developer A (Data Layer):**
+- [x] Create project structure (5 files: models.py, agents.py, airtable_client.py, app.py, settings.py)
+- [ ] Implement **models.py** - All Pydantic models
+  - ExecutiveResearchResult, AssessmentResult, DimensionScore
+  - Citation, CareerEntry, MustHaveCheck
+- [ ] Create **settings.py** - Config/env loading
+- [ ] Set up **.env** from .env.example
+
+**Developer B (Infrastructure):**
+- [ ] Configure **pyproject.toml** with dependencies
+- [ ] Set up Python 3.11 environment (uv)
+- [ ] Install dependencies (`uv pip install`)
+- [ ] Implement **tests/test_scoring.py** skeleton
+- [ ] Set up Airtable base (6 tables) from `spec/dev_reference/airtable_ai_spec.md`
+
+**Sync Point:** Both complete → merge models.py
+
+### **Stage 2: Core Components** (6 hours parallel)
+
+**Developer A (Agents):**
+- [ ] Implement **Research Agent** (`agents.py`)
+  - `create_research_agent()` with Deep Research mode
+  - `run_research()` with retry/backoff
+  - Handle markdown output (NOT structured output for Deep Research)
+  - Extract citations from `result.citations`
+- [ ] Implement **Assessment Agent** (`agents.py`)
+  - `assess_candidate()` with gpt-5-mini
+  - ReasoningTools integration
+  - Structured outputs via `output_schema=AssessmentResult`
+- [ ] Implement **Incremental Search Agent** (`agents.py`)
+  - Optional single-step search with web_search tool
+  - Research merging logic
+
+**Developer B (Integration + Logic):**
+- [ ] Implement **airtable_client.py** - Complete client
+  - `get_screen()`, `get_role_spec()`
+  - `write_assessment()`, `update_screen_status()`
+  - Error handling
+- [ ] Implement **scoring logic**
+  - `calculate_overall_score()` - simple average × 20
+  - `check_research_quality()` - ≥3 citations heuristic
+- [ ] Complete **tests/test_scoring.py**
+- [ ] Create **tests/test_quality_check.py**
+
+**Sync Point:** Review agent interfaces + Airtable client together
+
+### **Stage 3: Workflow Orchestration** (4 hours paired/sequential)
+
+**Developer A + B (Collaborative):**
+- [ ] Implement **Workflow** in `agents.py`
+  - Step 1: Deep Research Agent
+  - Step 2: Quality Check (function call)
+  - Step 3: Conditional Incremental Search
+  - Step 4: Assessment Agent
+- [ ] Configure **SqliteDb** at `tmp/agno_sessions.db`
+  - Session state management
+  - NO custom WorkflowEvent tables
+- [ ] Implement **screen_single_candidate()** helper
+- [ ] Add event streaming (`stream_events=True`)
+
+**Split for testing:**
+- Developer A: Test workflow with mock Airtable data
+- Developer B: Test Airtable integration with mock agents
+
+**Sync Point:** End-to-end workflow test with real data
+
+### **Stage 4: Flask Webhook** (3 hours parallel)
+
+**Developer A (Endpoint Implementation):**
+- [ ] Implement **app.py** - Flask server
+- [ ] Implement **/screen endpoint**
+  - Request validation
+  - Screen status updates
+  - Candidate iteration (synchronous)
+  - Error handling (partial failures)
+- [ ] Add logging with emoji indicators (🔍, ✅, ❌)
+
+**Developer B (Infrastructure):**
+- [ ] Set up **ngrok tunnel**
+- [ ] Configure **Airtable automation**
+  - Trigger: Screen.status → "Ready to Screen"
+  - Action: POST to Flask /screen with {screen_id}
+- [ ] Test webhook connectivity
+- [ ] Create error handling test cases
+
+**Sync Point:** Full webhook → workflow → Airtable write test
+
+### **Stage 5: Testing & Validation** (2 hours parallel)
+
+**Developer A (Test Execution):**
+- [ ] Run **test_scoring.py** suite
+- [ ] Run **test_quality_check.py** suite
+- [ ] Run **test_workflow_smoke.py** (if created)
+- [ ] Fix any failing tests
+- [ ] Verify type hints (mypy check - optional)
+
+**Developer B (Integration Testing):**
+- [ ] Manual test: Full /screen endpoint with 1 candidate
+- [ ] Verify Airtable writes
+- [ ] Check SqliteDb session state
+- [ ] Review logs for completeness
+- [ ] Test error scenarios (API failures, bad data)
+
+**Sync Point:** All tests passing + manual validation complete
+
+### **Stage 6: Demo Preparation** (3 hours parallel)
+
+**Developer A (Pre-runs 1 & 2):**
+- [ ] **Pre-run 1: Pigment CFO**
+  - Execute via webhook
+  - Verify results in Airtable
+  - Document execution time
+- [ ] **Pre-run 2: Mockingbird CFO**
+  - Execute via webhook
+  - Verify results in Airtable
+  - Compare assessment quality
+
+**Developer B (Pre-run 3 & Live Prep):**
+- [ ] **Pre-run 3: Synthesia CTO**
+  - Execute via webhook
+  - Verify results in Airtable
+- [ ] **Live Demo Prep: Estuary CTO**
+  - Set up Screen record (status: "Draft")
+  - Verify role spec + candidates loaded
+  - Test webhook trigger (dry run)
+- [ ] Create **demo script** with timing estimates
+
+**Sync Point:** Review all 3 pre-runs + live demo readiness
+
+### Timeline Summary
+
+| Stage | Developer A | Developer B | Duration | Cumulative |
+|-------|-------------|-------------|----------|------------|
+| 1 | Data Layer | Infrastructure | 2h | 2h |
+| 2 | Agents | Integration + Logic | 6h | 8h |
+| 3 | Workflow (paired) | Workflow (paired) | 4h | 12h |
+| 4 | Flask Endpoint | Webhook Setup | 3h | 15h |
+| 5 | Test Execution | Integration Testing | 2h | 17h |
+| 6 | Pre-runs 1-2 | Pre-run 3 + Live Prep | 3h | 20h |
+
+**Total: 20 hours per developer (vs 21 hours sequential)**
+
+### Daily Sync Schedule (for 2.5 day sprint)
+
+**Day 1 (8 hours):**
+- Morning: Stages 1-2 (8h parallel)
+- End of Day: Sync Point - merge models + review interfaces
+
+**Day 2 (8 hours):**
+- Morning: Stage 3 (4h collaborative)
+- Afternoon: Stage 4 (3h parallel) → Sync webhook test
+- Evening: Stage 5 start (1h parallel)
+
+**Day 3 (4 hours):**
+- Morning: Stage 5 finish (1h) + Stage 6 (3h parallel)
+- Final: Demo rehearsal together
+
+### Critical Handoffs
+
+1. **Stage 1 → 2:** Developer A provides models.py to Developer B
+2. **Stage 2 → 3:** Both review agent interfaces + Airtable client before workflow
+3. **Stage 3 → 4:** Workflow tested before Flask integration
+4. **Stage 5 → 6:** All tests green before pre-runs
+
+### Risk Mitigation
+
+- **Blocker in Stage 2?** Other developer can assist (agents are independent)
+- **Workflow issues in Stage 3?** Fall back to manual step execution for testing
+- **Webhook connectivity issues?** Use direct Python calls for pre-runs, fix automation later
+
+---
+
 ## Success Criteria
 
 This specification succeeds if:
@@ -1217,6 +1393,6 @@ This specification succeeds if:
 **Approval:**
 
 - Created: 2025-01-16
-- Updated: 2025-01-17 (v1.0-minimal refactor)
+- Updated: 2025-01-17 (v1.0-minimal refactor + 2-developer parallel track)
 - Status: Ready for Implementation
 - Next Review: Post-implementation retrospective
