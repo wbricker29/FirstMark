@@ -12,7 +12,6 @@
 ## Purpose & When to Use
 
 Use this guide when:
-
 - Starting to design a new skill
 - Understanding what the skill should do
 - Planning bundled resources (scripts, references, assets)
@@ -74,28 +73,24 @@ Skills are modular, self-contained packages that extend Claude's capabilities by
 ### Four Types of Skill Resources
 
 **1. Specialized workflows** - Multi-step procedures for specific domains
-
-- Example: Multi-stage document processing workflows, data analysis pipelines
-- When to use: Repetitive complex tasks with clear procedural steps
-- Benefit: Ensures consistent execution of complex processes
+   - Example: Multi-stage document processing workflows, data analysis pipelines
+   - When to use: Repetitive complex tasks with clear procedural steps
+   - Benefit: Ensures consistent execution of complex processes
 
 **2. Tool integrations** - Instructions for working with specific file formats or APIs
-
-- Example: PDF manipulation, Excel analysis, API client libraries
-- When to use: Deterministic operations on specific file types or services
-- Benefit: Provides domain-specific knowledge about tools and formats
+   - Example: PDF manipulation, Excel analysis, API client libraries
+   - When to use: Deterministic operations on specific file types or services
+   - Benefit: Provides domain-specific knowledge about tools and formats
 
 **3. Domain expertise** - Company-specific knowledge, schemas, business logic
-
-- Example: Database schemas, brand guidelines, compliance rules
-- When to use: Contextual knowledge that varies by organization
-- Benefit: Encodes organizational knowledge for reuse
+   - Example: Database schemas, brand guidelines, compliance rules
+   - When to use: Contextual knowledge that varies by organization
+   - Benefit: Encodes organizational knowledge for reuse
 
 **4. Bundled resources** - Scripts, references, and assets for complex tasks
-
-- Example: Boilerplate templates, validation scripts, reference documentation
-- When to use: Reusable code/content used repeatedly
-- Benefit: Avoids rewriting the same code or recreating the same content
+   - Example: Boilerplate templates, validation scripts, reference documentation
+   - When to use: Reusable code/content used repeatedly
+   - Benefit: Avoids rewriting the same code or recreating the same content
 
 ---
 

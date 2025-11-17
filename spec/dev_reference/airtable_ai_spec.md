@@ -126,7 +126,7 @@ Batch evaluations of candidates for a search.
 
 ### 7. Assessments
 
-Candidate evaluations against role specifications **and** storage for research outputs (per v1 minimal spec).
+Individual Candidate evaluation against role specifications **and** storage for research outputs (per v1 minimal spec).
 
 **Fields:**
 

@@ -23,14 +23,12 @@ echo '{"session_id":"test","prompt":"your test prompt"}' | \
 **Expected output**: Your skill should appear in the suggestions
 
 **Example**:
-
 ```bash
 echo '{"session_id":"test","prompt":"help me process a PDF"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts```
 
 Should output something like:
 ```
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 SKILL ACTIVATION CHECK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -40,7 +38,6 @@ Should output something like:
 
 ACTION: Use Skill tool BEFORE responding
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ```
 
 ---
@@ -56,7 +53,6 @@ EOF
 ```
 
 **For blocking guardrails**, expected output (to stderr):
-
 ```
 ⚠️ BLOCKED - [Reason]
 
@@ -92,7 +88,6 @@ Use this comprehensive checklist when creating or updating Claude Code skills:
 - [ ] All common variations included
 
 **Test command**:
-
 ```bash
 # Should match
 echo '{"prompt":"create react component"}' | npx tsx .claude/hooks/skill-activation-prompt.ts
@@ -105,7 +100,7 @@ echo '{"prompt":"unrelated task"}' | npx tsx .claude/hooks/skill-activation-prom
 
 ### Intent Pattern Triggers
 
-- [ ] Regex patterns tested on <https://regex101.com/>
+- [ ] Regex patterns tested on https://regex101.com/
 - [ ] Patterns tested with real prompts
 - [ ] Non-greedy matching used (`.*?` not `.*`)
 - [ ] Patterns not too broad (false positives)
@@ -113,7 +108,6 @@ echo '{"prompt":"unrelated task"}' | npx tsx .claude/hooks/skill-activation-prom
 - [ ] Special regex characters escaped in JSON (`\\.`, `\\(`, etc.)
 
 **Test examples**:
-
 ```bash
 # Action-based intent
 echo '{"prompt":"add user authentication"}' | npx tsx .claude/hooks/skill-activation-prompt.ts
@@ -133,7 +127,6 @@ echo '{"prompt":"how does the layout system work"}' | npx tsx .claude/hooks/skil
 - [ ] No overly broad patterns (`**/*.ts` too general)
 
 **Test command**:
-
 ```bash
 # Should match pattern
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
@@ -157,7 +150,6 @@ EOF
 - [ ] Patterns not overly broad (check entire codebase)
 
 **Test command**:
-
 ```bash
 # Create test file with content
 echo "import { PrismaClient } from '@prisma/client'" > test.ts
@@ -186,7 +178,6 @@ rm test.ts
   - [ ] Env var skips activation
 
 **Test session tracking**:
-
 ```bash
 # First edit (should block)
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
@@ -227,7 +218,7 @@ EOF
    - Remember: case-insensitive substring matching
 
 2. **Intent patterns too specific**
-   - Test regex at <https://regex101.com/>
+   - Test regex at https://regex101.com/
    - May need broader patterns
    - Use non-greedy `.*?` not `.*`
 
@@ -239,7 +230,6 @@ EOF
    - Common: trailing commas, missing quotes, single quotes
 
 **Debug**:
-
 ```bash
 echo '{"session_id":"debug","prompt":"your test prompt"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts
@@ -275,7 +265,6 @@ Expected: Your skill appears in output
    - Verify hook file exists and is executable
 
 **Debug**:
-
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"session_id":"debug","tool_name":"Edit","tool_input":{"file_path":"path/to/file.ts"}}
@@ -334,7 +323,6 @@ Expected for guardrail: Block message to stderr, exit code 2
    - Check for syntax errors or crashes
 
 **Debug**:
-
 ```bash
 # Test hook directly
 npx tsx .claude/hooks/skill-activation-prompt.ts <<< '{"prompt":"test"}'
@@ -367,19 +355,16 @@ EOF
 ### Performance Issues
 
 **If UserPromptSubmit is slow (>100ms)**:
-
 - Too many intent patterns (regex is expensive)
 - Complex regex patterns
 - Too many skills in skill-rules.json
 
 **If PreToolUse is slow (>200ms)**:
-
 - Too many content patterns (reads file multiple times)
 - Large files being read
 - Complex regex on large content
 
 **Solutions**:
-
 - Simplify regex patterns
 - Reduce number of content patterns
 - Cache file reads if possible

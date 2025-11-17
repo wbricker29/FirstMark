@@ -2,7 +2,7 @@
 unit_id: "004-flask-webhook"
 version: "1.0"
 created: "2025-11-17"
-updated: "2025-11-17"
+updated: "2025-11-17T15:09:19-05:00"
 ---
 
 # Unit Plan: Flask Webhook Server & Airtable Integration
@@ -15,73 +15,79 @@ Volatile task breakdown and verification plan
 
 - **Title:** Implement AirtableClient base class and initialization
 - **Description:** Create `demo/airtable_client.py` with AirtableClient class. Implement `__init__()` method that accepts api_key and base_id, initializes pyairtable Api and Table objects for Screens, People, Role_Specs, and Assessments tables. Add type hints and docstrings. (~30-40 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 1 hour
 - **Dependencies:** None
 - **Files:** demo/airtable_client.py
 - **Note:** Foundation for all Airtable operations. Must establish table references for downstream CRUD operations.
-- **Completed:** null
+- **Completion Notes:** Implemented AirtableClient with pyairtable Api + cached table handles plus validation for credentials.
+- **Completed:** 2025-11-17
 
 ### TK-02
 
 - **Title:** Implement AirtableClient read methods (get_screen, get_role_spec)
 - **Description:** Add `get_screen(screen_id)` method that fetches Screen record with linked relationships (search, candidates). Add `get_role_spec(spec_id)` method that fetches Role Spec with structured_spec_markdown field. Handle API errors with basic try/except. Add type hints for return types (dict[str, Any]). (~40-50 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 1.5 hours
 - **Dependencies:** TK-01
 - **Files:** demo/airtable_client.py
 - **Note:** Critical for fetching workflow input data. Must handle linked records correctly.
-- **Completed:** null
+- **Completion Notes:** Added get_screen/get_role_spec methods that hydrate linked search + candidate records and expose structured_spec_markdown with error handling.
+- **Completed:** 2025-11-17
 
 ### TK-03
 
 - **Title:** Implement AirtableClient write methods (write_assessment, update_screen_status)
 - **Description:** Add `write_assessment()` method that creates Assessment record with assessment_json, research_structured_json, overall_score, confidence fields, returns record ID. Add `update_screen_status()` method that updates Screen.status and optional error_message. Handle pyairtable API calls with proper field mapping. (~40-50 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 1.5 hours
 - **Dependencies:** TK-01
 - **Files:** demo/airtable_client.py
 - **Note:** Critical for writing workflow results. Must serialize Pydantic models to JSON strings.
-- **Completed:** null
+- **Completion Notes:** Implemented write_assessment/update_screen_status with JSON serialization, relationship links, and error propagation guards.
+- **Completed:** 2025-11-17
 
 ### TK-04
 
 - **Title:** Create Flask application skeleton with configuration
 - **Description:** Create `demo/app.py` with Flask app initialization, environment variable loading (AIRTABLE_API_KEY, AIRTABLE_BASE_ID, FLASK_HOST, FLASK_PORT), logging configuration with emoji indicators (🔍, ✅, ❌), and AirtableClient singleton instantiation. Add error handling for missing env vars. (~30-40 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 1 hour
 - **Dependencies:** TK-01
 - **Files:** demo/app.py
 - **Note:** Foundation for Flask endpoint. Must validate environment variables on startup.
-- **Completed:** null
+- **Completion Notes:** Added logging setup, validated env vars, bootstrapped Airtable client + app factory, and wired host/port config during startup.
+- **Completed:** 2025-11-17
 
 ### TK-05
 
 - **Title:** Implement POST /screen endpoint with request validation
 - **Description:** Add Flask route handler for POST /screen. Implement request validation (check for screen_id in JSON body, validate format). Return 400 with ValidationError JSON for invalid requests. Add logging for incoming requests. (~30-40 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 1 hour
 - **Dependencies:** TK-04
 - **Files:** demo/app.py
 - **Note:** Entry point for webhook. Must fail fast on invalid input before expensive workflow execution.
-- **Completed:** null
+- **Completion Notes:** Added /screen route with structured validation helper, informative logs, and placeholder 202 response prior to workflow wiring. Response stub flagged for upgrade during TK-06 orchestration.
+- **Completed:** 2025-11-17
 
 ### TK-06
 
 - **Title:** Implement workflow orchestration in /screen endpoint
 - **Description:** Add workflow execution logic: update Screen status to "Processing", fetch screen details and role spec via AirtableClient, get linked candidates, loop through candidates calling screen_single_candidate() synchronously, collect results and errors, update Screen status based on outcome ("Complete" or "Partial"), return structured JSON response with execution metrics. Handle partial failures gracefully (continue processing). (~60-80 LOC)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 2 hours
 - **Dependencies:** TK-02, TK-03, TK-05
 - **Files:** demo/app.py
 - **Note:** Core orchestration logic. Must integrate with screen_single_candidate() from unit 003. Imports from demo/agents.py.
-- **Completed:** null
+- **Completion Notes:** Wired /screen to fetch screen + role spec, update status to Processing, sequentially run screen_single_candidate per candidate, persist assessments, collect metrics/errors, and flip status to Complete or Partial with structured JSON output.
+- **Completed:** 2025-11-17
 
 ### TK-07
 
@@ -135,13 +141,14 @@ Volatile task breakdown and verification plan
 
 - **Title:** Add Flask and pyairtable dependencies to pyproject.toml
 - **Description:** Add `flask>=3.0.0` and `pyairtable>=2.0.0` to project.dependencies in pyproject.toml. Run `uv pip install flask pyairtable` to verify. Update README.md with installation instructions if needed. (~5-10 lines)
-- **Status:** ready
+- **Status:** complete
 - **Priority:** high
 - **Estimate:** 0.5 hours
 - **Dependencies:** None
 - **Files:** pyproject.toml
 - **Note:** Required dependencies for Flask server and Airtable integration. Must install before implementation.
-- **Completed:** null
+- **Completion Notes:** Verified Flask and pyairtable are declared in pyproject.toml and installed via `uv pip install`.
+- **Completed:** 2025-11-17
 
 ### TK-12
 
@@ -203,9 +210,9 @@ Volatile task breakdown and verification plan
 
 ## Status
 
-- **Progress:** 0% (0 of 13 tasks completed)
+- **Progress:** 31% (4 of 13 tasks completed)
 - **Created:** 2025-11-17
-- **Status:** planning
+- **Status:** in_progress
 
 ## Task Dependencies (DAG)
 

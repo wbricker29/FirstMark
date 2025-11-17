@@ -5,20 +5,20 @@
 - [Delivery Phase - Validating \& Packaging](#delivery-phase---validating--packaging)
   - [Table of Contents](#table-of-contents)
   - [Purpose \& When to Use](#purpose--when-to-use)
-  - [Step 4.5: Pre-Packaging Validation](#step-45-pre-packaging-validation)
+  - [Step 5: Validate Skill Quality](#step-5-validate-skill-quality)
     - [YAML Frontmatter](#yaml-frontmatter)
     - [File Structure](#file-structure)
     - [Content Quality](#content-quality)
     - [Testing](#testing)
-  - [Step 5: Packaging a Skill](#step-5-packaging-a-skill)
-  - [Step 6: Iteration](#step-6-iteration)
+  - [Step 6: Package and Iterate](#step-6-package-and-iterate)
+    - [Packaging the Skill](#packaging-the-skill)
+    - [Iteration Workflow](#iteration-workflow)
 
 ---
 
 ## Purpose & When to Use
 
 Use this guide when:
-
 - Preparing to package and distribute a skill
 - Validating skill quality before release
 - Iterating on an existing skill based on feedback
@@ -27,7 +27,7 @@ Use this guide when:
 
 ---
 
-## Step 4.5: Pre-Packaging Validation
+## Step 5: Validate Skill Quality
 
 Before packaging the skill, verify it meets quality standards using this checklist. The `package_skill.py` script automates many of these checks, but manual verification ensures nothing is missed.
 
@@ -59,7 +59,7 @@ Before packaging the skill, verify it meets quality standards using this checkli
 
 ### Testing
 
-- [ ] Skill validates successfully: `scripts/quick_validate.py <path/to/skill>`
+- [ ] Skill validates successfully: `uv run python scripts/quick_validate.py <path/to/skill>`
 - [ ] Scripts execute without errors (if included)
 - [ ] Examples work as documented
 - [ ] Test activation by using trigger words in a conversation
@@ -68,18 +68,20 @@ Once all checks pass, proceed to packaging.
 
 ---
 
-## Step 5: Packaging a Skill
+## Step 6: Package and Iterate
+
+### Packaging the Skill
 
 Once the skill is ready, it should be packaged into a distributable zip file that gets shared with the user. The packaging process automatically validates the skill first to ensure it meets all requirements:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder>
+uv run python scripts/package_skill.py <path/to/skill-folder>
 ```
 
 Optional output directory specification:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder> ./dist
+uv run python scripts/package_skill.py <path/to/skill-folder> ./dist
 ```
 
 The packaging script will:
@@ -96,17 +98,16 @@ If validation fails, the script will report the errors and exit without creating
 
 ---
 
-## Step 6: Iteration
+### Iteration Workflow
 
 After testing the skill, users may request improvements. Often this happens right after using the skill, with fresh context of how the skill performed.
 
-**Iteration workflow:**
-
+**Workflow:**
 1. Use the skill on real tasks
 2. Analyze execution and results
 3. Notice relevant and important weaknesses
 4. Identify how SKILL.md or bundled resources could be updated to directly address weaknesses
-5. Select the most valuable update(s) that should be implemented
+5. Select the most valuable update(s) that should be implemented 
 6. Implement changes and test again
 
 **Key principle**: Iterate on evidence (skill doesn't activate, instructions unclear) not preference (different style).

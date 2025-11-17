@@ -14,13 +14,11 @@
 ### Q: Should I create a general or Claude Code skill?
 
 **A**: Start with **general** if you're unsure. General skills:
-
 - Work everywhere (Claude Desktop, CLI, API)
 - Simpler to create and maintain
 - Can be migrated to Claude Code later if needed
 
 Use **Claude Code** only if you need:
-
 - Automatic activation based on triggers
 - Guardrails that block edits
 - Session tracking
@@ -35,19 +33,16 @@ See [Quick Decision Matrix](../SKILL.md#quick-decision-matrix) in main SKILL.md.
 **A**: Write a rich, detailed description in YAML frontmatter:
 
 **Good example**:
-
 ```yaml
 description: Guide for processing PDF files. Use when working with PDFs, extracting text from documents, parsing PDF structure, converting PDF to other formats, or analyzing PDF content. Covers PyPDF2, pdfplumber, and pdf2image libraries.
 ```
 
 **Bad example**:
-
 ```yaml
 description: PDF tool
 ```
 
 **Tips**:
-
 - Explain what the skill does
 - Explain when to use it
 - Include specific trigger words (file extensions, operations, keywords)
@@ -64,7 +59,6 @@ See [IMPLEMENTATION_PHASE.md - Making Skills Discoverable](IMPLEMENTATION_PHASE.
 **A**:
 
 **scripts/** - Executable code that the skill runs:
-
 - Python, Bash, TypeScript, etc.
 - Helper utilities
 - Validation tools
@@ -72,7 +66,6 @@ See [IMPLEMENTATION_PHASE.md - Making Skills Discoverable](IMPLEMENTATION_PHASE.
 - Examples: `init_skill.py`, `validate_schema.py`
 
 **references/** - Documentation that provides context:
-
 - Markdown files with detailed information
 - API documentation
 - Schema definitions
@@ -80,7 +73,6 @@ See [IMPLEMENTATION_PHASE.md - Making Skills Discoverable](IMPLEMENTATION_PHASE.
 - Examples: `API_GUIDE.md`, `SCHEMA.md`
 
 **assets/** - Files used in output:
-
 - Templates (config files, boilerplate code)
 - Example files
 - Images/diagrams
@@ -94,13 +86,11 @@ See [IMPLEMENTATION_PHASE.md - Bundled Resources](IMPLEMENTATION_PHASE.md#bundle
 ### Q: What validation checks should I run?
 
 **A**: Run the validation script:
-
 ```bash
 uv run python scripts/quick_validate.py path/to/skill
 ```
 
 This checks:
-
 - YAML frontmatter syntax and required fields
 - Naming conventions (lowercase-hyphens)
 - Description completeness
@@ -111,14 +101,13 @@ This checks:
 
 For Claude Code skills, also test triggers manually. See [Testing Claude Code](TESTING_CLAUDE_CODE.md)
 
-See [DELIVERY_PHASE.md - Pre-Packaging Validation](DELIVERY_PHASE.md#step-45-pre-packaging-validation)
+See [DELIVERY_PHASE.md - Validate Skill Quality](DELIVERY_PHASE.md#step-5-validate-skill-quality)
 
 ---
 
 ### Q: How do I package my skill for distribution?
 
 **A**:
-
 ```bash
 # Creates skill-name.zip in current directory
 uv run python scripts/package_skill.py path/to/skill-name
@@ -128,13 +117,12 @@ uv run python scripts/package_skill.py path/to/skill-name ./dist
 ```
 
 The script automatically:
-
 1. Validates the skill
 2. Creates zip file with proper directory structure
 3. Reports any errors before packaging
 4. Ready for distribution or installation
 
-See [DELIVERY_PHASE.md - Packaging](DELIVERY_PHASE.md#step-5-packaging-a-skill)
+See [DELIVERY_PHASE.md - Packaging](DELIVERY_PHASE.md#step-6-package-and-iterate)
 
 ---
 
@@ -143,19 +131,50 @@ See [DELIVERY_PHASE.md - Packaging](DELIVERY_PHASE.md#step-5-packaging-a-skill)
 **A**: **Under 500 lines** (Anthropic best practice)
 
 Use progressive disclosure:
-
 - **Level 1** (Description): ~100 words, always in context
 - **Level 2** (SKILL.md): <500 lines, loaded when triggered
 - **Level 3** (References): Unlimited, loaded only when needed
 
 **If SKILL.md exceeds 500 lines**:
-
 - Move detailed content to `references/*.md`
 - Keep core workflow in SKILL.md
 - Link to reference files for details
 - Add table of contents to reference files >100 lines
 
 See [Progressive Disclosure](../SKILL.md#progressive-disclosure)
+
+---
+
+### Q: What are the best practices for skill structure?
+
+**A**: Follow these guidelines for well-organized, maintainable skills:
+
+**Naming conventions**:
+- Use gerund form (verb + -ing) for clarity: `processing-pdfs`, `analyzing-data`
+- Alternative: noun phrases (`pdf-processor`) or action-oriented (`process-pdfs`)
+- Avoid vague names: `helper`, `utils`, `tools`
+- Use lowercase with hyphens only
+
+**Reference file organization**:
+- Keep references **one level deep** from SKILL.md (avoid deeply nested references)
+- Claude may only preview nested references instead of reading them fully
+- Add table of contents to any reference file >100 lines
+- Use descriptive filenames: `api_reference.md` not `doc2.md`
+
+**MCP tool references** (if using MCP):
+- Always use fully qualified names: `ServerName:tool_name`
+- Example: `BigQuery:query_table` not just `query_table`
+- This avoids "tool not found" errors when multiple MCP servers are available
+
+**Path formats**:
+- Always use forward slashes: `scripts/helper.py`
+- Never use backslashes (Windows-style): `scripts\helper.py`
+- Forward slashes work cross-platform
+
+**Consistency**:
+- Use the same terminology throughout (don't mix "extract", "pull", "get", "retrieve")
+- Maintain consistent formatting for code examples
+- Use consistent heading levels
 
 ---
 
@@ -179,14 +198,12 @@ See [Migration Guide](CLAUDE_CODE_OVERVIEW.md#migration-guide) for complete step
 ### Q: Do Claude Code skills work outside Claude Code?
 
 **A**: Yes, they gracefully degrade to general skills in other environments:
-
 - The skill-rules.json is simply ignored
 - The skill works based on its YAML description only
 - No special handling needed
 - Users in other environments can still manually invoke the skill
 
 This is why you should:
-
 - Write a clear YAML description
 - Make SKILL.md standalone and useful without automation
 - Don't rely solely on auto-activation
@@ -198,7 +215,6 @@ This is why you should:
 **A**:
 
 **Use BLOCK when** (rare, disruptive):
-
 - Mistakes cause runtime errors (database column names)
 - Data corruption or loss possible
 - Security vulnerabilities introduced
@@ -206,7 +222,6 @@ This is why you should:
 - Critical compatibility issues
 
 **Use SUGGEST when** (most skills):
-
 - Providing best practices
 - Complex domain knowledge needed
 - Architectural guidance helpful
@@ -224,7 +239,6 @@ See [Enforcement Levels - Decision Guide](ENFORCEMENT_LEVELS.md#decision-guide)
 **A**: Test triggers manually:
 
 **For UserPromptSubmit (suggestions)**:
-
 ```bash
 echo '{"session_id":"test","prompt":"your test prompt"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts
@@ -233,7 +247,6 @@ echo '{"session_id":"test","prompt":"your test prompt"}' | \
 Expected: Your skill should appear in suggestions
 
 **For PreToolUse (guardrails)**:
-
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"session_id":"test","tool_name":"Edit","tool_input":{"file_path":"test.ts"}}
@@ -243,7 +256,6 @@ EOF
 Expected: Block message if file matches patterns
 
 **Common issues**:
-
 - Keywords don't match (check case-insensitive substring)
 - Intent patterns too specific (test regex on regex101.com)
 - File paths don't match glob patterns
@@ -260,19 +272,16 @@ See [Testing Claude Code - Troubleshooting](TESTING_CLAUDE_CODE.md#troubleshooti
 **A**: Session tracking prevents repeated nagging:
 
 **How it works**:
-
 - **First edit** → Hook blocks/suggests, updates session state
 - **Second edit** (same session) → Hook allows (already used skill)
 - **Different session** → Blocks/suggests again
 
 **Skip conditions** provide escape hatches:
-
 - **Session tracking**: Automatic (enable with `sessionSkillUsed: true`)
 - **File markers**: Add `// @skip-validation` to permanently skip
 - **Env vars**: `export SKIP_MY_SKILL=true` for temporary disable
 
 **Example**:
-
 ```json
 "skipConditions": {
   "sessionSkillUsed": true,
@@ -292,26 +301,23 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 **A**:
 
 **Keywords** (explicit):
-
 - Simple substring matching (case-insensitive)
 - User explicitly mentions the topic
 - Fast, reliable
 - Example: "prisma", "database", "react"
 
 **Intent patterns** (implicit):
-
 - Regex matching for actions/intent
 - User describes what they want to do
 - Catches variations
 - Example: `"(create|add).*?(component|UI)"`
 
 **When to use**:
-
 - Keywords: User will mention the topic ("help with Prisma")
 - Intent: User describes actions ("add user authentication")
 - Best: Use both for comprehensive coverage
 
-See [Hooks & Triggers - Trigger Types](HOOKS_AND_TRIGGERS.md#trigger-types)
+See [Claude Code Overview - Trigger Types](CLAUDE_CODE_OVERVIEW.md#trigger-types)
 
 ---
 
@@ -320,7 +326,6 @@ See [Hooks & Triggers - Trigger Types](HOOKS_AND_TRIGGERS.md#trigger-types)
 **A**: Follow these guidelines:
 
 **Good patterns**:
-
 ```regex
 (create|add|build).*?(component|UI)       # Action + noun
 (how does|explain|what is).*?             # Question words
@@ -328,7 +333,6 @@ See [Hooks & Triggers - Trigger Types](HOOKS_AND_TRIGGERS.md#trigger-types)
 ```
 
 **Bad patterns**:
-
 ```regex
 .*?component.*?                           # Too broad
 create a React component                 # Too specific (literal)
@@ -336,7 +340,6 @@ create a React component                 # Too specific (literal)
 ```
 
 **Tips**:
-
 - Capture common action verbs
 - Include domain-specific nouns
 - Use non-greedy matching: `.*?` not `.*`
@@ -344,7 +347,7 @@ create a React component                 # Too specific (literal)
 - Test with real prompts
 - Balance specificity vs coverage
 
-See [Hooks & Triggers - Intent Pattern Triggers](HOOKS_AND_TRIGGERS.md#2-intent-pattern-triggers)
+See [Claude Code Overview - Trigger Types](CLAUDE_CODE_OVERVIEW.md#trigger-types)
 
 ---
 
@@ -355,26 +358,23 @@ See [Hooks & Triggers - Intent Pattern Triggers](HOOKS_AND_TRIGGERS.md#2-intent-
 **Pattern**: `frontend/src/**/*.tsx`
 
 **Matches**:
-
 - `frontend/src/components/Dashboard.tsx` ✅
 - `frontend/src/pages/Home.tsx` ✅
 - `frontend/src/components/forms/LoginForm.tsx` ✅ (recursive)
 
 **Doesn't match**:
-
 - `frontend/components/Test.tsx` ❌ (missing `src/`)
 - `backend/src/Test.tsx` ❌ (different directory)
 - `frontend/src/utils.ts` ❌ (different extension)
 
 **Test command**:
-
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"tool_name":"Edit","tool_input":{"file_path":"frontend/src/components/Test.tsx"}}
 EOF
 ```
 
-See [Hooks & Triggers - File Path Triggers](HOOKS_AND_TRIGGERS.md#3-file-path-triggers)
+See [Claude Code Overview - Trigger Types](CLAUDE_CODE_OVERVIEW.md#trigger-types)
 
 ---
 
@@ -385,19 +385,16 @@ See [Hooks & Triggers - File Path Triggers](HOOKS_AND_TRIGGERS.md#3-file-path-tr
 **A**: Tighten your trigger patterns:
 
 **If keywords too broad**:
-
 - Remove generic words: "system", "work", "create"
 - Use more specific terms: "prisma query" not "query"
 - Add qualifying context
 
 **If intent patterns too broad**:
-
 - Add more specific nouns: `(create).*?(component)` not `(create).*?`
 - Narrow action verbs: `(implement|build)` not `(do|make|work|create|...)`
 - Test patterns thoroughly
 
 **If file patterns too broad**:
-
 - Narrow directories: `form/src/services/**` not `**/*.ts`
 - Add exclusions: `pathExclusions: ["**/*.test.ts"]`
 - Be more specific
@@ -413,19 +410,16 @@ See [Testing Claude Code - False Positives](TESTING_CLAUDE_CODE.md#false-positiv
 **A**: Broaden your trigger patterns:
 
 **If keywords too specific**:
-
 - Add variations: "layout", "layouts", "layout system"
 - Add synonyms: "grid", "grid layout", "grid system"
 - Check case-sensitivity (should be case-insensitive)
 
 **If intent patterns too specific**:
-
 - Broaden action verbs: `(create|add|build|make)`
 - Broaden nouns: `(component|UI|widget|element)`
 - Use `.*?` to allow words in between
 
 **If file patterns too specific**:
-
 - Check actual file paths in project
 - Use `**` for recursive matching
 - Verify glob syntax
@@ -441,13 +435,11 @@ See [Testing Claude Code - Skill Not Triggering](TESTING_CLAUDE_CODE.md#skill-no
 **A**: Escape backslashes in JSON strings:
 
 **Regex** (for regex101.com):
-
 ```regex
 \.findMany\(
 ```
 
 **JSON** (for skill-rules.json):
-
 ```json
 {
   "contentPatterns": [
@@ -457,7 +449,6 @@ See [Testing Claude Code - Skill Not Triggering](TESTING_CLAUDE_CODE.md#skill-no
 ```
 
 **Common special characters to escape**:
-
 - `.` → `\\.`
 - `(` → `\\(`
 - `)` → `\\)`
@@ -480,13 +471,11 @@ See [Skill Rules Config - Common JSON Errors](SKILL_RULES_CONFIG.md#common-json-
 **Example**: User asks "add Prisma user authentication"
 
 Might trigger:
-
 1. `database-verification` (guardrail - blocks)
 2. `backend-guidelines` (domain - suggests)
 3. `error-tracking` (domain - suggests)
 
 **Priority order**:
-
 1. Critical guardrails block first
 2. High priority suggestions shown
 3. Medium/low priority suggestions mentioned
@@ -500,13 +489,11 @@ Might trigger:
 **A**: Three options:
 
 **1. Environment variable** (recommended for temporary disable):
-
 ```bash
 export SKIP_MY_SKILL=true
 ```
 
 Configure in skill-rules.json:
-
 ```json
 "skipConditions": {
   "envOverride": "SKIP_MY_SKILL"
@@ -514,14 +501,12 @@ Configure in skill-rules.json:
 ```
 
 **2. File marker** (permanent skip for specific files):
-
 ```typescript
 // @skip-validation
 import { PrismaClient } from "@prisma/client"
 ```
 
 **3. Global disable** (emergency, disables ALL guardrails):
-
 ```bash
 export SKIP_SKILL_GUARDRAILS=true
 ```
@@ -541,7 +526,6 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
    - [Implementation Phase](IMPLEMENTATION_PHASE.md)
    - [Delivery Phase](DELIVERY_PHASE.md)
    - [Claude Code Overview](CLAUDE_CODE_OVERVIEW.md)
-   - [Hooks & Triggers](HOOKS_AND_TRIGGERS.md)
    - [Skill Rules Config](SKILL_RULES_CONFIG.md)
    - [Enforcement Levels](ENFORCEMENT_LEVELS.md)
    - [Testing Claude Code](TESTING_CLAUDE_CODE.md)

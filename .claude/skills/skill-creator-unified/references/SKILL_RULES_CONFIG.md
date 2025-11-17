@@ -67,7 +67,6 @@ interface SkillRule {
 | `skills` | object | Yes | Map of skill name → SkillRule |
 
 **Example**:
-
 ```json
 {
   "version": "1.0",
@@ -106,7 +105,6 @@ Used by **UserPromptSubmit hook** to detect when skill should be suggested.
 | `intentPatterns` | string[] | Optional | Regex patterns for intent detection |
 
 **Example**:
-
 ```json
 "promptTriggers": {
   "keywords": ["pdf", "document", "extract"],
@@ -117,7 +115,7 @@ Used by **UserPromptSubmit hook** to detect when skill should be suggested.
 }
 ```
 
-See [Hooks & Triggers](HOOKS_AND_TRIGGERS.md#trigger-types) for complete trigger documentation.
+See [Claude Code Overview](CLAUDE_CODE_OVERVIEW.md#trigger-types) for complete trigger documentation.
 
 ---
 
@@ -135,7 +133,6 @@ Used by **PreToolUse hook** to detect file operations that should activate the s
 *Required if fileTriggers is present
 
 **Example**:
-
 ```json
 "fileTriggers": {
   "pathPatterns": [
@@ -152,7 +149,7 @@ Used by **PreToolUse hook** to detect file operations that should activate the s
 }
 ```
 
-See [Hooks & Triggers - File Path Triggers](HOOKS_AND_TRIGGERS.md#3-file-path-triggers) for complete documentation.
+See [Claude Code Overview - Trigger Types](CLAUDE_CODE_OVERVIEW.md#trigger-types) for complete documentation.
 
 ---
 
@@ -167,7 +164,6 @@ Controls when to skip activation (user override mechanisms).
 | `envOverride` | string | Optional | Environment variable name to disable skill |
 
 **Example**:
-
 ```json
 "skipConditions": {
   "sessionSkillUsed": true,
@@ -212,7 +208,6 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
-
 - User says "help me process a PDF"
 - User says "extract text from documents"
 - UserPromptSubmit hook suggests the skill to Claude
@@ -251,7 +246,6 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
-
 - User mentions "react component"
 - Editing .tsx files in frontend/src/
 - PreToolUse hook suggests the skill before file edits
@@ -306,14 +300,12 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
-
 - User mentions "prisma" or "database"
 - Editing service files containing Prisma code
 - PreToolUse hook BLOCKS the edit
 - Claude must use skill before retrying
 
 **Important**:
-
 - `blockMessage` is required for guardrails
 - Use `{file_path}` placeholder for file name
 - `sessionSkillUsed: true` prevents repeated blocking in same session
@@ -353,7 +345,6 @@ See [Enforcement Levels - Skip Conditions](ENFORCEMENT_LEVELS.md#skip-conditions
 ```
 
 **When it activates**:
-
 - Editing backend .ts files
 - File contains NestJS decorators (`@Controller`, `@Injectable`)
 - File defines controllers or services
@@ -376,7 +367,6 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ### Common JSON Errors
 
 **Trailing comma**:
-
 ```json
 {
   "keywords": ["one", "two"], // ❌ Trailing comma
@@ -384,7 +374,6 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Missing quotes**:
-
 ```json
 {
   type: "guardrail" // ❌ Missing quotes on key
@@ -392,7 +381,6 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Single quotes** (invalid JSON):
-
 ```json
 {
   "type": 'guardrail' // ❌ Must use double quotes
@@ -400,7 +388,6 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 **Unescaped regex backslashes**:
-
 ```json
 {
   "contentPatterns": ["\.findMany\("] // ❌ Single backslash
@@ -408,7 +395,6 @@ If valid, jq will pretty-print the JSON. If invalid, it will show the error.
 ```
 
 Should be:
-
 ```json
 {
   "contentPatterns": ["\\.findMany\\("] // ✅ Escaped backslashes
@@ -439,14 +425,12 @@ Use this checklist before deploying:
 After editing skill-rules.json, test triggers manually:
 
 **Test UserPromptSubmit**:
-
 ```bash
 echo '{"session_id":"test","prompt":"your test prompt"}' | \
   npx tsx .claude/hooks/skill-activation-prompt.ts
 ```
 
 **Test PreToolUse**:
-
 ```bash
 cat <<'EOF' | npx tsx .claude/hooks/skill-verification-guard.ts
 {"session_id":"test","tool_name":"Edit","tool_input":{"file_path":"test.ts"}}
@@ -485,7 +469,7 @@ See [Testing Claude Code](TESTING_CLAUDE_CODE.md) for complete testing guide.
 **Ready to configure skills?**
 
 1. **Understand enforcement**: [Enforcement Levels](ENFORCEMENT_LEVELS.md)
-2. **Learn triggers**: [Hooks & Triggers](HOOKS_AND_TRIGGERS.md)
+2. **Learn triggers**: [Claude Code Overview](CLAUDE_CODE_OVERVIEW.md#trigger-types)
 3. **Test configuration**: [Testing Claude Code](TESTING_CLAUDE_CODE.md)
 4. **Use patterns**: [Patterns Library](PATTERNS_LIBRARY.md)
 

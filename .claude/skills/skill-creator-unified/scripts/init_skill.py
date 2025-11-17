@@ -3,21 +3,22 @@
 Skill Initializer - Creates a new skill from template
 
 Usage:
-    init_skill.py <skill-name> --path <path>
+    uv run python scripts/init_skill.py <skill-name> --path <path>
 
 Examples:
-    init_skill.py my-new-skill --path skills/public
-    init_skill.py my-api-helper --path skills/private
-    init_skill.py custom-skill --path /custom/location
+    uv run python scripts/init_skill.py my-new-skill --path skills/public
+    uv run python scripts/init_skill.py my-api-helper --path skills/private
+    uv run python scripts/init_skill.py custom-skill --path /custom/location
 """
 
+import re
 import sys
 from pathlib import Path
 
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: "[TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]"
 ---
 
 # {skill_title}
@@ -186,6 +187,28 @@ Note: This is a text placeholder. Actual assets can be any file type.
 """
 
 
+MAX_NAME_LENGTH = 64
+NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+RESERVED_WORDS = {"anthropic", "claude"}
+
+
+def validate_skill_name(skill_name):
+    """Validate the CLI-provided skill name."""
+
+    if not skill_name:
+        return False, "Skill name is required"
+    if len(skill_name) > MAX_NAME_LENGTH:
+        return False, f"Skill name must be <= {MAX_NAME_LENGTH} characters"
+    if not NAME_PATTERN.match(skill_name):
+        return (
+            False,
+            "Skill name must use lowercase hyphen-case (letters, numbers, hyphens)",
+        )
+    if any(reserved in skill_name for reserved in RESERVED_WORDS):
+        return False, "Skill name cannot contain 'anthropic' or 'claude'"
+    return True, None
+
+
 def title_case_skill_name(skill_name):
     """Convert hyphenated skill name to Title Case for display."""
     return " ".join(word.capitalize() for word in skill_name.split("-"))
@@ -202,6 +225,11 @@ def init_skill(skill_name, path):
     Returns:
         Path to created skill directory, or None if error
     """
+    is_valid_name, error_message = validate_skill_name(skill_name)
+    if not is_valid_name:
+        print(f"❌ {error_message}")
+        return None
+
     # Determine skill directory path
     skill_dir = Path(path).resolve() / skill_name
 
@@ -273,20 +301,25 @@ def init_skill(skill_name, path):
 
 def main():
     if len(sys.argv) < 4 or sys.argv[2] != "--path":
-        print("Usage: init_skill.py <skill-name> --path <path>")
+        print("Usage: uv run python scripts/init_skill.py <skill-name> --path <path>")
         print("\nSkill name requirements:")
         print("  - Hyphen-case identifier (e.g., 'data-analyzer')")
         print("  - Lowercase letters, digits, and hyphens only")
-        print("  - Max 40 characters")
+        print(f"  - Max {MAX_NAME_LENGTH} characters")
         print("  - Must match directory name exactly")
         print("\nExamples:")
-        print("  init_skill.py my-new-skill --path skills/public")
-        print("  init_skill.py my-api-helper --path skills/private")
-        print("  init_skill.py custom-skill --path /custom/location")
+        print("  uv run python scripts/init_skill.py my-new-skill --path skills/public")
+        print("  uv run python scripts/init_skill.py my-api-helper --path skills/private")
+        print("  uv run python scripts/init_skill.py custom-skill --path /custom/location")
         sys.exit(1)
 
     skill_name = sys.argv[1]
     path = sys.argv[3]
+
+    is_valid_name, error_message = validate_skill_name(skill_name)
+    if not is_valid_name:
+        print(f"❌ {error_message}")
+        sys.exit(1)
 
     print(f"🚀 Initializing skill: {skill_name}")
     print(f"   Location: {path}")

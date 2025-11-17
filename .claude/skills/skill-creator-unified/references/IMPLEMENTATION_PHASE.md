@@ -15,7 +15,6 @@
 ## Purpose & When to Use
 
 Use this guide when:
-
 - Initializing a new skill directory
 - Writing SKILL.md content
 - Configuring YAML frontmatter
@@ -38,7 +37,7 @@ When creating a new skill from scratch, always run the `init_skill.py` script. T
 **Usage:**
 
 ```bash
-scripts/init_skill.py <skill-name> --path <output-directory>
+uv run python scripts/init_skill.py <skill-name> --path <output-directory>
 ```
 
 **The script:**
@@ -61,7 +60,6 @@ Every SKILL.md must begin with valid YAML frontmatter enclosed by `---` delimite
 ### Required Fields
 
 **name** (required)
-
 - Type: String
 - Max length: 64 characters
 - Format: lowercase-with-hyphens (e.g., `my-skill-name`)
@@ -69,18 +67,42 @@ Every SKILL.md must begin with valid YAML frontmatter enclosed by `---` delimite
 - Example: `pdf-editor`, `brand-guidelines`, `sql-query-helper`
 
 **description** (required)
-
 - Type: String
 - Max length: 1024 characters
 - Must include BOTH what the skill does AND when to use it
 - Use third-person language (e.g., "This skill should be used when...")
 - See "Making Skills Discoverable" section below for optimization guidance
 
+### Optional Fields
+
+**version** (optional)
+- Type: String
+- Format: Semantic versioning recommended (e.g., `1.0.0`)
+- Use to track iterations as you improve the skill
+- Example: `version: 1.2.0`
+
+**dependencies** (optional)
+- Type: String
+- Lists software packages required by the skill
+- Example: `dependencies: python>=3.8, pandas>=1.5.0`
+- Note: In claude.ai and Claude Code, packages from npm/PyPI can be installed automatically. In API environments, dependencies must be pre-installed.
+
 ### Example Valid Frontmatter
 
+**Minimal** (required fields only):
 ```yaml
 ---
 name: pdf-editor
+description: Provides tools and scripts for editing PDF files including rotation, merging, splitting, and form filling. This skill should be used when working with PDF files or when users request PDF manipulation tasks.
+---
+```
+
+**Extended** (with optional fields):
+```yaml
+---
+name: pdf-editor
+version: 1.2.0
+dependencies: pypdf>=3.0.0, pdfplumber>=0.9.0
 description: Provides tools and scripts for editing PDF files including rotation, merging, splitting, and form filling. This skill should be used when working with PDF files or when users request PDF manipulation tasks.
 ---
 ```

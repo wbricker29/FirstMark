@@ -509,25 +509,9 @@
 
 ## Reference
 
-**Key Documents:**
+### WB Items
 
-- `spec/v1_minimal_spec.md` - v1 scope definition
-- `spec/prd.md` - Product requirements
-- `spec/spec.md` - Technical specification
-- `spec/dev_reference/implementation_guide.md` - Master implementation doc
-- `spec/dev_reference/airtable_ai_spec.md` - Airtable schema
-- `spec/dev_reference/role_spec_design.md` - CFO/CTO templates
-- `case/presentation_plan.md` - Demo flow and talking points
-
-**Implementation:**
-
-- `demo/agents.py` - Core agent definitions
-- `demo/models.py` - Pydantic models
-- `demo/app.py` - Flask webhook server
-- `demo/airtable_client.py` - Airtable integration
-- `tests/` - Test suite
-
-**Data:**
-
-- `reference/guildmember_scrape.csv` - 64 executive candidates
-- `case/at_setup/` - Airtable setup materials
+- [ ] Master Date?
+- [ ]  each dimension score must have justiffication
+- [ ] grok
+- [ ]  map guilds to domains for hiring

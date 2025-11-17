@@ -3,17 +3,21 @@
 Skill Packager - Creates a distributable zip file of a skill folder
 
 Usage:
-    python utils/package_skill.py <path/to/skill-folder> [output-directory]
+    uv run python scripts/package_skill.py <path/to/skill-folder> [output-directory]
 
 Example:
-    python utils/package_skill.py skills/public/my-skill
-    python utils/package_skill.py skills/public/my-skill ./dist
+    uv run python scripts/package_skill.py skills/public/my-skill
+    uv run python scripts/package_skill.py skills/public/my-skill ./dist
 """
 
+import fnmatch
 import sys
 import zipfile
 from pathlib import Path
 from quick_validate import validate_skill
+
+IGNORE_DIRS = {"__pycache__", ".git", ".svn", ".idea"}
+IGNORE_PATTERNS = {"*.pyc", "*.pyo", "*.pyd", ".DS_Store", "Thumbs.db"}
 
 
 def package_skill(skill_path, output_dir=None):
@@ -68,11 +72,19 @@ def package_skill(skill_path, output_dir=None):
         with zipfile.ZipFile(zip_filename, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Walk through the skill directory
             for file_path in skill_path.rglob("*"):
-                if file_path.is_file():
-                    # Calculate the relative path within the zip
-                    arcname = file_path.relative_to(skill_path.parent)
-                    zipf.write(file_path, arcname)
-                    print(f"  Added: {arcname}")
+                if not file_path.is_file():
+                    continue
+
+                relative_path = file_path.relative_to(skill_path)
+                if any(part in IGNORE_DIRS for part in relative_path.parts):
+                    continue
+                if any(fnmatch.fnmatch(relative_path.name, pattern) for pattern in IGNORE_PATTERNS):
+                    continue
+
+                # Calculate the relative path within the zip (includes skill folder)
+                arcname = file_path.relative_to(skill_path.parent)
+                zipf.write(file_path, arcname)
+                print(f"  Added: {arcname}")
 
         print(f"\n✅ Successfully packaged skill to: {zip_filename}")
         return zip_filename
@@ -85,11 +97,11 @@ def package_skill(skill_path, output_dir=None):
 def main():
     if len(sys.argv) < 2:
         print(
-            "Usage: python utils/package_skill.py <path/to/skill-folder> [output-directory]"
+            "Usage: uv run python scripts/package_skill.py <path/to/skill-folder> [output-directory]"
         )
         print("\nExample:")
-        print("  python utils/package_skill.py skills/public/my-skill")
-        print("  python utils/package_skill.py skills/public/my-skill ./dist")
+        print("  uv run python scripts/package_skill.py skills/public/my-skill")
+        print("  uv run python scripts/package_skill.py skills/public/my-skill ./dist")
         sys.exit(1)
 
     skill_path = sys.argv[1]

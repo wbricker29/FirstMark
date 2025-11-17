@@ -1,9 +1,10 @@
 ---
 name: skill-creator-unified
-description: Guide for creating skills that extend Claude's capabilities. Use when creating new skills, updating existing skills, understanding skill structure, YAML frontmatter, bundled resources (scripts/references/assets), validation, or packaging. For Claude Code: covers hooks, triggers, skill-rules.json, enforcement levels, and testing. Includes design, implementation, and delivery phases.
+description: Guide and tooling for creating Claude Skills. Use when creating new skills or to analyze, understand, evaluate, update, or modify existing skills. Features additional skills for Claude Code. Includes design, implementation, and delivery phases.
+version: 2.0
 ---
 
-# Skill Creator (Unified)
+# Skill Creator
 
 Create effective skills that extend Claude's capabilities - general-purpose or Claude Code-specific.
 
@@ -72,14 +73,12 @@ Use this decision matrix to determine which type of skill to create:
 ### Path A: General Skills
 
 **Best for:**
-
 - PDF processing, data analysis, API integration
 - Skills that work across all Claude environments
 - Simple, portable workflows
 - Manual invocation is acceptable
 
 **Characteristics:**
-
 - ✅ Portable - works everywhere
 - ✅ Simple setup - YAML frontmatter only
 - ✅ Easy to maintain
@@ -92,14 +91,12 @@ Use this decision matrix to determine which type of skill to create:
 ### Path B: Claude Code Skills with Auto-Activation
 
 **Best for:**
-
 - Database schema verification (blocks edits until verified)
 - Error handling enforcement (suggests patterns)
 - Framework-specific guides (auto-activates for .tsx files)
 - Technology-specific best practices (triggers on keywords)
 
 **Characteristics:**
-
 - ✅ Auto-activation based on triggers
 - ✅ Can enforce guardrails (blocking)
 - ✅ Session tracking and skip conditions
@@ -122,13 +119,11 @@ Follow these steps in order for both General and Claude Code skills:
 ### Design Phase (Planning)
 
 **Step 1: Understand** - Gather concrete examples of how the skill will be used
-
 - List 3+ real prompts that should activate this skill
 - Define what should NOT trigger it (edge cases)
 - Determine success criteria
 
 **Step 2: Plan** - Identify scripts, references, and assets to include
-
 - What executable code is needed? (scripts/)
 - What documentation aids understanding? (references/)
 - What files are used in output? (assets/)
@@ -142,13 +137,11 @@ Follow these steps in order for both General and Claude Code skills:
 **Step 3: Initialize** - Create skill directory using initialization script
 
 **Initialize skill directory:**
-
 ```bash
 uv run python scripts/init_skill.py my-skill --path ./
 ```
 
 This creates:
-
 - SKILL.md with proper YAML frontmatter template
 - references/ directory with example documentation
 - scripts/ directory with example script
@@ -161,24 +154,21 @@ This creates:
 **Step 4: Edit** - Write SKILL.md, configure YAML, organize resources
 
 **For General skills:**
-
 1. Edit SKILL.md with your content (<500 lines)
 2. Fill in YAML frontmatter (name + description)
 3. Add bundled resources (scripts, references, assets)
 4. Link to reference files from SKILL.md
 
 **For Claude Code skills (additional steps):**
-
 1. Configure skill-rules.json with triggers and enforcement
 2. Define trigger patterns (keywords, intent, file paths, content)
 3. Set enforcement level (block, suggest, warn)
 4. Configure skip conditions (session tracking, file markers, env vars)
 
 📖 **Detailed guides**:
-
 - [Implementation Phase](references/IMPLEMENTATION_PHASE.md) - Universal SKILL.md writing
 - [Claude Code Overview](references/CLAUDE_CODE_OVERVIEW.md) - When to use Claude Code features
-- [Hooks & Triggers](references/HOOKS_AND_TRIGGERS.md) - How auto-activation works
+  - Hooks & triggers guidance is now inside [Claude Code Overview](references/CLAUDE_CODE_OVERVIEW.md)
 - [Skill Rules Config](references/SKILL_RULES_CONFIG.md) - skill-rules.json schema
 - [Enforcement Levels](references/ENFORCEMENT_LEVELS.md) - Block, suggest, warn
 
@@ -194,7 +184,6 @@ uv run python scripts/quick_validate.py path/to/my-skill
 ```
 
 Checks:
-
 - YAML frontmatter format and required fields
 - Skill naming conventions and directory structure
 - Description completeness (trigger keywords for Claude Code)
@@ -203,7 +192,6 @@ Checks:
 - For Claude Code: skill-rules.json validation
 
 **For Claude Code skills (additional testing):**
-
 ```bash
 # Test trigger activation manually
 echo '{"session_id":"test","prompt":"your test prompt"}' | \
@@ -211,7 +199,6 @@ echo '{"session_id":"test","prompt":"your test prompt"}' | \
 ```
 
 📖 **Detailed guides**:
-
 - [Delivery Phase](references/DELIVERY_PHASE.md) - Validation checklist
 - [Testing Claude Code](references/TESTING_CLAUDE_CODE.md) - Hook testing, troubleshooting
 
@@ -228,12 +215,11 @@ uv run python scripts/package_skill.py path/to/my-skill ./dist
 ```
 
 The packaging script:
-
 1. Validates the skill automatically
 2. Creates a zip file with proper structure
 3. Ready for distribution or installation
 
-📖 **Detailed guide**: [Delivery Phase - Packaging](references/DELIVERY_PHASE.md#step-5-packaging-a-skill)
+📖 **Detailed guide**: [Delivery Phase - Packaging](references/DELIVERY_PHASE.md#step-6-package-and-iterate)
 
 ---
 
@@ -242,14 +228,12 @@ The packaging script:
 ### Universal References (Both Paths)
 
 **[Design Phase](references/DESIGN_PHASE.md)** - Use when:
-
 - Starting a new skill
 - Unclear what the skill should include
 - Planning bundled resources
 - Understanding skill purpose
 
 **[Implementation Phase](references/IMPLEMENTATION_PHASE.md)** - Use when:
-
 - Writing SKILL.md content
 - Configuring YAML frontmatter
 - Making skills discoverable
@@ -257,7 +241,6 @@ The packaging script:
 - Need writing guidelines
 
 **[Delivery Phase](references/DELIVERY_PHASE.md)** - Use when:
-
 - Validating before release
 - Packaging for distribution
 - Iterating on existing skill
@@ -268,28 +251,21 @@ The packaging script:
 ### Claude Code Specific References (Path B)
 
 **[Claude Code Overview](references/CLAUDE_CODE_OVERVIEW.md)** - Start here for Claude Code skills:
-
+- Core Claude Code capabilities (agentic subagents, slash commands, hooks, MCP servers)
 - When to use Claude Code features vs general skills
 - System architecture (two-hook system)
 - Skill types (guardrail vs domain)
 - Migration guide (general → Claude Code)
 
-**[Hooks & Triggers](references/HOOKS_AND_TRIGGERS.md)** - Auto-activation system:
-
-- Hook mechanisms (UserPromptSubmit, PreToolUse, Stop)
-- Trigger types (keywords, intent patterns, file paths, content patterns)
-- How Claude Code detects when to activate skills
-- Performance considerations
+- **Hooks & triggers** – covered inside [Claude Code Overview](references/CLAUDE_CODE_OVERVIEW.md); separate reference removed for consolidation.
 
 **[Skill Rules Config](references/SKILL_RULES_CONFIG.md)** - Configuration schema:
-
 - Complete skill-rules.json specification
 - Field explanations and examples
 - Configuration templates
 - JSON validation
 
 **[Enforcement Levels](references/ENFORCEMENT_LEVELS.md)** - Control how skills activate:
-
 - BLOCK: Critical guardrails (prevents edits)
 - SUGGEST: Proactive guidance (advisory)
 - WARN: Optional reminders (low priority)
@@ -297,7 +273,6 @@ The packaging script:
 - Skip conditions (session tracking, file markers, env vars)
 
 **[Testing Claude Code](references/TESTING_CLAUDE_CODE.md)** - Testing & troubleshooting:
-
 - Manual hook testing commands
 - Debugging activation issues (not triggering, false positives)
 - Testing checklist (19 validation points)
@@ -305,7 +280,6 @@ The packaging script:
 - Troubleshooting common problems
 
 **[Patterns Library](references/PATTERNS_LIBRARY.md)** - Copy-paste examples:
-
 - Keyword patterns for common use cases
 - Intent regex patterns (implicit action detection)
 - File path glob patterns
@@ -327,13 +301,13 @@ uv run python scripts/init_skill.py my-skill --path ./
 ```
 
 **Required:**
-
 - `--path <directory>` - Specify output directory for the skill
 
-**Future enhancement**: `--claude-code` flag will generate skill-rules.json template automatically. Currently, create skill-rules.json manually using templates in [Skill Rules Config](references/SKILL_RULES_CONFIG.md).
+**Naming guardrails**: The initializer enforces lowercase hyphen-case identifiers (≤64 characters, no "anthropic"/"claude" substrings) so invalid skill names are caught before files are created.
+
+**skill-rules.json creation**: create `skill-rules.json`  using the schema + templates in [Skill Rules Config](references/SKILL_RULES_CONFIG.md#configuration-examples).
 
 Creates:
-
 - SKILL.md with proper YAML frontmatter template
 - references/ directory with example documentation
 - scripts/ directory with example script
@@ -350,14 +324,11 @@ uv run python scripts/quick_validate.py path/to/my-skill
 ```
 
 Checks:
-
-- YAML frontmatter syntax and required fields
-- Naming conventions (lowercase-hyphens)
-- Description completeness
-- Line count (<500 lines for SKILL.md)
-- File organization
-- Resource references
-- For Claude Code: skill-rules.json syntax and schema
+- YAML frontmatter syntax and required metadata
+- Directory + metadata alignment (name matches folder, hyphen-case, reserved word checks)
+- Description quality (non-empty, <1024 chars, no angle brackets)
+- SKILL.md line count (<500 lines)
+- Claude Code guardrails: skill-rules.json parses + required fields when a rule exists
 
 ---
 
@@ -374,18 +345,17 @@ uv run python scripts/package_skill.py path/to/my-skill ./dist
 ```
 
 The script:
-
 1. Runs validation automatically
 2. Creates zip file with proper directory structure
-3. Reports any errors before packaging
-4. Ready for distribution or installation
+3. Skips cache/OS files (`__pycache__`, `*.pyc`, `.DS_Store`) to keep bundles clean
+4. Reports any errors before packaging
+5. Ready for distribution or installation
 
 ---
 
 ## Common Questions
 
 See [FAQ.md](references/FAQ.md) for comprehensive answers to:
-
 - Should I create general or Claude Code skill?
 - How do I make my skill discoverable?
 - What goes in scripts/ vs references/ vs assets/?
@@ -433,10 +403,3 @@ Start general, migrate to Claude Code if needed.
 2. **Start with Design Phase**: [Design Phase](references/DESIGN_PHASE.md)
 3. **For Claude Code**: Also read [Claude Code Overview](references/CLAUDE_CODE_OVERVIEW.md)
 4. **Initialize your skill**: Run `uv run python scripts/init_skill.py my-skill --path ./`
-
----
-
-**Skill Status**: Complete ✅
-**Line Count**: < 500 (following 500-line rule) ✅
-**Progressive Disclosure**: Universal + Claude Code references ✅
-**Mode Support**: General + Claude Code with auto-activation ✅
