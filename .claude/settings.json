@@ -26,6 +26,28 @@
             "timeout": 60
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "pathPattern": ".*/plan\\.md$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/smart-commit.sh task-completion",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "pathPattern": ".*/(design|constitution|prd|spec)\\.md$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/smart-commit.sh unit-milestone",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [
@@ -35,11 +57,6 @@
             "type": "command",
             "command": "./.claude/hooks/test.sh",
             "timeout": 120
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/git-commit.sh",
-            "timeout": 15
           },
           {
             "type": "command",

@@ -1,10 +1,10 @@
 ---
 unit_id: "001-phase-1"
 title: "Phase 1: Project Setup and Foundation"
-version: "1.0"
+version: "1.1"
 created: "2025-01-16"
-updated: "2025-01-16"
-status: "draft"
+updated: "2025-11-17"
+status: "completed"
 ---
 
 # Phase 1: Project Setup and Foundation
@@ -56,7 +56,7 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
   - `demo/agents.py` (agent creation + runners)
   - `demo/models.py` (Pydantic models)
   - `demo/airtable_client.py` (Airtable wrapper)
-  - `demo/settings.py` (config/env loading)
+  - `demo/settings.py` (typed config/env loading with Pydantic BaseSettings)
 
 #### models.py
 
@@ -158,6 +158,16 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - **And:** `tmp/` directory exists for Agno session database
 - **And:** `tests/` directory exists with placeholder files (test_scoring.py, test_quality_check.py, test_workflow_smoke.py)
 - **And:** Structure matches spec/spec.md:96-125
+- **Testable:** ✅
+
+### AC-PH1-05: Settings Module Complete
+
+- **Given:** `demo/settings.py` file created
+- **When:** Settings module is imported and used
+- **Then:** Module loads successfully with typed Pydantic BaseSettings classes
+- **And:** All 5 config sections are defined (AppConfig, OpenAIConfig, AirtableConfig, FlaskConfig, QualityCheckConfig)
+- **And:** Settings can be imported via `from demo.settings import settings`
+- **And:** `tests/test_settings.py` exists with comprehensive test coverage
 - **Testable:** ✅
 
 ## Dependencies
