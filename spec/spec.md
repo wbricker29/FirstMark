@@ -977,6 +977,27 @@ For v1.0-minimal, log key metrics to terminal:
    - InMemoryDb available as fallback if persistence not needed
    - No custom WorkflowEvent model or event logging tables
 
+6. **ReasoningTools for Assessment Agent (Required):**
+   ```python
+   from agno.tools.reasoning import ReasoningTools
+
+   assessment_agent = Agent(
+       name="assessment",
+       model=OpenAIResponses(id="gpt-5-mini"),
+       tools=[ReasoningTools(add_instructions=True)],  # Required for v1
+       output_schema=AssessmentResult,
+       instructions=[
+           "Use reasoning tools to think through candidate matches systematically.",
+           "Evaluate candidate against role specification with explicit reasoning.",
+           "Provide dimension-level scores with evidence and confidence levels."
+       ]
+   )
+   ```
+   - Enables built-in "think → analyze" pattern for assessment quality
+   - Generates explicit reasoning trails (aligns with PRD AC-PRD-04)
+   - Minimal implementation cost (~5 lines of code)
+   - Required for all assessment agents in v1
+
 **Do NOT Use in v1.0-Minimal:**
 
 - AGNO memory / Postgres DB (`enable_user_memories`, `enable_agentic_memory`)
@@ -989,19 +1010,24 @@ For v1.0-minimal, log key metrics to terminal:
 
 ## Airtable Schema Reference
 
-**Complete Airtable schema is in `demo_planning/airtable_schema.md` (canonical source).**
+**Complete Airtable schema is in `demo_planning/airtable_schema.md` and `demo_planning/airtable_ai_spec.md` (canonical sources).**
 
-### Tables Overview (9 tables)
+### V1 Tables Overview (6 core + 1 helper = 7 tables)
 
+**Core Tables (v1):**
 1. **People (64 records)** - Executive candidates from guildmember_scrape.csv
 2. **Portco (4 records)** - Portfolio companies for demo scenarios
 3. **Portco_Roles (4 records)** - Open roles at portfolio companies
-4. **Role_Specs (6 records)** - 2 templates + 4 customized specs
-5. **Searches (4 records)** - Active talent searches linking roles to specs
-6. **Screens (4 records)** - Screening batches (webhook trigger table)
-7. **Workflows (~12-15 records)** - Execution audit trail per candidate
-8. **Research_Results (~12-15 records)** - Structured research outputs
-9. **Assessments (~12-15 records)** - Assessment results with dimension scores
+4. **Searches (4 records)** - Active talent searches linking roles to specs
+5. **Screens (4 records)** - Screening batches (webhook trigger table)
+6. **Assessments (~12-15 records)** - Assessment results with all research data (research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report)
+
+**Helper Table (v1):**
+7. **Role_Specs (6 records)** - 2 templates + 4 customized specs (referenced by Searches)
+
+**Phase 2+ Tables (NOT in v1):**
+- ~~**Workflows**~~ - Execution audit trail (deferred; use Agno SqliteDb + Airtable status fields)
+- ~~**Research_Results**~~ - Structured research outputs (deferred; stored in Assessments table instead)
 
 ### Webhook Automation
 

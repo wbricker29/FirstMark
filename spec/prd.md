@@ -134,7 +134,7 @@ An AI-powered system that:
 **Data & Infrastructure:**
 - ✅ Mock data from guildmember_scrape.csv (64 real executives)
 - ✅ 4 portfolio scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO)
-- ✅ Airtable database with 9 tables (People, Companies, Portcos, Roles, Searches, Screens, Workflows, Role Specs, Assessments)
+- ✅ Airtable database with 7 tables (v1: 6 core + 1 helper - People, Portco, Portco_Roles, Searches, Screens, Assessments, Role_Specs; Phase 2+: Workflows, Research_Results)
 - ✅ Flask webhook server with ngrok tunnel
 - ✅ Synchronous execution for demo simplicity (single-process)
 
@@ -320,8 +320,10 @@ An AI-powered system that:
 - Markdown (raw Deep Research API responses, assessment reports)
 - JSON (AssessmentResult → Airtable)
 - Airtable records (primary output destination)
-  - Research_Results.raw_research_markdown (long text field)
-  - Assessments.assessment_markdown_report (long text field)
+  - Assessments.research_markdown_raw (long text field - v1 stores research in Assessments)
+  - Assessments.research_structured_json (long text field - serialized ExecutiveResearchResult)
+  - Assessments.assessment_json (long text field - serialized AssessmentResult)
+  - Assessments.assessment_markdown_report (long text field - human-readable summary)
 
 **Data Volume:**
 - 64 executive records (mock data from guild scrape)
@@ -331,8 +333,8 @@ An AI-powered system that:
 
 **Data Retention:**
 - All data persists in Airtable indefinitely
-- Raw research markdown blobs stored in Research_Results table
-- Assessment markdown reports stored in Assessments table
+- Raw research markdown + structured JSON stored in Assessments table (v1: no separate Research_Results table)
+- Assessment JSON + markdown reports stored in Assessments table
 - Terminal logs provide execution audit trail for v1.0-minimal
 - No automated cleanup/archival for demo
 
