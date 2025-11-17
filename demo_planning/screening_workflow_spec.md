@@ -19,58 +19,44 @@ The candidate screening workflow implements an intelligent research-then-evaluat
 └─────────────────────────────────────────────────────────────┘
 
 Step 1: Deep Research Agent
-├─ Model: o4-mini-deep-research (primary) OR gpt-5 + web_search (fast mode)
-├─ Output: ExecutiveResearchResult (Pydantic)
-├─ Duration: 2-5 min (deep) OR 30-60 sec (fast)
+├─ Model: o4-mini-deep-research (always-on)
+├─ Output: ExecutiveResearchResult (structured)
+├─ Duration: 2-6 minutes (Deep Research latency)
 └─ Captures: Experiences, expertise, leadership, citations, confidence, gaps
 
                             ↓
 
-Step 2: Research Quality Check (Custom Function)
+Step 2: Research Quality Check (pure function)
 ├─ Evaluates: Sufficiency of research for assessment
-├─ Criteria:
-│   • ≥3 key experiences
-│   • ≥2 domain expertise areas
+├─ Criteria (example heuristics):
 │   • ≥3 citations
-│   • High/Medium confidence
-│   • ≤2 identified gaps
-├─ Output: Enriched research + is_sufficient flag
-└─ Decision: Proceed to eval OR trigger supplemental search
+│   • Non-empty summary + ≥3 key experiences
+│   • Research confidence != Low
+├─ Output: `(research, is_sufficient)`
+└─ Decision: Proceed directly to assessment OR run a single incremental search pass
 
                             ↓
-                    ┌───────┴───────┐
-                    │               │
-              SUFFICIENT      NOT SUFFICIENT
-                    │               │
-                    │               ▼
-                    │    Step 3: Conditional Branch
-                    │    ├─ Prepare Supplemental Search
-                    │    │   └─ Generate targeted queries from gaps
-                    │    │
-                    │    ├─ Loop: Supplemental Web Search (max 3 iterations)
-                    │    │   ├─ Agent: gpt-5 + web_search_preview
-                    │    │   ├─ Output: ResearchSupplement
-                    │    │   ├─ Break condition: Sufficient new info OR max iterations
-                    │    │   └─ Duration: ~30-60 sec per iteration
-                    │    │
-                    │    └─ Merge Research
-                    │        └─ Combine original + all supplements
-                    │
-                    └───────┬───────┘
-                            │
-                            ▼
 
-Step 4: Assessment Agent
+Step 3 (Optional): Incremental Search Agent
+├─ Triggered only when Step 2 deems research insufficient
+├─ Agent: gpt-5-mini + `web_search_preview`
+├─ Constraint: ≤2 tool calls total
+├─ Output: ResearchAddendum (new findings + citations)
+└─ Merge: Combine Deep Research + addendum into final ExecutiveResearchResult
+
+                            ↓
+
+Step 4: Assessment Agent (ReasoningTools-enabled)
 ├─ Model: gpt-5-mini
-├─ Tools: web_search_preview (optional verification)
-├─ Input: Merged research + role spec
-├─ Output: AssessmentResult (Pydantic)
+├─ Tools: `ReasoningTools(add_instructions=True)` (required)
+├─ Input: Final research + role spec markdown
+├─ Output: AssessmentResult (structured JSON + reasoning trace)
 └─ Duration: 30-60 sec
 
                             ↓
 
-                    FINAL RESULT
-        (AssessmentResult + Full Audit Trail)
+FINAL RESULT → Persisted on Assessments table (research_structured_json,
+research_markdown_raw, assessment_json, summary fields, status updates)
 ```
 
 ---
@@ -79,17 +65,13 @@ Step 4: Assessment Agent
 
 ### 1. Deep Research Agent
 
-**Purpose:** Comprehensive executive research using OpenAI's Deep Research API or fast web search mode.
+**Purpose:** Comprehensive executive research using OpenAI's Deep Research API (no fast-mode toggle in v1).
 
 **Configuration:**
 ```python
 deep_research_agent = Agent(
     name="Deep Research Agent",
-    model=OpenAIResponses(
-        id="o4-mini-deep-research" if USE_DEEP_RESEARCH else "gpt-5",
-        max_tool_calls=1 if USE_DEEP_RESEARCH else None,
-    ),
-    tools=[{"type": "web_search_preview"}] if not USE_DEEP_RESEARCH else [],
+    model=OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1),
     instructions="""
         Research this executive comprehensively for talent evaluation.
 
@@ -106,7 +88,7 @@ deep_research_agent = Agent(
         - What you couldn't find (gaps)
         - Confidence level based on evidence quality/quantity
 
-        Return structured output with all fields populated.
+        Return the ExecutiveResearchResult schema directly (no parser step).
     """,
     output_schema=ExecutiveResearchResult,
     exponential_backoff=True,
@@ -140,54 +122,40 @@ class ExecutiveResearchResult(BaseModel):
     gaps: List[str] = Field(description="Information not found or unclear from public sources")
 ```
 
-**Execution Modes:**
-- **Deep Research Mode:** Uses o4-mini-deep-research for comprehensive analysis (2-5 min)
-- **Fast Mode:** Uses gpt-5 with web search for quicker results (30-60 sec)
-- **Toggle:** Environment variable `USE_DEEP_RESEARCH=true|false`
+**Execution Mode:**
+- Always use o4-mini-deep-research for comprehensive analysis (2-6 minutes). Optional incremental search is handled as a separate step, not as a global “fast mode”.
 
 ---
 
-### 2. Web Search Agent (Supplemental)
+### 2. Incremental Search Agent (Optional)
 
-**Purpose:** Fill specific gaps identified in initial research using targeted web searches.
+**Purpose:** Single-pass supplemental research when Deep Research quality heuristics fail. Limited to **two** tool calls to keep latency predictable.
 
 **Configuration:**
 ```python
-web_search_agent = Agent(
-    name="Web Search Agent",
-    model=OpenAIResponses(id="gpt-5"),
+incremental_search_agent = Agent(
+    name="Incremental Search Agent",
+    model=OpenAIResponses(id="gpt-5-mini"),
     tools=[{"type": "web_search_preview"}],
+    max_tool_calls=2,
     instructions="""
-        Fill specific gaps in executive research using targeted web searches.
+        You are a single-pass supplemental researcher. Only run when Deep Research results
+        lack sufficient citations or key evidence. Perform at most two targeted searches
+        to address the supplied gaps, then stop.
 
-        You will receive:
-        - Original research findings
-        - Specific gaps to address
-
-        Your task:
-        1. Formulate 2-3 targeted search queries for each gap
-        2. Execute searches and analyze results
-        3. Extract relevant information with citations
-        4. Indicate which gaps were successfully filled
-
-        Focus on finding:
-        - Missing career details (titles, dates, companies)
-        - Domain expertise evidence (projects, technologies, domains)
-        - Leadership examples (team sizes, achievements)
-
-        Be concise - only report NEW information not in original research.
+        Return only NEW information plus the citations that support it. If gaps remain,
+        document them explicitly.
     """,
-    output_schema=ResearchSupplement,
+    output_schema=ResearchAddendum,
     exponential_backoff=True,
-    retries=2,
+    retries=1,
 )
 ```
 
 **Output Schema:**
 ```python
-class ResearchSupplement(BaseModel):
-    """Supplemental research findings from web search."""
-    iteration: int = Field(description="Which search iteration (1-3)")
+class ResearchAddendum(BaseModel):
+    """Single-pass supplemental research from incremental search."""
     new_findings: List[str] = Field(description="Additional discoveries not in original research")
     filled_gaps: List[str] = Field(description="Which specific gaps were addressed")
     citations: List[Citation] = Field(description="New sources")
@@ -423,47 +391,22 @@ def coordinate_supplemental_search(step_input: StepInput) -> StepOutput:
 
 **Output:** Search prompt for web search agent
 
-#### Step 3b: Supplemental Search Loop
+#### Step 3: Incremental Search (Optional)
 
-**Type:** Loop Step
-**Max Iterations:** 3
-**End Condition:** `search_complete()` returns `True` (breaks loop when sufficient)
+**Type:** Conditional Agent Step (executed when quality check fails)
 
-**Loop Content:**
-- **Step:** Web Search Agent
-- **Input:** Search prompt + iteration number
-- **Output:** `ResearchSupplement`
-
-**End Condition Implementation:**
+**Implementation:**
 ```python
-def search_complete(outputs: list) -> bool:
-    """
-    Determine if we should stop searching.
-    Returns True to break the loop, False to continue.
-    """
-    if not outputs:
-        return False  # No iterations yet, continue
-
-    last_supplement: ResearchSupplement = outputs[-1].content
-
-    # Break if we've found sufficient new information
-    sufficient_findings = len(last_supplement.new_findings) >= 2
-    high_confidence = last_supplement.confidence == "High"
-    no_remaining_gaps = len(last_supplement.remaining_gaps) == 0
-
-    if sufficient_findings and (high_confidence or no_remaining_gaps):
-        return True  # Break loop
-
-    return False  # Continue to next iteration
+def run_incremental_search(step_input: StepInput) -> StepOutput:
+    prompt = step_input.previous_step_content["search_prompt"]
+    addendum: ResearchAddendum = incremental_search_agent.run(prompt).content
+    return StepOutput(content={
+        "research": step_input.previous_step_content["research"],
+        "addendum": addendum,
+    })
 ```
 
-**Iteration Context:**
-Each iteration receives:
-- Original search prompt
-- Results from previous iterations (via step_input)
-- Iteration number (1, 2, or 3)
-
-#### Step 3c: Merge Research
+#### Step 4: Merge Research
 
 **Type:** Custom Function Step
 **Executor:** `merge_research()`
@@ -477,18 +420,15 @@ def merge_research(step_input: StepInput) -> StepOutput:
     # Access workflow history to get original research
     quality_check_output = step_input.previous_step_content  # From loop
 
-    # Get all loop iteration outputs (list of ResearchSupplement)
-    supplements: List[ResearchSupplement] = [
-        output.content for output in step_input.loop_outputs
-    ]
-
-    # Get original research from quality check
+    addendum: Optional[ResearchAddendum] = quality_check_output.get("addendum")
     original_research: ExecutiveResearchResult = quality_check_output["research"]
 
-    # Merge all supplemental findings
-    all_new_findings = []
-    all_new_citations = []
-    all_filled_gaps = []
+    if not addendum:
+        return StepOutput(content=original_research)
+
+    all_new_findings = addendum.new_findings
+    all_new_citations = addendum.citations
+    all_filled_gaps = addendum.filled_gaps
 
     for supplement in supplements:
         all_new_findings.extend(supplement.new_findings)
@@ -519,8 +459,8 @@ def merge_research(step_input: StepInput) -> StepOutput:
     return StepOutput(content=merged)
 ```
 
-**Input:** Original research + loop outputs (all iterations)
-**Output:** Merged `ExecutiveResearchResult`
+**Input:** Original research (+ optional addendum)
+**Output:** Final `ExecutiveResearchResult`
 
 ---
 
@@ -546,7 +486,7 @@ Provide dimension-level scores, overall assessment, and reasoning.
 
 **Input Source:**
 - If research was sufficient: Original research from Step 1
-- If supplemental search occurred: Merged research from Step 3c
+- If supplemental search occurred: `merge_research` output (Deep Research + single addendum)
 
 **Output:** `AssessmentResult` (Pydantic model)
 
@@ -555,79 +495,53 @@ Provide dimension-level scores, overall assessment, and reasoning.
 ## Complete Workflow Definition
 
 ```python
-from agno.workflow import Workflow, Step, Condition, Loop, StepInput, StepOutput
+from agno.workflow import Workflow, Step, Condition, StepInput, StepOutput
 from agno.db.sqlite import SqliteDb
 
 candidate_screening_workflow = Workflow(
     name="Candidate Screening Workflow",
-    description="Research, quality check, optional supplemental search, then evaluate",
-
+    description="Deep research → quality check → optional incremental search → assessment",
+    db=SqliteDb(db_file="tmp/agno_sessions.db"),
+    stream_events=True,
     steps=[
-        # Step 1: Deep Research
         Step(
             name="deep_research",
             description="Comprehensive executive research",
             agent=deep_research_agent,
         ),
-
-        # Step 2: Research Quality Check
         Step(
             name="quality_check",
             description="Evaluate research sufficiency",
             executor=check_research_quality,
         ),
-
-        # Step 3: Conditional Supplemental Search
         Condition(
-            name="supplemental_search_condition",
-            description="Trigger supplemental search when research is insufficient",
+            name="incremental_search",
+            description="Run incremental search only when research is insufficient",
             evaluator=lambda step_input: not step_input.previous_step_content["is_sufficient"],
-
-            # Execute these steps only if research is NOT sufficient
             steps=[
-                # 3a: Prepare search queries
                 Step(
-                    name="prepare_supplemental",
-                    description="Prepare targeted search queries based on gaps",
+                    name="prepare_incremental",
+                    description="Prepare targeted search prompt",
                     executor=coordinate_supplemental_search,
                 ),
-
-                # 3b: Loop up to 3 times
-                Loop(
-                    name="supplemental_search_loop",
-                    description="Up to 3 rounds of supplemental web search",
-                    steps=[
-                        Step(
-                            name="web_search",
-                            description="Targeted web search for missing information",
-                            agent=web_search_agent,
-                        ),
-                    ],
-                    end_condition=search_complete,
-                    max_iterations=3,
+                Step(
+                    name="run_incremental_search",
+                    description="Single-pass incremental search",
+                    executor=run_incremental_search,
                 ),
-
-                # 3c: Merge original + supplemental
                 Step(
                     name="merge_research",
-                    description="Merge original and supplemental research",
+                    description="Merge deep research with incremental findings",
                     executor=merge_research,
                 ),
             ],
         ),
-
-        # Step 4: Assessment
         Step(
             name="assessment",
             description="Evaluate candidate against role specification",
             agent=assessment_agent,
         ),
     ],
-
-    # Workflow configuration
-    store_events=True,  # Capture full audit trail
-    events_to_skip=[],  # Store all events
-    db=SqliteDb(db_file="tmp/screening_workflows.db"),
 )
 ```
 
@@ -772,14 +686,7 @@ The workflow captures all events with `store_events=True`:
    - `condition_execution_completed`
    - Evaluator result (True/False)
 
-4. **Loop Events:**
-   - `loop_execution_started`
-   - `loop_iteration_started` (for each iteration)
-   - `loop_iteration_completed` (for each iteration)
-   - `loop_execution_completed`
-   - Iteration count, end condition result
-
-5. **Agent Events:**
+4. **Agent Events:**
    - `run_started`, `run_completed`
    - `tool_call_started`, `tool_call_completed`
    - Tool names, arguments, results
@@ -787,23 +694,17 @@ The workflow captures all events with `store_events=True`:
 
 ### Event Storage
 
-**Database:** SQLite (for demo) or PostgreSQL (for production)
+**Database:** Agno `SqliteDb(db_file="tmp/agno_sessions.db")` (demo default). No custom Workflows table for v1; we rely on Assessments status/error fields for the user-facing audit trail.
 
 **Access:**
 ```python
-# Get all events from workflow run
-workflow_run_output: WorkflowRunOutput = await workflow.arun(...)
-events = workflow_run_output.events
-
-# Events stored in database
-session_metrics = workflow.get_session_metrics()
+workflow_run_output = await candidate_screening_workflow.arun(...)
+events = workflow_run_output.events  # Inspect locally via SqliteDb viewer
 ```
 
 **Airtable Storage:**
-Store events in `Operations - Workflows` table:
-- `workflow_run_id` (unique identifier)
-- `candidate_id` (linked record)
-- `role_id` (linked record)
+- Screens table: `status`, `last_run_timestamp`, `error_message`
+- Assessments table: `status`, `runtime_seconds`, `error_message`, `research_structured_json`, `assessment_json`
 - `events_json` (full event log as JSON)
 - `duration` (total execution time)
 - `steps_executed` (list of step names)
@@ -821,22 +722,14 @@ Store events in `Operations - Workflows` table:
 - Step 4 (Assessment): 30-60 sec
 - **Total:** ~3-6 minutes per candidate
 
-### Worst Case (Insufficient Research, 3 Iterations)
+### Worst Case (Insufficient Research → Incremental Search)
 - Step 1 (Deep Research): 2-5 min
 - Step 2 (Quality Check): <1 sec
-- Step 3a (Prepare): <1 sec
-- Step 3b (Loop - 3 iterations): 3 × 30-60 sec = 90-180 sec
+- Step 3a (Prepare incremental search): <1 sec
+- Step 3b (Incremental search, ≤2 tool calls): 30-90 sec
 - Step 3c (Merge): <1 sec
 - Step 4 (Assessment): 30-60 sec
-- **Total:** ~5-9 minutes per candidate
-
-### Fast Mode (Web Search Primary)
-- Step 1 (Web Search Research): 30-60 sec
-- Step 2 (Quality Check): <1 sec
-- Step 3 (Condition): Likely triggered (web search is less comprehensive)
-- Step 3b (Loop - 2-3 iterations): 60-180 sec
-- Step 4 (Assessment): 30-60 sec
-- **Total:** ~2-5 minutes per candidate
+- **Total:** ~4-7 minutes per candidate
 
 ### Batch Processing (10 Candidates, Async)
 - **Best case:** 3-6 minutes (all parallel)
@@ -850,18 +743,11 @@ Store events in `Operations - Workflows` table:
 ### Environment Variables
 
 ```bash
-# Research mode toggle
-USE_DEEP_RESEARCH=true  # Use o4-mini-deep-research
-USE_DEEP_RESEARCH=false  # Use gpt-5 + web_search (faster)
-
 # Quality gate thresholds (optional overrides)
 MIN_EXPERIENCES=3
 MIN_EXPERTISE=2
 MIN_CITATIONS=3
 MAX_GAPS=2
-
-# Loop configuration
-MAX_SUPPLEMENTAL_ITERATIONS=3
 ```
 
 ### Runtime Configuration
@@ -873,8 +759,6 @@ workflow.arun(
     additional_data={
         "min_experiences": 3,
         "min_expertise": 2,
-        "max_supplemental_iterations": 3,
-        "use_deep_research": True,
     }
 )
 
@@ -1032,15 +916,15 @@ async def test_workflow_insufficient_research():
 
 ### Cost Optimization
 
-**Estimated API Costs per Candidate:**
-- Deep Research mode: ~$0.10-0.30 per candidate
-- Web Search mode: ~$0.02-0.05 per candidate
-- Supplemental search: +$0.02-0.05 per iteration
+**Estimated API Costs per Candidate (v1):**
+- Deep Research: ~$0.36 (dominant cost)
+- Incremental search (when triggered): ~$0.01-0.02 (two gpt-5-mini tool calls)
+- Assessment: marginal (<$0.01)
 
 **Optimization Strategies:**
-1. Use Fast mode for initial screening, Deep Research for finalists
-2. Implement caching for repeated candidate evaluations
-3. Batch API calls where possible
+1. Reduce candidate batch size for live demos rather than switching models
+2. Cache research/assessment artifacts for candidates who appear in multiple screens
+3. Reuse incremental search prompts when evaluating multiple candidates for the same role (shared gaps)
 
 ### Monitoring & Observability
 
@@ -1061,7 +945,7 @@ logger = structlog.get_logger()
 logger.info("workflow_started",
     candidate_id=candidate.id,
     role_id=role_spec.id,
-    mode="deep_research" if USE_DEEP_RESEARCH else "fast")
+    mode="deep_research")
 
 # Log quality check decision
 logger.info("quality_check_complete",
@@ -1081,25 +965,11 @@ logger.info("supplemental_search_triggered",
 
 ### Phase 2 Improvements
 
-1. **Adaptive Quality Thresholds:**
-   - Adjust sufficiency criteria based on role seniority
-   - Lower thresholds for IC roles, higher for executives
-
-2. **Intelligent Loop Termination:**
-   - Use ML to predict if additional iterations will yield value
-   - Stop early if confidence plateaus
-
-3. **Research Caching:**
-   - Cache research results by candidate ID
-   - Invalidate on profile updates or time-based expiry
-
-4. **Parallel Supplemental Search:**
-   - Execute multiple targeted searches concurrently
-   - Aggregate results for faster completion
-
-5. **Custom Quality Metrics:**
-   - Role-specific quality gates
-   - Domain-aware sufficiency criteria
+1. **Adaptive Quality Thresholds:** Adjust sufficiency criteria based on role seniority.
+2. **Smarter Incremental Search Decisions:** Learn when incremental search is likely to help vs. when to skip entirely.
+3. **Research Caching:** Cache research results by candidate ID and invalidate on profile updates/time.
+4. **Parallel Supplemental Search:** If incremental search remains helpful, explore parallelizing the two tool calls or adding curated sources.
+5. **Custom Quality Metrics:** Role-specific quality gates + domain-aware sufficiency criteria.
 
 ---
 

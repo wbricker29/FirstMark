@@ -209,38 +209,22 @@
 - Synthesia CTO Spec (customized from template)
 - Estuary CTO Spec (customized from template)
 
-### Research_Results Table
-
-**Status:** See finalized field definition in `demo_planning/airtable_schema.md`.
-
-**Purpose:** Stores structured research results for each candidate.
-
-**Key Fields (summary – canonical source is `airtable_schema.md`):**
-- `research_id` (Auto ID)
-- `workflow` (Link to Workflows)
-- `candidate` (Link to People)
-- `research_summary` (Long Text)
-- `research_json` (Long Text) – full `ExecutiveResearchResult` JSON
-- `citations` (Long Text) – JSON array of citation objects
-- `research_confidence` (Single Select: High/Medium/Low)
-- `research_gaps` (Long Text) – JSON array of gaps
-- `research_timestamp` (DateTime)
-- `research_model` (Single Line Text)
-
-### Role Eval / Assessments Table
+### Role Eval / Assessments Table (v1 storage of research + assessment)
 
 **Status:** See finalized `Assessments` table definition in `demo_planning/airtable_schema.md`.
 
 **Purpose:** Stores assessment results for candidate-role pairs.
 
-**Key Fields (summary):**
+**Key Fields (summary – see `airtable_schema.md` for canonical list):**
 - `assessment_id` (Auto ID)
-- `workflow` (Link to Workflows)
+- `screen` (Link to Screens)
 - `candidate` (Link to People)
 - `role` (Link to Portco_Roles)
 - `role_spec` (Link to Role_Specs)
+- `status` (Single Select: Pending → Processing → Complete/Failed)
 - `overall_score` (Number, 0–100, nullable)
 - `overall_confidence` (Single Select: High, Medium, Low)
+- `topline_summary` (Long Text)
 - `dimension_scores_json` (Long Text) – JSON array of `DimensionScore` objects:
   - `dimension`
   - `score` (1–5 or `null`, where `null` = Unknown / Insufficient public evidence)
@@ -250,16 +234,21 @@
   - `evidence_quotes` (array of strings)
   - `citation_urls` (array of URLs)
 - `must_haves_check_json` (Long Text) – JSON array of `MustHaveCheck` objects
-- `red_flags` / `green_flags` (Long Text, JSON arrays)
-- `summary` (Long Text)
-- `counterfactuals` (Long Text, JSON array)
-- `raw_assessment_json` (Long Text, optional)
+- `red_flags_json` / `green_flags_json` (Long Text, JSON arrays)
+- `counterfactuals_json` (Long Text, JSON array)
+- `research_structured_json` (Long Text) – entire `ExecutiveResearchResult`
+- `research_markdown_raw` (Long Text) – Deep Research markdown blob w/ inline citations
+- `assessment_json` (Long Text) – entire `AssessmentResult` (with reasoning trace captured via Agno `ReasoningTools`)
+- `assessment_markdown_report` (Long Text) – optional formatted narrative
+- `runtime_seconds` (Number) + `error_message` (Long Text) for operational visibility
+- `assessment_timestamp`, `research_model`, `assessment_model`
 
 **Design Notes:**
 - Dimension scores are stored as JSON to avoid constantly changing Airtable fields when specs evolve.
 - The 1–5 scale (with `null` for Unknown) matches the updated role spec design and allows the system to be explicit when the web data is insufficient.
 - **Important:** Use `null` in JSON (or `None` in Python), NOT NaN or 0, to represent unknown/unscored dimensions.
-- Overall score is calculated in Python using an evidence-aware weighting strategy (see technical_spec.md) and written back as a single number for easy sorting.
+- Overall score is calculated in Python using the v1 simple-average × 20 algorithm (see `spec/v1_minimal_spec.md`) and written back as a single number for easy sorting.
+- Research and assessment artifacts share the same record to keep Airtable as the single source of truth (no `Research_Results` or `Workflows` tables in v1).
 
 ---
 
@@ -296,7 +285,7 @@ class CareerEntry(BaseModel):
     key_achievements: list[str] = Field(default_factory=list)
 
 class ExecutiveResearchResult(BaseModel):
-    """Structured research output produced by a parser agent over Deep Research or fast web-search results."""
+    """Structured research output produced directly via Deep Research (structured responses) with optional incremental search blending."""
     exec_name: str
     current_role: str
     current_company: str
@@ -319,7 +308,7 @@ class ExecutiveResearchResult(BaseModel):
     notable_companies: list[str] = Field(default_factory=list)
     citations: list[Citation] = Field(default_factory=list)
 
-    # Confidence & Gaps (aligns with Research_Results table)
+    # Confidence & Gaps (stored on Assessments table)
     research_confidence: Literal["High", "Medium", "Low"] = "Medium"
     gaps: list[str] = Field(default_factory=list)
 
@@ -403,26 +392,38 @@ class AlternativeAssessment(BaseModel):
 
 ```python
 from agno import Agent, OpenAIResponses
+from agno.tools.reasoning import ReasoningTools
 
-# Step 1: Deep Research (markdown + citations)
+# Deep Research Agent (structured output directly)
 deep_research_agent = Agent(
     model=OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1),
-    instructions="Conduct comprehensive executive research with inline citations..."
-)
-
-# Step 2: Parser → structured ExecutiveResearchResult
-parser_agent = Agent(
-    model=OpenAIResponses(id="gpt-5-mini"),
     output_schema=ExecutiveResearchResult,
-    instructions="Parse research markdown + citations into structured form."
+    instructions=[
+        "Run comprehensive executive research with inline citations.",
+        "Return the ExecutiveResearchResult schema directly (no downstream parser)."
+    ],
+    retries=2,
+    exponential_backoff=True,
 )
 
-# Assessment Agent (using gpt-5-mini)
+# Optional incremental search agent (single pass, max two web calls)
+incremental_search_agent = Agent(
+    model=OpenAIResponses(id="gpt-5-mini"),
+    tools=[{"type": "web_search_preview", "max_results": 5}],
+    max_tool_calls=2,
+    output_schema=ExecutiveResearchResult,
+    instructions=[
+        "Only run when quality heuristics flag missing evidence (e.g., <3 citations).",
+        "Perform at most two focused searches to fill the gaps, then emit an updated ExecutiveResearchResult."
+    ],
+)
+
+# Assessment Agent (spec-guided, ReasoningTools required)
 assessment_agent = Agent(
     model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[{"type": "web_search_preview"}],
-    instructions="Evaluate candidate against role spec...",
-    response_model=AssessmentResult,
+    tools=[ReasoningTools(add_instructions=True)],
+    instructions="Evaluate the candidate against the linked role spec. Provide explicit reasoning for each dimension and overall recommendation.",
+    output_schema=AssessmentResult,
 )
 ```
 
@@ -457,9 +458,13 @@ df = pd.DataFrame([d.dict() for d in assessment.dimension_scores])
 
 **Overall Score Calculation:**
 - Computed in Python, not by LLM
-- Uses evidence-aware weighting (ignore/down-weight `None` scores)
+- Uses the v1 simple-average × 20 algorithm (ignore `None` scores entirely)
 - Only dimensions with non-None scores contribute to overall_score
-- See technical_spec.md for calculation logic
+- See `spec/v1_minimal_spec.md` / `technical_spec_V2.md` addendum for calculation logic
+
+**ReasoningTools Requirement:**
+- Assessment agent must include `ReasoningTools(add_instructions=True)` so the JSON contains explicit thinking traces satisfying PRD AC-PRD-04.
+- This configuration is part of the baseline, not a future enhancement.
 
 **Two Evaluations:**
 - `AssessmentResult`: Primary (spec-based, evidence-aware)
@@ -473,21 +478,19 @@ df = pd.DataFrame([d.dict() for d in assessment.dimension_scores])
 
 **Pigment CFO:**
 - 3-5 candidate profiles selected from guildmember_scrape.csv
-- Mock research data for each candidate
-- Assessment results with full dimension scores
-- Markdown reports
+- Mock research_structured_json + research_markdown_raw blobs for each candidate
+- Assessment results with full dimension scores + assessment_json payloads
+- Optional assessment_markdown_report (only if time permits)
 
 **Mockingbird CFO:**
 - 3-5 candidate profiles
-- Mock research data
-- Assessment results
-- Markdown reports
+- Mock research_structured_json + assessment_json outputs
+- Optional assessment_markdown_report
 
 **Synthesia CTO:**
 - 3-5 candidate profiles
-- Mock research data
-- Assessment results
-- Markdown reports
+- Mock research_structured_json + assessment_json outputs
+- Optional assessment_markdown_report
 
 ### For 1 Live Scenario
 
@@ -507,14 +510,15 @@ CSV Upload → Normalize → Dedupe? → Load to People Table
 
 ### Module 4: Screening Workflow (Core Demo)
 ```
-1. Screen Record Created (links Search + Candidates)
-2. For each candidate:
-   a. Create Workflow record
-   b. Run Deep Research API → Parse to structured research → Store in Research_Results table
-   c. Run Assessment → Store in Assessments table
-   d. Update Workflow with logs
-3. Update Screen status to Complete
-4. Generate markdown reports
+1. Screen record moves to "Ready to Screen" (automation triggers /screen endpoint)
+2. For each candidate (sequential):
+   a. Create/ensure Assessment record linked to Screen + Role + Spec
+   b. Run Deep Research agent (structured output) → populate research_structured_json + research_markdown_raw
+   c. Run quality heuristic; if low evidence, execute optional incremental search agent (max two tool calls) and merge results
+   d. Run Assessment agent (ReasoningTools-enabled) → populate assessment_json + derived summary fields
+   e. Update Assessment status (`Processing` → `Complete`/`Failed`), runtime_seconds, error_message (if needed)
+3. Update Screen status + summary fields; rely on Airtable + Agno `SqliteDb` for audit (no Workflows table)
+4. Optional: render assessment_markdown_report for shareouts (Phase 2 enhancement)
 ```
 
 ---

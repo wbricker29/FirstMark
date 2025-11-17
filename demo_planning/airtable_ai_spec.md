@@ -91,76 +91,50 @@ Batch evaluations of candidates for a search.
 
 ---
 
-### 7. Research_Results
-Structured research findings for each candidate.
-
-**Fields:**
-- Research ID (Auto Number)
-- Workflow (Link to Workflows) - Execution record
-- Candidate (Link to People) - Executive researched
-- Research Summary (Long Text) - 2-3 paragraph overview
-- Research JSON (Long Text) - Full structured data (career timeline, achievements, expertise areas)
-- Citations (Long Text) - Source URLs and snippets as JSON
-- Research Confidence (Single Select: High, Medium, Low)
-- Research Gaps (Long Text) - What information was missing
-- Research Timestamp (Date & Time)
-- Research Model (Single Line Text) - AI model used
-
----
-
-### 8. Assessments
-Candidate evaluations against role specifications.
+### 7. Assessments
+Candidate evaluations against role specifications **and** storage for research outputs (per v1 minimal spec).
 
 **Fields:**
 - Assessment ID (Auto Number)
-- Workflow (Link to Workflows) - Execution record
+- Screen (Link to Screens) - Batch run identifier
 - Candidate (Link to People) - Executive evaluated
 - Role (Link to Portco_Roles) - Role being filled
 - Role Spec (Link to Role_Specs) - Criteria used
-- Overall Score (Number, 0-100) - Composite fit score
+- Status (Single Select: Pending, Processing, Complete, Failed)
+- Overall Score (Number, 0-100) - Composite fit score (nullable)
 - Overall Confidence (Single Select: High, Medium, Low)
-- Dimension Scores JSON (Long Text) - Detailed scores per evaluation dimension (1-5 scale)
+- Topline Summary (Long Text) - 2-3 sentence assessment
+- Dimension Scores JSON (Long Text) - Detailed scores per evaluation dimension (1-5 scale, `null` supported)
 - Must Haves Check JSON (Long Text) - Required qualifications verification
-- Red Flags (Long Text) - Concerns identified
-- Green Flags (Long Text) - Strong positives
-- Summary (Long Text) - 2-3 sentence assessment
-- Counterfactuals (Long Text) - Key assumptions that could change recommendation
+- Red Flags JSON (Long Text) - Concerns identified
+- Green Flags JSON (Long Text) - Strong positives
+- Counterfactuals JSON (Long Text) - Key assumptions that could change recommendation
+- Research Structured JSON (Long Text) - Full `ExecutiveResearchResult`
+- Research Markdown Raw (Long Text) - Original Deep Research markdown w/ citations
+- Assessment JSON (Long Text) - Full `AssessmentResult` output (produced with Agno `ReasoningTools` enabled)
+- Assessment Markdown Report (Long Text) - Optional formatted narrative for recruiters
+- Runtime Seconds (Number) - Execution duration per candidate
+- Error Message (Long Text) - Populated on failure
 - Assessment Timestamp (Date & Time)
-- Assessment Model (Single Line Text) - AI model used
-
----
-
-### 9. Workflows
-Audit trail for all AI operations.
-
-**Fields:**
-- Workflow ID (Auto Number)
-- Screen (Link to Screens) - Associated batch evaluation
-- Operation Type (Single Select: Research, Assessment, Report Generation)
-- Status (Single Select: Queued, Running, Complete, Failed)
-- Execution Log (Long Text) - Technical logs
-- Error Message (Long Text) - Failure details if applicable
-- Started At (Date & Time)
-- Completed At (Date & Time)
-- Duration Seconds (Number)
+- Research Model (Single Line Text)
+- Assessment Model (Single Line Text)
 
 ---
 
 ## Key Relationships
 
-- **People** → **Research_Results** (1:Many) - One exec can have multiple research runs
-- **People** → **Assessments** (1:Many) - One exec evaluated for multiple roles
+- **People** → **Assessments** (1:Many) - One exec evaluated for multiple roles/screens
 - **Portco** → **Portco_Roles** (1:Many) - Companies have multiple open roles
-- **Portco_Roles** → **Searches** (1:1) - Each role has one active search
+- **Portco_Roles** → **Searches** (1:1) - Each role has one active search (Airtable-only flow)
 - **Searches** → **Screens** (1:Many) - Multiple evaluation batches per search
-- **Screens** → **Workflows** (1:Many) - Each screen spawns multiple operations
-- **Role_Specs** → **Searches** (1:Many) - Specs are reused across searches
+- **Screens** → **Assessments** (1:Many) - Each screen spawns assessments for its candidates
+- **Role_Specs** → **Searches/Assessments** (1:Many) - Specs reused across searches and linked on each assessment
 
 ---
 
 ## Notes
 
 - Long Text fields storing JSON contain structured data for complex objects (dimension scores, citations, career timelines)
-- Workflows table provides complete audit trail for all AI operations
+- All research + assessment data now lives on Assessments (no Workflows/Research_Results tables in v1). Use Airtable status fields + Agno `SqliteDb` session history for audit trails.
 - Role_Specs support both templates (reusable) and customized versions (role-specific)
-- Research and Assessment tables separate data collection from evaluation
+- Assessment agent must run with Agno `ReasoningTools` enabled to capture explicit reasoning traces inside `assessment_json`.

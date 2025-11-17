@@ -2,9 +2,9 @@
 
 > Complete field definitions, relationships, and setup instructions for the demo Airtable base
 
-**Last Updated:** 2025-01-16
-**Status:** Ready for Implementation
-**Design Principles:** KISS, YAGNI, MVP-focused
+**Last Updated:** 2025-01-19
+**Status:** Ready for Implementation (Aligned to `spec/v1_minimal_spec.md`)
+**Design Principles:** KISS, YAGNI, MVP-focused, Airtable-first storage
 
 ---
 
@@ -23,17 +23,17 @@
 
 ### Design Summary
 
-**Total Tables:** 9
-**Total Pre-populated Records:** ~110
+**Core Tables:** 6 (People, Portco, Portco_Roles, Role_Specs, Screens, Assessments) + helper **Searches** table for Module 3 views
+**Total Pre-populated Records:** ~80 (64 People + demo roles/specs/screens)
 **Primary Workflow Table:** Screens (Module 4)
-**Key Design Pattern:** JSON storage for complex nested data
+**Key Design Pattern:** JSON storage for complex nested data embedded directly on Assessments (no separate Workflows/Research tables)
 
 ### Key Simplifications
 
 1. **JSON Storage:** Store complex Pydantic outputs as JSON in Long Text fields (vs creating many linked tables)
 2. **Pre-population:** Manually create Modules 1-3 data (skip CSV upload webhook for v1.0)
 3. **Status Triggers:** Use status field changes to trigger automations (vs buttons)
-4. **Minimal Tables:** 9 tables only (excluded: Company, Title_Taxonomy, Candidate_Profiles)
+4. **Minimal Tables:** 6 tables only (excluded: Company, Title_Taxonomy, Candidate_Profiles, Workflows, Research_Results)
 
 ### Version Scope
 
@@ -41,11 +41,13 @@
 - Module 2: New Open Role (Airtable-only, pre-populated)
 - Module 3: New Search (Airtable-only, pre-populated)
 - Module 4: New Screen (Python webhook workflow) ⭐ PRIMARY FOCUS
+- **Unified Assessments storage:** Raw Deep Research markdown + structured JSON outputs stored on Assessments records; no Research_Results table
 
 **v1.1 (Post-Demo Enhancements):**
 - Module 1: CSV Upload (webhook endpoint for bulk data ingestion)
 - Startup Taxonomy Classification (4-letter DNA codes for portcos)
 - Enhanced portco enrichment with sector/stage/business model tags
+- Optional Workflows + Research_Results tables for richer audit trails (Phase 2+)
 
 ---
 
@@ -290,73 +292,7 @@ Payload: {screen_id: <record_id>}
 
 ---
 
-### 7. Workflows
-
-**Purpose:** Store execution logs and audit trail for each candidate-screen pair
-
-**Record Count:** ~12-15 (one per candidate per screen for pre-run scenarios)
-
-| Field Name | Field Type | Configuration | Required | Notes |
-|------------|-----------|---------------|----------|-------|
-| `workflow_id` | Auto-number | - | ✓ | Primary key |
-| `screen` | Link to Screens | Single link | ✓ | Parent screen |
-| `candidate` | Link to People | Single link | ✓ | Candidate being evaluated |
-| `status` | Single Select | Options below | ✓ | Execution status |
-| `research_started` | Date & Time | Include time | ○ | Research phase start |
-| `research_completed` | Date & Time | Include time | ○ | Research phase end |
-| `assessment_started` | Date & Time | Include time | ○ | Assessment phase start |
-| `assessment_completed` | Date & Time | Include time | ○ | Assessment phase end |
-| `execution_log` | Long Text | JSON format | ○ | Event stream log |
-| `error_message` | Long Text | - | ○ | Error details if failed |
-
-**Status Options:**
-- Queued
-- Research
-- Assessment
-- Complete
-- Failed
-
-**Execution Log Format (JSON):**
-```json
-[
-  {"timestamp": "2025-01-16T10:30:00Z", "event": "workflow_started", "message": "Starting screening for John Doe"},
-  {"timestamp": "2025-01-16T10:30:05Z", "event": "research_started", "message": "Running Deep Research API"},
-  {"timestamp": "2025-01-16T10:33:45Z", "event": "tool_call", "tool": "web_search", "query": "John Doe CFO Acme Corp"},
-  {"timestamp": "2025-01-16T10:35:00Z", "event": "research_completed", "message": "Research complete with 12 citations"},
-  {"timestamp": "2025-01-16T10:35:05Z", "event": "assessment_started", "message": "Running assessment against spec"},
-  {"timestamp": "2025-01-16T10:36:30Z", "event": "assessment_completed", "message": "Assessment complete - score: 78/100"},
-  {"timestamp": "2025-01-16T10:36:35Z", "event": "workflow_completed", "message": "Screening complete"}
-]
-```
-
----
-
-### 8. Research_Results
-
-**Purpose:** Store structured research output from the research pipeline (Deep Research + parser or fast web-search)
-
-**Record Count:** ~12-15 (one per candidate for pre-run scenarios)
-
-| Field Name | Field Type | Configuration | Required | Notes |
-|------------|-----------|---------------|----------|-------|
-| `research_id` | Auto-number | - | ✓ | Primary key |
-| `workflow` | Link to Workflows | Single link | ✓ | Parent workflow |
-| `candidate` | Link to People | Single link | ✓ | Research subject |
-| `research_summary` | Long Text | - | ✓ | Text summary |
-| `research_json` | Long Text | **JSON format** | ✓ | Full ExecutiveResearchResult |
-| `citations` | Long Text | **JSON array** | ○ | Citation objects |
-| `research_confidence` | Single Select | High/Medium/Low | ✓ | Overall confidence |
-| `research_gaps` | Long Text | **JSON array** | ○ | Missing information |
-| `research_timestamp` | Date & Time | Include time | ✓ | When research ran |
-| `research_model` | Single Line Text | - | ✓ | Upstream research model (e.g., "o4-mini-deep-research" or "gpt-5+web_search") |
-
-**Key Design:** Store full Pydantic `ExecutiveResearchResult` (produced by the parser agent, not Deep Research directly) as JSON in `research_json` field
-
-**See JSON Field Schemas section below for detailed structure**
-
----
-
-### 9. Assessments ⭐ **KEY OUTPUT TABLE**
+### 7. Assessments ⭐ **KEY OUTPUT TABLE**
 
 **Purpose:** Store assessment results with dimension-level scores and reasoning
 
@@ -364,27 +300,45 @@ Payload: {screen_id: <record_id>}
 
 | Field Name | Field Type | Configuration | Required | Notes |
 |------------|-----------|---------------|----------|-------|
+| Field Name | Field Type | Configuration | Required | Notes |
+|------------|-----------|---------------|----------|-------|
 | `assessment_id` | Auto-number | - | ✓ | Primary key |
-| `workflow` | Link to Workflows | Single link | ✓ | Parent workflow |
+| `screen` | Link to Screens | Single link | ✓ | Batch run identifier |
 | `candidate` | Link to People | Single link | ✓ | Candidate evaluated |
 | `role` | Link to Portco_Roles | Single link | ✓ | Role being evaluated for |
 | `role_spec` | Link to Role_Specs | Single link | ✓ | Spec used |
-| `overall_score` | Number | 0-100, allow negatives: NO, precision: 1 | ○ | **Nullable** - null if no scoreable dimensions |
+| `status` | Single Select | Options below | ✓ | Mirrors screen/candidate status |
+| `overall_score` | Number | 0-100, precision: 1 | ○ | Null if no scoreable dimensions |
 | `overall_confidence` | Single Select | High/Medium/Low | ✓ | Combined confidence |
+| `topline_summary` | Long Text | - | ✓ | 2-3 sentence human summary |
 | `dimension_scores_json` | Long Text | **JSON array** | ✓ | DimensionScore objects |
 | `must_haves_check_json` | Long Text | **JSON array** | ○ | MustHaveCheck objects |
-| `red_flags` | Long Text | **JSON array** | ○ | Red flag strings |
-| `green_flags` | Long Text | **JSON array** | ○ | Green flag strings |
-| `summary` | Long Text | - | ✓ | 2-3 sentence assessment |
-| `counterfactuals` | Long Text | **JSON array** | ○ | "What would change the recommendation" |
-| `raw_assessment_json` | Long Text | **JSON format** | ○ | Full AssessmentResult (debugging) |
+| `green_flags_json` | Long Text | **JSON array** | ○ | Positive signals |
+| `red_flags_json` | Long Text | **JSON array** | ○ | Concerns |
+| `counterfactuals_json` | Long Text | **JSON array** | ○ | What would change recommendation |
+| `research_structured_json` | Long Text | **JSON format** | ✓ | Full `ExecutiveResearchResult` from Deep Research/optional incremental search |
+| `research_markdown_raw` | Long Text | Markdown | ✓ | Raw Deep Research markdown (inline citations) |
+| `assessment_json` | Long Text | **JSON format** | ✓ | Full `AssessmentResult` (matching Pydantic schema) |
+| `assessment_markdown_report` | Long Text | Markdown | ○ | Optional narrative for recruiters |
+| `runtime_seconds` | Number | Precision: 0 | ○ | Execution duration |
+| `last_updated` | Last Modified Time | Auto | - | Auto |
+| `error_message` | Long Text | - | ○ | Failure reason if status = Failed |
 | `assessment_timestamp` | Date & Time | Include time | ✓ | When assessment ran |
 | `assessment_model` | Single Line Text | - | ✓ | Model used (e.g., "gpt-5-mini") |
+| `research_model` | Single Line Text | - | ✓ | Research model (e.g., "o4-mini-deep-research") |
+
+**Status Options:**
+- `Pending` – record created but run not started
+- `Processing` – agent currently running (mirrors Screen status)
+- `Complete` – research + assessment succeeded
+- `Failed` – error occurred (see `error_message`)
 
 **Key Design:**
-- Store dimension scores as JSON array (not individual records)
-- `overall_score` is nullable (null when no dimensions could be scored)
-- Evidence-aware: dimension scores can be null for "insufficient evidence"
+- Store all research + assessment data on this table (no Workflows/Research_Results tables)
+- `research_structured_json` = canonical `ExecutiveResearchResult`
+- `research_markdown_raw` = raw Deep Research output for reference
+- `assessment_json` mirrors `AssessmentResult` model (includes dimension-level detail and must-have checks)
+- `status`/`error_message` fields surface progress without inspecting Agno logs
 
 **See JSON Field Schemas section below for detailed structure**
 
@@ -397,7 +351,7 @@ Payload: {screen_id: <record_id>}
 > agent (`gpt-5-mini` or `gpt-5`) produces these by processing Deep Research markdown
 > + citations (or fast web search results).
 
-### ExecutiveResearchResult (Research_Results.research_json)
+### ExecutiveResearchResult (Assessments.research_structured_json)
 
 **Python Pydantic Model → JSON Storage**
 
@@ -459,9 +413,9 @@ Payload: {screen_id: <record_id>}
 ```
 
 **Field Mapping:**
-- Store entire JSON object in `Research_Results.research_json` (Long Text)
-- Extract `citations` array to separate field for easier display
-- Extract `research_summary` to dedicated field for quick viewing
+- Store entire JSON object in `Assessments.research_structured_json` (Long Text)
+- Surface `research_summary` + key stats inside the JSON (no external Workflows/Research_Results tables in v1)
+- Optional: mirror high-signal snippets into Airtable rollups or formula fields for dashboards
 
 > Canonical Pydantic definition for `ExecutiveResearchResult` lives in `demo_planning/data_design.md` under "Structured Output Schemas".
 
@@ -582,7 +536,7 @@ Payload: {screen_id: <record_id>}
 
 ---
 
-### Citations (Research_Results.citations)
+### Citations (inside `Assessments.research_structured_json`)
 
 ```json
 [
@@ -609,7 +563,7 @@ Payload: {screen_id: <record_id>}
 
 ---
 
-### Full AssessmentResult (Assessments.raw_assessment_json)
+### Full AssessmentResult (`Assessments.assessment_json`)
 
 **Complete Pydantic model output for debugging**
 
@@ -643,30 +597,23 @@ Payload: {screen_id: <record_id>}
 
 ```
 Portco (4)
-  ├─→ Portco_Roles (4) [1:many]
+  └─→ Portco_Roles (4) [1:many]
 
 Role_Specs (6)
+  └─→ Portco_Roles (linked) [many:1]
+
+People (64)
 
 Searches (4)
   ├─→ Portco_Roles (linked) [many:1]
   └─→ Role_Specs (linked) [many:1]
 
-People (64)
-
 Screens (4) ⭐ WEBHOOK TRIGGER
   ├─→ Searches (linked) [many:1]
   └─→ People (linked) [many:many]
 
-Workflows (12-15) - created by Python
+Assessments (per candidate) ⭐ OUTPUT
   ├─→ Screens (linked) [many:1]
-  └─→ People (linked) [many:1]
-
-Research_Results (12-15) - created by Python
-  ├─→ Workflows (linked) [1:1]
-  └─→ People (linked) [many:1]
-
-Assessments (12-15) - created by Python ⭐ OUTPUT
-  ├─→ Workflows (linked) [1:1]
   ├─→ People (linked) [many:1]
   ├─→ Portco_Roles (linked) [many:1]
   └─→ Role_Specs (linked) [many:1]
@@ -674,8 +621,8 @@ Assessments (12-15) - created by Python ⭐ OUTPUT
 
 **Key Relationships:**
 - **Screen → Candidates (People):** Many-to-many (one screen evaluates multiple candidates)
-- **Workflow → Candidate:** Many-to-one (multiple workflows per candidate across different screens)
-- **Assessment → Role & Spec:** Many-to-one (candidate can be evaluated for multiple roles)
+- **Assessment → Screen:** Many-to-one (each candidate per screen has one Assessment record)
+- **Assessment → Role & Spec:** Many-to-one (candidate can be evaluated for multiple roles/specs via separate Assessment records)
 
 ---
 
@@ -687,17 +634,15 @@ Assessments (12-15) - created by Python ⭐ OUTPUT
 1. Create new base: "FirstMark Talent Signal Agent Demo"
 2. Delete default tables
 
-**Step 2: Create All 9 Tables**
+**Step 2: Create All Core Tables**
 1. Create tables in this order (to handle dependencies):
    - People
    - Portco
    - Portco_Roles
    - Role_Specs
-   - Searches
    - Screens
-   - Workflows
-   - Research_Results
-   - Assessments
+   - Assessments (linked to the above tables)
+2. Optional helper table (for Module 3 views/forms): `Searches` linked to `Portco_Roles` + `Role_Specs`. This table does not interact with Python but powers Airtable UI.
 
 **Step 3: Add Fields to Each Table**
 - Follow field definitions in Table Schemas section above
@@ -924,7 +869,7 @@ ngrok http 5000
 **Execution:**
 1. Change Pigment CFO screen status → "Ready to Screen"
 2. Wait for completion (~3-6 minutes per candidate with Deep Research)
-3. Verify results populated in Workflows, Research_Results, Assessments tables
+3. Verify results populated in Assessments table (research + assessment JSON fields, status updates on Screen + Assessment records)
 4. Repeat for Mockingbird CFO screen
 5. Repeat for Synthesia CTO screen
 
@@ -934,8 +879,8 @@ ngrok http 5000
 - Plus Python processing time, Airtable writes
 
 **Fallback (if time-constrained):**
-- Use Web Search mode instead (set `USE_DEEP_RESEARCH=false`)
-- Runtime: 1-2 min per candidate = ~10-20 minutes total
+- Run fewer candidates per screen (e.g., 1-2) and rely on stored Assessments for the rest
+- Skip the optional incremental search step (Deep Research output alone is acceptable for v1)
 
 ---
 
@@ -991,22 +936,19 @@ ngrok http 5000
 ### Pre-Run Execution (Generate Demo Data)
 
 - [ ] **Pigment CFO Screening:** Completed, results in database
-  - [ ] Workflows records created (1 per candidate)
-  - [ ] Research_Results populated
-  - [ ] Assessments populated
-  - [ ] Screen status: Complete
+  - [ ] Assessments populated with research_structured_json + assessment_json
+  - [ ] Topline summary + overall_score fields filled
+  - [ ] Screen + linked Assessments statuses = Complete
 
 - [ ] **Mockingbird CFO Screening:** Completed, results in database
-  - [ ] Workflows records created
-  - [ ] Research_Results populated
-  - [ ] Assessments populated
-  - [ ] Screen status: Complete
+  - [ ] Assessments populated with research_structured_json + assessment_json
+  - [ ] Topline summary + overall_score fields filled
+  - [ ] Screen + linked Assessments statuses = Complete
 
 - [ ] **Synthesia CTO Screening:** Completed, results in database
-  - [ ] Workflows records created
-  - [ ] Research_Results populated
-  - [ ] Assessments populated
-  - [ ] Screen status: Complete
+  - [ ] Assessments populated with research_structured_json + assessment_json
+  - [ ] Topline summary + overall_score fields filled
+  - [ ] Screen + linked Assessments statuses = Complete
 
 - [ ] **Estuary CTO Screen:** Ready for live demo
   - [ ] Candidates selected and linked
@@ -1015,12 +957,12 @@ ngrok http 5000
 
 ### Validation
 
-- [ ] **Data Quality:** All JSON fields properly formatted
+- [ ] **Data Quality:** `research_structured_json`, `research_markdown_raw`, and `assessment_json` fields properly formatted
 - [ ] **Relationships:** All links between tables working correctly
 - [ ] **Scoring:** Evidence-aware scores (with null values) displaying correctly
 - [ ] **Ranking:** Candidates ranked by overall_score in Assessments table
-- [ ] **Citations:** URLs and quotes properly stored and accessible
-- [ ] **Audit Trail:** Workflow logs readable and complete
+- [ ] **Citations:** URLs and quotes present within research_structured_json
+- [ ] **Audit Trail:** Screen + Assessment statuses/error fields reflect run history (Agno `SqliteDb` covers internal transcripts)
 
 ---
 
@@ -1028,7 +970,7 @@ ngrok http 5000
 
 | Airtable Field Type | Use Cases | Example Fields |
 |--------------------|-----------|----------------|
-| Auto-number | Primary keys | person_id, screen_id, workflow_id |
+| Auto-number | Primary keys | person_id, screen_id, assessment_id |
 | Single Line Text | Short text | full_name, current_title, company_name |
 | Long Text | Multi-line text, JSON | research_summary, dimension_scores_json |
 | URL | Web links | linkedin_url, citation URLs |

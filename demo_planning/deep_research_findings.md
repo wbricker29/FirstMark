@@ -258,9 +258,11 @@ def research_executive(candidate) -> ExecutiveResearchResult:
 
 ---
 
-### Alternative: Fast Web Search Mode
+### Phase 2 (Future): Fast Web Search Mode
 
-For faster execution (demo flexibility), can use `gpt-5` with web search instead of Deep Research:
+> **Not in v1:** Fast mode is documented here for future exploration but is explicitly deferred per `spec/v1_minimal_spec.md`. The v1 demo always runs Deep Research (with an optional single incremental search step when quality checks fail).
+
+For faster execution in the future, we could use `gpt-5` with web search instead of Deep Research:
 
 ```python
 # Fast Web Search Agent (30-60 seconds per candidate)
@@ -328,154 +330,84 @@ Based on findings, citations should be stored as:
 
 ### Research Storage Schema
 
-Execution metadata and structured research are split between `Workflows` and `Research_Results` in Airtable:
+Execution metadata and structured research now stay on the **Assessments** table (per v1 minimal contract):
 
-**Workflows Table Fields (execution metadata):**
-```
-- workflow_id (primary key)
-- screen (link to Screens)
-- candidate (link to People)
-- status (Single Select) - Queued/Research/Assessment/Complete/Failed
-- research_started / research_completed (DateTime)
-- assessment_started / assessment_completed (DateTime)
-- execution_log (Long Text, JSON) - event stream
-- error_message (Long Text)
-```
+- Each candidate/screen pair has one Assessment record with status, runtime, and error fields.
+- The record also stores:
+  - `research_structured_json` + `research_markdown_raw`
+  - `assessment_json`, dimension/must-have arrays, topline summary, optional markdown narrative
+  - `research_model` + `assessment_model`
+- Screens table holds the batch status/error message.
+- Deeper execution logs remain in Agno's `SqliteDb (tmp/agno_sessions.db)`; Airtable no longer needs Workflows/Research_Results tables for v1.
 
-**Research_Results Table Fields (structured research):**
-```
-- research_id (primary key)
-- workflow (link to Workflows)
-- candidate (link to People)
-- research_summary (Long Text)
-- research_json (Long Text, JSON) - full ExecutiveResearchResult
-- citations (Long Text, JSON) - array of citation objects
-- research_confidence (Single Select) - High/Medium/Low
-- research_gaps (Long Text, JSON) - missing information notes
-- research_timestamp (DateTime)
-- research_model (Single Line Text)
-```
-
-Execution and research are joined via `Research_Results.workflow`.
-
-For complete Airtable field definitions, see `demo_planning/airtable_schema.md` (Research_Results and Workflows tables).
+See `demo_planning/airtable_schema.md` (Assessments section) for the canonical field list.
 
 ---
 
 ## Cost & Performance Analysis
 
-### Deep Research Mode (Recommended for Pre-runs)
+### Deep Research Mode (Required for v1)
 
 **Per Candidate:**
-- Research: ~$0.36 (36K tokens @ $10/1M)
-- Parsing: ~$0.0003 (2K tokens @ $0.15/1M)
-- **Total:** ~$0.36 per candidate
-- **Time:** 2-6 minutes per candidate
+- Deep Research call: ~$0.36 (≈36K tokens @ $10/1M)
+- Optional incremental search (≤2 gpt-5-mini tool calls): ~$0.01
+- **Total:** ~$0.37 per candidate
+- **Time:** 2-6 minutes per candidate (dominated by Deep Research)
 
 **For 10 candidates (sequential):**
-- **Cost:** ~$3.60
+- **Cost:** ~$3.70
 - **Time:** 20-60 minutes
 
-**Recommendation:** Use for 3 pre-run scenarios (30 total candidates = $10.80)
+**Recommendation:** Use for all pre-run screens and the live Estuary demo; limit batch size instead of switching models when time-constrained.
 
-### Fast Web Search Mode (Recommended for Live Demo)
+### Fast Web Search Mode (Phase 2 only)
 
-**Per Candidate:**
-- Research + Structure: ~$0.02 (2K tokens @ $10/1M for gpt-5)
-- **Total:** ~$0.02 per candidate
-- **Time:** 30-90 seconds per candidate
-
-**For 5 candidates (sequential):**
-- **Cost:** ~$0.10
-- **Time:** 2.5-7.5 minutes
-
-**Recommendation:** Use for live demo execution (Estuary CTO role)
+- Maintain for future experimentation but keep behind a feature flag for now.
+- Not part of the v1 demo contract per `spec/v1_minimal_spec.md`.
 
 ---
 
 ## Updated Technical Spec Implications
 
-### Changes Required in technical_spec_V2.md
+### Changes Required in `technical_spec_V2.md`
 
-**Section: "Core Components > Person Researcher"**
+- **Person Researcher:** Document a **single** Deep Research agent (OpenAIResponses `o4-mini-deep-research`) configured with `output_schema=ExecutiveResearchResult`. No parser agent. Include note that the agent must stream markdown + structured output simultaneously and that `response_format=json_schema` is unsupported.
+- **Incremental Search:** Describe the optional single-pass `gpt-5-mini` search agent that runs only when a quality heuristic fails (e.g., `<3` unique citations). Cap tool calls at two per candidate.
+- **Assessment Agent:** Call out the `ReasoningTools` requirement so the JSON in Airtable includes explicit reasoning traces.
+- **Data Persistence:** Update storage diagrams to show Assessments table holding `research_structured_json`, `research_markdown_raw`, `assessment_json`, etc., with Screens providing run-level statuses. Remove references to Workflows + Research_Results tables.
+- **Audit Trail:** Note that Agno `SqliteDb (tmp/agno_sessions.db)` is the dev-facing log, while Airtable statuses/error fields are the user-facing audit layer.
 
-Replace with two-step approach:
+### Decision Record
 
-```markdown
-### Person Researcher
+**Final Decision:** Deep Research–first pipeline with optional single incremental search; no fast-mode toggle.
 
-**Implementation:** Two-step process (Research → Parse)
+- Deep Research agent always runs (pre-runs + live demo).
+- Quality heuristic may trigger one incremental search agent run (≤2 tool calls).
+- Assessment agent (ReasoningTools-enabled) consumes research outputs directly and writes everything onto Assessments records.
 
-#### Research Agent (Step 1)
-- **Model:** OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1)
-- **Output:** Markdown research with inline citations
-- **Citations:** Accessible via `result.citations.urls`
-- **Time:** 2-5 minutes per candidate
-
-#### Parser Agent (Step 2)
-- **Model:** OpenAIResponses(id="gpt-5-mini")
-- **Output:** ExecutiveResearchResult (Pydantic)
-- **Input:** Research markdown + citations from Step 1
-- **Time:** 10-30 seconds
-
-#### Alternative: Fast Mode
-- **Model:** OpenAIResponses(id="gpt-5") with web_search_preview
-- **Output:** Direct structured output (single step)
-- **Time:** 30-60 seconds per candidate
-- **Use:** Live demo execution
-```
-
-**Section: "Structured Output Schemas"**
-
-For the detailed `ExecutiveResearchResult` Pydantic model that underpins the JSON stored in `Research_Results.research_json`, see `demo_planning/data_design.md` (“Structured Output Schemas”). That model is the single source of truth for the research schema.
-
----
-
-## Decision Record
-
-### Final Decision: Two-Step Approach with Mode Toggle
-
-**Primary Mode (Deep Research):**
-- Use for pre-run scenarios (comprehensive, high-quality)
-- Two-step: o4-mini-deep-research → gpt-5-mini parser
-- Time: 2-6 min/candidate
-- Cost: ~$0.36/candidate
-
-**Fast Mode (Web Search):**
-- Use for live demo (faster, still good quality)
-- Single-step: gpt-5 with web search + structured output
-- Time: 30-90 sec/candidate
-- Cost: ~$0.02/candidate
-
-**Implementation:**
+**Implementation Sketch:**
 ```python
-# Environment flag for mode selection
-USE_DEEP_RESEARCH = os.getenv('USE_DEEP_RESEARCH', 'true').lower() == 'true'
+def run_research(candidate):
+    result = deep_research_agent.run(candidate)
+    if research_is_low_quality(result):
+        supplement = incremental_search_agent.run(candidate)
+        result = merge_research(result, supplement)
+    return result
 
-def research_executive(candidate):
-    if USE_DEEP_RESEARCH:
-        return two_step_deep_research(candidate)
-    else:
-        return fast_web_search_research(candidate)
+def screen_candidate(candidate):
+    research = run_research(candidate)
+    assessment = assessment_agent.run(
+        research=research,
+        role_spec=spec_markdown,
+    )
+    write_assessment_record(candidate, research, assessment)
 ```
 
-**Benefits:**
-- ✅ All via Agno (no hybrid SDK approach needed)
-- ✅ Citations fully accessible
-- ✅ Structured outputs achieved
-- ✅ Flexible execution (comprehensive vs fast)
-- ✅ Demo risk mitigation (can toggle if time-constrained)
+### Next Steps
 
----
-
-## Next Steps
-
-1. **Update technical_spec_V2.md** with two-step approach
-2. **Design Airtable schema** with citation storage
-3. **Implement research pipeline** with mode toggle
-4. **Test both modes** with sample candidates
-5. **Pre-run 3 scenarios** using Deep Research mode
-6. **Prepare live demo** with Fast mode as fallback
+1. Update `technical_spec_V2.md` + `spec/spec.md` to reflect the single-agent Deep Research flow, optional incremental search, and Assessments-only storage.
+2. Update demo planning docs (this file, `data_design.md`, `airtable_schema.md`, workflow spec) to match the linear workflow (DONE in this pass for schema/research docs; workflow spec still pending).
+3. Ensure engineering checklist references `ReasoningTools`, Agno `SqliteDb`, and the new Airtable fields before implementation begins.
 
 ---
 
