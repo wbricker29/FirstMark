@@ -25,6 +25,14 @@ A **Role Spec** is a structured evaluation framework that defines what "good fit
 - Analytics on spec effectiveness
 - Dynamic AI-generated specs
 
+### V1 Implementation Note
+
+**Score Calculation:** v1.0-minimal uses **simple average × 20 algorithm**, ignoring dimension weights. Weights are preserved in role specs for Phase 2+ weighted calculation enhancement.
+
+**Function:** `calculate_overall_score()` - Simple average of scored dimensions (None/Unknown excluded)
+
+**Phase 2+:** Weighted scoring algorithm will use dimension weights defined in role specs.
+
 ---
 
 ## 2. Requirements
@@ -360,7 +368,7 @@ def assess_candidate(
     assessment = response.choices[0].message.content
 
     # Calculate weighted score
-    assessment['overall_score'] = calculate_weighted_score(
+    assessment['overall_score'] = calculate_overall_score(
         assessment['dimension_scores'],
         spec['dimensions']
     )
@@ -584,7 +592,7 @@ See `templates/series_b_saas_cfo_spec.md` for full template example.
 spec_parser.parse_role_spec(markdown: str) -> dict
 spec_parser.build_assessment_prompt(spec: dict, research: str) -> str
 assessment.assess_candidate(research: str, spec_markdown: str, instructions: str) -> dict
-assessment.calculate_weighted_score(dimension_scores: list, dimensions: list) -> float
+assessment.calculate_overall_score(dimension_scores: list, dimensions: list) -> float
 ```
 
 ---

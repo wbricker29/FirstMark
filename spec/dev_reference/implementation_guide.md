@@ -296,11 +296,13 @@ citations = result.citations.urls  # List[UrlCitation]
 ### 2. Incremental Search Agent (Optional)
 
 ```python
+from agno.tools.openai import web_search
+
 # Incremental Search Agent - Single pass, ≤2 web tool calls
 incremental_search_agent = Agent(
     name="Incremental Search Agent",
     model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[{"type": "web_search_preview"}],
+    tools=[web_search],  # Built-in OpenAI web search tool
     max_tool_calls=2,  # Hard limit: 2 tool calls maximum
     output_schema=ExecutiveResearchResult,  # gpt-5-mini DOES support structured outputs
     instructions="""
@@ -595,7 +597,7 @@ def screen_candidate(candidate, role_spec):
     assessment: AssessmentResult = final_result.content
 
     # Calculate overall score in Python (not by LLM)
-    overall_score = calculate_weighted_score(
+    overall_score = calculate_overall_score(
         dimension_scores=assessment.dimension_scores,
     )
 
@@ -815,7 +817,7 @@ except Exception as e:
 ### V1 Simple Average Algorithm
 
 ```python
-def calculate_weighted_score(dimension_scores: list[DimensionScore]) -> Optional[float]:
+def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[float]:
     """
     Calculate simple average score from dimensions with scores.
 
@@ -834,7 +836,7 @@ def calculate_weighted_score(dimension_scores: list[DimensionScore]) -> Optional
         ...     DimensionScore(dimension="Operations", score=3, ...),
         ...     DimensionScore(dimension="Strategy", score=None, ...),  # Unknown
         ... ]
-        >>> calculate_weighted_score(scores)
+        >>> calculate_overall_score(scores)
         70.0  # (4 + 3) / 2 * 20
     """
     scored = [d.score for d in dimension_scores if d.score is not None]

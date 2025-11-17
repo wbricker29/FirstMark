@@ -28,7 +28,7 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 ┌─────────────────────────────────────────────────────────────┐
 │                      AIRTABLE DATABASE                       │
 │  People (64) | Portcos (4) | Roles (4) | Specs (6)         │
-│  Searches (4) | Screens (4) | Research | Assessments       │
+│  Searches (4) | Screens (4) | Assessments (research+scores)│
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ Automation Trigger (Status Change)
@@ -902,17 +902,19 @@ For v1.0-minimal, log key metrics to terminal:
 1. **Structured Outputs (Native):**
    ```python
    from agno import Agent, OpenAIResponses
-   from models import ExecutiveResearchResult
+   from agno.tools.reasoning import ReasoningTools
+   from models import AssessmentResult
 
-   agent = Agent(
-       name="research_agent",
-       model=OpenAIResponses(id="o4-mini-deep-research"),
-       output_schema=ExecutiveResearchResult,  # Returns Pydantic model directly
+   assessment_agent = Agent(
+       name="assessment_agent",
+       model=OpenAIResponses(id="gpt-5-mini"),
+       tools=[ReasoningTools(add_instructions=True)],
+       output_schema=AssessmentResult,  # Returns Pydantic model directly
    )
    ```
+   - Applies to gpt-5-mini assessment agent (Deep Research models reject `output_schema`; see warning above)
    - No separate parser agent needed
    - No custom JSON parsing prompts
-   - Direct Pydantic model output
 
 2. **Single Workflow for Orchestration:**
    ```python
