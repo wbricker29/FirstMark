@@ -82,6 +82,7 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Estimate:** 1.5 hours
 - **Dependencies:** TK-01, TK-02, TK-03
 - **Note:** Single-pass only (no multi-iteration loops in v1). Uses Agno's built-in web_search tool.
+- **Note:** Single-pass only (no multi-iteration loops in v1). Uses Agno's built-in web_search tool (OpenAI `web_search_preview`), which requires `OPENAI_API_KEY` to be set before execution.
 - **Completed:** 2025-11-17T04:08:00Z
 
 ### TK-07
@@ -158,6 +159,11 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Tasks Total:** 9
 - **Tasks Completed:** 7
 - **Progress:** 78%
+
+### Outstanding Work
+
+- **TK-07 (Unit Tests):** Still queued for Developer B to implement scoring/quality-check coverage.
+- **TK-09 (Integration Smoke Test - Optional):** Not started; remains optional confidence check before workflow demo.
 
 ## 2-Developer Parallel Execution Plan
 
