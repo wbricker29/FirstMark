@@ -256,8 +256,8 @@ An AI-powered system that:
 - When I review assessment results
 - Then I see overall confidence (High/Medium/Low)
 - And I see dimension-level confidence for each score
-- And I see research quality metrics (# experiences, # citations, gaps filled)
-- And I can identify candidates where supplemental search was needed
+- And I see a simple research sufficiency indicator (e.g., citation count + pass/fail)
+- And insufficient research is flagged so I know when manual review is needed (including when the single incremental search step ran)
 
 ---
 
@@ -464,7 +464,7 @@ An AI-powered system that:
 ### Phase 2: Core Implementation (Hours 9-24)
 
 **Data Layer (2 hours):**
-- Create Airtable database with 9 tables
+- Create Airtable database with 7 tables (6 core + 1 helper)
 - Populate portco data (Pigment, Mockingbird, Synthesia, Estuary)
 - Load people records from guildmember_scrape.csv
 - Create role spec templates (CFO, CTO)
@@ -483,7 +483,7 @@ An AI-powered system that:
 - Test workflow end-to-end with mock data
 
 **Flask Integration (4 hours):**
-- Build /upload and /screen endpoints
+- Build /screen endpoint (single webhook)
 - Implement Airtable read/write functions
 - Add status field updates and error handling
 - Set up ngrok tunnel and test webhook triggers

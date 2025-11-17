@@ -414,7 +414,7 @@ def calculate_overall_score(dimension_scores: list[DimensionScore]) -> Optional[
 To keep the implementation simple while leveraging AGNO effectively, v1.0-minimal should:
 
 - **Use structured outputs natively:**
-  - Configure research and assessment agents with AGNO’s structured output / `output_model` support so they return `ExecutiveResearchResult` and `AssessmentResult` directly.
+  - Configure research and assessment agents with AGNO’s structured output / `output_schema` support so they return `ExecutiveResearchResult` and `AssessmentResult` directly.
   - Avoid a separate “parser agent” layer and heavy custom JSON-parsing prompts.
 
 - **Use a single AGNO Workflow for orchestration:**
@@ -547,7 +547,7 @@ These changes keep the implementation aligned with `case/technical_spec_V2.md` w
 - Approval metadata
 
 **Enhanced Agno Guidance** (SPEC §3.8) - Added comprehensive implementation patterns:
-- Structured outputs with `output_model`
+- Structured outputs with `output_schema`
 - Built-in retry/backoff configuration
 - Event streaming for logging
 - Web search tool usage

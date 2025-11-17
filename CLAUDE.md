@@ -7,7 +7,7 @@
 **Tables:** 6 tables (People, Portco, Portco_Roles, Role_Specs, Searches, Screens, Assessments)
 **Storage:** Research data in **Assessments** table (research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report)
 **Database:** SqliteDb at `tmp/agno_sessions.db` (NO InMemoryDb, NO custom WorkflowEvent tables)
-**Pipeline:** Direct structured outputs via `output_model` (NO parser agent)
+**Pipeline:** Direct structured outputs via `output_schemaa` (NO parser agent)
 
 **Phase 2+ (DO NOT IMPLEMENT):** Fast mode | Loops/conditions | Parser agents | Workflows table | Research_Results table | Multi-iteration search
 
@@ -110,26 +110,34 @@ FirstMark Capital AI Lead case study: Talent Signal Agent demo (presentation Nov
 
 ## Documentation Trust Signals
 
-### ✅ CURRENT & TRUSTED
-- **spec/v1_minimal_spec.md** + **spec/v1_minimal_spec_agno_addendum.md** ⭐ HIGHEST AUTHORITY
-- **demo_planning/v1_alignment_conflicts.md** - Known issues requiring fixes
-- **demo_planning/data_design.md** - Pydantic models (mostly accurate)
-- **demo_planning/role_spec_design.md** - CFO/CTO templates
-- **demo_planning/AGNO_REFERENCE.md** - Agno patterns
+### ⭐ AUTHORITATIVE (Tier 1)
+- **spec/v1_minimal_spec.md** - V1 scope contract (HIGHEST AUTHORITY)
+- **spec/v1_minimal_spec_agno_addendum.md** - Agno clarifications for v1
+- **spec/prd.md** - Product requirements (aligned with v1 scope)
+- **spec/spec.md** - Technical specification (aligned with v1 scope)
 - **spec/constitution.md** - Development principles
 
-### ⚠️ OUTDATED - Cross-Check Against V1 Scope First
-- **spec/spec.md** - Has "no SQLite" ambiguity, 9-table refs, Research_Results table
-- **spec/prd.md** - References Research_Results table (should be Assessments), 9 tables
-- **demo_planning/airtable_schema.md** - Shows 9 tables (v1 uses 6), Workflows/Research_Results out of scope
-- **demo_planning/screening_workflow_spec.md** - Has loops, fast mode, parser agent (all Phase 2+)
+### ✅ IMPLEMENTATION GUIDES (Tier 2)
+- **demo_planning/implementation_guide.md** ⭐ MASTER IMPLEMENTATION DOC
+  - Consolidates: Pydantic models, agent configs, workflow, Deep Research limitations
+  - 100% aligned with spec/v1_minimal_spec.md
+  - Single source of truth for implementation details
+- **demo_planning/airtable_ai_spec.md** - Airtable schema (7 tables: 6 core + 1 helper)
+- **demo_planning/role_spec_design.md** - CFO/CTO templates
+- **demo_planning/AGNO_REFERENCE.md** - Framework patterns
 
-### ❌ IGNORE THESE PATTERNS
-- Parser agent pipeline → Use direct structured outputs
-- Workflows or Research_Results tables → Use Assessments table
+### 📦 ARCHIVED (Consolidated into implementation_guide.md)
+- ~~data_design.md~~ → Merged into implementation_guide.md
+- ~~screening_workflow_spec.md~~ → Merged into implementation_guide.md
+- ~~deep_research_findings.md~~ → Merged into implementation_guide.md
+- ~~v1_alignment_conflicts.md~~ → Issues resolved, archived
+
+### ❌ V1 EXCLUSIONS (Phase 2+ Only)
+- Parser agent pipeline → Deep Research returns markdown
+- Workflows or Research_Results tables → Use Assessments table only
 - Fast mode → v1 Deep Research only
 - Multi-iteration loops → Single optional incremental search
-- 9-table design → 6 tables
+- Async/concurrent processing → Sequential only
 
 ## Context
 
@@ -272,11 +280,12 @@ When building the case study prototype, apply these key principles:
 
 ## Next Steps
 
-**BLOCKING:** Fix documentation alignment issues first
-- See `demo_planning/v1_alignment_conflicts.md` for details
-- Update docs to match v1 minimal scope (4-6 hours)
+**READY FOR IMPLEMENTATION** ✅
+- All documentation alignment issues resolved (2025-01-19)
+- Master implementation guide created: `demo_planning/implementation_guide.md`
+- All specs aligned with v1 minimal scope
 
-**Then:** Implementation (34-38 hours)
+**Implementation Path** (34-38 hours)
 1. Airtable setup (6 tables, not 9)
 2. Python: Research + Assessment agents (direct structured outputs, no parser)
 3. Flask webhook + Agno linear workflow

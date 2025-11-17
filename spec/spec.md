@@ -160,7 +160,7 @@ def create_research_agent(use_deep_research: bool = True) -> Agent:
     Notes:
         - v1 implementation only requires use_deep_research=True
         - Fast mode (gpt-5 + web_search) is future enhancement
-        - Use Agno's native structured outputs (output_model parameter)
+        - Use Agno's native structured outputs (output_schema parameter)
     """
     pass
 
@@ -188,7 +188,7 @@ def run_research(
 
     Notes:
         - Uses Agno's built-in retry with exponential_backoff=True
-        - Returns structured output directly via output_model
+        - Returns structured output directly via output_schema
         - No separate parser agent needed
     """
     pass
@@ -405,7 +405,7 @@ class AirtableClient:
 ### Key Models
 
 **ExecutiveResearchResult** - Structured research output from Deep Research agent
-- Produced directly by Agno agent with `output_model` parameter
+- Produced directly by Agno agent with `output_schema` parameter
 - Contains career timeline, expertise areas, citations, confidence metadata
 - See `demo_planning/data_design.md` lines 298-328 for complete definition
 
@@ -870,7 +870,7 @@ For v1.0-minimal, log key metrics to terminal:
 - **Linear execution** - Sequential steps (no teams, no nested workflows in v1)
 - **Quality-gated research** - Optional incremental search triggered by quality check
 - **Evidence-aware scoring** - Explicit handling of Unknown dimensions using `None`
-- **Agno native features** - Structured outputs via `output_model`, built-in retry/backoff
+- **Agno native features** - Structured outputs via `output_schema`, built-in retry/backoff
 - **Event streaming** - `stream_events=True` for stdout logging (no persistence in v1)
 
 ### Implementation References
@@ -898,7 +898,7 @@ For v1.0-minimal, log key metrics to terminal:
    agent = Agent(
        name="research_agent",
        model=OpenAIResponses(id="o4-mini-deep-research"),
-       output_model=ExecutiveResearchResult,  # Returns Pydantic model directly
+       output_schema=ExecutiveResearchResult,  # Returns Pydantic model directly
    )
    ```
    - No separate parser agent needed
@@ -1046,7 +1046,7 @@ For v1.0-minimal, log key metrics to terminal:
 - No Workflows table (Phase 2+)
 - Status and error tracking in Screens and Assessments tables
 - Research and Assessment JSON stored in respective tables
-- Raw research markdown stored in Research_Results.raw_research_markdown
+- Raw research markdown stored in Assessments.research_markdown_raw
 - Assessment markdown reports stored in Assessments.assessment_markdown_report
 - Agno session state in tmp/agno_sessions.db (SqliteDb, not exposed in Airtable)
 
@@ -1067,7 +1067,7 @@ For v1.0-minimal, log key metrics to terminal:
 ### Phase 2: Agent Implementation (6 hours)
 - [ ] Implement research agent (agents.py)
   - [ ] Deep Research mode (o4-mini-deep-research)
-  - [ ] Agno structured outputs (output_model)
+  - [ ] Agno structured outputs (output_schema)
   - [ ] Built-in retry/backoff
 - [ ] Implement assessment agent (agents.py)
   - [ ] Spec-guided evaluation
