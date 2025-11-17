@@ -73,15 +73,14 @@ v1.0-minimal supports **one primary workflow** (Module 4 – Screen) implemented
 - **Airtable client module**:
   - Thin wrapper around pyairtable for reading:
     - Screen record + linked candidates + linked role + spec markdown
-  - Writing:
-    - Assessment results back to Airtable
-    - Minimal status fields and key summary metrics
-     - Raw Deep Research markdown + citations into `Research_Results` records
-     - Markdown assessment reports into `Assessments` records (for human-readable exports)
+  - Writing (Assessments-only storage model):
+    - Screen status + error fields
+    - Assessment record fields for all artifacts (`research_structured_json`, `research_markdown_raw`, `assessment_json`, `assessment_markdown_report`)
+    - Minimal summary fields (overall score, confidence, topline summary) surfaced for Airtable views
 
 **Non-goals for v1.0-minimal:**
 
-- No dedicated SQLite database for workflow events
+- No custom SQLite database/tables for workflow events (Agno's built-in `SqliteDb` for session state is still required; see §3.2)
 - No separate CLI interface or Python package entrypoint
 - No message queues, background workers, or async orchestration
 - No production deployment (local Flask + ngrok only)
@@ -448,7 +447,7 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   assessment_agent = Agent(
       model=OpenAIChat(id="gpt-5-mini"),
       output_schema=AssessmentResult,
-      tools=[ReasoningTools(add_instructions=True)],  # Optional enhancement
+      tools=[ReasoningTools(add_instructions=True)],  # Required for v1
       instructions=[
           "Use reasoning tools to think through candidate matches systematically",
           "Consider evidence quality, spec alignment, and potential concerns",

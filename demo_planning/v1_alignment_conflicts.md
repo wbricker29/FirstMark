@@ -1,6 +1,6 @@
 # v1 Minimal Alignment Conflicts
 
-This note captures the gaps between the current demo-planning/spec artifacts and the approved **v1 minimal** scope defined in `spec/v1_minimal_spec.md` and clarified in `spec/v1_minimal_spec_agno_addendum.md` (single `/screen` workflow, Airtable-only storage across People/Portco/Role/Spec/Screens/Assessments, optional single incremental search step, Agno `SqliteDb` for session state).
+This note captures the gaps between the current demo-planning/spec artifacts and the approved **v1 minimal** scope defined in `spec/v1_minimal_spec.md` (single `/screen` workflow, Airtable-only storage across People/Portco/Role/Spec/Screens/Assessments, optional single incremental search step, Agno `SqliteDb` session state, ReasoningTools required).
 
 ## Summary
 
@@ -41,6 +41,18 @@ This note captures the gaps between the current demo-planning/spec artifacts and
 - Both documents still point to the older artifacts (`demo_planning/airtable_schema.md`, `screening_workflow_spec.md`) without the v1 caveats, reinforcing the outdated scope (e.g., `spec/spec.md:954-969` and `spec/prd.md:122-184`).
 
 **Action:** Update those sections to summarize the v1-minimal constraints (5-table Airtable footprint, linear workflow, Assessment storage for raw/structured data) and link to the refreshed docs once the above fixes land.
+
+### 6. Markdown Reports & Parser Guidance
+
+- `demo_planning/data_design.md:457-517` still requires generating Markdown reports and references a parser agent + Research_Results flows. v1 stores raw Deep Research markdown + structured JSON on the Assessment record and does not produce additional markdown artifacts or parser steps.
+
+**Action:** Remove/mark Phase 2 any references to Markdown report generation and parser agents in data_design.md, deep_research_findings.md, and related docs.
+
+### 7. ReasoningTools Requirement
+
+- `spec/v1_minimal_spec.md:439-452` makes Agno `ReasoningTools` mandatory for the assessment agent, but no demo_planning document mentions this configuration.
+
+**Action:** Update workflow/data design docs to call out that the assessment agent must run with ReasoningTools enabled to satisfy PRD AC-PRD-04.
 
 ## Next Steps
 
