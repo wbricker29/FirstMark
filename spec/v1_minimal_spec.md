@@ -1,10 +1,11 @@
 ---
 version: "1.0-minimal"
 created: "2025-01-17"
-updated: "2025-01-17"
+updated: "2025-01-19"
 status: "Implemented"
 project: "Talent Signal Agent"
 context: "FirstMark Capital AI Lead Case Study"
+notes: "Integrated Agno clarifications from v1_minimal_spec_agno_addendum.md"
 ---
 
 # Talent Signal Agent – v1.0 Minimal Scope Specification
@@ -159,6 +160,8 @@ Below are concrete changes to align the PRD with v1.0-minimal. References are by
 - Agno Workflow internals **will** use `SqliteDb` for quick local review; `InMemoryDb` remains an optional swap if persistence is not needed later
 - This is distinct from custom WorkflowEvent persistence
 
+**Implementation:** See `demo_planning/implementation_guide.md` for SqliteDb configuration examples.
+
 ### 2.4 Code Quality & Testing Targets
 
 **Current:** PRD sets:
@@ -248,33 +251,7 @@ demo/
 
 **Implementation Guidance:**
 
-For v1, use Agno's built-in session management without custom event tables, but **persist sessions via `SqliteDb`** so we can review local runs:
-
-```python
-from agno.db.sqlite import SqliteDb       # Default: minimal persistence for review
-from agno.db.in_memory import InMemoryDb  # Optional fallback
-from agno.workflow import Workflow
-
-# Default path: SqliteDb with Agno-managed tables only
-workflow = Workflow(
-    name="Screening Workflow",
-    db=SqliteDb(db_file="tmp/agno_sessions.db"),  # Quick local history for demos
-    session_state={
-        "screen_id": None,
-        "candidates_processed": [],
-        "total_candidates": 0
-    },
-    steps=[research_step, assess_step, airtable_step]
-)
-
-# Optional future swap if persistence stops being useful
-stateless_workflow = Workflow(
-    name="Screening Workflow",
-    db=InMemoryDb(),  # Clears on restart
-    session_state={"screen_id": None},
-    steps=[research_step, assess_step, airtable_step]
-)
-```
+For v1, use Agno's built-in session management without custom event tables, but **persist sessions via `SqliteDb`** so we can review local runs.
 
 **Key distinction:**
 - ❌ Do NOT create custom `WorkflowEvent` model or event logging tables
@@ -286,6 +263,8 @@ stateless_workflow = Workflow(
 - Airtable: Final assessment JSON, status, error messages, execution metadata
 - Stdout: Streaming events via `stream_events=True`
 - No custom event database
+
+**Code examples:** See `demo_planning/implementation_guide.md` for SqliteDb workflow configuration.
 
 ### 3.3 Single Research Mode + Optional Incremental Search
 
@@ -439,26 +418,7 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   - Agno's `ReasoningTools` toolkit provides the structured "think → analyze" pattern we need to hit PRD AC-PRD-04 (clear reasoning trails).
   - Implementation cost is small (~5 lines, ~30 minutes) and is now considered part of the baseline so every assessment includes an explicit reasoning trace.
   - Include this configuration from the start of v1; only remove if there is a blocking issue.
-
-  **Example:**
-  ```python
-  from agno.tools.reasoning import ReasoningTools
-
-  assessment_agent = Agent(
-      model=OpenAIChat(id="gpt-5-mini"),
-      output_schema=AssessmentResult,
-      tools=[ReasoningTools(add_instructions=True)],  # Required for v1
-      instructions=[
-          "Use reasoning tools to think through candidate matches systematically",
-          "Consider evidence quality, spec alignment, and potential concerns",
-          "Provide clear explanations for match scores and confidence levels"
-      ]
-  )
-  ```
-
-  **Notes:**
-  - Use this configuration by default.
-  - If early testing surfaces an unexpected issue, document it and fall back to the basic agent temporarily.
+  - **Code example:** See `demo_planning/implementation_guide.md` for ReasoningTools agent configuration.
 
 **Optional Enhancements (if time permits):**
 

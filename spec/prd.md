@@ -282,7 +282,8 @@ An AI-powered system that:
 **Memory:**
 - <512MB per Flask worker (small dataset, no heavy computation)
 - Airtable handles primary data storage
-- No SQLite database needed for v1.0-minimal
+- Agno's built-in `SqliteDb` persists workflow session state locally (e.g., `tmp/agno_sessions.db`, gitignored) so we can review runs without custom tables
+- `InMemoryDb` remains an optional swap if persistence isn't needed; custom SQLite audit/event stores stay Phase 2+
 
 **Concurrency:**
 - Synchronous execution for v1.0-minimal (simpler implementation)
@@ -298,7 +299,7 @@ An AI-powered system that:
 
 **Databases:**
 - Airtable (primary database for all tables)
-- No SQLite needed for v1.0-minimal (Phase 2+ enhancement for workflow events)
+- Agno `SqliteDb` (stored at `tmp/agno_sessions.db`) for agent session persistence only; no custom workflow-event tables in v1.0-minimal
 - No PostgreSQL/MongoDB needed for demo
 
 **Message Queues:**
