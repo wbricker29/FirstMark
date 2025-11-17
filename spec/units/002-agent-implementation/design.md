@@ -3,8 +3,8 @@ unit_id: "002-agent-implementation"
 title: "Agent Implementation - Research, Assessment, and Incremental Search"
 version: "1.0"
 created: "2025-01-16"
-updated: "2025-01-16"
-status: "draft"
+updated: "2025-11-19"
+status: "complete"
 ---
 
 # Unit Design: Agent Implementation
@@ -18,13 +18,16 @@ Stable intent and acceptance criteria for core AI agent implementation
 **Success Metrics:**
 
 - All three agents (research, assessment, incremental search) fully implemented and functional
-- Structured outputs work correctly via Agno's output_schema (no parser agents needed)
+- Research agent two-agent pattern (Deep Research + parser) produces structured ExecutiveResearchResult with normalized citations
+- Assessment agent uses direct structured outputs via Agno's output_schema
 - Evidence-aware scoring uses None for Unknown dimensions (never 0 or NaN)
 - Built-in retry/backoff handles transient API failures gracefully
 
 ## Behavior
 
-**Description:** This unit implements the three core AI agents that power the Talent Signal Agent workflow. The research agent conducts comprehensive executive research using OpenAI's Deep Research API. The assessment agent evaluates candidates against role specifications with evidence-aware scoring. The incremental search agent performs optional supplemental research when initial quality is insufficient.
+**Description:** This unit implements the three core AI agents that power the Talent Signal Agent workflow. The research agent conducts comprehensive executive research using OpenAI's Deep Research API (o4-mini-deep-research) paired with a parser agent to convert markdown output into structured ExecutiveResearchResult payloads. The assessment agent evaluates candidates against role specifications with evidence-aware scoring. The incremental search agent performs optional supplemental research when initial quality is insufficient.
+
+**Research Agent Pattern:** Deep Research returns markdown via `result.content` and citations via `result.citations`. A dedicated parser agent (`gpt-5-mini` + `output_schema=ExecutiveResearchResult`) normalizes API responses, merges citations, recomputes confidence/gaps, and produces the canonical structured output with raw markdown preserved in `research_markdown_raw` field for Airtable storage.
 
 ### Inputs
 
@@ -75,7 +78,10 @@ Stable intent and acceptance criteria for core AI agent implementation
 ### Edge Cases
 
 - **Scenario:** Deep Research API returns markdown instead of structured output
-  - **Expected behavior:** Parse markdown manually or use incremental search agent to structure it
+  - **Expected behavior:** Parser agent (`gpt-5-mini` + `output_schema=ExecutiveResearchResult`) converts markdown + citations into structured payload with normalized citation format (handles both list and object citation formats from Deep Research API)
+
+- **Scenario:** Parser agent fails to structure Deep Research output
+  - **Expected behavior:** Error propagates with raw markdown preserved; incremental search agent can be triggered as fallback to regenerate structured data
 
 - **Scenario:** Candidate has insufficient public information
   - **Expected behavior:** Assessment agent returns None for unknown dimensions, not 0 or NaN
@@ -107,9 +113,10 @@ Stable intent and acceptance criteria for core AI agent implementation
 
 ### Functional
 
-- Deep Research models (o4-mini-deep-research) do NOT support structured outputs (output_schema)
-- Research returns markdown via result.content, citations via result.citations
-- Assessment agent uses gpt-5-mini with structured outputs (output_schema supported)
+- Deep Research models (o4-mini-deep-research) do NOT support structured outputs (output_schema) - requires parser agent
+- Research uses two-agent pattern: Deep Research (markdown + citations) → Parser agent (structured ExecutiveResearchResult)
+- Parser agent normalizes citation formats (list vs object), merges citations, recomputes confidence/gaps
+- Assessment agent uses gpt-5-mini with structured outputs (output_schema supported directly)
 - Incremental search is single-pass only (no multi-iteration loops in v1)
 - Overall score calculated in Python using simple average algorithm (not by LLM)
 
@@ -127,8 +134,8 @@ Stable intent and acceptance criteria for core AI agent implementation
 ### AC-002-01
 
 - **Given:** Valid candidate information (name, title, company, optional LinkedIn URL)
-- **When:** Research agent executes with use_deep_research=True
-- **Then:** Returns ExecutiveResearchResult with ≥3 citations and non-empty research summary
+- **When:** Research agent executes with use_deep_research=True (Deep Research + parser agent handshake)
+- **Then:** Returns ExecutiveResearchResult with ≥3 citations, non-empty research summary, normalized citation format, and raw markdown preserved in research_markdown_raw field
 - **Testable:** ✅
 
 ### AC-002-02
@@ -176,11 +183,13 @@ Stable intent and acceptance criteria for core AI agent implementation
 
 **Implementation Notes:**
 
-- Deep Research API limitation: Returns markdown (not structured output), must parse manually or use incremental search agent
+- Deep Research API limitation: Returns markdown (not structured output), requires parser agent to convert to ExecutiveResearchResult
+- Research agent uses two-agent pattern: o4-mini-deep-research (Deep Research) + gpt-5-mini (parser with output_schema)
+- Parser agent normalizes citations (handles list vs object formats), preserves raw markdown in research_markdown_raw field
 - Assessment agent uses ReasoningTools(add_instructions=True) for explicit reasoning trails (PRD AC-PRD-04)
+- Assessment agent uses direct structured outputs via output_schema (no parser needed for gpt-5-mini)
 - Quality check uses simple sufficiency criteria: ≥3 citations + non-empty summary
-- All agents use Agno's native structured outputs via output_schema (no custom parser agents)
-- See spec/dev_reference/implementation_guide.md for complete data model definitions and Deep Research patterns
+- See spec/dev_reference/implementation_guide.md for complete data model definitions and reference/deep_research_test_results.md for parser agent pattern
 
 **Key Design Patterns:**
 
@@ -188,3 +197,4 @@ Stable intent and acceptance criteria for core AI agent implementation
 - Overall score calculated in Python, not by LLM
 - Type safety via Pydantic for all structured outputs
 - Built-in retry/backoff for resilience
+- Deep Research + parser handshake: Markdown → structured output with citation normalization

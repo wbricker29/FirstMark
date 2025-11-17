@@ -9,11 +9,12 @@ description = "AI-powered executive matching for FirstMark Capital portfolio com
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "agno>=2.2.0",              # Agent framework
-    "pydantic>=2.5.0",          # Data validation
-    "flask>=3.0.0",             # Webhook server
-    "pyairtable>=2.0.0",        # Airtable API client
-    "python-dotenv>=1.0.0",     # Environment variables
+    "agno>=2.2.0", # Agent framework
+    "pydantic>=2.5.0", # Data validation
+    "flask>=3.0.0", # Webhook server
+    "pyairtable>=2.0.0", # Airtable API client
+    "python-dotenv>=1.0.0", # Environment variables
+    "mypy>=1.18.2",
 ]
 
 [tool.setuptools.packages.find]

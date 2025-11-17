@@ -222,6 +222,23 @@ Evaluators should say "I'd actually use this ranking"
   - How it works
   - What it does and doesn't address
 
+
+
+## talking points
+
+Goal is to centralize one step at a time
+
+- Give a penny, take a penny
+
+
+
+AT
+
+- Standard fields
+- Standard names
+- balance of Canonical DB abd practical application
+  - Would overrides hidden that centralize info
+
 ---
 
 ## Items for Review (Sync & Clarify)

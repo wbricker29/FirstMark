@@ -114,9 +114,10 @@ An AI-powered system that:
 
 **Module 1: Data Upload**
 
-- ✅ CSV ingestion via Airtable webhook
+- ✅ CSV ingestion via Airtable webhook (Phase 1 design)
 - ✅ People table population (64 executives from guild scrape)
 - ✅ Basic deduplication logic (name + company matching)
+- ✅ **Phase 0:** Using `talent-signal-candidate-loader` Claude skill as temporary setup automation
 
 **Module 2: New Open Role**
 

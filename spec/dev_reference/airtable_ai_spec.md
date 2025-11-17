@@ -21,7 +21,10 @@ Stores executive profiles from FirstMark's talent network.
 - Source (Single Select: FMLinkedIN, FMGuildPage, FMCFO, FMCTOSummit, FMFounder, FMProduct)
 - Location (Single Line Text) - Geographic location
 - Bio (Long Text) - Professional background summary
-- Added Date (Date) - When record was created
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 
@@ -38,7 +41,10 @@ Companies in FirstMark's portfolio with active hiring needs.
 - Website (URL) - Company website
 - Employee Count (Number) - Approximate team size
 - HQ Location (Single Line Text) - Primary office location
-
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 ---
 
 ### 3. Portco_Roles
@@ -53,7 +59,10 @@ Open executive roles at portfolio companies.
 - Status (Single Select: Open, On Hold, Filled, Cancelled)
 - Description (Long Text) - Role overview
 - Priority (Single Select: Critical, High, Medium, Low)
-- Created Date (Date)
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 
@@ -67,8 +76,10 @@ Structured evaluation criteria for roles.
 - Role Type (Single Select: CFO, CTO)
 - Is Template (Checkbox) - True for reusable base specs
 - Spec Content (Long Text) - Markdown-formatted evaluation criteria
-- Created Date (Date)
-- Modified Date (Date)
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 
@@ -85,6 +96,10 @@ Active executive searches FirstMark is supporting.
 - Start Date (Date)
 - Target Close Date (Date)
 - Notes (Long Text) - Search context and updates
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 
@@ -99,8 +114,13 @@ Batch evaluations of candidates for a search.
 - Candidates (Link to People - Multiple) - Executives being evaluated
 - Status (Single Select: Draft, Processing, Complete, Failed)
 - Custom Instructions (Long Text) - Special evaluation criteria
+- Start Time (Date time)
+- completion time (Date time)
 - Created Date (Date)
-- Completed Date (Date)
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 
@@ -133,6 +153,11 @@ Candidate evaluations against role specifications **and** storage for research o
 - Assessment Timestamp (Date & Time)
 - Research Model (Single Line Text)
 - Assessment Model (Single Line Text)
+- Created Date (Date)
+- Created (Created Time)
+- Creator (Created By)
+- Edited (Last modified time)
+- Editor (Last modified by)
 
 ---
 

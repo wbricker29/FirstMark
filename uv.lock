@@ -899,6 +899,7 @@ source = { editable = "." }
 dependencies = [
     { name = "agno" },
     { name = "flask" },
+    { name = "mypy" },
     { name = "pyairtable" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -916,6 +917,7 @@ dev = [
 requires-dist = [
     { name = "agno", specifier = ">=2.2.0" },
     { name = "flask", specifier = ">=3.0.0" },
+    { name = "mypy", specifier = ">=1.18.2" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "pyairtable", specifier = ">=2.0.0" },
     { name = "pydantic", specifier = ">=2.5.0" },

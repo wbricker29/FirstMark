@@ -92,17 +92,142 @@ spec/                      # Technical specifications
   - MustHaveCheck
   - AssessmentResult
 
-### Next Steps (Phase 2)
+## Workflow Orchestration
 
-Phase 2 will implement:
-- Deep Research Agent (o4-mini-deep-research)
-- Incremental Search Agent (gpt-5-mini with web search)
-- Assessment Agent (gpt-5-mini with ReasoningTools)
-- Agno Workflow orchestration
-- Flask webhook server
-- Airtable integration
+The screening workflow executes a 4-step linear pipeline that coordinates research, quality checking, and assessment agents.
 
-See `spec/units/002-phase-2/` for Phase 2 implementation plan.
+### Execution Flow
+
+```
+1. Deep Research → 2. Quality Check → 3. Incremental Search (conditional) → 4. Assessment
+```
+
+**Step 1: Deep Research**
+- Agent: `o4-mini-deep-research`
+- Executes comprehensive candidate research using built-in web search
+- Returns markdown report + citations
+
+**Step 2: Quality Gate**
+- Heuristic check: `≥3 unique citations` AND `non-empty summary`
+- Pass → proceed to Assessment
+- Fail → trigger Incremental Search
+
+**Step 3: Incremental Search (Conditional)**
+- Agent: `gpt-5-mini` + web_search_preview
+- Triggered only when quality gate fails
+- Single-pass: max 2 web searches to fill gaps
+- Results merged with original research
+
+**Step 4: Assessment**
+- Agent: `gpt-5-mini` + ReasoningTools
+- Evaluates candidate against role spec
+- Outputs structured assessment with dimension scores
+
+### Session State Persistence
+
+**Storage:** SqliteDb at `tmp/agno_sessions.db`
+
+Session state tracks:
+- `screen_id`: Airtable record ID
+- `candidate_id`: Candidate record ID
+- `candidate_name`: For logging
+- `last_step`: Most recent completed step
+- `quality_gate_triggered`: Whether incremental search ran
+
+**Why SqliteDb?** Persistent audit trail for demo review. InMemoryDb deferred to Phase 2+ fast mode.
+
+### Event Streaming & Logging
+
+**Configuration:** `stream_events=True` on Workflow creation
+
+**Log Format:** INFO level with emoji indicators
+- 🔍 Step start (research, quality check, assessment)
+- ✅ Step success with metadata (citation count, scores)
+- 🔄 Incremental search triggered
+- ❌ Errors with context
+
+**Example Output:**
+```
+2025-11-17 | INFO | 🔍 Starting deep research for Alex Rivera (CFO at Armis)
+2025-11-17 | INFO | ✅ Deep research completed for Alex Rivera with 4 citations
+2025-11-17 | INFO | 🔍 Checking research quality for Alex Rivera
+2025-11-17 | INFO | ✅ Research quality threshold met for Alex Rivera
+2025-11-17 | INFO | 🔍 Starting assessment for Alex Rivera
+2025-11-17 | INFO | ✅ Assessment complete for Alex Rivera (overall_score=95.0)
+```
+
+### Error Handling
+
+**Retry Configuration:** All agents use exponential backoff
+- `retries=2` (Deep Research, Assessment)
+- `retries=1` (Incremental Search - lightweight)
+- `exponential_backoff=True`
+- `delay_between_retries=1s`
+
+**Failure Behavior:**
+- Agent retries automatically on transient failures
+- Session state preserved on errors (no corruption)
+- Clear RuntimeError raised after retry exhaustion
+- Logs capture failure context with ❌ indicator
+
+### Usage Example
+
+```python
+from demo.agents import screen_single_candidate
+
+# Candidate data from Airtable People table
+candidate = {
+    "id": "recABC123",
+    "name": "Alex Rivera",
+    "current_title": "CFO",
+    "current_company": "Armis",
+    "linkedin_url": "https://linkedin.com/in/alex-rivera"
+}
+
+# Role spec markdown from Airtable Role_Specs table
+role_spec = """
+# CFO Role Specification
+## Must-Haves
+- 10+ years finance leadership
+- B2B SaaS experience
+- Series B+ fundraising
+...
+"""
+
+# Execute full workflow
+assessment = screen_single_candidate(
+    candidate_data=candidate,
+    role_spec_markdown=role_spec,
+    screen_id="recSCREEN001"
+)
+
+# Access results
+print(f"Overall Score: {assessment.overall_score}")
+print(f"Confidence: {assessment.overall_confidence}")
+print(f"Summary: {assessment.summary}")
+
+for score in assessment.dimension_scores:
+    print(f"{score.dimension}: {score.score}/5 ({score.confidence})")
+```
+
+**Output Schema:** Returns `AssessmentResult` Pydantic model with:
+- `overall_score`: 0-100 scale (or None if insufficient evidence)
+- `overall_confidence`: High/Medium/Low
+- `dimension_scores`: List of scored evaluation dimensions
+- `summary`: 2-3 sentence topline assessment
+- `must_haves_check`: Requirements verification
+- `green_flags` / `red_flags_detected`: Signal extraction
+- `counterfactuals`: "Why candidate might NOT be ideal"
+
+### Design Decisions
+
+**Linear (not parallel):** Single candidate, synchronous processing. Simplifies v1 implementation and demo presentation. Parallel execution deferred to Phase 2+.
+
+**Quality Gate (not multi-iteration):** Single incremental search pass (max 2 web searches) balances quality improvement with execution speed. Prevents infinite research loops.
+
+**SqliteDb (not InMemoryDb):** Persistent session history enables post-demo review of workflow execution. Critical for demonstrating thinking process to FirstMark team.
+
+**No Custom Event Tables:** Uses Agno-managed session tables only. Custom WorkflowEvent model and event persistence deferred to Phase 2+ production features.
 
 ## Case Study Resources
 

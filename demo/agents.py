@@ -5,12 +5,16 @@ and the linear screening workflow that coordinates them.
 """
 
 import json
+import logging
 from datetime import datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, TypeVar
 
 from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIResponses
 from agno.tools.reasoning import ReasoningTools
+from agno.workflow import Step, Workflow
 from pydantic import BaseModel
 
 from demo.models import (
@@ -25,6 +29,78 @@ if TYPE_CHECKING:
 
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
+
+
+logger = logging.getLogger("demo.agents")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+
+_SCREENING_WORKFLOW: Optional[Workflow] = None
+
+
+def _noop_step_executor(*_: Any, **__: Any) -> None:  # pragma: no cover - placeholder
+    """Placeholder executor so Workflow can document the linear step order."""
+
+
+def create_screening_workflow() -> Workflow:
+    """Create (or return cached) Workflow configured for screening runs.
+
+    The workflow persists session state to ``tmp/agno_sessions.db`` using ``SqliteDb``
+    and models the four linear steps (research → quality gate → optional incremental
+    search → assessment). Steps use placeholder executors because orchestration is
+    currently handled synchronously inside ``screen_single_candidate``.
+    """
+
+    global _SCREENING_WORKFLOW
+
+    if _SCREENING_WORKFLOW is not None:
+        return _SCREENING_WORKFLOW
+
+    db_path = Path("tmp") / "agno_sessions.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    workflow = Workflow(
+        name="Talent Signal Screening Workflow",
+        description="Deep research → quality gate → optional incremental search → assessment",
+        db=SqliteDb(db_file=str(db_path)),
+        session_state={
+            "screen_id": None,
+            "candidate_id": None,
+            "candidate_name": None,
+            "last_step": None,
+            "quality_gate_triggered": False,
+        },
+        stream_events=True,
+        steps=[
+            Step(
+                name="deep_research",
+                description="Run Deep Research agent",
+                executor=_noop_step_executor,  # type: ignore[arg-type]
+            ),
+            Step(
+                name="quality_check",
+                description="Evaluate research sufficiency",
+                executor=_noop_step_executor,  # type: ignore[arg-type]
+            ),
+            Step(
+                name="incremental_search",
+                description="Optional single-pass incremental search",
+                executor=_noop_step_executor,  # type: ignore[arg-type]
+            ),
+            Step(
+                name="assessment",
+                description="Evaluate candidate against role spec",
+                executor=_noop_step_executor,  # type: ignore[arg-type]
+            ),
+        ],
+    )
+
+    _SCREENING_WORKFLOW = workflow
+    return workflow
 
 
 def create_research_agent(use_deep_research: bool = True) -> Agent:
@@ -137,9 +213,8 @@ def create_incremental_search_agent(max_tool_calls: int = 2) -> Agent:
 
     return Agent(
         name="Incremental Search Agent",
-        model=OpenAIResponses(id="gpt-5"),
+        model=OpenAIResponses(id="gpt-5", max_tool_calls=max_tool_calls),
         tools=[{"type": "web_search_preview"}],
-        max_tool_calls=max_tool_calls,
         output_schema=ExecutiveResearchResult,
         instructions="""
 You are a single-pass supplemental researcher. Only run when Deep Research
@@ -352,10 +427,94 @@ def run_incremental_search(
     if not supplemental:
         return initial_research
 
-    return _merge_research_results(
+    return merge_research_results(
         original=initial_research,
         supplemental=supplemental,
     )
+
+
+def merge_research_results(
+    original: ExecutiveResearchResult,
+    supplemental: Optional[ExecutiveResearchResult],
+) -> ExecutiveResearchResult:
+    """Merge Deep Research output with incremental search findings.
+
+    Args:
+        original: Primary Deep Research result.
+        supplemental: Incremental search addendum (may be ``None``).
+
+    Returns:
+        Combined ExecutiveResearchResult with updated citations, summary, and confidence.
+    """
+
+    if supplemental is None:
+        return original
+
+    merged = original.model_copy(deep=True)
+
+    # Merge narrative summaries.
+    summary_sections: list[str] = []
+    if merged.research_summary.strip():
+        summary_sections.append(merged.research_summary.strip())
+    if supplemental.research_summary.strip():
+        summary_sections.append(
+            "Supplemental Research:\n" + supplemental.research_summary.strip()
+        )
+    if summary_sections:
+        merged.research_summary = "\n\n".join(summary_sections).strip()
+
+    merged.research_markdown_raw = _merge_markdown_content(
+        merged.research_markdown_raw,
+        supplemental.research_markdown_raw or supplemental.research_summary,
+    )
+
+    # Merge citations with URL-based deduplication.
+    seen_urls = {citation.url for citation in merged.citations if citation.url}
+    for citation in supplemental.citations:
+        url = citation.url
+        if url and url in seen_urls:
+            continue
+        merged.citations.append(citation)
+        if url:
+            seen_urls.add(url)
+
+    # Merge list fields.
+    merged.key_achievements = _merge_unique_strings(
+        merged.key_achievements,
+        supplemental.key_achievements,
+    )
+    merged.notable_companies = _merge_unique_strings(
+        merged.notable_companies,
+        supplemental.notable_companies,
+    )
+    merged.sector_expertise = _merge_unique_strings(
+        merged.sector_expertise,
+        supplemental.sector_expertise,
+    )
+    merged.stage_exposure = _merge_unique_strings(
+        merged.stage_exposure,
+        supplemental.stage_exposure,
+    )
+
+    # Preserve career timeline ordering while appending new entries.
+    seen_roles = {
+        (entry.company, entry.role, entry.start_date, entry.end_date)
+        for entry in merged.career_timeline
+    }
+    for entry in supplemental.career_timeline:
+        key = (entry.company, entry.role, entry.start_date, entry.end_date)
+        if key not in seen_roles:
+            merged.career_timeline.append(entry)
+            seen_roles.add(key)
+
+    merged.gaps = _merge_unique_strings(merged.gaps, supplemental.gaps)
+
+    # Update metadata and confidence based on the combined artifact.
+    merged.research_timestamp = datetime.now()
+    markdown_source = merged.research_markdown_raw.strip() or merged.research_summary
+    merged.research_confidence = _estimate_confidence(merged.citations, markdown_source)
+
+    return merged
 
 
 def assess_candidate(
@@ -409,6 +568,119 @@ def assess_candidate(
     assessment.role_spec_used = role_spec_markdown
 
     return assessment
+
+
+def screen_single_candidate(
+    candidate_data: dict[str, Any],
+    role_spec_markdown: str,
+    screen_id: str,
+) -> AssessmentResult:
+    """Run the full 4-step screening workflow for a single candidate.
+
+    Args:
+        candidate_data: Dictionary of Airtable candidate fields.
+        role_spec_markdown: Markdown description of the role.
+        screen_id: Airtable record ID for the active screen.
+
+    Returns:
+        AssessmentResult for the candidate.
+    """
+
+    workflow = create_screening_workflow()
+    if workflow.session_state is None:  # pragma: no cover - defensive guard
+        workflow.session_state = {}
+
+    state = workflow.session_state
+
+    candidate_id = (
+        candidate_data.get("id")
+        or candidate_data.get("record_id")
+        or candidate_data.get("airtable_id")
+    )
+    candidate_name = (
+        candidate_data.get("name")
+        or candidate_data.get("full_name")
+        or "Unnamed Candidate"
+    )
+    current_title = (
+        candidate_data.get("current_title") or candidate_data.get("title") or ""
+    )
+    current_company = (
+        candidate_data.get("current_company") or candidate_data.get("company") or ""
+    )
+    linkedin_url = candidate_data.get("linkedin_url") or candidate_data.get("linkedin")
+
+    state.update(
+        {
+            "screen_id": screen_id,
+            "candidate_id": candidate_id,
+            "candidate_name": candidate_name,
+        }
+    )
+
+    try:
+        logger.info(
+            "🔍 Starting deep research for %s (%s at %s)",
+            candidate_name,
+            current_title or "Title Unknown",
+            current_company or "Company Unknown",
+        )
+        research = run_research(
+            candidate_name=candidate_name,
+            current_title=current_title or "Unknown",
+            current_company=current_company or "Unknown",
+            linkedin_url=linkedin_url,
+        )
+        state["last_step"] = "deep_research"
+        logger.info(
+            "✅ Deep research completed for %s with %d citations",
+            candidate_name,
+            len(research.citations),
+        )
+
+        logger.info("🔍 Checking research quality for %s", candidate_name)
+        quality_ok = check_research_quality(research)
+        state["last_step"] = "quality_check"
+        state["quality_gate_triggered"] = not quality_ok
+
+        working_research = research
+        if quality_ok:
+            logger.info("✅ Research quality threshold met for %s", candidate_name)
+        else:
+            logger.info(
+                "🔄 Quality gate failed for %s (citations=%d). Running incremental search.",
+                candidate_name,
+                len(research.citations),
+            )
+            working_research = run_incremental_search(
+                candidate_name=candidate_name,
+                initial_research=research,
+                quality_gaps=research.gaps,
+                role_spec_markdown=role_spec_markdown,
+            )
+            state["last_step"] = "incremental_search"
+            logger.info(
+                "✅ Incremental search merged for %s. Citations now %d",
+                candidate_name,
+                len(working_research.citations),
+            )
+
+        logger.info("🔍 Starting assessment for %s", candidate_name)
+        assessment = assess_candidate(
+            research=working_research,
+            role_spec_markdown=role_spec_markdown,
+        )
+        state["last_step"] = "assessment"
+        logger.info(
+            "✅ Assessment complete for %s (overall_score=%s)",
+            candidate_name,
+            assessment.overall_score,
+        )
+        return assessment
+    except Exception as exc:  # pragma: no cover - runtime defensive path
+        state["last_error"] = str(exc)
+        logger.error("❌ Workflow failed for %s: %s", candidate_name, exc)
+        raise
 
 
 def check_research_quality(research: ExecutiveResearchResult) -> bool:
@@ -751,68 +1023,6 @@ def _build_incremental_prompt(
     )
 
 
-def _merge_research_results(
-    original: ExecutiveResearchResult, supplemental: ExecutiveResearchResult
-) -> ExecutiveResearchResult:
-    """Merge Deep Research output with incremental research findings."""
-
-    merged = original.model_copy(deep=True)
-
-    # Merge narrative summary
-    if supplemental.research_summary.strip():
-        if merged.research_summary.strip():
-            merged.research_summary = (
-                f"{merged.research_summary.strip()}\n\nSupplemental Research:\n"
-                f"{supplemental.research_summary.strip()}"
-            )
-        else:
-            merged.research_summary = supplemental.research_summary
-
-    # Merge citations
-    seen_urls = {citation.url for citation in merged.citations if citation.url}
-    for citation in supplemental.citations:
-        if citation.url and citation.url not in seen_urls:
-            merged.citations.append(citation)
-            seen_urls.add(citation.url)
-
-    # Merge lists (achievements, companies, expertise, stages)
-    merged.key_achievements = _merge_unique_strings(
-        merged.key_achievements, supplemental.key_achievements
-    )
-    merged.notable_companies = _merge_unique_strings(
-        merged.notable_companies, supplemental.notable_companies
-    )
-    merged.sector_expertise = _merge_unique_strings(
-        merged.sector_expertise, supplemental.sector_expertise
-    )
-    merged.stage_exposure = _merge_unique_strings(
-        merged.stage_exposure, supplemental.stage_exposure
-    )
-
-    # Merge career timeline entries while preventing duplicates
-    seen_roles = {
-        (entry.company, entry.role, entry.start_date, entry.end_date)
-        for entry in merged.career_timeline
-    }
-    for entry in supplemental.career_timeline:
-        key = (entry.company, entry.role, entry.start_date, entry.end_date)
-        if key not in seen_roles:
-            merged.career_timeline.append(entry)
-            seen_roles.add(key)
-
-    # Merge gaps (dedupe for readability)
-    merged.gaps = _merge_unique_strings(merged.gaps, supplemental.gaps)
-
-    # Update metadata
-    merged.research_timestamp = datetime.now()
-    merged.research_confidence = _pick_stronger_confidence(
-        original_confidence=merged.research_confidence,
-        supplemental_confidence=supplemental.research_confidence,
-    )
-
-    return merged
-
-
 def _merge_unique_strings(first: list[str], second: list[str]) -> list[str]:
     """Return merged list of unique non-empty strings preserving order."""
 
@@ -824,18 +1034,14 @@ def _merge_unique_strings(first: list[str], second: list[str]) -> list[str]:
     return seen
 
 
-def _pick_stronger_confidence(
-    original_confidence: "Literal['High', 'Medium', 'Low']",
-    supplemental_confidence: "Literal['High', 'Medium', 'Low']",
-) -> "Literal['High', 'Medium', 'Low']":
-    """Choose the stronger confidence level between two options."""
+def _merge_markdown_content(primary: str, secondary: Optional[str]) -> str:
+    """Combine markdown sections while preserving readable separation."""
 
-    scale = {"Low": 0, "Medium": 1, "High": 2}
-    return (
-        original_confidence
-        if scale[original_confidence] >= scale[supplemental_confidence]
-        else supplemental_confidence
-    )
+    blocks = [primary.strip()] if primary and primary.strip() else []
+    if secondary and secondary.strip():
+        blocks.append(secondary.strip())
+
+    return "\n\n".join(blocks).strip()
 
 
 def _build_assessment_prompt(
