@@ -954,12 +954,12 @@ For v1.0-minimal, log key metrics to terminal:
    - No hand-written HTTP calls
    - Integrated with agent framework
 
-5. **Session State Management with SqliteDb:**
+5. **Session State Management with SqliteDb (Required for v1):**
    ```python
    from agno.db.sqlite import SqliteDb
    from agno.workflow import Workflow
 
-   # Default: Persist session state for local review
+   # Required for v1: Persist session state for local review
    workflow = Workflow(
        name="screening",
        db=SqliteDb(db_file="tmp/agno_sessions.db"),  # Agno-managed tables only
@@ -970,7 +970,7 @@ For v1.0-minimal, log key metrics to terminal:
        stream_events=True,
    )
 
-   # Optional fallback: Stateless execution
+   # Phase 2+ fallback only: Stateless execution (NOT used in v1)
    from agno.db.in_memory import InMemoryDb
 
    stateless_workflow = Workflow(
@@ -980,11 +980,11 @@ For v1.0-minimal, log key metrics to terminal:
        stream_events=True,
    )
    ```
-   - Use SqliteDb as default for reviewable local workflow history
+   - **v1 requires SqliteDb** for reviewable local workflow history
    - File stored at `tmp/agno_sessions.db` (gitignored)
-   - Contains only Agno-managed session tables, no custom schema
-   - InMemoryDb available as fallback if persistence not needed
-   - No custom WorkflowEvent model or event logging tables
+   - Contains only Agno-managed session tables, **no custom schema**
+   - InMemoryDb is Phase 2+ fallback only (not used in v1)
+   - **Critical:** No custom WorkflowEvent model or event logging tables in v1
 
 6. **ReasoningTools for Assessment Agent (Required):**
    ```python
