@@ -1,14 +1,35 @@
 ---
 version: "1.0-minimal"
 created: "2025-01-16"
-updated: "2025-01-17"
+updated: "2025-01-19"
 project: "Talent Signal Agent"
 context: "FirstMark Capital AI Lead Case Study"
+implementation_status: "Stage 1 Complete (Airtable), Stage 2 In Progress (Python Core)"
 ---
 
 # Technical Specification: Talent Signal Agent (v1.0-Minimal)
 
 Engineering contract for Python implementation of AI-powered executive matching system
+
+## Current Implementation Status (2025-01-19)
+
+**Stage 1 (Airtable Foundation): ✅ COMPLETE**
+- 8 tables configured (6 core + 1 helper + 1 audit bonus)
+- Base ID: appeY64iIwU5CEna7
+- 2/4 demo scenarios seeded (Pigment CFO complete, Estuary CTO in processing)
+- 2/64 executives loaded, 2 role spec templates ready
+- Schema 95% aligned with spec (minor cosmetic deviations documented below)
+
+**Stage 2 (Python Core): ⏳ IN PROGRESS**
+- demo/ directory requires: agents.py, models.py, airtable_client.py, app.py, settings.py
+- tests/ directory requires: test_scoring.py, test_quality_check.py, test_workflow_smoke.py
+
+**Next Steps:**
+1. Implement core Python agents and workflow (18-24 hours)
+2. Seed remaining demo data: 62 executives + 2 scenarios (2-4 hours)
+3. Flask webhook + end-to-end testing (4-6 hours)
+
+See "Implementation Roadmap" section (line 1180) for detailed breakdown.
 
 ## Architecture
 
@@ -1071,19 +1092,41 @@ For v1.0-minimal, log key metrics to terminal:
 
 **Complete Airtable schema is in `spec/dev_reference/airtable_ai_spec.md` (canonical source).**
 
-### V1 Tables Overview (6 core + 1 helper = 7 tables)
+### V1 Tables Overview (8 tables: 6 core + 1 helper + 1 audit)
 
 **Core Tables (v1):**
 
-1. **People (64 records)** - Executive candidates from guildmember_scrape.csv
-2. **Portco (4 records)** - Portfolio companies for demo scenarios
-3. **Portco_Roles (4 records)** - Open roles at portfolio companies
-4. **Searches (4 records)** - Active talent searches linking roles to specs
-5. **Screens (4 records)** - Screening batches (webhook trigger table)
-6. **Assessments (~12-15 records)** - Assessment results with all research data (research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report)
+1. **People (2/64 records seeded)** - Executive candidates from guildmember_scrape.csv
+   - Current: 2 demo executives (Alex Rivera - CFO, Nia Patel - CTO)
+   - Target: 64 total from reference/guildmember_scrape.csv
+2. **Portcos (2/4 records seeded)** - Portfolio companies for demo scenarios
+   - Current: Pigment (Series B), Estuary (Series C)
+   - Target: 4 companies for full demo scenarios
+3. **Portco Roles (2/4 records seeded)** - Open roles at portfolio companies
+   - Current: Pigment CFO, Estuary CTO
+   - Target: 4 roles (add Mockingbird CFO, Synthesia CTO)
+4. **Searches (2/4 records seeded)** - Active talent searches linking roles to specs
+   - Current: Pigment CFO Search (Active), Estuary CTO Search (Planning)
+   - Target: 4 searches for full demo
+5. **Screens (2/4 records seeded)** - Screening batches (webhook trigger table)
+   - Current: Screen #1 (Pigment CFO - Complete), Screen #2 (Estuary CTO - Processing)
+   - Target: 4 screens for pre-runs + live demo
+6. **Assessments (1/~12-15 records seeded)** - Assessment results with all research data
+   - Current: 1 complete (Alex Rivera for Pigment CFO, score: 86.5)
+   - Fields: research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report
+   - **Note:** Table contains duplicate JSON fields (both singleLineText "(text)" and multilineText versions)
 
 **Helper Table (v1):**
-7. **Role_Specs (6 records)** - 2 templates + 4 customized specs (referenced by Searches)
+
+7. **Role Specs (2/6 records seeded)** - Role evaluation templates and customized specs
+   - Current: 2 templates (Series B SaaS CFO, Growth Infra CTO)
+   - Target: 2 templates + 4 customized specs (referenced by Searches)
+
+**Audit Table (v1 bonus):**
+
+8. **Audit Logs** - Change tracking and compliance monitoring (not in original spec)
+   - Tracks state changes, webhook events, manual edits, system updates
+   - AI-powered change summaries and compliance risk detection
 
 **Phase 2+ Tables (NOT in v1):**
 
@@ -1095,7 +1138,8 @@ For v1.0-minimal, log key metrics to terminal:
 - **Trigger Table:** Screens
 - **Trigger Field:** `status` changes to "Ready to Screen"
 - **Action:** POST to Flask `/screen` endpoint with `{screen_id: <record_id>}`
-- **Processing:** Python sets status to "Processing" → "Complete" or "Failed"
+- **Processing:** Python sets status to "Processing" → "Complete" or "Error"
+  - **Note:** Current implementation uses "Error" status (not "Failed" as originally specified)
 
 ### Data Storage Pattern
 
@@ -1112,6 +1156,44 @@ For v1.0-minimal, log key metrics to terminal:
 - Assessment markdown reports stored in Assessments.assessment_markdown_report
 - Agno session state in tmp/agno_sessions.db (SqliteDb, not exposed in Airtable)
 
+### Current Implementation Notes
+
+**Field Type Deviations (cosmetic, non-blocking):**
+
+- **Screen ID:** Implemented as `number` instead of `auto-number` (manual assignment for demo control)
+- **Assessment ID:** Implemented as `singleLineText` instead of `auto-number` (allows custom ID format)
+- **URL Fields:** LinkedIn URL, Website using `singleLineText` instead of `url` type (sufficient for demo)
+
+**Duplicate JSON Fields in Assessments Table:**
+
+The Assessments table currently contains both `singleLineText` "(text)" versions AND `multilineText` versions of JSON fields:
+- Dimension Scores JSON (text) + Dimension Scores JSON
+- Must Haves Check JSON (text) + Must Haves Check JSON
+- Red Flags JSON (text) + Red Flags JSON
+- Green Flags JSON (text) + Green Flags JSON
+- Counterfactuals JSON (text) + Counterfactuals JSON
+- Research Structured JSON (text) + Research Structured JSON
+- Assessment JSON (text) + Assessment JSON
+
+**Recommendation:** Use multilineText versions for implementation, remove singleLineText "(text)" duplicates in cleanup phase.
+
+**Demo-Scoped Single Select Options:**
+
+To simplify the demo, several single-select fields have reduced option sets:
+- **People.Normalized Function:** CFO, CTO only (spec defines 8 options including CEO, CPO, CRO, COO, CMO)
+- **People.Source:** FMGuildPage, FMLinkedIN only (spec defines 6 sources)
+- **Portcos.Stage:** Series B, Series C only (spec defines 6 stages from Seed to Public)
+- **Portcos.Sector:** B2B SaaS, Infrastructure only (spec defines 7 sectors)
+- **Portco Roles.Role Type:** CFO, CTO only (spec defines 5 types)
+- **Portco Roles.Status:** Open only (spec defines: Open, On Hold, Filled, Cancelled)
+- **Portco Roles.Priority:** Critical, High only (spec defines: Critical, High, Medium, Low)
+- **Searches.Status:** Active, Planning only (spec defines: Planning, Active, Paused, Completed)
+- **Screens.Status:** Complete, Processing only (spec defines: Draft, Processing, Complete, Failed)
+- **Assessments.Status:** Complete, In Progress, Error, Pending (spec defines: Pending, Processing, Complete, Failed)
+  - Note: "Error" used instead of "Failed"
+
+**Phase 2+ Enhancement:** Expand single-select options to full spec when supporting broader use cases beyond CFO/CTO demo scenarios.
+
 **For complete field definitions, types, options, and setup instructions, see `spec/dev_reference/airtable_ai_spec.md`.**
 
 ---
@@ -1125,12 +1207,25 @@ For v1.0-minimal, log key metrics to terminal:
 
 ### High-Level Stages
 
-1. **Stage 1: Setup** (2 hours) ✅ COMPLETE - See `spec/units/001-phase-1/`
-2. **Stage 2: Agent Implementation** (6 hours) - Research, Assessment, Incremental Search agents
-3. **Stage 3: Workflow Orchestration** (4 hours) - Linear workflow with quality gate
-4. **Stage 4: Integrations** (4 hours) - Airtable client + Flask webhook
-5. **Stage 5: Testing** (2 hours) - Core logic tests + validation
-6. **Stage 6: Demo Preparation** (3 hours) - Pre-runs + live scenario setup
+1. **Stage 1: Setup** (2 hours) ✅ COMPLETE
+   - Airtable base configured (8 tables)
+   - 2/4 demo scenarios seeded (Pigment CFO, Estuary CTO)
+   - 2/64 executives loaded
+   - 2 role spec templates created
+   - Project structure and dependencies configured
+2. **Stage 2: Agent Implementation** (6 hours) ⏳ IN PROGRESS
+   - Research, Assessment, Incremental Search agents
+   - Remaining: Core Python implementation (demo/agents.py, demo/models.py)
+3. **Stage 3: Workflow Orchestration** (4 hours) ⏸️ PENDING
+   - Linear workflow with quality gate
+4. **Stage 4: Integrations** (4 hours) ⏸️ PENDING
+   - Airtable client + Flask webhook
+5. **Stage 5: Testing** (2 hours) ⏸️ PENDING
+   - Core logic tests + validation
+6. **Stage 6: Demo Preparation** (3 hours) ⏸️ PENDING
+   - Complete data seeding (62 executives, 2 scenarios)
+   - Pre-runs (Mockingbird CFO, Synthesia CTO)
+   - Live scenario setup (Estuary CTO)
 
 ---
 
@@ -1151,9 +1246,16 @@ For v1.0-minimal, log key metrics to terminal:
 - [x] Set up Python 3.11 environment (uv)
 - [x] Install dependencies (`uv pip install`)
 - [x] Implement **tests/test_scoring.py** skeleton
-- [x] Set up Airtable base (6 tables) from `spec/dev_reference/airtable_ai_spec.md`
+- [x] Set up Airtable base (8 tables including Audit Logs) from `spec/dev_reference/airtable_ai_spec.md`
+- [x] Seed initial demo data (2/4 scenarios, 2/64 executives, 2 role spec templates)
 
 **Sync Point:** ✅ Both complete → models.py merged
+
+**Current State (2025-01-19):**
+- ✅ Airtable base accessible (base ID: appeY64iIwU5CEna7)
+- ✅ 8 tables configured with correct schemas
+- ✅ 2 demo scenarios operational (Pigment CFO complete with assessment, Estuary CTO in processing)
+- ⏸️ Python implementation not started (demo/ directory needs core files)
 
 ### **Stage 2: Core Components** (6 hours parallel)
 
