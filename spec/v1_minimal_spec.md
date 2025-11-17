@@ -433,13 +433,13 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
 - **Use built-in OpenAI tools for search:**
   - Implement the incremental search agent using AGNO's OpenAI/web-search tools instead of hand-written HTTP calls.
 
-**Optional Enhancements (if time permits):**
 
-- **ReasoningTools for assessment agent:**
-  - Agno's `ReasoningTools` toolkit provides built-in "think → analyze" pattern for complex decisions
-  - Enhances assessment quality with minimal implementation cost (~5 lines, ~30 minutes)
-  - Generates explicit reasoning trails for match explanations (aligns with PRD AC-PRD-04)
-  - Low risk, high value for demonstration quality
+**Built-in Reasoning (Required):**
+
+- **ReasoningTools for the assessment agent:**
+  - Agno's `ReasoningTools` toolkit provides the structured "think → analyze" pattern we need to hit PRD AC-PRD-04 (clear reasoning trails).
+  - Implementation cost is small (~5 lines, ~30 minutes) and is now considered part of the baseline so every assessment includes an explicit reasoning trace.
+  - Include this configuration from the start of v1; only remove if there is a blocking issue.
 
   **Example:**
   ```python
@@ -457,14 +457,15 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   )
   ```
 
-  **Decision criteria:**
-  - Include if assessment quality needs improvement during pre-runs
-  - Skip if timeline is tight and basic assessment is sufficient
-  - Can be added incrementally without affecting other components
+  **Notes:**
+  - Use this configuration by default.
+  - If early testing surfaces an unexpected issue, document it and fall back to the basic agent temporarily.
+
+**Optional Enhancements (if time permits):**
 
   - **Tool hooks for centralized logging (lower priority):**
-  - Agno's `tool_hooks` can centralize Airtable update logging
-  - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
+    - Agno's `tool_hooks` can centralize Airtable update logging
+    - **Recommendation:** Skip for v1; current approach (logging in functions) is sufficient
   - Mark as Phase 2+ code quality enhancement
 
 ### 3.9 Airtable Data Storage (Assessments-Only)
