@@ -2,8 +2,8 @@
 unit_id: "002-agent-implementation"
 version: "1.0"
 created: "2025-01-16"
-updated: "2025-01-16"
-status: "planning"
+updated: "2025-11-17"
+status: "in_progress"
 ---
 
 # Unit Plan: Agent Implementation
@@ -41,48 +41,48 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Title:** Implement quality check function
 - **Description:** Create `check_research_quality()` function in `demo/agents.py`. Implement simple sufficiency criteria: ≥3 citations AND non-empty research_summary. Return bool (True if sufficient, False if incremental search needed). Pure function, no complex workflow types.
 - **Files:** `demo/agents.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** medium
 - **Estimate:** 0.5 hours
 - **Dependencies:** TK-01
 - **Note:** Simple heuristics for v1. Phase 2+ can add: experience count, expertise areas, confidence level.
-- **Completed:** null
+- **Completed:** 2025-11-17T04:05:00Z
 
 ### TK-04
 
 - **Title:** Implement overall score calculation function
 - **Description:** Create `calculate_overall_score()` function in `demo/agents.py`. Filter dimension_scores to scored only (score is not None). If no scored dimensions, return None. Compute simple average on 1-5 scale, multiply by 20 to scale to 0-100. Return Optional[float].
 - **Files:** `demo/agents.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** medium
 - **Estimate:** 0.5 hours
 - **Dependencies:** TK-01
 - **Note:** Python implementation, NOT LLM calculation. Demonstrates evidence-aware concept.
-- **Completed:** null
+- **Completed:** 2025-11-17T04:06:00Z
 
 ### TK-05
 
 - **Title:** Implement assessment agent with evidence-aware scoring
 - **Description:** Create `assess_candidate()` function in `demo/agents.py`. Configure Agno Agent with OpenAIResponses(id="gpt-5-mini"), tools=[ReasoningTools(add_instructions=True)], output_schema=AssessmentResult, exponential_backoff=True, retries=2. Evaluate candidate against role_spec_markdown. Use custom_instructions if provided. Return AssessmentResult with dimension scores (1-5 or None for Unknown).
 - **Files:** `demo/agents.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** high
 - **Estimate:** 2 hours
 - **Dependencies:** TK-01, TK-04
 - **Note:** ReasoningTools required for v1 (PRD AC-PRD-04). Use Agno's native structured outputs.
-- **Completed:** null
+- **Completed:** 2025-11-17T04:07:00Z
 
 ### TK-06
 
 - **Title:** Implement incremental search agent
 - **Description:** Create incremental search agent in `demo/agents.py` for optional single-pass supplemental research. Configure Agno Agent with OpenAIResponses(id="gpt-5"), tools=[web_search], output_schema=ExecutiveResearchResult. Execute single-pass search (max 2 web/search calls) when quality check fails. Merge results with initial research. Return merged ExecutiveResearchResult.
 - **Files:** `demo/agents.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** medium
 - **Estimate:** 1.5 hours
 - **Dependencies:** TK-01, TK-02, TK-03
 - **Note:** Single-pass only (no multi-iteration loops in v1). Uses Agno's built-in web_search tool.
-- **Completed:** null
+- **Completed:** 2025-11-17T04:08:00Z
 
 ### TK-07
 
@@ -101,12 +101,12 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Title:** Add type hints and docstrings to all agent functions
 - **Description:** Add comprehensive type hints (PEP 484) and Google-style docstrings to all public functions in `demo/agents.py`: create_research_agent(), run_research(), assess_candidate(), check_research_quality(), calculate_overall_score(). Document args, returns, raises, examples. Ensure mypy compliance.
 - **Files:** `demo/agents.py`
-- **Status:** ready
+- **Status:** done
 - **Priority:** medium
 - **Estimate:** 1 hour
 - **Dependencies:** TK-02, TK-03, TK-04, TK-05, TK-06
 - **Note:** Constitution requirement: all public functions must have type hints and docstrings.
-- **Completed:** null
+- **Completed:** 2025-11-17T04:09:00Z
 
 ### TK-09
 
@@ -156,8 +156,8 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Status:** in_progress
 - **Created:** 2025-01-16
 - **Tasks Total:** 9
-- **Tasks Completed:** 2
-- **Progress:** 22%
+- **Tasks Completed:** 7
+- **Progress:** 78%
 
 ## 2-Developer Parallel Execution Plan
 
