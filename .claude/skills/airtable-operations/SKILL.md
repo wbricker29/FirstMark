@@ -1,6 +1,6 @@
 ---
 name: airtable-operations
-description: Complete Airtable operations toolkit for FirstMark Talent Signal Agent. SCHEMA EXPLORATION: Discover bases, list tables, examine field types/constraints (single-select options, linked records), validate data requirements, and understand table relationships using MCP tools. DATA LOADING: Automate Module 1 (Candidate Sourcing) by loading executive candidates from ANY CSV file into Airtable People table with intelligent schema detection, automatic column mapping, executive bio .txt file loading, data cleaning, duplicate detection, and progress reporting. Production-ready for case presentation.
+description: Complete Airtable operations toolkit for FirstMark Talent Signal Agent. SCHEMA EXPLORATION - Discover bases, list tables, examine field types/constraints (single-select options, linked records), validate data requirements, and understand table relationships using MCP tools. DATA LOADING-Automate Module 1 (Candidate Sourcing) by loading executive candidates from ANY CSV file into Airtable People table with intelligent schema detection, automatic column mapping, executive bio .txt file loading, data cleaning, duplicate detection, and progress reporting. Production-ready for case presentation.
 ---
 
 # Airtable Operations

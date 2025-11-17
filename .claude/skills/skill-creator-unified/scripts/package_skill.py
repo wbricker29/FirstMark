@@ -78,7 +78,10 @@ def package_skill(skill_path, output_dir=None):
                 relative_path = file_path.relative_to(skill_path)
                 if any(part in IGNORE_DIRS for part in relative_path.parts):
                     continue
-                if any(fnmatch.fnmatch(relative_path.name, pattern) for pattern in IGNORE_PATTERNS):
+                if any(
+                    fnmatch.fnmatch(relative_path.name, pattern)
+                    for pattern in IGNORE_PATTERNS
+                ):
                     continue
 
                 # Calculate the relative path within the zip (includes skill folder)

@@ -52,8 +52,6 @@ If validation passes, the script outputs JSON with task metadata (title, descrip
 **On validation success:**
 - Load task metadata from validation output (no need to re-read plan.md)
 - Read design.md (Objective, Acceptance Criteria)
-- Read spec.md (Architecture patterns)
-- Read constitution.md (Quality standards)
 - Update task status to "doing" and set started_at timestamp
 
 **On validation failure:**
@@ -117,3 +115,8 @@ Display: Task title, files modified, test count, coverage %, progress %, next ta
 
 For framework patterns, detailed context, and examples:
 aidev-workflow skill → execution-framework.md, commands-reference.md
+
+Key files:
+- spec/spec.md 
+- spec/prd.md
+- spec/constitution.md (project quanlity standards)

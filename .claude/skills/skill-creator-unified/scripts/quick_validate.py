@@ -79,9 +79,7 @@ def _validate_name(skill_name: str, directory_name: str):
         errors.append("Frontmatter 'name' cannot be empty")
         return errors
     if len(skill_name) > MAX_NAME_LENGTH:
-        errors.append(
-            f"Skill name '{skill_name}' exceeds {MAX_NAME_LENGTH} characters"
-        )
+        errors.append(f"Skill name '{skill_name}' exceeds {MAX_NAME_LENGTH} characters")
     if not NAME_PATTERN.match(skill_name):
         errors.append(
             "Name must be lowercase hyphen-case (letters, numbers, hyphen separators)"
@@ -110,7 +108,10 @@ def _validate_description(description: str):
 
 
 def _find_skill_rules_file(skill_path: Path) -> Optional[Path]:
-    candidates = [skill_path / "skill-rules.json", skill_path.parent / "skill-rules.json"]
+    candidates = [
+        skill_path / "skill-rules.json",
+        skill_path.parent / "skill-rules.json",
+    ]
     for candidate in candidates:
         if candidate.exists():
             return candidate
@@ -180,10 +181,15 @@ def _validate_skill_rules(skill_path: Path, skill_name: str):
         if not isinstance(prompt_triggers, dict):
             errors.append("promptTriggers must be an object")
         else:
-            errors.extend(_ensure_string_list(prompt_triggers.get("keywords"), "promptTriggers.keywords"))
             errors.extend(
                 _ensure_string_list(
-                    prompt_triggers.get("intentPatterns"), "promptTriggers.intentPatterns"
+                    prompt_triggers.get("keywords"), "promptTriggers.keywords"
+                )
+            )
+            errors.extend(
+                _ensure_string_list(
+                    prompt_triggers.get("intentPatterns"),
+                    "promptTriggers.intentPatterns",
                 )
             )
 
@@ -193,10 +199,14 @@ def _validate_skill_rules(skill_path: Path, skill_name: str):
             errors.append("fileTriggers must be an object")
         else:
             errors.extend(
-                _ensure_string_list(file_triggers.get("pathPatterns"), "fileTriggers.pathPatterns")
+                _ensure_string_list(
+                    file_triggers.get("pathPatterns"), "fileTriggers.pathPatterns"
+                )
             )
             if file_triggers.get("pathPatterns") is None:
-                errors.append("fileTriggers.pathPatterns is required when fileTriggers is present")
+                errors.append(
+                    "fileTriggers.pathPatterns is required when fileTriggers is present"
+                )
             errors.extend(
                 _ensure_string_list(
                     file_triggers.get("pathExclusions"), "fileTriggers.pathExclusions"
@@ -249,7 +259,9 @@ def validate_skill(skill_path):
         errors.append("Frontmatter must include a 'description' field")
 
     if not errors:
-        errors.extend(_validate_name(str(frontmatter.get("name", "")).strip(), path.name))
+        errors.extend(
+            _validate_name(str(frontmatter.get("name", "")).strip(), path.name)
+        )
         errors.extend(_validate_description(str(frontmatter.get("description", ""))))
 
     line_count = len(content.rstrip("\n").splitlines())
@@ -258,7 +270,9 @@ def validate_skill(skill_path):
             f"SKILL.md has {line_count} lines. Keep it under {MAX_SKILL_LINES} lines."
         )
 
-    sr_errors, sr_warnings = _validate_skill_rules(path, str(frontmatter.get("name", "")))
+    sr_errors, sr_warnings = _validate_skill_rules(
+        path, str(frontmatter.get("name", ""))
+    )
     errors.extend(sr_errors)
     warnings.extend(sr_warnings)
 

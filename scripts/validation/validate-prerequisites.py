@@ -176,9 +176,9 @@ def validate_task_status(task_data: Dict[str, any]) -> None:
     status = task_data.get("status")
     valid_statuses = ["ready", "doing"]
 
-    if status == "done":
+    if status in ["done", "complete"]:
         raise ValidationError(
-            f"Task {task_data['id']} is already complete (status: done)\n"
+            f"Task {task_data['id']} is already complete (status: {status})\n"
             f"If you want to re-run it, manually change status to 'ready' in plan.md"
         )
 
@@ -226,7 +226,7 @@ def validate_dependencies(task_data: Dict[str, any], plan_path: Path) -> List[st
     for dep_id in dependency_ids:
         try:
             dep_task = parse_task_from_plan(plan_path, dep_id)
-            if dep_task.get("status") != "done":
+            if dep_task.get("status") not in ["done", "complete"]:
                 incomplete_deps.append(f"{dep_id} (status: {dep_task.get('status')})")
         except ValidationError:
             incomplete_deps.append(f"{dep_id} (not found)")

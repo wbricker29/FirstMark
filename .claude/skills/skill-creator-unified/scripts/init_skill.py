@@ -309,8 +309,12 @@ def main():
         print("  - Must match directory name exactly")
         print("\nExamples:")
         print("  uv run python scripts/init_skill.py my-new-skill --path skills/public")
-        print("  uv run python scripts/init_skill.py my-api-helper --path skills/private")
-        print("  uv run python scripts/init_skill.py custom-skill --path /custom/location")
+        print(
+            "  uv run python scripts/init_skill.py my-api-helper --path skills/private"
+        )
+        print(
+            "  uv run python scripts/init_skill.py custom-skill --path /custom/location"
+        )
         sys.exit(1)
 
     skill_name = sys.argv[1]

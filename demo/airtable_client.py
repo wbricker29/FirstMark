@@ -88,22 +88,27 @@ class AirtableClient:
         if search_links:
             linked_search_id = search_links[0]
             try:
-                search_record = self.searches.get(linked_search_id)
+                raw_search_record = self.searches.get(linked_search_id)
+                search_record = dict(raw_search_record)  # Convert RecordDict to dict
             except Exception as exc:  # pragma: no cover - API call failure
                 raise RuntimeError(
                     f"Failed to fetch search {linked_search_id} for screen {screen_id}"
                 ) from exc
 
-            search_fields = search_record.get("fields", {})
-            role_spec_links = search_fields.get("Role Spec") or []
-            if role_spec_links:
-                role_spec_id = role_spec_links[0]
+            if search_record is not None:
+                search_fields = search_record.get("fields", {})
+                role_spec_links = search_fields.get("Role Spec") or []
+                if role_spec_links:
+                    role_spec_id = role_spec_links[0]
 
         # Hydrate linked candidate records for downstream processing.
         candidate_records: list[dict[str, Any]] = []
         for candidate_id in fields.get("Candidates", []) or []:
             try:
-                candidate_records.append(self.people.get(candidate_id))
+                raw_candidate = self.people.get(candidate_id)
+                candidate_records.append(
+                    dict(raw_candidate)
+                )  # Convert RecordDict to dict
             except Exception as exc:  # pragma: no cover - API failure path
                 raise RuntimeError(
                     f"Failed to fetch candidate {candidate_id} linked to screen {screen_id}"
@@ -203,7 +208,12 @@ class AirtableClient:
                 f"Failed to write assessment for candidate {candidate_id}"
             ) from exc
 
-        return record.get("id")
+        record_id = record.get("id")
+        if not record_id:
+            raise RuntimeError(
+                f"Assessment created but Airtable did not return record ID for candidate {candidate_id}"
+            )
+        return record_id
 
     def update_screen_status(
         self,

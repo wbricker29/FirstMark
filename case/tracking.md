@@ -515,3 +515,5 @@
 - [ ]  each dimension score must have justiffication
 - [ ] grok
 - [ ]  map guilds to domains for hiring
+- [ ] make screen name date based
+- [ ] Add Central Automation Content Table int he future

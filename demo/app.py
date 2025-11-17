@@ -11,6 +11,7 @@ from time import perf_counter
 from typing import Any, Final
 
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 from demo.agents import screen_single_candidate
 from demo.airtable_client import AirtableClient
@@ -107,6 +108,63 @@ def _validation_error(message: str, field_errors: dict[str, str] | None = None):
     return jsonify(payload), 400
 
 
+def _server_error(
+    message: str,
+    *,
+    screen_id: str | None = None,
+    details: str | None = None,
+):
+    """Return a standardized server error response."""
+
+    payload: dict[str, object] = {
+        "error": "server_error",
+        "message": message,
+    }
+    if screen_id:
+        payload["screen_id"] = screen_id
+    if details:
+        payload["details"] = details
+    return jsonify(payload), 500
+
+
+def _mark_screen_failed(
+    airtable: AirtableClient, screen_id: str, error_message: str
+) -> None:
+    """Best-effort update of Screen status to Failed during critical errors."""
+
+    try:
+        airtable.update_screen_status(
+            screen_id,
+            status="Failed",
+            error_message=error_message,
+        )
+    except Exception:  # pragma: no cover - defensive logging path
+        logger.exception(
+            "%s Unable to update failure status for screen %s",
+            LOG_ERROR,
+            screen_id,
+        )
+
+
+def _handle_screen_exception(
+    *, airtable: AirtableClient, screen_id: str, exc: Exception
+):
+    """Log and format a critical error response for /screen failures."""
+
+    error_message = str(exc) or exc.__class__.__name__
+    logger.exception(
+        "%s Critical failure while processing screen %s",
+        LOG_ERROR,
+        screen_id,
+    )
+    _mark_screen_failed(airtable, screen_id, error_message)
+    return _server_error(
+        "Unexpected server error while processing screen.",
+        screen_id=screen_id,
+        details=error_message,
+    )
+
+
 @app.post("/screen")
 def screen_webhook():
     """Validate webhook requests before kicking off the screening workflow."""
@@ -139,147 +197,159 @@ def screen_webhook():
 
     airtable = _get_airtable_client()
     start_ts = perf_counter()
-    airtable.update_screen_status(screen_id, status="Processing")
 
-    screen_record = airtable.get_screen(screen_id)
-    role_spec_id = screen_record.get("role_spec_id")
-    if not role_spec_id:
-        logger.error("%s Screen %s missing linked role spec", LOG_ERROR, screen_id)
-        airtable.update_screen_status(
-            screen_id,
-            status="Failed",
-            error_message="Screen missing linked role spec.",
-        )
-        return _validation_error(
-            "Screen is missing a linked role spec.",
-            {"role_spec_id": "Link a Role Spec to the Search before screening."},
-        )
+    try:
+        airtable.update_screen_status(screen_id, status="Processing")
 
-    role_spec = airtable.get_role_spec(role_spec_id)
-    role_spec_markdown = role_spec.get("structured_spec_markdown")
-    if not role_spec_markdown:
-        logger.error(
-            "%s Role spec %s missing markdown content", LOG_ERROR, role_spec_id
-        )
-        airtable.update_screen_status(
-            screen_id,
-            status="Failed",
-            error_message="Role spec missing structured markdown content.",
-        )
-        return _validation_error(
-            "Role spec is missing structured markdown content.",
-            {
-                "structured_spec_markdown": "Populate the structured_spec_markdown field."
-            },
-        )
+        screen_record = airtable.get_screen(screen_id)
+        role_spec_id = screen_record.get("role_spec_id")
+        if not role_spec_id:
+            logger.error("%s Screen %s missing linked role spec", LOG_ERROR, screen_id)
+            airtable.update_screen_status(
+                screen_id,
+                status="Failed",
+                error_message="Screen missing linked role spec.",
+            )
+            return _validation_error(
+                "Screen is missing a linked role spec.",
+                {"role_spec_id": "Link a Role Spec to the Search before screening."},
+            )
 
-    candidate_records: list[dict[str, Any]] = screen_record.get("candidates") or []
-    if not candidate_records:
-        logger.warning("%s Screen %s has no linked candidates", LOG_ERROR, screen_id)
-        airtable.update_screen_status(
-            screen_id,
-            status="Failed",
-            error_message="No candidates linked to screen.",
-        )
-        return _validation_error(
-            "Screen has no linked candidates to process.",
-            {"candidates": "Attach at least one candidate to the screen."},
-        )
-
-    results: list[dict[str, Any]] = []
-    errors: list[dict[str, str]] = []
-
-    for candidate in candidate_records:
-        candidate_id = (
-            candidate.get("id")
-            or candidate.get("record_id")
-            or candidate.get("fields", {}).get("id")
-        )
-        if candidate_id is None:
+        role_spec = airtable.get_role_spec(role_spec_id)
+        role_spec_markdown = role_spec.get("structured_spec_markdown")
+        if not role_spec_markdown:
             logger.error(
-                "%s Candidate record missing Airtable ID; skipping record.",
-                LOG_ERROR,
+                "%s Role spec %s missing markdown content", LOG_ERROR, role_spec_id
             )
-            errors.append(
+            airtable.update_screen_status(
+                screen_id,
+                status="Failed",
+                error_message="Role spec missing structured markdown content.",
+            )
+            return _validation_error(
+                "Role spec is missing structured markdown content.",
                 {
-                    "candidate_id": "unknown",
-                    "error": "Candidate record missing Airtable ID.",
-                }
+                    "structured_spec_markdown": "Populate the structured_spec_markdown field."
+                },
             )
-            continue
 
-        candidate_id_str = str(candidate_id)
-        candidate_name = (
-            candidate.get("fields", {}).get("Full Name")
-            or candidate.get("fields", {}).get("Name")
-            or candidate_id_str
+        candidate_records: list[dict[str, Any]] = screen_record.get("candidates") or []
+        if not candidate_records:
+            logger.warning(
+                "%s Screen %s has no linked candidates", LOG_ERROR, screen_id
+            )
+            airtable.update_screen_status(
+                screen_id,
+                status="Failed",
+                error_message="No candidates linked to screen.",
+            )
+            return _validation_error(
+                "Screen has no linked candidates to process.",
+                {"candidates": "Attach at least one candidate to the screen."},
+            )
+
+        results: list[dict[str, Any]] = []
+        errors: list[dict[str, str]] = []
+
+        for candidate in candidate_records:
+            candidate_id = (
+                candidate.get("id")
+                or candidate.get("record_id")
+                or candidate.get("fields", {}).get("id")
+            )
+            if candidate_id is None:
+                logger.error(
+                    "%s Candidate record missing Airtable ID; skipping record.",
+                    LOG_ERROR,
+                )
+                errors.append(
+                    {
+                        "candidate_id": "unknown",
+                        "error": "Candidate record missing Airtable ID.",
+                    }
+                )
+                continue
+
+            candidate_id_str = str(candidate_id)
+            candidate_name = (
+                candidate.get("fields", {}).get("Full Name")
+                or candidate.get("fields", {}).get("Name")
+                or candidate_id_str
+            )
+
+            try:
+                assessment = screen_single_candidate(
+                    candidate_data=candidate,
+                    role_spec_markdown=str(role_spec_markdown),
+                    screen_id=screen_id,
+                )
+                assessment_record_id = airtable.write_assessment(
+                    screen_id=screen_id,
+                    candidate_id=candidate_id_str,
+                    assessment=assessment,
+                )
+                results.append(
+                    {
+                        "candidate_id": candidate_id_str,
+                        "assessment_id": assessment_record_id,
+                        "overall_score": assessment.overall_score,
+                        "confidence": assessment.overall_confidence,
+                        "summary": assessment.summary,
+                        "assessed_at": assessment.assessment_timestamp.isoformat(),
+                    }
+                )
+                logger.info(
+                    "%s Candidate %s screened successfully (score=%s)",
+                    LOG_SUCCESS,
+                    candidate_name,
+                    assessment.overall_score,
+                )
+            except Exception as exc:  # pragma: no cover - depends on downstream errors
+                logger.error(
+                    "%s Candidate %s failed during screening: %s",
+                    LOG_ERROR,
+                    candidate_name,
+                    exc,
+                )
+                errors.append(
+                    {
+                        "candidate_id": candidate_id_str,
+                        "error": str(exc),
+                    }
+                )
+
+        final_status = "Complete" if not errors else "Partial"
+        airtable.update_screen_status(screen_id, status=final_status)
+
+        duration = perf_counter() - start_ts
+        response_payload: dict[str, Any] = {
+            "status": "success" if not errors else "partial",
+            "screen_id": screen_id,
+            "candidates_total": len(candidate_records),
+            "candidates_processed": len(results),
+            "candidates_failed": len(errors),
+            "execution_time_seconds": round(duration, 2),
+            "results": results,
+        }
+        if errors:
+            response_payload["errors"] = errors
+
+        logger.info(
+            "%s Screen %s completed (%s successes, %s failures)",
+            LOG_SUCCESS if not errors else LOG_ERROR,
+            screen_id,
+            len(results),
+            len(errors),
         )
-
-        try:
-            assessment = screen_single_candidate(
-                candidate_data=candidate,
-                role_spec_markdown=str(role_spec_markdown),
-                screen_id=screen_id,
-            )
-            assessment_record_id = airtable.write_assessment(
-                screen_id=screen_id,
-                candidate_id=candidate_id_str,
-                assessment=assessment,
-            )
-            results.append(
-                {
-                    "candidate_id": candidate_id_str,
-                    "assessment_id": assessment_record_id,
-                    "overall_score": assessment.overall_score,
-                    "confidence": assessment.overall_confidence,
-                    "summary": assessment.summary,
-                    "assessed_at": assessment.assessment_timestamp.isoformat(),
-                }
-            )
-            logger.info(
-                "%s Candidate %s screened successfully (score=%s)",
-                LOG_SUCCESS,
-                candidate_name,
-                assessment.overall_score,
-            )
-        except Exception as exc:  # pragma: no cover - depends on downstream errors
-            logger.error(
-                "%s Candidate %s failed during screening: %s",
-                LOG_ERROR,
-                candidate_name,
-                exc,
-            )
-            errors.append(
-                {
-                    "candidate_id": candidate_id_str,
-                    "error": str(exc),
-                }
-            )
-
-    final_status = "Complete" if not errors else "Partial"
-    airtable.update_screen_status(screen_id, status=final_status)
-
-    duration = perf_counter() - start_ts
-    response_payload: dict[str, Any] = {
-        "status": "success" if not errors else "partial",
-        "screen_id": screen_id,
-        "candidates_total": len(candidate_records),
-        "candidates_processed": len(results),
-        "candidates_failed": len(errors),
-        "execution_time_seconds": round(duration, 2),
-        "results": results,
-    }
-    if errors:
-        response_payload["errors"] = errors
-
-    logger.info(
-        "%s Screen %s completed (%s successes, %s failures)",
-        LOG_SUCCESS if not errors else LOG_ERROR,
-        screen_id,
-        len(results),
-        len(errors),
-    )
-    return jsonify(response_payload), 200
+        return jsonify(response_payload), 200
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - ensures robust API errors
+        return _handle_screen_exception(
+            airtable=airtable,
+            screen_id=screen_id,
+            exc=exc,
+        )
 
 
 if __name__ == "__main__":

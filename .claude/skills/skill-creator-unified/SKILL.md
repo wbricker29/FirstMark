@@ -1,11 +1,10 @@
 ---
 name: skill-creator-unified
 description: Guide and tooling for creating Claude Skills. Use when creating new skills or to analyze, understand, evaluate, update, or modify existing skills. Features additional skills for Claude Code. Includes design, implementation, and delivery phases.
-version: 2.0
 ---
 
 # Skill Creator
-
+> v2.0
 Create effective skills that extend Claude's capabilities - general-purpose or Claude Code-specific.
 
 ## About Skills

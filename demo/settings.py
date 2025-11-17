@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
-from pydantic import ConfigDict, Field
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load .env file from project root
 project_root = Path(__file__).parent.parent
@@ -20,7 +20,7 @@ load_dotenv(dotenv_path=env_file)
 class AppConfig(BaseSettings):
     """Application-level configuration."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = SettingsConfigDict(populate_by_name=True)
 
     app_name: str = Field(default="talent-signal-agent", alias="APP_NAME")
     app_env: Literal["development", "production", "test"] = Field(
@@ -35,7 +35,7 @@ class AppConfig(BaseSettings):
 class OpenAIConfig(BaseSettings):
     """OpenAI API configuration."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = SettingsConfigDict(populate_by_name=True)
 
     api_key: str = Field(..., alias="OPENAI_API_KEY")
     use_deep_research: bool = Field(default=True, alias="USE_DEEP_RESEARCH")
@@ -44,7 +44,7 @@ class OpenAIConfig(BaseSettings):
 class AirtableConfig(BaseSettings):
     """Airtable API configuration."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = SettingsConfigDict(populate_by_name=True)
 
     api_key: str = Field(..., alias="AIRTABLE_API_KEY")
     base_id: str = Field(..., alias="AIRTABLE_BASE_ID")
@@ -63,7 +63,7 @@ class AirtableConfig(BaseSettings):
 class FlaskConfig(BaseSettings):
     """Flask server configuration."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = SettingsConfigDict(populate_by_name=True)
 
     host: str = Field(default="0.0.0.0", alias="FLASK_HOST")
     port: int = Field(default=5000, alias="FLASK_PORT")
@@ -73,7 +73,7 @@ class FlaskConfig(BaseSettings):
 class QualityCheckConfig(BaseSettings):
     """Quality check configuration for research validation."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = SettingsConfigDict(populate_by_name=True)
 
     min_citations: int = Field(default=3, alias="MIN_CITATIONS")
 
