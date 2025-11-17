@@ -128,7 +128,8 @@ An AI-powered system that:
 - ✅ Overall score calculation (0-100 scale)
 - ✅ Reasoning, counterfactuals, confidence tracking
 - ✅ Citation tracking
-- ✅ Markdown report generation
+- ✅ Raw research markdown retention (Deep Research API response)
+- ✅ Markdown assessment report generation (human-readable exports)
 
 **Data & Infrastructure:**
 - ✅ Mock data from guildmember_scrape.csv (64 real executives)
@@ -316,9 +317,11 @@ An AI-powered system that:
 - JSON (Airtable API responses, structured outputs)
 
 **Output Formats:**
+- Markdown (raw Deep Research API responses, assessment reports)
 - JSON (AssessmentResult → Airtable)
-- Markdown (assessment reports for sharing)
 - Airtable records (primary output destination)
+  - Research_Results.raw_research_markdown (long text field)
+  - Assessments.assessment_markdown_report (long text field)
 
 **Data Volume:**
 - 64 executive records (mock data from guild scrape)
@@ -328,6 +331,8 @@ An AI-powered system that:
 
 **Data Retention:**
 - All data persists in Airtable indefinitely
+- Raw research markdown blobs stored in Research_Results table
+- Assessment markdown reports stored in Assessments table
 - Terminal logs provide execution audit trail for v1.0-minimal
 - No automated cleanup/archival for demo
 
@@ -546,6 +551,7 @@ An AI-powered system that:
 - ✅ Optional incremental search triggers when quality check flags missing evidence (up to two web/search calls)
 - ✅ Assessment produces dimension scores, overall score, reasoning
 - ✅ Results written to Airtable with status updates and key summary fields
+- ✅ Raw Deep Research markdown and assessment markdown reports stored in Airtable long text fields
 
 **AC-PRD-04: Assessment Quality**
 - ✅ Dimension scores use 1-5 scale with None for Unknown
