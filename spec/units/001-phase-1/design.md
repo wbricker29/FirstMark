@@ -77,6 +77,15 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
   - Flask host/port settings
   - Quality check thresholds
 
+#### tests/test_settings.py
+
+- **Type:** Python test module
+- **Description:** Comprehensive tests for settings module configuration
+- **Examples:**
+  - Test all 5 config sections (App, OpenAI, Airtable, Flask, QualityCheck)
+  - Test environment variable loading
+  - Test clean_base_id helper function
+
 ### Edge Cases
 
 - **Scenario:** Python version < 3.11 detected
