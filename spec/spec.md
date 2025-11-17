@@ -87,7 +87,7 @@ The Talent Signal Agent is a demo-quality Python application that uses AI agents
 - **Language:** Python 3.11+
 - **Framework:** Flask (webhook server), Agno (agent orchestration)
 - **LLM Provider:** OpenAI (o4-mini-deep-research, gpt-5-mini)
-- **Database:** Airtable (primary storage, no SQLite for v1)
+- **Database:** Airtable (primary storage), Agno SqliteDb for session state (tmp/agno_sessions.db, no custom event tables)
 - **Validation:** Pydantic (structured outputs)
 - **Package Manager:** UV
 - **Tunnel:** ngrok (local demo)
@@ -103,6 +103,9 @@ demo/
 ├── models.py           # Pydantic models (research + assessment)
 ├── airtable_client.py  # Thin Airtable wrapper
 └── settings.py         # Config/env loading (optional)
+
+tmp/
+└── agno_sessions.db    # Agno workflow session state (gitignored, SqliteDb only)
 
 tests/
 ├── test_scoring.py         # calculate_overall_score tests
@@ -431,13 +434,14 @@ class AirtableClient:
 
 ### Entity: WorkflowEvent (Phase 2+)
 
-**Note:** WorkflowEvent entity and SQLite storage are **Phase 2+ enhancements**, not required for v1.0-minimal.
+**Note:** WorkflowEvent entity and custom SQLite event tables are **Phase 2+ enhancements**, not required for v1.0-minimal.
 
 For v1.0-minimal:
-- Rely on Airtable fields for final state (status, error messages, execution metadata)
+- Use Agno's `SqliteDb` at `tmp/agno_sessions.db` for workflow session state (Agno-managed tables only)
+- Rely on Airtable fields for final results (status, error messages, assessment JSON)
 - Use terminal logs (Python `logging` module) for execution visibility
-- Agno's event streaming enabled for stdout logging only (`stream_events=True`)
-- No separate database for workflow events
+- Enable Agno's event streaming for stdout logging (`stream_events=True`)
+- No custom WorkflowEvent model or event logging tables
 
 **Phase 2+ WorkflowEvent Model:**
 ```python
@@ -537,7 +541,7 @@ class WorkflowEvent(BaseModel):
 - **Tunnel:** ngrok for webhook connectivity
 - **Configuration:** Environment variables via `.env` file
 - **Dependencies:** uv for package management
-- **Database:** Airtable only (no SQLite in v1)
+- **Database:** Airtable (primary storage), Agno SqliteDb at tmp/agno_sessions.db (session state only, no custom event tables)
 
 ---
 
@@ -940,6 +944,38 @@ For v1.0-minimal, log key metrics to terminal:
    - Use Agno's built-in OpenAI tools
    - No hand-written HTTP calls
    - Integrated with agent framework
+
+5. **Session State Management with SqliteDb:**
+   ```python
+   from agno.db.sqlite import SqliteDb
+   from agno.workflow import Workflow
+
+   # Default: Persist session state for local review
+   workflow = Workflow(
+       name="screening",
+       db=SqliteDb(db_file="tmp/agno_sessions.db"),  # Agno-managed tables only
+       session_state={
+           "screen_id": None,
+           "candidates_processed": [],
+       },
+       stream_events=True,
+   )
+
+   # Optional fallback: Stateless execution
+   from agno.db.in_memory import InMemoryDb
+
+   stateless_workflow = Workflow(
+       name="screening",
+       db=InMemoryDb(),  # Clears on restart
+       session_state={"screen_id": None},
+       stream_events=True,
+   )
+   ```
+   - Use SqliteDb as default for reviewable local workflow history
+   - File stored at `tmp/agno_sessions.db` (gitignored)
+   - Contains only Agno-managed session tables, no custom schema
+   - InMemoryDb available as fallback if persistence not needed
+   - No custom WorkflowEvent model or event logging tables
 
 **Do NOT Use in v1.0-Minimal:**
 
