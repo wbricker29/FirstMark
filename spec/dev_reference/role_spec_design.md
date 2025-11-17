@@ -418,12 +418,12 @@ def run_screening():
 
 ### 4.5 Structured Output Schema
 
-**NOTE:** All structured output schemas have been migrated to Pydantic models in `demo_planning/data_design.md` (lines 256-427).
+**NOTE:** All structured output schemas have been migrated to Pydantic models in `spec/dev_reference/implementation_guide.md` (lines 256-427).
 
 **Key Models for Role Spec Integration:**
 
 ```python
-# From demo_planning/data_design.md
+# From spec/dev_reference/implementation_guide.md
 
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
@@ -464,7 +464,7 @@ assessment_agent = Agent(
 )
 ```
 
-**See full schema definitions in:** `demo_planning/data_design.md`
+**See full schema definitions in:** `spec/dev_reference/implementation_guide.md`
 
 ---
 

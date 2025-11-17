@@ -151,50 +151,6 @@ cd reference/docs_and_examples/agno
 grep -r "reason\|explain\|why" --include="*.py" | head -20
 ```
 
----
-
-## 📂 File Structure Reference
-
-```
-FirstMark/
-├── demo_planning/
-│   └── AGNO_REFERENCE.md ★ YOU ARE HERE
-│
-├── case/
-│   ├── technical_spec.md
-│   ├── solution_strategy.md
-│   └── implementation_refinement_proposal.md
-│
-└── reference/docs_and_examples/agno/
-    ├── Navigation Files
-    │   ├── 00_INDEX.md ★ Complete overview
-    │   ├── TALENT_SIGNAL_AGENT_STARTER.md ★ Case-specific guide
-    │   └── DISCOVERY_INDEX.csv ★ Prioritized list
-    │
-    ├── Core Documentation
-    │   ├── agno_recruiter.md ★★★ CRITICAL
-    │   ├── agno_investmentalx.md ★★
-    │   ├── agno_deepknowledge.md ★
-    │   ├── agno_deepresearch.md
-    │   ├── agno_reasoningteam.md
-    │   └── agno_companyresearchworkflow.md
-    │
-    ├── Code Examples
-    │   ├── candidate_analyser/ ★★★ CRITICAL
-    │   ├── multi_agent_researcher/ ★★
-    │   ├── cookbook/ ★★
-    │   ├── deep_researcher_agent/ ★
-    │   ├── agno_ui_agent/
-    │   └── ai_domain_deep_research_agent/
-    │
-    └── Supporting Materials
-        ├── agno_research.md
-        ├── agno_crawl4ai.md
-        ├── research_agent.py
-        └── agno_ai_examples/
-```
-
-**Legend:** ★★★ Critical | ★★ High Priority | ★ Recommended
 
 ---
 
@@ -314,20 +270,3 @@ cat TALENT_SIGNAL_AGENT_STARTER.md
 cat DISCOVERY_INDEX.csv
 ```
 
-### Quick Reference Links
-- **Full index:** `reference/docs_and_examples/agno/00_INDEX.md`
-- **Case guide:** `reference/docs_and_examples/agno/TALENT_SIGNAL_AGENT_STARTER.md`
-- **Priorities:** `reference/docs_and_examples/agno/DISCOVERY_INDEX.csv`
-- **This guide:** `demo_planning/AGNO_REFERENCE.md`
-
----
-
-**You're ready to build your Talent Signal Agent! 🚀**
-
-This guide distills 2,156 files into exactly what you need for this case study.
-Focus on the Priority 1 files first, then build with confidence.
-
----
-
-*Last updated: 2025-11-16*
-*For case study context, see: `case/technical_spec.md` and `case/solution_strategy.md`*

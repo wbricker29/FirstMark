@@ -400,25 +400,25 @@ class AirtableClient:
 
 ## Data Models
 
-**All Pydantic models are defined in `demo_planning/data_design.md` (canonical source).**
+**All Pydantic models are defined in `spec/dev_reference/implementation_guide.md` (canonical source).**
 
 ### Key Models
 
 **ExecutiveResearchResult** - Structured research output from Deep Research agent
 - Produced directly by Agno agent with `output_schema` parameter
 - Contains career timeline, expertise areas, citations, confidence metadata
-- See `demo_planning/data_design.md` lines 298-328 for complete definition
+- See `spec/dev_reference/implementation_guide.md` lines 298-328 for complete definition
 
 **AssessmentResult** - Structured assessment from evaluation agent
 - Evidence-aware dimension scores (1-5 scale with `None` for Unknown)
 - Overall score computed in Python from dimension scores
 - Must-haves checks, red/green flags, counterfactuals
-- See `demo_planning/data_design.md` lines 358-382 for complete definition
+- See `spec/dev_reference/implementation_guide.md` lines 358-382 for complete definition
 
 **DimensionScore** - Evidence-aware scoring for evaluation dimensions
 - `score: Optional[int]` - Uses `None` (not 0, NaN, or empty) for Unknown/Insufficient Evidence
 - Includes reasoning, evidence quotes, citation URLs
-- See `demo_planning/data_design.md` lines 334-350 for complete definition
+- See `spec/dev_reference/implementation_guide.md` lines 334-350 for complete definition
 
 **Supporting Models:**
 - `Citation` - Source citation with URL, title, snippet
@@ -430,7 +430,7 @@ class AirtableClient:
 - Overall score calculated in Python, not by LLM
 - Type safety via Pydantic for all structured outputs
 
-**For complete field definitions, constraints, and usage examples, see `demo_planning/data_design.md`.**
+**For complete field definitions, constraints, and usage examples, see `spec/dev_reference/implementation_guide.md`.**
 
 ### Entity: WorkflowEvent (Phase 2+)
 
@@ -856,7 +856,7 @@ For v1.0-minimal, log key metrics to terminal:
 
 ## Workflow Specification Reference
 
-**Complete workflow implementation details in `demo_planning/screening_workflow_spec.md` (canonical source).**
+**Complete workflow implementation details in `spec/dev_reference/implementation_guide.md` (canonical source).**
 
 ### High-Level Flow (4 steps)
 
@@ -875,12 +875,12 @@ For v1.0-minimal, log key metrics to terminal:
 
 ### Implementation References
 
-- **Step-by-step execution logic:** `demo_planning/screening_workflow_spec.md`
-- **Agent creation patterns:** `demo_planning/AGNO_REFERENCE.md`
-- **Quality gate thresholds:** `demo_planning/screening_workflow_spec.md`
+- **Step-by-step execution logic:** `spec/dev_reference/implementation_guide.md`
+- **Agent creation patterns:** `spec/dev_reference/AGNO_REFERENCE.md`
+- **Quality gate thresholds:** `spec/dev_reference/implementation_guide.md`
 - **Score calculation:** See `calculate_overall_score()` interface in this document (line 279)
 
-**For complete workflow pseudocode, error handling, and execution patterns, see `demo_planning/screening_workflow_spec.md`.**
+**For complete workflow pseudocode, error handling, and execution patterns, see `spec/dev_reference/implementation_guide.md`.**
 
 ---
 
@@ -1010,7 +1010,7 @@ For v1.0-minimal, log key metrics to terminal:
 
 ## Airtable Schema Reference
 
-**Complete Airtable schema is in `demo_planning/airtable_schema.md` and `demo_planning/airtable_ai_spec.md` (canonical sources).**
+**Complete Airtable schema is in `spec/dev_reference/airtable_ai_spec.md` (canonical source).**
 
 ### V1 Tables Overview (6 core + 1 helper = 7 tables)
 
@@ -1050,7 +1050,7 @@ For v1.0-minimal, log key metrics to terminal:
 - Assessment markdown reports stored in Assessments.assessment_markdown_report
 - Agno session state in tmp/agno_sessions.db (SqliteDb, not exposed in Airtable)
 
-**For complete field definitions, types, options, and setup instructions, see `demo_planning/airtable_schema.md`.**
+**For complete field definitions, types, options, and setup instructions, see `spec/dev_reference/airtable_ai_spec.md`.**
 
 ---
 
@@ -1142,8 +1142,8 @@ This specification succeeds if:
 - `spec/prd.md` - Product requirements document
 - `spec/v1_minimal_spec.md` - Minimal scope definition (this document's basis)
 - `case/technical_spec_V2.md` - Detailed technical architecture
-- `demo_planning/data_design.md` - Data models and schemas
-- `demo_planning/role_spec_design.md` - Role specification framework
+- `spec/dev_reference/implementation_guide.md` - Data models and schemas
+- `spec/dev_reference/role_spec_design.md` - Role specification framework
 
 **Approval:**
 - Created: 2025-01-16

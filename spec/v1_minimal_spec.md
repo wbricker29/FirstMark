@@ -160,7 +160,7 @@ Below are concrete changes to align the PRD with v1.0-minimal. References are by
 - Agno Workflow internals **will** use `SqliteDb` for quick local review; `InMemoryDb` remains an optional swap if persistence is not needed later
 - This is distinct from custom WorkflowEvent persistence
 
-**Implementation:** See `demo_planning/implementation_guide.md` for SqliteDb configuration examples.
+**Implementation:** See `spec/dev_reference/implementation_guide.md` for SqliteDb configuration examples.
 
 ### 2.4 Code Quality & Testing Targets
 
@@ -264,7 +264,7 @@ For v1, use Agno's built-in session management without custom event tables, but 
 - Stdout: Streaming events via `stream_events=True`
 - No custom event database
 
-**Code examples:** See `demo_planning/implementation_guide.md` for SqliteDb workflow configuration.
+**Code examples:** See `spec/dev_reference/implementation_guide.md` for SqliteDb workflow configuration.
 
 ### 3.3 Single Research Mode + Optional Incremental Search
 
@@ -418,7 +418,7 @@ To keep the implementation simple while leveraging AGNO effectively, v1.0-minima
   - Agno's `ReasoningTools` toolkit provides the structured "think → analyze" pattern we need to hit PRD AC-PRD-04 (clear reasoning trails).
   - Implementation cost is small (~5 lines, ~30 minutes) and is now considered part of the baseline so every assessment includes an explicit reasoning trace.
   - Include this configuration from the start of v1; only remove if there is a blocking issue.
-  - **Code example:** See `demo_planning/implementation_guide.md` for ReasoningTools agent configuration.
+  - **Code example:** See `spec/dev_reference/implementation_guide.md` for ReasoningTools agent configuration.
 
 **Optional Enhancements (if time permits):**
 

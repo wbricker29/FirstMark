@@ -678,10 +678,9 @@ This PRD succeeds if:
 - `spec/constitution.md` - Project governance and principles
 - `spec/v1_minimal_spec.md` - v1.0-minimal scope definition and required changes
 - `case/technical_spec_V2.md` - Detailed technical architecture
-- `demo_planning/data_design.md` - Data models and schemas
-- `demo_planning/role_spec_design.md` - Role specification framework
-- `demo_planning/screening_workflow_spec.md` - Workflow implementation details
-- `demo_planning/airtable_schema.md` - Airtable database schema
+- `spec/dev_reference/implementation_guide.md` - Data models and schemas
+- `spec/dev_reference/role_spec_design.md` - Role specification framework
+- `spec/dev_reference/airtable_ai_spec.md` - Airtable database schema
 
 **Approval:**
 - Created: 2025-01-16

@@ -17,9 +17,8 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 - **Authoritative scope**: `spec/v1_minimal_spec.md` (v1 contract)
 - **Product requirements**: `spec/prd.md`
 - **Technical specification**: `spec/spec.md`
-- **Agno clarifications**: `spec/v1_minimal_spec_agno_addendum.md`
-- **Airtable schema**: `demo_planning/airtable_ai_spec.md`
-- **Role templates**: `demo_planning/role_spec_design.md`
+- **Airtable schema**: `airtable_ai_spec.md`
+- **Role templates**: `role_spec_design.md`
 
 ---
 

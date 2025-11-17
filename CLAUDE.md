@@ -11,7 +11,7 @@
 
 **Phase 2+ (DO NOT IMPLEMENT):** Fast mode | Loops/conditions | Parser agents | Workflows table | Research_Results table | Multi-iteration search
 
-**Authority:** `spec/v1_minimal_spec*.md` > `spec/prd.md` > `demo_planning/implementation_guide.md`
+**Authority:** `spec/v1_minimal_spec*.md` > `spec/prd.md` > `spec/dev_reference/implementation_guide.md`
 
 **Before ANY architectural work:**
 1. Read spec/v1_minimal_spec.md + addendum
@@ -29,7 +29,7 @@
 
 **Status:** ✅ READY FOR IMPLEMENTATION
 - All specs aligned with v1 minimal scope
-- Master implementation guide: `demo_planning/implementation_guide.md`
+- Master implementation guide: `spec/dev_reference/implementation_guide.md`
 - Estimated: 34-38 hours implementation
 
 ## Deliverables
@@ -49,7 +49,7 @@
 
 **Core:**
 - Python 3.11+ (uv package manager) + virtual environment in `.venv/`
-- Agno framework (agent orchestration) - see `demo_planning/AGNO_REFERENCE.md`
+- Agno framework (agent orchestration) - see `spec/dev_reference/AGNO_REFERENCE.md`
 - OpenAI: o4-mini-deep-research (research), gpt-5/gpt-5-mini (assessment)
 - Airtable (6 tables) + Flask webhook + ngrok
 - Pydantic (structured outputs via `output_schema`)
@@ -68,10 +68,10 @@
 1. `spec/v1_minimal_spec.md` + `spec/v1_minimal_spec_agno_addendum.md` (HIGHEST)
 2. `spec/prd.md` - Product requirements
 3. `spec/spec.md` - Technical specification
-4. `demo_planning/implementation_guide.md` ⭐ MASTER IMPLEMENTATION DOC
-5. `demo_planning/airtable_ai_spec.md` - Airtable schema (6 tables)
-6. `demo_planning/role_spec_design.md` - CFO/CTO templates
-7. `demo_planning/AGNO_REFERENCE.md` - Framework patterns
+4. `spec/dev_reference/implementation_guide.md` ⭐ MASTER IMPLEMENTATION DOC
+5. `spec/dev_reference/airtable_ai_spec.md` - Airtable schema (6 tables)
+6. `spec/dev_reference/role_spec_design.md` - CFO/CTO templates
+7. `spec/dev_reference/AGNO_REFERENCE.md` - Framework patterns
 
 **V1 Exclusions (Phase 2+ Only):**
 - Parser agent pipeline | Workflows/Research_Results tables | Fast mode | Multi-iteration loops | Async processing
