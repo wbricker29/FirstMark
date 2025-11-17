@@ -159,6 +159,115 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Tasks Completed:** 1
 - **Progress:** 11%
 
+## 2-Developer Parallel Execution Plan
+
+### Developer A (Agents Track) - 6 hours
+
+**Focus:** Core agent implementation
+
+1. **TK-02: Research Agent** (2 hours)
+   - Deep Research mode with o4-mini-deep-research
+   - Markdown output handling (NOT structured output)
+   - Citation extraction from result.citations
+   - Built-in retry/backoff
+
+2. **TK-05: Assessment Agent** (2 hours)
+   - gpt-5-mini with ReasoningTools
+   - Evidence-aware scoring (None for Unknown)
+   - Structured outputs via output_schema
+   - Built-in retry/backoff
+
+3. **TK-06: Incremental Search Agent** (1.5 hours)
+   - Single-pass supplemental research
+   - web_search tool integration
+   - Research merging logic
+
+4. **TK-08: Type Hints & Docstrings** (0.5 hours)
+   - Document all agent functions
+   - Google-style docstrings
+   - Mypy compliance
+
+**Dependencies:** TK-01 (completed in Phase 1)
+
+### Developer B (Logic + Testing Track) - 6 hours
+
+**Focus:** Supporting logic and test coverage
+
+1. **TK-03: Quality Check Function** (0.5 hours)
+   - Simple sufficiency criteria (≥3 citations, non-empty summary)
+   - Pure function implementation
+   - Return bool for workflow branching
+
+2. **TK-04: Overall Score Calculation** (0.5 hours)
+   - Simple average algorithm
+   - Evidence-aware None handling
+   - Scale to 0-100 (multiply by 20)
+
+3. **TK-07: Unit Tests** (1.5 hours)
+   - tests/test_scoring.py (calculate_overall_score)
+   - tests/test_quality_check.py (check_research_quality)
+   - Pytest fixtures for test data
+   - Focus on None handling + edge cases
+
+4. **TK-09: Integration Smoke Test** (1.5 hours) - OPTIONAL
+   - tests/test_workflow_smoke.py
+   - Happy-path /screen flow with mocks
+   - End-to-end pipeline verification
+
+5. **TK-08: Type Hints & Docstrings** (0.5 hours) - SHARED
+   - Review and validate Developer A's docstrings
+   - Add type hints to scoring/quality functions
+   - Cross-check for consistency
+
+6. **Buffer Time** (1.5 hours)
+   - Test execution and debugging
+   - Coverage validation (≥50%)
+   - Ruff linting/formatting
+   - Mypy type checking
+
+**Dependencies:** TK-01 (completed in Phase 1)
+
+### Sync Points
+
+1. **After TK-02, TK-03, TK-04** (Mid-point)
+   - Developer A: Research agent complete
+   - Developer B: Quality check + scoring complete
+   - Review: Interface contracts between research and quality check
+
+2. **After TK-05, TK-06, TK-07** (Near-end)
+   - Developer A: All agents complete
+   - Developer B: Core tests complete
+   - Review: Agent outputs match test expectations
+
+3. **After TK-08** (Final)
+   - Both: Type hints and docstrings complete
+   - Run all verification commands together
+   - Validate all acceptance criteria
+
+### Parallel Execution Timeline
+
+**Hours 0-2:**
+- Developer A: TK-02 (Research Agent)
+- Developer B: TK-03 + TK-04 (Quality Check + Scoring)
+
+**Hours 2-4:**
+- Developer A: TK-05 (Assessment Agent)
+- Developer B: TK-07 (Unit Tests)
+
+**Hours 4-5.5:**
+- Developer A: TK-06 (Incremental Search)
+- Developer B: TK-09 (Integration Test - optional)
+
+**Hours 5.5-6:**
+- Developer A: TK-08 (Docstrings for agents)
+- Developer B: TK-08 (Docstrings for logic) + verification runs
+
+### Critical Path
+
+**TK-01 → TK-02 → TK-05 → TK-06 → TK-08** (Developer A)
+
+Developer B's work can proceed in parallel with minimal blocking.
+
 ## Notes
 
 **Implementation Order Rationale:**
