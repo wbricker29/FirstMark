@@ -376,6 +376,181 @@ python load_candidates.py reference/guildmember_scrape.csv --dry-run --verbose
 
 ---
 
+### 11. Schema Exploration Issues
+
+**Use case:** Troubleshooting schema validation before data loading
+
+#### Issue 11.1: "Invalid value for single-select field"
+
+**Error:**
+```
+❌ INVALID_VALUE_FOR_COLUMN: Field "Status" cannot accept value "active"
+```
+
+**Cause:** Value doesn't match schema options exactly (case-sensitive)
+
+**Solution:**
+```bash
+# Step 1: Get schema to see valid options
+mcp__airtable__describe_table({
+  baseId: "appeY64iIwU5CEna7",
+  tableId: "People"
+})
+
+# Step 2: Extract valid options from field definition
+# Look for field "Status" in response, check options.choices
+
+# Step 3: Update your data to match exact option
+# Schema: ["Active", "Inactive"]
+# Your value: "active" ❌
+# Correct: "Active" ✅
+```
+
+**Prevention:**
+Always call `describe_table` before creating records to validate against current schema.
+
+#### Issue 11.2: "Field not found"
+
+**Error:**
+```
+❌ UNKNOWN_FIELD_NAME: Unknown field name: "Normalized Function"
+```
+
+**Cause:** Using field name that doesn't exist or has typo
+
+**Solution:**
+```bash
+# Step 1: List all fields in table
+mcp__airtable__describe_table({
+  baseId: "appeY64iIwU5CEna7",
+  tableId: "People"
+})
+
+# Step 2: Find correct field name (check spelling and case)
+# Common mistakes:
+# - Extra spaces: "Normalized  Function" vs "Normalized Function"
+# - Wrong case: "normalized function" vs "Normalized Function"
+# - Using field ID instead of name: "fldXXX" vs "Normalized Function"
+
+# Step 3: Use exact field name from schema
+```
+
+**Best practice:** Use field names (not IDs) and match exactly as shown in schema.
+
+#### Issue 11.3: "Linked record ID not found"
+
+**Error:**
+```
+❌ INVALID_RECORD_ID: Record recXXXXXXXXXXXXXX not found in target table
+```
+
+**Cause:** Using invalid or non-existent record ID in linked record field
+
+**Solution:**
+```bash
+# Step 1: Verify record exists
+mcp__airtable__list_records({
+  baseId: "appeY64iIwU5CEna7",
+  tableId: "Portco",
+  filterByFormula: "RECORD_ID() = 'recXXXXXXXXXXXXXX'"
+})
+
+# Step 2: If not found, search by name to get correct ID
+mcp__airtable__list_records({
+  baseId: "appeY64iIwU5CEna7",
+  tableId: "Portco",
+  filterByFormula: "{Company Name} = 'Pigment'"
+})
+
+# Step 3: Use correct record ID from response
+```
+
+**Common mistakes:**
+- Using company name instead of record ID: `["Pigment"]` ❌
+- Correct: `["recXXXXXXXXXXXXXX"]` ✅
+
+#### Issue 11.4: "Date format invalid"
+
+**Error:**
+```
+❌ INVALID_VALUE_FOR_COLUMN: "11/17/2025" is not a valid date
+```
+
+**Cause:** Date not in ISO 8601 format
+
+**Solution:**
+```python
+from datetime import datetime
+
+# For date fields (YYYY-MM-DD)
+date_value = datetime.strptime("11/17/2025", "%m/%d/%Y").strftime("%Y-%m-%d")
+# Result: "2025-11-17"
+
+# For datetime fields (ISO 8601 with UTC)
+datetime_value = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
+# Result: "2025-11-17T15:30:45.000Z"
+```
+
+**Format requirements:**
+- **Date:** `YYYY-MM-DD` (e.g., `"2025-11-17"`)
+- **DateTime:** `YYYY-MM-DDTHH:mm:ss.sssZ` (e.g., `"2025-11-17T15:30:45.000Z"`)
+
+#### Issue 11.5: "Cannot find base or table"
+
+**Error:**
+```
+❌ NOT_FOUND: Could not find base appXXXXXXXXXXXXXX
+```
+
+**Cause:** Invalid base ID or insufficient permissions
+
+**Solution:**
+```bash
+# Step 1: List all accessible bases
+mcp__airtable__list_bases()
+
+# Step 2: Verify base ID from response
+# Correct format: "appXXXXXXXXXXXXXX" (14 characters after "app")
+
+# Step 3: Check permissions
+# - Verify Airtable API key has access to base
+# - Check base sharing settings
+```
+
+**For table errors:**
+```bash
+# List tables in base
+mcp__airtable__list_tables({baseId: "appeY64iIwU5CEna7"})
+
+# Use exact table name or ID from response
+```
+
+#### Issue 11.6: MCP Schema Tools Not Available
+
+**Error:**
+```
+❌ Tool 'mcp__airtable__describe_table' not found
+```
+
+**Cause:** Airtable MCP server not configured or running
+
+**Solution:**
+See [Issue 3: Airtable MCP Not Available](#3-airtable-mcp-not-available) for complete MCP setup instructions.
+
+**Quick check:**
+```bash
+# Verify MCP configuration
+cat ~/.config/claude/mcp_settings.json | grep airtable
+
+# Restart Claude Code after any config changes
+```
+
+**Additional Resources:**
+- [Schema Exploration Reference](schema_reference.md) - Complete MCP operations guide
+- [Field Types Reference](field_types.md) - Field type validation rules
+
+---
+
 ## Emergency Procedures
 
 ### Demo Day Issue: Can't Load Candidates
@@ -438,6 +613,11 @@ python load_candidates.py path/to/file.csv --dry-run --verbose > debug.log 2>&1
 
 ## See Also
 
+**Schema Exploration:**
+- [schema_reference.md](schema_reference.md) - Complete schema exploration guide
+- [field_types.md](field_types.md) - Field type catalog with validation rules
+
+**Data Loading:**
 - [implementation_guide.md](implementation_guide.md) - Detailed technical documentation
 - [../SKILL.md](../SKILL.md) - Skill overview and quick start
-- [scripts/load_candidates.py](../scripts/load_candidates.py) - Main implementation
+- [../scripts/load_candidates.py](../scripts/load_candidates.py) - Main implementation

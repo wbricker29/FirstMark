@@ -1,13 +1,17 @@
 ---
-name: airtable-file-loader
-description: Automate Module 1 (Candidate Sourcing) for FirstMark Talent Signal Agent by loading executive candidates from ANY CSV file into Airtable People table. Features intelligent schema detection (handles Mock_Guilds.csv, Exec_Network.csv, guildmember_scrape.csv, or surprise formats), automatic column mapping, executive bio .txt file loading, data cleaning, duplicate detection, and progress reporting. Production-ready for case presentation with flexible data inputs.
+name: airtable-operations
+description: Complete Airtable operations toolkit for FirstMark Talent Signal Agent. SCHEMA EXPLORATION: Discover bases, list tables, examine field types/constraints (single-select options, linked records), validate data requirements, and understand table relationships using MCP tools. DATA LOADING: Automate Module 1 (Candidate Sourcing) by loading executive candidates from ANY CSV file into Airtable People table with intelligent schema detection, automatic column mapping, executive bio .txt file loading, data cleaning, duplicate detection, and progress reporting. Production-ready for case presentation.
 ---
 
-# Airtable Candidate Loader
+# Airtable Operations
 
 ## Overview
 
-This skill automates Module 1 (Candidate Sourcing) for the FirstMark Talent Signal Agent project by loading executive candidates from **any CSV format** into the Airtable People table. Designed for flexibility during the case presentation when data formats may vary.
+This skill provides complete Airtable operations for the FirstMark Talent Signal Agent project:
+- **Schema Exploration:** Validate table schemas, field constraints, and relationships using MCP tools
+- **Data Loading:** Automate Module 1 (Candidate Sourcing) by loading executive candidates from **any CSV format** into the Airtable People table
+
+Designed for flexibility during the case presentation when data formats may vary.
 
 **Key Features:**
 - 🔄 **Flexible CSV Input:** Handles any CSV format with intelligent schema detection
@@ -57,6 +61,74 @@ python scripts/load_candidates.py ../../../reference/guildmember_scrape.csv
 Open Airtable → People table → Filter by Added Date = today
 
 **Expected:** ~64 total records (2 existing + 62 new)
+
+---
+
+## Schema Exploration (Pre-Flight Check)
+
+Before loading data, you may want to validate your Airtable schema to understand field constraints, especially for single-select fields and table relationships.
+
+### Quick Schema Validation Workflow
+
+**1. List available bases:**
+```
+mcp__airtable__list_bases()
+```
+
+**2. Explore tables in your base:**
+```
+mcp__airtable__list_tables({
+  baseId: "appeY64iIwU5CEna7"
+})
+```
+
+**3. Get detailed field schema:**
+```
+mcp__airtable__describe_table({
+  baseId: "appeY64iIwU5CEna7",
+  tableId: "People"
+})
+```
+
+### Why Schema Exploration Matters
+
+**For data loading:**
+- Validate single-select options (Normalized Function, Source) before import
+- Understand required vs. optional fields
+- Check linked record relationships (People ↔ Portco_Roles)
+- Prevent "invalid value" errors during record creation
+
+**Example use case:**
+Before running the loader, verify that your Airtable People table has the expected Normalized Function options (CFO, CTO). If you need to add more options (CPO, CRO, etc.), you can update the schema first.
+
+### Common Validation Patterns
+
+**Check single-select field options:**
+```python
+# Get People table schema
+schema = describe_table(baseId="appeY64iIwU5CEna7", tableId="People")
+
+# Extract valid options for Normalized Function
+function_field = next(f for f in schema["fields"] if f["name"] == "Normalized Function")
+valid_functions = [choice["name"] for choice in function_field["options"]["choices"]]
+
+# Validate before import
+print(f"Valid functions: {valid_functions}")  # ['CFO', 'CTO']
+```
+
+**Understand table relationships:**
+```python
+# Find linked record fields
+for field in schema["fields"]:
+    if field["type"] == "multipleRecordLinks":
+        print(f"{field['name']} links to table: {field['options']['linkedTableId']}")
+```
+
+### Detailed Schema Documentation
+
+For comprehensive schema exploration including field types, validation patterns, and troubleshooting:
+- See [references/schema_reference.md](references/schema_reference.md) - Complete schema exploration guide
+- See [references/field_types.md](references/field_types.md) - Field type catalog with validation rules
 
 ---
 
@@ -440,9 +512,16 @@ VALID_SOURCES = {'FMGuildPage', 'FMLinkedIN'}
 
 ## See Also
 
+**Schema Exploration:**
+- [references/schema_reference.md](references/schema_reference.md) - Complete schema exploration guide
+- [references/field_types.md](references/field_types.md) - Field type catalog with validation rules
+
+**Data Loading:**
 - [references/implementation_guide.md](references/implementation_guide.md) - Technical deep-dive
 - [references/troubleshooting.md](references/troubleshooting.md) - Common issues & solutions
 - [scripts/load_candidates.py](scripts/load_candidates.py) - Main implementation
 - [scripts/quick_load.sh](scripts/quick_load.sh) - Shell wrapper
+
+**Project Context:**
 - `spec/v1_minimal_spec.md` - Project scope (Module 4 only in v1)
 - `spec/dev_reference/airtable_ai_spec.md` - People table schema
