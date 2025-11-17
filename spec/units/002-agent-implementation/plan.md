@@ -28,13 +28,13 @@ Volatile task breakdown and verification plan for implementing core AI agents
 
 - **Title:** Implement research agent with Deep Research mode
 - **Description:** Create `create_research_agent()` and `run_research()` functions in `demo/agents.py`. Configure Agno Agent with OpenAIResponses(id="o4-mini-deep-research"), exponential_backoff=True, retries=2. Handle markdown output from Deep Research API (NOT structured output). Extract citations from result.citations. Return ExecutiveResearchResult.
-- **Files:** `demo/agents.py`
-- **Status:** ready
+- **Files:** `demo/agents.py`, `tests/test_research_agent.py`
+- **Status:** done
 - **Priority:** high
 - **Estimate:** 2 hours
 - **Dependencies:** TK-01
 - **Note:** Deep Research does NOT support output_schema. Must parse markdown manually or use incremental search agent.
-- **Completed:** null
+- **Completed:** 2025-01-16T23:58:00Z
 
 ### TK-03
 
@@ -156,8 +156,8 @@ Volatile task breakdown and verification plan for implementing core AI agents
 - **Status:** in_progress
 - **Created:** 2025-01-16
 - **Tasks Total:** 9
-- **Tasks Completed:** 1
-- **Progress:** 11%
+- **Tasks Completed:** 2
+- **Progress:** 22%
 
 ## 2-Developer Parallel Execution Plan
 
