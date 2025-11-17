@@ -1,10 +1,30 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+---
+## ⚠️ V1 CRITICAL SCOPE - READ FIRST
+
+**Architecture:** Linear workflow ONLY (Deep Research → Quality Check → Optional Single Incremental Search → Assessment)
+**Tables:** 6 tables (People, Portco, Portco_Roles, Role_Specs, Searches, Screens, Assessments)
+**Storage:** Research data in **Assessments** table (research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report)
+**Database:** SqliteDb at `tmp/agno_sessions.db` (NO InMemoryDb, NO custom WorkflowEvent tables)
+**Pipeline:** Direct structured outputs via `output_model` (NO parser agent)
+
+**Phase 2+ (DO NOT IMPLEMENT):** Fast mode | Loops/conditions | Parser agents | Workflows table | Research_Results table | Multi-iteration search
+
+**Authority:** `spec/v1_minimal_spec*.md` > `spec/prd.md` > `demo_planning/*.md`
+**Stale Docs:** airtable_schema.md (shows 9 tables), screening_workflow_spec.md (has loops/fast mode)
+
+**Before ANY architectural work:**
+1. Read spec/v1_minimal_spec.md + addendum
+2. Build explicit design model
+3. Scope filter (what to DELETE) before detail check
+4. If unsure → ASK, cite conflict + sources
+
+---
 
 ## Repository Purpose
 
-This is a working directory for Will Bricker's evaluation for the AI Lead role at FirstMark Capital. The repository contains research, preparation materials, and case study work for the interview process.
+FirstMark Capital AI Lead case study: Talent Signal Agent demo (presentation Nov 19, 2025 5pm)
 
 ## Current Project Status
 
