@@ -186,3 +186,11 @@ Stable intent and acceptance criteria for establishing the minimal v1.0 project 
 - Pydantic model validation is critical - these are referenced throughout spec
 - Estimated time: 2 hours (from spec/spec.md:1068)
 - Reference checklist: spec/spec.md:1069-1075
+
+### Phase 1 Enhancement: Settings Module
+
+- **Context:** TK-10 implemented full settings.py with typed Pydantic BaseSettings classes
+- **Rationale:** While Phase 1 scope called for skeleton files only, the settings module provides immediate value for Phase 2+ (Flask webhook, workflow orchestration) without introducing agent logic or business complexity
+- **Impact:** Does not violate Phase 1 constraint ("no agent/workflow logic") - settings.py is pure configuration infrastructure
+- **Benefit:** Eliminates technical debt and enables Phase 2 to begin implementation immediately
+- **Test Coverage:** tests/test_settings.py provides 100% coverage of settings module
