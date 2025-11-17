@@ -1142,7 +1142,7 @@ For v1.0-minimal, log key metrics to terminal:
   - [ ] Built-in web_search tool
   - [ ] Research merging
 
-### Phase 3: Workflow Implementation (4 hours)
+### Stage 3: Workflow Implementation (4 hours)
 
 - [ ] Create workflow in agents.py
   - [ ] Step 1: Deep Research
@@ -1154,7 +1154,7 @@ For v1.0-minimal, log key metrics to terminal:
   - [ ] check_research_quality() - minimal criteria
 - [ ] Test workflow end-to-end with mock data
 
-### Phase 4: Integrations (4 hours)
+### Stage 4: Integrations (4 hours)
 
 - [ ] Implement Airtable client (airtable_client.py)
   - [ ] Read operations (get_screen, get_role_spec, etc.)
@@ -1166,7 +1166,7 @@ For v1.0-minimal, log key metrics to terminal:
   - [ ] Error handling
 - [ ] Set up ngrok tunnel
 
-### Phase 5: Testing (2 hours)
+### Stage 5: Testing (2 hours)
 
 - [ ] Basic tests (tests/)
   - [ ] test_scoring.py - overall score calculation
@@ -1174,7 +1174,7 @@ For v1.0-minimal, log key metrics to terminal:
   - [ ] test_workflow_smoke.py - happy path (optional)
 - [ ] Run tests and verify core logic
 
-### Phase 6: Demo Preparation (3 hours)
+### Stage 6: Demo Preparation (3 hours)
 
 - [ ] Pre-run 3 scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
 - [ ] Verify results in Airtable
