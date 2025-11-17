@@ -1,34 +1,23 @@
-# Airtable AI Builder Spec — Talent Signal Agent Demo
+# Airtable AI Builder Spec — Talent Signal Agent Demo (Excel-backed)
 
-Goal: single Airtable base that stores executives, portfolio roles/specs, active searches, screen runs, and AI-generated research + assessments for Module 4.
+Context: We're building a Talent Signal Agent demo for FirstMark. Airtable is the system of record for executive data, open roles, structured role specs, search projects, screening batches, and the AI-generated research + assessment outputs from Module 4. Flask/ngrok handles webhooks, but all state and audit data must live in Airtable so recruiters can review results inside the base. Airtable AI should generate the schema using the accompanying Excel sample.
 
-## Tables (in order)
+Instructions: Upload `case/airtable_base_seed.xlsx` in Airtable AI Builder. Each sheet header represents a table; keep the order and convert fields per notes below. Long-text JSON fields store Pydantic payloads (`ExecutiveResearchResult`, `AssessmentResult`) coming from the Python workflow, so they must stay plain text.
 
-1. **People** – executive directory  
-   `Name` (text); `Current Title` (text); `Current Company` (text); `LinkedIn URL` (URL); `LinkedIn Headline` (long text); `Normalized Function` (single select: CEO, CFO, CTO, CPO, CRO, COO, CMO, Other); `Source` (single select: FMLinkedIN, FMGuildPage, FMCFO, FMCTOSummit, FMFounder, FMProduct); `Location` (text); `Bio` (long text); `Added Date` (date).
+## Table-by-table instructions
 
-2. **Portco** – portfolio companies  
-   `Company Name` (text); `Stage` (single select: Seed, Series A, Series B, Series C, Growth, Public); `Sector` (single select: B2B SaaS, Consumer, AI/ML, Infrastructure, FinTech, HealthTech, Other); `Description` (long text); `Website` (URL); `Employee Count` (number); `HQ Location` (text).
-
-3. **Portco Roles** – open exec roles  
-   `Role Name` (text); `Portco` (link to Portco, single); `Role Type` (single select: CFO, CTO, CPO, CRO, COO); `Status` (single select: Open, On Hold, Filled, Cancelled); `Description` (long text); `Priority` (single select: Critical, High, Medium, Low); `Created Date` (date).
-
-4. **Role Specs** – evaluation rubrics  
-   `Spec Name` (text); `Role Type` (single select: CFO, CTO); `Is Template` (checkbox); `Spec Content` (long text markdown with weighted dimensions + must-haves); `Created Date` (date); `Modified Date` (date).
-
-5. **Searches** – active search projects  
-   `Search Name` (text); `Role` (link to Portco Roles, single); `Role Spec` (link to Role Specs); `Status` (single select: Planning, Active, Paused, Completed); `Start Date` (date); `Target Close Date` (date); `Notes` (long text).
-
-6. **Screens** – batch screening runs  
-   `Screen ID` (auto number); `Search` (link to Searches); `Candidates` (link to People, allow multiple); `Status` (single select: Draft, Processing, Complete, Failed); `Custom Instructions` (long text); `Created Date` (date); `Completed Date` (date).
-
-7. **Assessments** – per-candidate research + eval results  
-   `Assessment ID` (auto number); `Screen` (link to Screens); `Candidate` (link to People); `Role` (link to Portco Roles); `Role Spec` (link to Role Specs); `Status` (single select: Pending, Processing, Complete, Failed); `Overall Score` (number 0–100, blanks allowed); `Overall Confidence` (single select: High, Medium, Low); `Topline Summary` (long text); `Dimension Scores JSON` (long text, stores list of 1–5 scores + evidence); `Must Haves Check JSON` (long text); `Red Flags JSON` (long text); `Green Flags JSON` (long text); `Counterfactuals JSON` (long text); `Research Structured JSON` (long text, full ExecutiveResearchResult); `Research Markdown Raw` (long text); `Assessment JSON` (long text, full AssessmentResult); `Assessment Markdown Report` (long text); `Runtime Seconds` (number); `Error Message` (long text); `Assessment Timestamp` (date/time); `Research Model` (text); `Assessment Model` (text).
+1. **People** (sheet `People`): treat `Normalized Function` + `Source` as single-selects using the sample values. Keep `LinkedIn Headline`/`Bio` as long text; `Added Date` is a date.  
+2. **Portco**: convert `Stage` and `Sector` to single-selects; `Employee Count` numeric; `Description` long text.  
+3. **Portco Roles**: `Portco` links to the Portco table; `Role Type`, `Status`, `Priority` are single-selects; `Created Date` is a date.  
+4. **Role Specs**: `Role Type` single-select; `Is Template` checkbox; `Spec Content` long text markdown.  
+5. **Searches**: `Role` links to Portco Roles; `Role Spec` links to Role Specs; `Status` single-select; `Notes` long text.  
+6. **Screens**: `Screen ID` auto number; `Search` links to Searches; `Candidates` links to People (allow multiple); `Status` single-select; `Custom Instructions` long text; capture created/completed dates.  
+7. **Assessments**: `Screen`, `Candidate`, `Role`, `Role Spec` link to their respective tables; `Status` single-select; `Overall Score` numeric (0–100, nullable); `Overall Confidence` single-select; keep all `... JSON` + `Research Markdown Raw` + `Assessment Markdown Report` as plain long text since they store structured payloads; `Runtime Seconds` numeric; `Assessment Timestamp` date/time; `Research Model`/`Assessment Model` plain text.
 
 ## Relationship notes
 
 - Portco → Portco Roles (1:M) → Searches (1:1).  
-- Screens link to a Search and include many People; each Screen produces multiple Assessments (one per linked candidate).  
-- Assessments inherit the Role Spec from the Search but remain editable.  
-- Status fields drive automations (e.g., Screen status “Ready to Screen” triggers webhook; update to “Processing/Complete” when results return).  
-- Long-text JSON fields must stay plain text to store structured payloads from the Pydantic models.
+- Screens belong to a Search and list multiple People; each Screen spawns Assessments (one per candidate).  
+- Assessments inherit the linked Role Spec but remain editable.  
+- Status fields (“Draft/Processing/Complete/Failed”) power automations (e.g., trigger webhook when Screen status changes to “Ready to Screen” and write back “Processing/Complete”).  
+- Long-text JSON fields must remain plain text to store `ExecutiveResearchResult` and `AssessmentResult` blobs.

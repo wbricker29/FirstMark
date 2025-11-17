@@ -2,6 +2,9 @@
 
 This repo is optimized around a live Talent Signal Agent demo for the FirstMark interview, centered on the Airtable + Flask + AGNO workflow defined in `case/technical_spec_V2.md` and narrated in the case brief.
 
+## QUick tips
+Use UV Only
+
 ## What To Prioritize
 
 - Treat the case brief as the north star narrative (currently `reference/case_brief.md`) and `case/technical_spec_V2.md` as the source of truth for the implementation plan.

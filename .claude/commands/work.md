@@ -34,23 +34,32 @@ This is not optional. The skill provides critical context for task implementatio
 
 ### Phase 1: Validate (UNDERSTAND)
 
-Before proceeding, verify:
+**Run automated pre-flight validation:**
 
+```bash
+python scripts/validation/validate-prerequisites.py SLUG TK-##
+```
+
+This validator automatically checks:
 - ✅ Unit directory exists (`spec/units/###-SLUG/`)
-- ✅ plan.md exists and is readable
+- ✅ plan.md, design.md, spec.md, constitution.md exist
 - ✅ Task TK-## exists in plan.md
 - ✅ Task status is "ready" or "doing"
 - ✅ All task dependencies have status "done"
-- ✅ design.md exists (for context)
 
-Load context automatically:
+If validation passes, the script outputs JSON with task metadata (title, description, dependencies, files).
 
-- Read task details (title, description, dependencies)
+**On validation success:**
+- Load task metadata from validation output (no need to re-read plan.md)
 - Read design.md (Objective, Acceptance Criteria)
 - Read spec.md (Architecture patterns)
 - Read constitution.md (Quality standards)
+- Update task status to "doing" and set started_at timestamp
 
-Update task status to "doing" and set started_at timestamp.
+**On validation failure:**
+- Review error message (missing files, incomplete dependencies, invalid status)
+- Exit immediately - do NOT proceed with implementation
+- Fix prerequisites first (complete dependencies, create missing files, etc.)
 
 ### Phase 2: Gather (PLAN)
 

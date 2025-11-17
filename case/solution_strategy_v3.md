@@ -158,12 +158,20 @@ This keeps LLMs focused on **reasoning and explanation**, not on boilerplate enr
 
 - Research agent (`create_research_agent`), wrapping `o4-mini-deep-research`.
 - Assessment agent (`create_assessment_agent`), wrapping `gpt-5-mini` with Pydantic outputs.
+- Incremental search agent (`create_incremental_search_agent`), a single-pass
+  `gpt-5` + OpenAI web search helper for gap-closing.
 
 **Reasons.**
 
 - Good fit with structured outputs and agent patterns.
 - Existing recruiter/candidate evaluation examples.
 - Cleaner than building from scratch on the raw OpenAI SDK for a 48‑hour demo.
+
+**Instantiation pattern.** Each agent is created via a small helper function
+rather than as a module-level singleton. This keeps the module stateless, makes
+the configuration (model IDs, tools, retries, instructions) easy to test/patch
+per call, and leaves room for runtime switches (e.g., Phase 2 “fast mode” or
+role-specific tools) without refactoring the workflow code.
 
 ---
 
