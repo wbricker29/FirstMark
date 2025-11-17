@@ -1116,98 +1116,44 @@ For v1.0-minimal, log key metrics to terminal:
 
 ---
 
-## Implementation Checklist
+## Implementation Roadmap
 
-### Stage 1: Setup (2 hours) ✅ COMPLETE
+**Progress Tracking:** See `spec/units/` for detailed phase plans with task statuses.
 
-- [x] Create minimal project structure (5 files)
-- [x] Set up Python environment (uv, .python-version)
-- [x] Install dependencies (pyproject.toml)
-- [x] Configure environment variables (.env)
-- [x] Create Pydantic models (models.py)
-- [x] Validate against data_design.md schemas
-- [x] Create README with setup instructions
-- [x] Verify Phase 1 completion (all verification commands passing)
+**Single Developer:** Follow stages 1-6 sequentially (~21 hours total)
+**Two Developers:** See parallel track breakdown below (~20 hours per developer)
 
-### Stage 2: Agent Implementation (6 hours)
+### High-Level Stages
 
-- [ ] Implement research agent (agents.py)
-  - [ ] Deep Research mode (o4-mini-deep-research)
-  - [ ] Agno structured outputs (output_schema)
-  - [ ] Built-in retry/backoff
-- [ ] Implement assessment agent (agents.py)
-  - [ ] Spec-guided evaluation
-  - [ ] Evidence-aware scoring (None for Unknown)
-  - [ ] Agno structured outputs
-- [ ] Implement incremental search agent (agents.py)
-  - [ ] Optional single-step search
-  - [ ] Built-in web_search tool
-  - [ ] Research merging
-
-### Stage 3: Workflow Implementation (4 hours)
-
-- [ ] Create workflow in agents.py
-  - [ ] Step 1: Deep Research
-  - [ ] Step 2: Quality Check (simple function)
-  - [ ] Step 3: Conditional Incremental Search
-  - [ ] Step 4: Assessment
-- [ ] Implement scoring logic
-  - [ ] calculate_overall_score() - simple average × 20
-  - [ ] check_research_quality() - minimal criteria
-- [ ] Test workflow end-to-end with mock data
-
-### Stage 4: Integrations (4 hours)
-
-- [ ] Implement Airtable client (airtable_client.py)
-  - [ ] Read operations (get_screen, get_role_spec, etc.)
-  - [ ] Write operations (write_assessment, update_screen_status)
-  - [ ] Error handling
-- [ ] Implement Flask webhook server (app.py)
-  - [ ] /screen endpoint
-  - [ ] Request validation
-  - [ ] Error handling
-- [ ] Set up ngrok tunnel
-
-### Stage 5: Testing (2 hours)
-
-- [ ] Basic tests (tests/)
-  - [ ] test_scoring.py - overall score calculation
-  - [ ] test_quality_check.py - quality heuristics
-  - [ ] test_workflow_smoke.py - happy path (optional)
-- [ ] Run tests and verify core logic
-
-### Stage 6: Demo Preparation (3 hours)
-
-- [ ] Pre-run 3 scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
-- [ ] Verify results in Airtable
-- [ ] Prepare Estuary CTO for live demo
-- [ ] Test webhook trigger automation
-- [ ] Create demo script with timing estimates
-
-**Total Estimated Time:** 21 hours (reduced from 34 hours)
+1. **Stage 1: Setup** (2 hours) ✅ COMPLETE - See `spec/units/001-phase-1/`
+2. **Stage 2: Agent Implementation** (6 hours) - Research, Assessment, Incremental Search agents
+3. **Stage 3: Workflow Orchestration** (4 hours) - Linear workflow with quality gate
+4. **Stage 4: Integrations** (4 hours) - Airtable client + Flask webhook
+5. **Stage 5: Testing** (2 hours) - Core logic tests + validation
+6. **Stage 6: Demo Preparation** (3 hours) - Pre-runs + live scenario setup
 
 ---
 
 ## 2-Developer Parallel Implementation Track
 
-### **Stage 1: Foundation Setup** (2 hours parallel)
+### **Stage 1: Foundation Setup** (2 hours parallel) ✅ COMPLETE
 
 **Developer A (Data Layer):**
 - [x] Create project structure (5 files: models.py, agents.py, airtable_client.py, app.py, settings.py)
-- [ ] Implement **models.py** - All Pydantic models
+- [x] Implement **models.py** - All Pydantic models
   - ExecutiveResearchResult, AssessmentResult, DimensionScore
   - Citation, CareerEntry, MustHaveCheck
-- [ ] Create **settings.py** - Config/env loading
-- [ ] Set up **.env** from .env.example
+- [x] Create **settings.py** - Config/env loading
+- [x] Set up **.env** from .env.example
 
 **Developer B (Infrastructure):**
-- [ ] Configure **pyproject.toml** with dependencies
-- [ ] Set up Python 3.11 environment (uv)
-- [ ] Install dependencies (`uv pip install`)
-- [ ] Implement **tests/test_scoring.py** skeleton
-- [ ] Set up Airtable base (6 tables) from `spec/dev_reference/airtable_ai_spec.md`
+- [x] Configure **pyproject.toml** with dependencies
+- [x] Set up Python 3.11 environment (uv)
+- [x] Install dependencies (`uv pip install`)
+- [x] Implement **tests/test_scoring.py** skeleton
+- [x] Set up Airtable base (6 tables) from `spec/dev_reference/airtable_ai_spec.md`
 
-**Sync Point:** Both complete → merge models.py
+**Sync Point:** ✅ Both complete → models.py merged
 
 ### **Stage 2: Core Components** (6 hours parallel)
 
