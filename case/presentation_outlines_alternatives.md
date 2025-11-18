@@ -481,39 +481,62 @@
 **2.2 The Horizon 1 Quick Win (12 min)**
 
 **What We're Building:**
-- Module 4: Screening workflow for executive roles
+- **Module 1:** Production-quality People CSV ingestion (smart deduplication, validation, audit trail)
+- **Module 4:** AI-powered screening workflow for executive roles
 - Lives in Airtable (meet you where you are)
 - 48-hour build time
 - Real demo with real data
 
 **The Value Proposition:**
-- Faster candidate screening
+- Faster candidate screening (hours → minutes)
 - More consistent research quality
-- Auditable reasoning trails
+- Auditable reasoning trails from data ingestion → final ranking
 - Surfaces non-obvious differentiators
-- Extensible to other use cases
+- Extensible to other use cases (founders, LPs, portfolio hires)
+
+**The "EvolutionIQ for VC" Framing:**
+
+*What EvolutionIQ Did for Insurance:*
+- Applied AI to unstructured claims data
+- Made faster, more consistent decisions
+- Explainable recommendations with evidence trails
+- Production-ready architecture scaled across use cases
+
+*What We're Doing for VC Talent:*
+- Applied AI to unstructured candidate data (LinkedIn, news, research)
+- Faster, more consistent talent screening
+- Explainable rankings with evidence and counterfactuals
+- Modular architecture that extends beyond talent (founder eval, LP research)
+
+*The Difference (Being Realistic):*
+- EvolutionIQ is a mature SaaS product with years of refinement
+- This is a 48-hour prototype demonstrating the **approach**
+- We're showing **how** to apply structured AI workflows to VC operations
+- Not claiming feature parity—claiming **directional validity**
 
 **The Technical Approach:**
 
 *Simplified Scope:*
-- One module, not full platform
+- Two modules, not full platform (Module 1 + Module 4)
 - Linear workflow, not complex orchestration
 - Synchronous processing, not async
-- Mock enrichment, not API integrations
+- No enrichment APIs (deferred to Phase 2+)
 - Standard Airtable views, not custom UI
 
 *Smart Bets:*
-- OpenAI Deep Research for candidate research
+- OpenAI Deep Research for candidate research (2-6 min per candidate, comprehensive)
 - GPT-4 for assessment and synthesis
-- Pydantic for structured outputs
+- Pydantic for structured outputs (type safety, validation)
 - Flask + ngrok for quick integration
-- Agno framework for agent orchestration
+- Agno framework for agent orchestration + native UI monitoring
 
 *What's Different:*
-- Spec-guided assessment (role requirements drive evaluation)
-- Evidence-aware scoring (citation requirements)
-- Counterfactual reasoning (why candidate might NOT fit)
-- Confidence scoring (LLM self-assessment)
+- **Data Quality:** Smart CSV ingestion with deduplication and validation
+- **Spec-Guided Assessment:** Role requirements drive evaluation dimensions
+- **Evidence-Aware Scoring:** 1-5 scale with None for "Insufficient Evidence" (no forced guessing)
+- **Counterfactual Reasoning:** "Why candidate might NOT be ideal" + key assumptions
+- **Confidence Scoring:** LLM self-assessment of research quality
+- **Audit Trail:** From CSV upload → research → assessment → final score
 
 **[LIVE DEMO - 10 min]**
 
@@ -523,14 +546,21 @@
 - Challenge: 3 similar-on-paper candidates
 
 **The Flow:**
-1. **Role Spec** - Show how requirements are structured
-2. **Research** - Walk through Deep Research output for 2 candidates
-3. **Assessment** - Show spec-guided evaluation with evidence
-4. **Ranking** - Demonstrate why #1 beat #2 with reasoning
-5. **Drill-Down** - Show evidence trails and counterfactuals
+1. **Module 1: Data Ingestion** (1 min)
+   - Show CSV upload with deduplication
+   - Highlight validation: malformed LinkedIn URLs, missing companies
+   - Show upload audit trail (64 records, 3 duplicates detected, 2 validation errors)
+
+2. **Module 4: Screening Workflow** (9 min)
+   - **Role Spec** - Show how CFO requirements are structured (fundraising, ops finance, stage expertise)
+   - **Research** - Walk through Deep Research output for 2 candidates (citations, career timeline)
+   - **Quality Check** - Show evidence sufficiency logic (did we get enough to assess?)
+   - **Assessment** - Show spec-guided evaluation with evidence-backed dimension scores
+   - **Ranking** - Demonstrate why #1 beat #2 with reasoning (not just scores)
+   - **Drill-Down** - Show evidence trails and counterfactuals ("Why candidate might NOT be ideal")
 
 **The Success Metric:**
-"I'd actually use this ranking to prioritize my review time"
+"I'd actually use this ranking to prioritize my review time—and I trust the reasoning"
 
 **2.3 The Path Forward: Horizons 2 & 3 (7 min)**
 
@@ -538,24 +568,23 @@
 
 **Horizon 2: Foundation Building (3-6 months)**
 
-*Phase 2A: Production-Ready Module 4*
-- Async processing and workflows
-- Candidate profile creation (reusable research)
-- Incremental search for gap-filling
-- Affinity integration
-- Custom UI enhancements
+*Phase 2A: Production-Ready Modules*
+- **Module 1 Enhancement:** Real-time enrichment (Apollo, LinkedIn APIs)
+- **Module 4 Enhancement:** Async processing, candidate profiles (reusable research)
+- **Workflow Optimization:** Incremental search for gap-filling, quality thresholds
+- **Integration:** Affinity CRM sync, custom UI for stakeholder views
 
-*Phase 2B: Module Integration*
-- Upstream: CSV ingestion automation (Module 1)
-- Upstream: Enrichment workflows (Module 2)
-- Upstream: Role spec generation (Module 3)
-- Downstream: Tracking and CRM sync
+*Phase 2B: Module Expansion*
+- **Module 2:** Portfolio company + role uploads (not just People)
+- **Module 3:** AI-powered role spec generation (from job descriptions)
+- **Enrichment Layer:** Automated data quality checks, missing field detection
+- **Downstream:** Placement tracking, retrospective analysis
 
 *Phase 2C: Capability Expansion*
-- Founder research workflows
-- LP research workflows
-- Portfolio company hire support
-- Retrospective analysis (past placements)
+- **Use Case 1:** Founder research workflows (diligence support)
+- **Use Case 2:** LP research workflows (fundraising support)
+- **Use Case 3:** Portfolio company hire support (self-service talent matching)
+- **Learning Loop:** Track placement outcomes, refine assessment criteria
 
 **Horizon 3: Strategic Platform (6-12 months)**
 
@@ -572,12 +601,13 @@
 - Ecosystem integration (Affinity, CRM, etc.)
 
 **The Learning Agenda:**
-- Does this approach actually save time?
-- Do evaluators trust the rankings?
-- What's the quality difference from manual?
-- Where does it break down?
-- What do we learn about data needs?
-- How does this inform Affinity strategy?
+- **Value Validation:** Does this actually save time vs manual screening?
+- **Trust Check:** Do evaluators trust the rankings enough to act on them?
+- **Quality Benchmark:** What's the accuracy vs manual research/assessment?
+- **Failure Analysis:** Where does it break down? (edge cases, missing data)
+- **Data Strategy:** What does usage teach us about data quality needs?
+- **Integration Planning:** How does this inform Affinity/CRM strategy?
+- **Use Case Validation:** Which extensions deliver most value? (founders, LPs, portfolio hires)
 
 **2.4 What I Need From You (5 min)**
 
@@ -624,6 +654,7 @@
 - "Quick wins aren't shortcuts—they're strategic learning investments"
 - "The goal isn't to build perfectly, it's to learn precisely"
 - "Every quick win should answer a strategic question"
+- "Module 1 demonstrates production thinking; Module 4 demonstrates AI capability—together they show end-to-end competence"
 
 **On Foundation Building:**
 - "You can't build the foundation until you know what you're building on it"
@@ -643,6 +674,11 @@
 **On Partnership:**
 - "I'm not selling you this demo—I'm showing you how I approach building with you"
 - "The value isn't in the prototype, it's in the thinking that produced it"
+
+**On the EvolutionIQ Comparison:**
+- "EvolutionIQ proved structured AI workflows work for high-stakes decisions in insurance—we're applying that model to VC talent operations"
+- "This isn't claiming feature parity with a mature product—it's demonstrating directional validity of the approach"
+- "The parallel: AI-powered structured workflows with explainable outputs for domain-specific decision-making"
 
 ---
 

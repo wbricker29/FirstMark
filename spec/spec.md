@@ -1749,6 +1749,184 @@ This specification succeeds if:
 
 ---
 
+## Demo Readiness Checklist
+
+### Phase 1: Airtable Database Setup
+**Status:** ❓ NEEDS VERIFICATION
+
+- [ ] **Verify 7 tables exist** with schema from `spec/dev_reference/airtable_ai_spec.md`:
+  - [ ] People
+  - [ ] Portco (Portfolio Companies)
+  - [ ] Portco_Roles
+  - [ ] Role_Specs
+  - [ ] Searches
+  - [ ] Screens
+  - [ ] Assessments
+
+- [ ] **Load demo data**:
+  - [ ] Import 64 executives from `reference/guildmember_scrape.csv` → People table
+  - [ ] Create 4 portfolio companies → Portco table
+  - [ ] Create 4 roles (Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO) → Portco_Roles
+  - [ ] Create 2 role specs (CFO template, CTO template) → Role_Specs
+  - [ ] Create 4 searches (one per role) → Searches
+  - [ ] Create 4 screens (3 for pre-runs, 1 for live demo) → Screens
+
+### Phase 2: AgentOS Runtime + Monitoring
+**Status:** ✅ CODE READY, ❓ EXECUTION NOT TESTED
+
+- [ ] **Start AgentOS server**:
+  ```bash
+  source .venv/bin/activate
+  uv run python demo/agentos_app.py
+  # Should start on port 5001 (per .env FLASK_PORT=5001)
+  ```
+
+- [ ] **Connect to AgentOS control plane** (oversight/monitoring):
+  - [ ] Open https://os.agno.com → "Connect OS"
+  - [ ] URL: `http://localhost:5001`
+  - [ ] Security key: (blank unless AGENTOS_SECURITY_KEY set in .env)
+  - [ ] Verify sessions/runs appear in dashboard
+
+- [ ] **Verify endpoints**:
+  - [ ] Health: `http://localhost:5001/healthz` → `{"status": "ok"}`
+  - [ ] Docs: `http://localhost:5001/docs` → OpenAPI UI with `/screen` endpoint
+  - [ ] Config: `http://localhost:5001/config` → AgentOS metadata
+
+### Phase 3: Webhook Integration
+**Status:** ❓ NEEDS SETUP
+
+- [ ] **Install ngrok** (if not already):
+  ```bash
+  brew install ngrok/ngrok/ngrok
+  ngrok config add-authtoken YOUR_AUTH_TOKEN
+  ```
+
+- [ ] **Start ngrok tunnel**:
+  ```bash
+  ngrok http 5001
+  # Copy HTTPS URL (e.g., https://abc123.ngrok.io)
+  ```
+
+- [ ] **Configure Airtable automation**:
+  - [ ] Trigger: Screens table, when status = "Ready to Screen"
+  - [ ] Action: POST to `https://YOUR_NGROK_URL.ngrok.io/screen`
+  - [ ] Body: `{"screen_id": "{RECORD_ID}"}`
+
+### Phase 4: Pre-Run Scenarios (Required for Demo)
+**Status:** ❓ NOT EXECUTED
+
+Execute 3 pre-run screens to validate:
+
+- [ ] **Pre-run 1: Pigment CFO** - Complete screen with 5-10 candidates
+  - [ ] Deep Research agent (o4-mini-deep-research) returns markdown + citations
+  - [ ] Quality gate triggers incremental search when needed
+  - [ ] Assessment agent (gpt-5-mini + ReasoningTools) produces structured scores
+  - [ ] Airtable Assessments table populated with results
+  - [ ] AgentOS control plane shows execution traces
+
+- [ ] **Pre-run 2: Mockingbird CFO** - Complete screen with 5-10 candidates
+  - [ ] Execution completes successfully
+  - [ ] Results written to Airtable
+  - [ ] Compare assessment quality with Pigment CFO
+
+- [ ] **Pre-run 3: Synthesia CTO** - Complete screen with 5-10 candidates
+  - [ ] Execution completes successfully
+  - [ ] Results written to Airtable
+  - [ ] Verify CTO role spec produces different dimension scores
+
+### Phase 5: Live Demo Preparation
+**Status:** ❓ NOT READY
+
+- [ ] **Estuary CTO Screen** - Set status="Pending" (don't trigger yet)
+- [ ] **ngrok tunnel active** - Document URL for demo day
+- [ ] **AgentOS control plane connected** - For live monitoring during demo
+- [ ] **Backup curl command ready**:
+  ```bash
+  curl -X POST http://localhost:5001/screen \
+    -H "Content-Type: application/json" \
+    -d '{"screen_id": "recESTUARY_SCREEN_ID"}'
+  ```
+
+### AgentOS Control Plane Features (What You'll See)
+
+**AgentOS Control Plane provides:**
+- Live session tracking (each Screen creates a workflow session)
+- Step-by-step execution visibility (research → quality gate → assessment)
+- Agent input/output inspection
+- Token usage & cost monitoring
+- Error traces with retry attempts
+- Session state persistence (SqliteDb at `tmp/agno_sessions.db`)
+
+**Console logs show:**
+```
+🔍 Received AgentOS screen webhook for recXXXX
+🔍 Starting deep research for [Candidate Name]
+✅ Deep research completed with 4 citations
+✅ Research quality threshold met
+🔍 Starting assessment for [Candidate Name]
+✅ Assessment complete (overall_score=85.0)
+✅ Screen recXXXX completed (10 successes, 0 failures)
+```
+
+### Pre-Demo Smoke Test Checklist
+
+#### Environment Setup
+- [ ] Virtual environment activated (`.venv`)
+- [ ] All dependencies installed (`uv pip list` confirms fastapi, agno, pyairtable, openai)
+- [ ] `.env` file contains all required keys (AIRTABLE_API_KEY, AIRTABLE_BASE_ID, OPENAI_API_KEY)
+- [ ] Port 5001 is available (not in use)
+
+#### Airtable Data Preparation
+- [ ] Test Screen record exists with status != "Ready to Screen"
+- [ ] Screen has ≥1 linked candidate with profile data
+- [ ] Screen linked to Search record
+- [ ] Search linked to Role_Spec record
+- [ ] Role_Spec has populated `structured_spec_markdown` field
+
+#### Server & Tunnel
+- [ ] AgentOS server starts without errors (`uv run python demo/agentos_app.py`)
+- [ ] `/docs` responds locally and shows `/screen`
+- [ ] ngrok tunnel active (`ngrok http 5001`)
+- [ ] ngrok shows "Session Status: online"
+- [ ] Copied ngrok HTTPS URL (e.g., `https://abc123.ngrok.io`)
+
+#### Airtable Automation Configuration
+- [ ] Automation created in Airtable
+- [ ] Trigger: "When record matches conditions" → Screens → status = "Ready to Screen"
+- [ ] Action: "Send request" → POST → `https://YOUR_NGROK_URL/screen`
+- [ ] Request body includes `{"screen_id": "{RECORD_ID}"}`
+- [ ] Automation is enabled (toggle ON)
+
+#### Execution Test
+- [ ] Changed Screen status → "Ready to Screen" in Airtable
+- [ ] AgentOS logs show: "🔍 Received AgentOS screen webhook for recXXXX"
+- [ ] Workflow executes without ❌ errors
+- [ ] AgentOS logs show: "✅ Screen recXXXX completed"
+- [ ] Screen status updated to "Complete" in Airtable
+- [ ] New Assessment record(s) created in Assessments table
+- [ ] Assessment contains:
+  - [ ] `overall_score` (numeric, 0-100)
+  - [ ] `overall_confidence` (High/Medium/Low)
+  - [ ] `topline_summary` (non-empty text)
+  - [ ] `assessment_json` (valid JSON)
+
+#### Post-Test Verification
+- [ ] Execution time <10 minutes per candidate
+- [ ] No memory errors or crashes
+- [ ] Logs are readable and helpful (emoji indicators visible)
+- [ ] Can trigger multiple Screens sequentially without server restart
+
+#### Demo Day Readiness
+- [ ] 3+ pre-run Screens completed successfully (Pigment CFO, Mockingbird CFO, Synthesia CTO)
+- [ ] 1 live demo Screen prepared (Estuary CTO) with status = "Pending" (not triggered yet)
+- [ ] AgentOS control plane connected (for live monitoring)
+- [ ] ngrok tunnel URL documented for live demo
+- [ ] Backup plan if ngrok fails (curl command ready)
+
+**Note:** For production deployment, replace ngrok with a proper hosting solution (Cloud Run, Heroku, etc.) with static URLs.
+
+---
+
 ## Document Control
 
 **Related Documents:**

@@ -118,12 +118,41 @@ assessment:
       as strongest, use [OBSERVATION] to inform patterns, and treat [HYPOTHESIS] as
       speculative context and follow-up question fodder, not as confirmed history.
 
+    Use this 1-5 scale consistently:
+    - 1 = strong negative / clearly misaligned with the dimension
+    - 2 = weak / meaningfully below expectations
+    - 3 = mixed / partial fit with notable gaps
+    - 4 = solid / generally strong with minor caveats
+    - 5 = strong positive / clear strength on this dimension
+
     Your process:
     1. For each dimension in the role spec:
-       - Score on a 1-5 scale. Use null/None when evidence is insufficient.
+       - Score on a 1-5 scale. Use null/None when evidence is insufficient
+         or supported only by [HYPOTHESIS] or low-confidence [OBSERVATION].
        - Provide confidence (High/Medium/Low) and reasoning tied to citations.
-    2. Summarize must-have checks, red flags, green flags, and counterfactuals.
-    3. Keep reasoning explicit and reference public evidence. Never fabricate.
+       - Make clear when the limiting factor is lack of evidence rather than
+         negative evidence.
+    2. Write the assessment summary so that:
+       - The first sentence is a headline verdict in natural language
+         (e.g., "[Overall: Strong] CFO fit for Pigment; strongest on
+         capital markets, risks around scaling post-IPO.").
+       - The remaining 1-2 sentences explain what a FirstMark partner or
+         board is likely to care about most, and where this candidate is
+         most likely to surprise on the upside or downside.
+    3. Populate must_haves_check, red_flags_detected, and green_flags:
+       - must_haves_check: checklist-style items indicating which critical
+         requirements appear clearly met or unproven.
+       - red_flags_detected: 3-5 concise bullets phrased as "board-ready"
+         risks, each tied to specific evidence or citations.
+       - green_flags: 3-5 concise bullets for strengths to lean on in
+         conversations, each tied to specific evidence or citations.
+    4. Use counterfactuals to propose concrete follow-up questions:
+       - Each counterfactual should describe a specific probe or scenario a
+         partner could use in conversation and how the answer might move a
+         dimension score (e.g., "If they have led a 300+ person org post-Series D,
+         Leadership and Scaling scores could move from 3→4.").
+    5. Keep reasoning explicit, tie claims to public evidence, and prefer
+       null/None over guessing when evidence is thin. Never fabricate.
   markdown: true
 ```
 
@@ -161,3 +190,35 @@ Several elements from `interviewprompt.md` should explicitly shape the assessmen
 - **Sparse-data calibration:** The interview prompt’s sparse-data mode implies conservative scoring:
   - Under thin evidence, dimensions should default to `None` with a clear explanation of the gap, rather than low numeric scores based on speculation.
   - This keeps the assessment epistemically honest and makes it obvious where more research or conversation is needed.
+
+## Demo-Focused Assessment Enhancements and Dependencies
+
+The enhanced assessment prompt is designed to make demo outputs easier to narrate while remaining compatible with existing code and tests.
+
+- **Headline verdict in `summary`:**
+  - First sentence becomes a demo-friendly headline (e.g., "[Overall: Strong] CTO fit...").
+  - No schema changes required: this is just stronger guidance for how to populate the existing `summary: str` field in `AssessmentResult` (see `demo/models.py`).
+
+- **Explicit 1–5 scale semantics:**
+  - Clarified scale is reflected only in the assessment prompt; `DimensionScore.score` remains `Optional[int]` with `ge=1, le=5`.
+  - `calculate_overall_score()` in `demo/agents.py` continues to work as-is (simple average × 20); what changes is the interpretability of each integer in the demo narrative.
+
+- **Evidence-aware null/None behavior:**
+  - Instructions now explicitly say to use `None` when evidence is thin or only hypothetical, aligning with the existing model constraint that `None` represents "Unknown / insufficient evidence".
+  - This behavior is consistent with spec expectations and keeps downstream consumers (Airtable JSON, tests, and any analytics) unchanged.
+
+- **Board-ready flags and must-haves:**
+  - `must_haves_check`, `red_flags_detected`, and `green_flags` are already part of `AssessmentResult`.
+  - The new guidance simply standardizes their phrasing and density (3–5 bullets) so that Airtable-rendered assessments read like concise partner briefs during the demo.
+
+- **Counterfactuals as follow-up questions:**
+  - `counterfactuals` remains a `list[str]`; the prompt now nudges each entry to be a concrete question plus a short "how this might move the score" clause.
+  - This makes the array directly usable as a follow-up interview checklist demo without any code changes.
+
+- **Test and loader compatibility:**
+  - `tests/test_prompts.py` asserts that the assessment instructions contain the phrase "Score on a 1-5 scale"; the updated prompt preserves this exact wording.
+  - `demo/prompts/library.py` and `get_prompt("assessment")` behavior remain unchanged; only the `instructions` text grows richer.
+
+- **Airtable and API integration:**
+  - `AirtableClient.write_assessment()` continues to serialize `AssessmentResult` into Airtable long-text fields; more structured and legible `summary`, flags, and counterfactuals yield more compelling records in the demo UI with no integration changes.
+  - Both Flask (`demo/app.py`) and AgentOS (`demo/agentos_app.py`) entrypoints continue to treat `AssessmentResult` as an opaque structured payload; only the human-facing content improves.

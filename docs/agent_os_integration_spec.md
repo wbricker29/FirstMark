@@ -67,6 +67,10 @@ The following tasks remain to finish the cutover and make AgentOS production-rea
 - Confirm every Airtable automation hitting `/screen` uses the AgentOS ngrok URL and `Content-Type: application/json`.
 - If we enable `AGENTOS_SECURITY_KEY`, add the `Authorization: Bearer ...` header and document how the key is stored/distributed.
 - Update Airtable automation descriptions/comments to note the AgentOS endpoint and remove references to Flask.
+- Inventory every automation touching Screens/Searches (name, trigger, action) and track findings in a lightweight audit table (e.g., `tmp/automation_audit.md`).
+- For each webhook action: verify POST method, ensure the body is exactly `{ "screen_id": "{RECORD_ID}" }`, and confirm headers include `Content-Type: application/json` plus `Authorization: Bearer <key>` when applicable.
+- Use Airtable's built-in **Test** for each automation with a real Screen record; record the timestamp + outcome in the audit log and capture terminal logs showing the AgentOS runtime handling the request.
+- Only mark this section complete once every automation entry has: updated description referencing AgentOS, verified URL/headers, and a successful test recorded in the audit log.
 
 ### 2. Legacy Runtime Decommission
 - ✅ Update CI to skip legacy Flask tests by default (pyproject `addopts = "-m 'not legacy'"`; run `pytest -m legacy tests/test_app.py` when desired).
