@@ -61,7 +61,7 @@ python scripts/validation/validate-prerequisites.py agent-implementation TK-03
     "description": "...",
     "status": "ready",
     "dependencies": "None",
-    "files": ["demo/app.py", "demo/agents.py"],
+    "files": ["demo/agentos_app.py", "demo/agents.py"],
     ...
   },
   "dependencies": [],

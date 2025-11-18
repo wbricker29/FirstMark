@@ -18,6 +18,7 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 - **Authoritative scope**: `spec/v1_minimal_spec.md` (v1 contract)
 - **Product requirements**: `spec/prd.md`
 - **Technical specification**: `spec/spec.md`
+- **AgentOS migration**: `docs/agent_os_integration_spec.md` (Stage 4.5 runtime transition)
 - **Airtable schema**: `airtable_ai_spec.md`
 - **Role templates**: `role_spec_design.md`
 
@@ -52,11 +53,14 @@ When conflicts arise, `spec/v1_minimal_spec.md` takes precedence.
 
 **Technical Constraints:**
 
+- **Runtime:** AgentOS/FastAPI (canonical) + Flask (legacy compatibility) - see Stage 4.5 in spec.md
+- **Webhook Endpoint:** `POST /screen` hosted by `demo/agentos_app.py` (AgentOS runtime)
+- **Shared Logic:** `demo/screening_service.py` provides common workflow for both runtimes
 - **Execution:** Synchronous, single-process (no async/concurrent processing)
 - **Database:** Agno's `SqliteDb(db_file="tmp/agno_sessions.db")` for session state only
 - **No custom tables:** No WorkflowEvent model, no custom event logging tables
 - **Airtable storage:** All research + assessment data in Assessments table (7 tables total: 6 core + 1 helper)
-- **Audit trail:** Airtable status fields + terminal logs (no separate Workflows/Research_Results tables)
+- **Audit trail:** Airtable status fields + terminal logs + AgentOS control plane UI (no separate Workflows/Research_Results tables)
 
 **Phase 2+ (NOT in v1):**
 
@@ -246,47 +250,39 @@ scored_dims = [d for d in assessment.dimension_scores if d.score is not None]
 
 ## Agent Configurations
 
+### Centralized Prompt System
+
+**All agent prompts are managed via `demo/prompts/`:**
+
+- **Catalog:** `demo/prompts/catalog.yaml` - YAML definitions for all agent prompts
+- **Loader:** `demo/prompts/library.py` - `get_prompt(name)` function
+- **Context Management:** Prompts align with Agno context engineering best practices (see `reference/docs_and_examples/agno/agno_contextmanagement.md`)
+
+**Benefits:**
+- Edit prompts without touching code
+- Consistent structure across agents
+- Template support for dynamic values
+- Centralized version control
+
 ### 1. Deep Research Agent
 
 ```python
 from agno import Agent
 from agno.models.openai import OpenAIResponses
+from demo.prompts import get_prompt
 
 # Deep Research Agent - Returns markdown (NO structured output support)
+prompt = get_prompt("deep_research")
+
 deep_research_agent = Agent(
     name="Deep Research Agent",
     model=OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1),
     # NO output_schema - API doesn't support structured outputs
-    instructions="""
-        Research this executive comprehensively using all available sources.
-
-        Focus on:
-        - Career trajectory: roles, companies, tenure, progression
-        - Leadership experience: team sizes, scope of responsibility
-        - Domain expertise: technical/functional areas, industry sectors
-        - Company stage experience: startup, growth, scale, public
-        - Notable achievements: exits, fundraising, product launches
-        - Public evidence: LinkedIn, company sites, news articles
-
-        Structure your response with clear sections:
-        - Executive Summary
-        - Career Timeline
-        - Leadership & Team Building
-        - Domain Expertise
-        - Stage & Sector Experience
-        - Key Achievements
-        - Gaps in Public Evidence
-
-        Include inline citations with URLs and relevant quotes.
-
-        Be explicit about:
-        - What you found with supporting citations
-        - What you couldn't find (gaps)
-        - Confidence level based on evidence quality/quantity
-    """,
+    **prompt.as_agent_kwargs(),  # Injects description, instructions, markdown
+    add_datetime_to_context=True,  # Provides temporal awareness for "recent" roles
     exponential_backoff=True,
     retries=2,
-    retry_delay=1,
+    delay_between_retries=1,
 )
 
 # Usage
@@ -306,27 +302,21 @@ citations = result.citations.urls  # List[UrlCitation]
 ### 2. Incremental Search Agent (Optional)
 
 ```python
-from agno.tools.openai import web_search
+from demo.prompts import get_prompt
 
 # Incremental Search Agent - Single pass, ≤2 web tool calls
+prompt = get_prompt("incremental_search")
+
 incremental_search_agent = Agent(
     name="Incremental Search Agent",
-    model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[web_search],  # Built-in OpenAI web search tool
-    max_tool_calls=2,  # Hard limit: 2 tool calls maximum
-    output_schema=ExecutiveResearchResult,  # gpt-5-mini DOES support structured outputs
-    instructions="""
-        You are a single-pass supplemental researcher. Only run when Deep Research
-        results lack sufficient citations or key evidence.
-
-        Perform at most TWO targeted web searches to address the supplied gaps,
-        then stop.
-
-        Return only NEW information plus the citations that support it.
-        If gaps remain, document them explicitly in the gaps field.
-    """,
+    model=OpenAIResponses(id="gpt-5", max_tool_calls=2),
+    tools=[{"type": "web_search_preview"}],  # Built-in OpenAI web search tool
+    output_schema=ExecutiveResearchResult,  # gpt-5 DOES support structured outputs
+    **prompt.as_agent_kwargs(),  # Injects description, instructions, markdown
+    add_datetime_to_context=True,  # Temporal context for supplemental searches
     exponential_backoff=True,
     retries=1,
+    delay_between_retries=1,
 )
 ```
 
@@ -334,39 +324,69 @@ incremental_search_agent = Agent(
 
 ```python
 from agno.tools.reasoning import ReasoningTools
+from demo.prompts import get_prompt
 
 # Assessment Agent - ReasoningTools enabled (REQUIRED for v1)
+prompt = get_prompt("assessment")
+
 assessment_agent = Agent(
     name="Assessment Agent",
     model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[ReasoningTools(add_instructions=True)],  # REQUIRED
+    tools=[ReasoningTools(add_instructions=True)],  # REQUIRED for reasoning trails
     output_schema=AssessmentResult,
-    instructions="""
-        Evaluate candidate against role specification using provided research.
-
-        You will receive:
-        - Complete executive research (original + supplements if applicable)
-        - Role specification with weighted dimensions
-
-        Your evaluation process:
-        1. For each dimension in the role spec:
-           - Score 1-5 (1 = weakest, 5 = strongest)
-           - If Unknown/No Evidence, set score to null/None
-           - Assign confidence (High/Medium/Low)
-           - Provide evidence-based reasoning with quotes
-           - Cite specific sources
-
-        2. Generate overall assessment:
-           - Top 3-5 reasons FOR this candidate
-           - Top 3-5 reasons AGAINST or concerns
-           - Critical assumptions (counterfactuals)
-
-        Be explicit when evidence is insufficient - use null/None for scores
-        instead of guessing.
-    """,
+    **prompt.as_agent_kwargs(),  # Injects description, instructions, markdown
+    add_datetime_to_context=True,  # Context for "current role" evaluation
     exponential_backoff=True,
     retries=2,
+    delay_between_retries=1,
 )
+```
+
+### 4. Research Parser Agent
+
+```python
+from demo.prompts import get_prompt
+
+# Research Parser Agent - Converts markdown to structured ExecutiveResearchResult
+prompt = get_prompt("research_parser")
+
+research_parser_agent = Agent(
+    name="Research Parser Agent",
+    model=OpenAIResponses(id="gpt-5-mini"),
+    output_schema=ExecutiveResearchResult,
+    **prompt.as_agent_kwargs(),  # Injects description, instructions (markdown=False)
+    exponential_backoff=True,
+    retries=2,
+    delay_between_retries=1,
+)
+```
+
+### Context Management Features
+
+**Currently Enabled:**
+
+- ✅ `description` - Role descriptions from catalog
+- ✅ `instructions` - Task-specific instructions from catalog
+- ✅ `markdown` - Formatting control (per agent)
+- ✅ `add_datetime_to_context` - Temporal awareness for all agents except parser
+- ✅ Tool instructions - ReasoningTools with `add_instructions=True`
+
+**Example System Message (Deep Research Agent):**
+
+```text
+You are the Talent Signal Deep Research agent that investigates executives
+for FirstMark Capital portfolio searches.
+
+<instructions>
+- Research this executive comprehensively using all available sources.
+- Focus on: Career trajectory, leadership experience, domain expertise...
+[Full instructions from catalog.yaml]
+</instructions>
+
+<additional_information>
+- Use markdown to format your answer
+- The current time is 2025-11-17 14:30:00.
+</additional_information>
 ```
 
 ---

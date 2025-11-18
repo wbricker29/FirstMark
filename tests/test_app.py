@@ -1,7 +1,10 @@
-"""Integration tests for Flask webhook server and /screen endpoint.
+"""Integration tests for the legacy Flask webhook (/screen) endpoint.
 
 Validates end-to-end Flask behavior including request validation, workflow
 orchestration, partial failures, and critical error handling.
+
+Run manually with ``pytest -m legacy tests/test_app.py`` because CI skips
+legacy tests by default while AgentOS serves as the canonical runtime.
 """
 
 from __future__ import annotations
@@ -16,6 +19,9 @@ from flask.testing import FlaskClient
 
 from demo.app import create_app
 from demo.models import AssessmentResult, DimensionScore
+
+
+pytestmark = pytest.mark.legacy
 
 
 @pytest.fixture
@@ -224,7 +230,7 @@ def test_successful_screening_single_candidate(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "recScreen123"})
@@ -282,7 +288,7 @@ def test_successful_screening_multiple_candidates(
         "recAssessment456",
     ]
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "recScreen123"})
@@ -323,7 +329,7 @@ def test_partial_failure_one_candidate_fails(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         # First candidate succeeds, second fails
         mock_screen.side_effect = [
             sample_assessment,
@@ -344,9 +350,9 @@ def test_partial_failure_one_candidate_fails(
         assert error["candidate_id"] == "recCandidate456"
         assert "Research agent failed" in error["error"]
 
-        # Verify status updated to Partial
+        # Verify status updated to Complete (Platform-Screens schema only has Processing/Complete)
         mock_airtable_client.update_screen_status.assert_any_call(
-            "recScreen123", status="Partial"
+            "recScreen123", status="Complete"
         )
 
 
@@ -367,7 +373,7 @@ def test_partial_failure_candidate_missing_id(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "recScreen123"})
@@ -426,11 +432,12 @@ def test_critical_error_missing_role_spec_link(
     assert data["error"] == "validation_error"
     assert "role spec" in data["message"].lower()
 
-    # Verify screen marked as Failed
-    mock_airtable_client.update_screen_status.assert_any_call(
-        "recScreen123",
-        status="Failed",
-        error_message="Screen missing linked role spec.",
+    # Verify screen status updated to Complete (error_message passed but not actually written)
+    # Check that update_screen_status was called with status="Complete"
+    calls = mock_airtable_client.update_screen_status.call_args_list
+    complete_calls = [c for c in calls if c.kwargs.get("status") == "Complete"]
+    assert len(complete_calls) > 0, (
+        "Expected update_screen_status to be called with status='Complete'"
     )
 
 
@@ -454,11 +461,12 @@ def test_critical_error_missing_role_spec_markdown(
     assert data["error"] == "validation_error"
     assert "markdown" in data["message"].lower()
 
-    # Verify screen marked as Failed
-    mock_airtable_client.update_screen_status.assert_any_call(
-        "recScreen123",
-        status="Failed",
-        error_message="Role spec missing structured markdown content.",
+    # Verify screen status updated to Complete (error_message passed but not actually written)
+    # Check that update_screen_status was called with status="Complete"
+    calls = mock_airtable_client.update_screen_status.call_args_list
+    complete_calls = [c for c in calls if c.kwargs.get("status") == "Complete"]
+    assert len(complete_calls) > 0, (
+        "Expected update_screen_status to be called with status='Complete'"
     )
 
 
@@ -482,11 +490,12 @@ def test_critical_error_no_candidates_linked(
     assert data["error"] == "validation_error"
     assert "no linked candidates" in data["message"].lower()
 
-    # Verify screen marked as Failed
-    mock_airtable_client.update_screen_status.assert_any_call(
-        "recScreen123",
-        status="Failed",
-        error_message="No candidates linked to screen.",
+    # Verify screen status updated to Complete (error_message passed but not actually written)
+    # Check that update_screen_status was called with status="Complete"
+    calls = mock_airtable_client.update_screen_status.call_args_list
+    complete_calls = [c for c in calls if c.kwargs.get("status") == "Complete"]
+    assert len(complete_calls) > 0, (
+        "Expected update_screen_status to be called with status='Complete'"
     )
 
 
@@ -500,7 +509,7 @@ def test_critical_error_status_update_on_exception(
     mock_airtable_client.get_screen.return_value = sample_screen_data
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         # Candidate-level exception is caught and treated as partial failure
         mock_screen.side_effect = Exception("Unexpected error during screening")
 
@@ -514,9 +523,9 @@ def test_critical_error_status_update_on_exception(
         assert len(data["errors"]) == 1
         assert "Unexpected error" in data["errors"][0]["error"]
 
-        # Verify screen marked as Partial (not Failed)
+        # Verify screen marked as Complete (Platform-Screens only has Processing/Complete statuses)
         mock_airtable_client.update_screen_status.assert_any_call(
-            "recScreen123", status="Partial"
+            "recScreen123", status="Complete"
         )
 
 
@@ -537,7 +546,7 @@ def test_screen_id_trimmed_before_processing(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "  recScreen123  "})
@@ -559,7 +568,7 @@ def test_response_includes_execution_time(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "recScreen123"})
@@ -583,7 +592,7 @@ def test_no_errors_key_in_successful_response(
     mock_airtable_client.get_role_spec.return_value = sample_role_spec
     mock_airtable_client.write_assessment.return_value = "recAssessment123"
 
-    with patch("demo.app.screen_single_candidate") as mock_screen:
+    with patch("demo.screening_service.screen_single_candidate") as mock_screen:
         mock_screen.return_value = sample_assessment
 
         response = client.post("/screen", json={"screen_id": "recScreen123"})

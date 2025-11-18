@@ -23,6 +23,7 @@ from demo.models import (
     DimensionScore,
     ExecutiveResearchResult,
 )
+from demo.prompts import get_prompt
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -135,37 +136,14 @@ def create_research_agent(use_deep_research: bool = True) -> Agent:
             "v1.0-minimal only supports Deep Research mode."
         )
 
+    prompt = get_prompt("deep_research")
+
     return Agent(
         name="Deep Research Agent",
         model=OpenAIResponses(id="o4-mini-deep-research", max_tool_calls=1),
         # CRITICAL: NO output_schema - Deep Research API doesn't support structured outputs
-        instructions="""
-Research this executive comprehensively using all available sources.
-
-Focus on:
-- Career trajectory: roles, companies, tenure, progression
-- Leadership experience: team sizes, scope of responsibility
-- Domain expertise: technical/functional areas, industry sectors
-- Company stage experience: startup, growth, scale, public
-- Notable achievements: exits, fundraising, product launches
-- Public evidence: LinkedIn, company sites, news articles
-
-Structure your response with clear sections:
-- Executive Summary
-- Career Timeline
-- Leadership & Team Building
-- Domain Expertise
-- Stage & Sector Experience
-- Key Achievements
-- Gaps in Public Evidence
-
-Include inline citations with URLs and relevant quotes.
-
-Be explicit about:
-- What you found with supporting citations
-- What you couldn't find (gaps)
-- Confidence level based on evidence quality/quantity
-        """.strip(),
+        **prompt.as_agent_kwargs(),
+        add_datetime_to_context=True,
         exponential_backoff=True,
         retries=2,
         delay_between_retries=1,
@@ -175,20 +153,13 @@ Be explicit about:
 def create_research_parser_agent() -> Agent:
     """Create parser agent that converts markdown into structured results."""
 
+    prompt = get_prompt("research_parser")
+
     return Agent(
         name="Research Parser Agent",
         model=OpenAIResponses(id="gpt-5-mini"),
         output_schema=ExecutiveResearchResult,
-        instructions="""
-Convert the provided Deep Research markdown and citations into the
-ExecutiveResearchResult schema.
-
-Requirements:
-- Extract career timeline, achievements, sector/stage exposure
-- Reference citations explicitly (use citation URLs when uncertain)
-- Surface gaps or missing public information
-- Leave scores/assessments untouched; focus only on research structure
-        """.strip(),
+        **prompt.as_agent_kwargs(),
         exponential_backoff=True,
         retries=2,
         delay_between_retries=1,
@@ -211,24 +182,15 @@ def create_incremental_search_agent(max_tool_calls: int = 2) -> Agent:
         2
     """
 
+    prompt = get_prompt("incremental_search")
+
     return Agent(
         name="Incremental Search Agent",
         model=OpenAIResponses(id="gpt-5", max_tool_calls=max_tool_calls),
         tools=[{"type": "web_search_preview"}],
         output_schema=ExecutiveResearchResult,
-        instructions="""
-You are a single-pass supplemental researcher. Only run when Deep Research
-results lack sufficient citations or key evidence.
-
-Perform at most TWO targeted web searches to address the supplied gaps, then
-stop. Focus on:
-- Missing LinkedIn/biography details
-- Leadership scope (team size, budgets, org design)
-- Fundraising or product evidence relevant to the supplied role spec
-
-Return only NEW information with supporting citations. If gaps remain after
-the search, document them explicitly.
-        """.strip(),
+        **prompt.as_agent_kwargs(),
+        add_datetime_to_context=True,
         exponential_backoff=True,
         retries=1,
         delay_between_retries=1,
@@ -247,21 +209,15 @@ def create_assessment_agent() -> Agent:
         'ReasoningTools'
     """
 
+    prompt = get_prompt("assessment")
+
     return Agent(
         name="Assessment Agent",
         model=OpenAIResponses(id="gpt-5-mini"),
         tools=[ReasoningTools(add_instructions=True)],
         output_schema=AssessmentResult,
-        instructions="""
-Evaluate the candidate using the provided research and role specification.
-
-Your process:
-1. For each dimension in the role spec:
-   - Score on a 1-5 scale. Use null/None when evidence is insufficient.
-   - Provide confidence (High/Medium/Low) and reasoning tied to citations.
-2. Summarize must-have checks, red flags, green flags, and counterfactuals.
-3. Keep reasoning explicit and reference public evidence. Never fabricate.
-        """.strip(),
+        **prompt.as_agent_kwargs(),
+        add_datetime_to_context=True,
         exponential_backoff=True,
         retries=2,
         delay_between_retries=1,
@@ -592,33 +548,75 @@ def screen_single_candidate(
 
     state = workflow.session_state
 
+    # Extract Airtable fields (candidate_data has structure: {id: "recXXX", fields: {...}})
+    fields = candidate_data.get("fields", {})
+
     candidate_id = (
         candidate_data.get("id")
         or candidate_data.get("record_id")
         or candidate_data.get("airtable_id")
     )
     candidate_name = (
-        candidate_data.get("name")
-        or candidate_data.get("full_name")
+        fields.get("Name")
+        or fields.get("Full Name")
+        or candidate_data.get("Full Name")
+        or candidate_data.get("name")
         or "Unnamed Candidate"
     )
     current_title = (
-        candidate_data.get("current_title") or candidate_data.get("title") or ""
+        fields.get("Current Title")
+        or fields.get("Title")
+        or candidate_data.get("current_title")
+        or candidate_data.get("title")
+        or ""
     )
     current_company = (
-        candidate_data.get("current_company") or candidate_data.get("company") or ""
+        fields.get("Current Company")
+        or fields.get("Company")
+        or candidate_data.get("current_company")
+        or candidate_data.get("company")
+        or ""
     )
-    linkedin_url = candidate_data.get("linkedin_url") or candidate_data.get("linkedin")
+    linkedin_url = (
+        fields.get("LinkedIn URL")
+        or fields.get("LinkedIn")
+        or candidate_data.get("linkedin_url")
+    )
+
+    # Use screen_id as the unique session identifier
+    session_id = f"screen_{screen_id}_{candidate_id or 'unknown'}"
 
     state.update(
         {
             "screen_id": screen_id,
             "candidate_id": candidate_id,
             "candidate_name": candidate_name,
+            "session_id": session_id,
         }
     )
 
+    # Helper to persist session state to database
+    def persist_session() -> None:
+        """Save current session state to SQLite database."""
+        if workflow.db:
+            try:
+                from agno.session.workflow import WorkflowSession
+
+                session = WorkflowSession(
+                    session_id=session_id,
+                    workflow_id=workflow.id or "screening_workflow",
+                    workflow_name=workflow.name,
+                    session_data=state.copy(),
+                )
+                workflow.db.upsert_session(session)
+                logger.debug("💾 Session persisted: %s", session_id)
+            except Exception as e:
+                logger.warning("Failed to persist session: %s", e)
+
     try:
+        # Persist initial session state
+        persist_session()
+
         logger.info(
             "🔍 Starting deep research for %s (%s at %s)",
             candidate_name,
@@ -632,6 +630,8 @@ def screen_single_candidate(
             linkedin_url=linkedin_url,
         )
         state["last_step"] = "deep_research"
+        state["research_citations_count"] = len(research.citations)
+        persist_session()
         logger.info(
             "✅ Deep research completed for %s with %d citations",
             candidate_name,
@@ -642,6 +642,7 @@ def screen_single_candidate(
         quality_ok = check_research_quality(research)
         state["last_step"] = "quality_check"
         state["quality_gate_triggered"] = not quality_ok
+        persist_session()
 
         working_research = research
         if quality_ok:
@@ -659,6 +660,8 @@ def screen_single_candidate(
                 role_spec_markdown=role_spec_markdown,
             )
             state["last_step"] = "incremental_search"
+            state["incremental_citations_count"] = len(working_research.citations)
+            persist_session()
             logger.info(
                 "✅ Incremental search merged for %s. Citations now %d",
                 candidate_name,
@@ -671,6 +674,8 @@ def screen_single_candidate(
             role_spec_markdown=role_spec_markdown,
         )
         state["last_step"] = "assessment"
+        state["overall_score"] = assessment.overall_score
+        persist_session()
         logger.info(
             "✅ Assessment complete for %s (overall_score=%s)",
             candidate_name,
@@ -679,6 +684,7 @@ def screen_single_candidate(
         return assessment
     except Exception as exc:  # pragma: no cover - runtime defensive path
         state["last_error"] = str(exc)
+        persist_session()
         logger.error("❌ Workflow failed for %s: %s", candidate_name, exc)
         raise
 

@@ -4,6 +4,7 @@ created: "2025-01-16"
 updated: "2025-01-17"
 project: "Talent Signal Agent"
 context: "FirstMark Capital AI Lead Case Study"
+agentos_status: "Prototype complete (demo/agentos_app.py). See docs/agent_os_integration_spec.md for migration roadmap."
 ---
 
 # Product Requirements Document: Talent Signal Agent
@@ -36,8 +37,9 @@ An AI-powered system that:
 1. **Accelerates Shortlist Generation:** From hours/days → minutes to generate ranked candidate lists
 2. **Increases Coverage:** Surface strong matches the team might not immediately recall
 3. **Provides Clear Reasoning:** Explain why each candidate is/isn't a fit with evidence
-4. **Captures Matching Logic:** Codify evaluation criteria in reusable role specifications
+4. **Captures Matching Logic:** Codify evaluation criteria in reusable role specifications and centralized prompt templates
 5. **Enables Self-Service:** Portfolio companies can see match rationale, talent team focuses on high-value relationship work
+6. **Provides Execution Transparency:** Real-time visibility into agent workflows via Agno's built-in UI dashboard
 
 **Success Looks Like:**
 
@@ -55,6 +57,8 @@ An AI-powered system that:
 3. **Research Automation:** Manual research on each candidate (LinkedIn, news, company background)
 4. **Evidence-Based Ranking:** No systematic scoring that ties back to observable evidence
 5. **Audit Trail:** No record of searches run, candidates evaluated, reasoning provided
+6. **Prompt Management:** Agent prompts are hardcoded, making iteration and A/B testing difficult
+7. **Workflow Visibility:** No real-time visibility into agent execution, debugging requires log parsing
 
 **Why This Gap Exists:**
 
@@ -65,9 +69,10 @@ An AI-powered system that:
 
 **Why Now:**
 
-- Agno and modern LLM frameworks make rapid prototyping feasible
+- Agno framework provides native UI dashboard and prompt template system for rapid prototyping
+- Modern LLM frameworks make agent orchestration feasible
 - OpenAI Deep Research API enables automated executive research
-- Airtable provides no-code UI layer for talent team adoption
+- Airtable provides no-code data layer for talent team adoption
 - 48-hour case study window forces MVP scope discipline
 
 ---
@@ -78,8 +83,9 @@ An AI-powered system that:
 
 1. **Demonstrate AI-Augmented Matching:** Prototype system that ranks candidates for open roles with clear reasoning
 2. **Validate Approach Quality:** Show FirstMark team this direction is worth pursuing further
-3. **Prove Technical Capability:** Demonstrate modern agent frameworks, structured outputs, evidence-based evaluation
+3. **Prove Technical Capability:** Demonstrate modern agent frameworks, structured outputs, evidence-based evaluation, centralized prompt management, and workflow transparency
 4. **Establish Product Thinking:** Show understanding of VC talent workflows and stakeholder needs
+5. **Enable Rapid Iteration:** Use Agno's native prompt templates and UI dashboard for fast experimentation and debugging
 
 ### Success Metrics
 
@@ -137,6 +143,8 @@ An AI-powered system that:
 - ✅ **Deep Research – primary and only required mode for v1.0-minimal** (OpenAI Deep Research API)
 - ✅ **Incremental Search – optional single-pass supplement when quality is low** (up to two web/search calls)
 - ✅ Spec-guided assessment with evidence-aware scoring (uses Agno ReasoningTools for structured reasoning trails)
+- ✅ **Centralized Prompt Templates** using Agno's native template system for research and assessment agents
+- ✅ **Agno UI Dashboard** for real-time workflow monitoring, debugging, and session inspection
 - ✅ Dimension-level scores (1-5 scale with None for Unknown)
 - ✅ Overall score calculation (0-100 scale)
 - ✅ Reasoning, counterfactuals, confidence tracking
@@ -148,17 +156,54 @@ An AI-powered system that:
 
 - ✅ Mock data from guildmember_scrape.csv (64 real executives)
 - ✅ 4 portfolio scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO)
-- ✅ Airtable database with 7 tables (v1: 6 core + 1 helper - People, Portco, Portco_Roles, Searches, Screens, Assessments, Role_Specs; Phase 2+: Workflows, Research_Results)
+- ✅ Airtable database with 7 tables (6 core workflow + Role_Specs helper for template storage; Phase 2+: Workflows, Research_Results)
 - ✅ Flask webhook server with ngrok tunnel
 - ✅ Synchronous execution for demo simplicity (single-process)
 
+**Airtable Schema (7 Tables):**
+
+**Core Workflow Tables (6):**
+- **People**: Executive network data (guild members, portfolio execs, partner connections)
+- **Portco**: Portfolio company records (Pigment, Mockingbird, Synthesia, Estuary)
+- **Portco_Roles**: Open leadership positions (CFO/CTO roles at portfolio companies)
+- **Searches**: Talent search requests (links roles to candidate screening batches)
+- **Screens**: Candidate screening batches (webhook-triggered workflow executions)
+- **Assessments**: Individual candidate evaluations (research + assessment results)
+
+**Helper Tables (1):**
+- **Role_Specs**: Reusable evaluation templates (CFO_Standard_v1, CTO_Standard_v1)
+
+**Phase 2+ Tables (Deferred):**
+- Workflows: Audit trail for multi-step workflows
+- Research_Results: Separate storage for deep research outputs
+
+**Demo Scenarios:**
+
+| Scenario | Portfolio Company | Role Type | Role Spec Template | Candidates | Pre-run Status |
+|----------|------------------|-----------|-------------------|-----------|----------------|
+| 1 | Pigment | CFO | CFO_Standard_v1 | 3-5 from guild | ⏸️ Pre-run before demo |
+| 2 | Mockingbird | CFO | CFO_Standard_v1 | 3-5 from guild | ⏸️ Pre-run before demo |
+| 3 | Synthesia | CTO | CTO_Standard_v1 | 3-5 from guild | ⏸️ Pre-run before demo |
+| 4 | Estuary | CTO | CTO_Standard_v1 | 2-3 from guild | ⏸️ Live demo execution |
+
+**Notes:**
+- Scenarios 1-3 demonstrate results quality and assessment reasoning
+- Scenario 4 demonstrates real-time workflow execution and Agno UI monitoring
+- All candidates sourced from guildmember_scrape.csv (64 total executives)
+- Each scenario uses standard role spec template (CFO_Standard_v1 or CTO_Standard_v1)
+- Role specs stored in Role_Specs table, attached to Portco_Roles records
+
 **Technical Stack:**
 
-- ✅ Agno agent framework
+- ✅ Agno agent framework with native UI dashboard and prompt template system
+- ✅ **AgentOS prototype** (demo/agentos_app.py) - FastAPI runtime with enhanced observability (parallel to Flask)
 - ✅ OpenAI models: o4-mini-deep-research (research), gpt-5-mini (assessment)
 - ✅ Pydantic structured outputs (ExecutiveResearchResult, AssessmentResult)
-- ✅ Airtable for database + UI
+- ✅ Airtable for database + data management
+- ✅ Flask (production webhook) + FastAPI (AgentOS prototype) dual entrypoints
 - ✅ Python 3.11+ with uv package manager
+- ✅ Agno UI for workflow visualization and debugging
+- ✅ Agno prompt templates for centralized prompt management
 
 ### Out of Scope (Phase 2+)
 
@@ -193,12 +238,13 @@ An AI-powered system that:
 
 **Phase 2 Enhancements:**
 
-1. **Fast Mode:** Web search fallback for quicker candidate screening
-2. **Multi-iteration supplemental search:** Adaptive quality thresholds with iterative research
-3. **Research Caching:** Avoid re-researching same candidates
-4. **Parallel Processing:** Concurrent candidate screening with multiple workers
-5. **SQLite Audit Trail:** Persistent workflow event storage
-6. **Production Deployment:** Cloud hosting, monitoring, observability
+1. **AgentOS Migration:** Transition from Flask to AgentOS (FastAPI) runtime for enhanced observability, control plane features, and production deployment (see `docs/agent_os_integration_spec.md`)
+2. **Fast Mode:** Web search fallback for quicker candidate screening
+3. **Multi-iteration supplemental search:** Adaptive quality thresholds with iterative research
+4. **Research Caching:** Avoid re-researching same candidates
+5. **Parallel Processing:** Concurrent candidate screening with multiple workers (leverages AgentOS multi-agent orchestration)
+6. **SQLite → Postgres Migration:** Production-grade database with AgentOS templates
+7. **Enhanced Observability:** Metrics, eval hooks, RBAC via AgentOS control plane
 
 **Phase 3+ Vision:**
 
@@ -283,6 +329,36 @@ An AI-powered system that:
 - And I see a simple research sufficiency indicator (e.g., citation count + pass/fail)
 - And insufficient research is flagged so I know when manual review is needed (including when the single incremental search step ran)
 
+### Story 6: Monitoring Agent Workflows
+
+**As a** Developer or Talent Team Power User
+**I want** real-time visibility into agent execution via Agno UI dashboard
+**So that** I can debug issues, understand agent reasoning, and optimize workflow performance
+
+**Acceptance Criteria:**
+
+- Given screening workflow is running
+- When I open Agno UI dashboard
+- Then I see real-time workflow execution status and progress
+- And I can inspect session state, agent inputs/outputs, and reasoning trails
+- And I can review historical workflow runs for debugging and optimization
+- And I can view prompt templates used for each agent step
+
+### Story 7: Iterating on Prompts
+
+**As a** Developer or Talent Team Member
+**I want** centralized, version-controlled prompt templates
+**So that** I can rapidly iterate on agent prompts without code changes
+
+**Acceptance Criteria:**
+
+- Given Agno native prompt template system
+- When I need to adjust research or assessment prompts
+- Then I can edit templates in centralized location (not hardcoded in Python)
+- And changes are version-controlled for audit trail
+- And I can A/B test different prompt variations
+- And I can revert to previous versions if new prompts underperform
+
 ---
 
 ## Python-Specific Considerations
@@ -309,8 +385,10 @@ An AI-powered system that:
 
 - <512MB per Flask worker (small dataset, no heavy computation)
 - Airtable handles primary data storage
-- Agno's built-in `SqliteDb` persists workflow session state locally (e.g., `tmp/agno_sessions.db`, gitignored) so we can review runs without custom tables
-- `InMemoryDb` remains an optional swap if persistence isn't needed; custom SQLite audit/event stores stay Phase 2+
+- **Agno SqliteDb (REQUIRED for v1):** Persists workflow session state locally at `tmp/agno_sessions.db` (gitignored) for reviewable run history
+  - Agno-managed tables only; no custom schema
+  - InMemoryDb() is Phase 2+ fallback option (NOT used in v1)
+- **Custom SQLite audit/event stores:** Phase 2+ enhancement only (not in v1.0-minimal)
 
 **Concurrency:**
 
@@ -325,6 +403,13 @@ An AI-powered system that:
 - OpenAI API (Deep Research, GPT-5-mini, Web Search)
 - Airtable API (data read/write via pyairtable)
 - Flask webhook server (receive triggers from Airtable automations)
+
+**Agno Framework Features:**
+
+- Native UI dashboard for workflow monitoring and session inspection
+- Prompt template system for centralized prompt management
+- SqliteDb for session persistence and audit trail
+- ReasoningTools for structured reasoning traces
 
 **Databases:**
 
@@ -349,6 +434,7 @@ An AI-powered system that:
 - CSV (guildmember_scrape.csv → People table)
 - Markdown (role specifications)
 - JSON (Airtable API responses, structured outputs)
+- Agno prompt templates (research and assessment agent prompts)
 
 **Output Formats:**
 
@@ -416,6 +502,7 @@ An AI-powered system that:
 
 - Local development (Mac/Linux with Python 3.11+)
 - Flask server on localhost:5000
+- Agno UI dashboard (accessible via browser for workflow monitoring)
 - ngrok tunnel for Airtable webhook connectivity
 - No Docker/cloud deployment for demo
 
@@ -428,9 +515,11 @@ An AI-powered system that:
 
 **Monitoring:**
 
+- **Agno UI Dashboard** (primary) - Real-time workflow monitoring, session inspection, reasoning traces
 - Terminal logs (stdout) for execution visibility
 - Airtable status fields for workflow state (Status, error message)
-- No SQLite event storage for v1.0-minimal (Phase 2+ enhancement)
+- Agno SqliteDb session persistence for audit trail
+- No custom SQLite event storage for v1.0-minimal (Phase 2+ enhancement)
 - No production monitoring/alerting for demo
 
 ---
@@ -480,6 +569,15 @@ An AI-powered system that:
    - Focus dev time on Module 4 (core screening)
    - Skip Modules 1-3 automation if needed
 
+6. **Risk:** Learning curve for Agno UI and prompt template system delays implementation
+   **Likelihood:** Low-Medium
+   **Impact:** Medium (slower development, less demo polish)
+   **Mitigation:**
+   - Leverage Agno documentation and examples
+   - Start with simple prompt templates, iterate during testing
+   - Use basic UI features first, advanced features in Phase 2+
+   - Terminal logs as backup monitoring if UI setup delayed
+
 ### Assumptions
 
 1. **Mock data quality:** guildmember_scrape.csv provides sufficient diversity for demo
@@ -490,6 +588,8 @@ An AI-powered system that:
 6. **Python environment:** uv package manager works reliably on Mac/Linux
 7. **Audience technical literacy:** Can follow agent workflow concepts and structured outputs
 8. **Evaluation criteria:** Case rubric accurately reflects FirstMark's priorities
+9. **Agno UI reliability:** Agno's native UI dashboard works reliably for local development workflows
+10. **Prompt template flexibility:** Agno's template system supports rapid iteration without code redeployment
 
 ---
 
@@ -503,6 +603,7 @@ An AI-powered system that:
 - ✅ Plan screening workflow architecture
 - ✅ Write technical specification
 - ✅ Set up Python environment and dependencies
+- ✅ Configure Agno UI dashboard and prompt template system
 
 ### Phase 2: Core Implementation (Hours 9-24)
 
@@ -516,17 +617,20 @@ An AI-powered system that:
 **Agent Implementation (6 hours):**
 
 - Implement ExecutiveResearchResult and AssessmentResult Pydantic models
-- Build deep research agent (o4-mini-deep-research + structured outputs)
-- Build assessment agent (gpt-5-mini with structured outputs)
+- Create Agno prompt templates for research and assessment agents
+- Build deep research agent (o4-mini-deep-research + structured outputs + templates)
+- Build assessment agent (gpt-5-mini with structured outputs + templates)
 - Implement quality check and optional incremental search logic
 - Build research merging function
+- Test agents via Agno UI dashboard for debugging
 
 **Workflow Implementation (4 hours):**
 
 - Assemble Agno workflow (linear: deep research → quality check → optional incremental search → assessment)
 - Implement custom step functions (quality check, merge, coordination)
-- Add event streaming for logging (stdout only, no SQLite storage)
+- Add event streaming for logging (stdout + Agno UI monitoring)
 - Test workflow end-to-end with mock data
+- Validate Agno UI dashboard displays workflow execution correctly
 
 **Flask Integration (4 hours):**
 
@@ -535,7 +639,14 @@ An AI-powered system that:
 - Add status field updates and error handling
 - Set up ngrok tunnel and test webhook triggers
 
-### Phase 3: Testing & Pre-Run Scenarios (Hours 25-32)
+**AgentOS Prototype (2 hours):**
+
+- Build AgentOS/FastAPI entrypoint (demo/agentos_app.py)
+- Extract shared workflow orchestration (demo/screening_service.py)
+- Validate dual runtime architecture (Flask + AgentOS)
+- Document migration roadmap (docs/agent_os_integration_spec.md)
+
+### Phase 3: Testing & Pre-Run Scenarios (Hours 27-34)
 
 **Testing (4 hours):**
 
@@ -551,12 +662,12 @@ An AI-powered system that:
 - Execute Synthesia CTO screening (3-5 candidates)
 - Generate markdown reports for all pre-run results
 
-### Phase 4: Documentation & Demo Prep (Hours 33-40)
+### Phase 4: Documentation & Demo Prep (Hours 35-42)
 
 **Documentation (4 hours):**
 
 - Write implementation README with architecture diagram
-- Document design decisions and tradeoffs
+- Document design decisions and tradeoffs (including AgentOS migration path)
 - Create demo script with talking points
 - Prepare markdown exports of sample assessments
 
@@ -564,10 +675,13 @@ An AI-powered system that:
 
 - Practice full demo flow (Modules 1-4)
 - Test live execution of Estuary CTO screening
+- Rehearse Agno UI dashboard walkthrough (workflow monitoring, session inspection)
+- Demonstrate AgentOS control plane features (optional)
+- Demonstrate prompt template iteration capabilities
 - Prepare backup plans for common failures
 - Refine presentation narrative
 
-### Phase 5: Presentation & Buffer (Hours 41-48)
+### Phase 5: Presentation & Buffer (Hours 43-50)
 
 **Presentation Creation (4 hours):**
 
@@ -619,6 +733,14 @@ An AI-powered system that:
 - ✅ Counterfactuals and confidence levels provided
 - ✅ Reasoning is clear and evidence-based
 - ✅ Assessment agent uses Agno ReasoningTools to generate explicit reasoning trails
+
+**AC-PRD-04b: Agno UI & Prompt Management**
+
+- ✅ Agno UI dashboard accessible and displays workflow execution in real-time
+- ✅ Can inspect session state, agent inputs/outputs, and reasoning via UI
+- ✅ Prompt templates stored in Agno's native template system (not hardcoded)
+- ✅ Research and assessment agents use templated prompts
+- ✅ Can iterate on prompts without code changes (template edits only)
 
 ### Non-Functional
 
@@ -681,6 +803,8 @@ An AI-powered system that:
 
 - [ ] All 3 pre-run scenarios completed with results in Airtable
 - [ ] Flask server + ngrok tunnel tested and stable
+- [ ] Agno UI dashboard accessible and displaying session history
+- [ ] Prompt templates validated and ready for demo
 - [ ] Estuary CTO scenario ready for live execution (candidates loaded, spec attached)
 - [ ] Demo script rehearsed with timing estimates
 
@@ -688,8 +812,11 @@ An AI-powered system that:
 
 - [ ] Show Airtable UI (People, Roles, Searches, Screens tables)
 - [ ] Explain role spec framework (CFO/CTO templates)
+- [ ] Demo Agno UI dashboard (workflow visualization, session inspection)
+- [ ] Show prompt templates and explain centralized management approach
 - [ ] Walk through pre-run results (dimension scores, reasoning, rankings)
 - [ ] Trigger live screening for Estuary CTO (2-3 candidates)
+- [ ] Monitor execution in real-time via Agno UI dashboard
 - [ ] Show terminal logs and Airtable status updates
 - [ ] Export markdown report and discuss
 
@@ -703,12 +830,16 @@ An AI-powered system that:
 
 **Immediate Priorities:**
 
-1. Fast Mode fallback (web search for quicker screening)
-2. Multi-iteration supplemental search with adaptive quality thresholds
-3. SQLite workflow audit trail for persistent event storage
-4. Async processing for faster batch screening (concurrent workers)
+1. **AgentOS Migration:** Replace Flask runtime with AgentOS (FastAPI) for production deployment
+   - Enable control plane UI for stakeholder demos
+   - Configure bearer token authentication
+   - Deploy via Docker Compose or AWS ECS templates
+   - Migrate Sqlite → Postgres for production durability
+2. Fast Mode fallback (web search for quicker screening)
+3. Multi-iteration supplemental search with adaptive quality thresholds
+4. Async processing for faster batch screening (leverages AgentOS orchestration)
 5. Research caching to avoid redundant API calls
-6. Enhanced error handling and observability
+6. Enhanced error handling and observability (via AgentOS metrics/eval endpoints)
 
 **Medium-Term Enhancements:**
 
@@ -716,6 +847,9 @@ An AI-powered system that:
 2. Model-generated rubric evaluation (alternative assessment)
 3. Integration with portfolio company ATS systems
 4. Historical search analytics and outcome tracking
+5. Advanced Agno UI customization (custom dashboards, alerts)
+6. A/B testing framework for prompt template optimization
+7. Prompt versioning and rollback capabilities
 
 **Long-Term Vision:**
 
@@ -731,17 +865,20 @@ An AI-powered system that:
 This PRD succeeds if:
 
 1. ✅ **Prototype demonstrates clear thinking:** Design decisions show understanding of talent workflows and stakeholder needs
-2. ✅ **Code quality signals professionalism:** Type-safe, tested, well-documented Python code
+2. ✅ **Code quality signals professionalism:** Type-safe, tested, well-documented Python code with modular architecture
 3. ✅ **Demo execution is smooth:** Live screening completes without errors, results are impressive
 4. ✅ **Reasoning is compelling:** Assessment outputs feel useful and trustworthy
 5. ✅ **Presentation is clear:** Can explain approach, tradeoffs, and next steps in 30 minutes
 6. ✅ **Evaluation criteria met:** Scores well across all 5 case rubric dimensions
+7. ✅ **Technical sophistication:** Agno UI and prompt templates demonstrate modern agent development practices
+8. ✅ **Rapid iteration capability:** Prompt template system enables fast experimentation and refinement
 
-**Remember:** The goal is demonstrating quality of thinking through minimal, working code—not building production infrastructure.
+**Remember:** The goal is demonstrating quality of thinking through minimal, working code—not building production infrastructure. Agno's native UI and templates showcase modern best practices without heavy custom engineering.
 
 **Approval:**
 
 - Created: 2025-01-16
 - Updated: 2025-01-17 (v1.0-minimal scope alignment)
+- Updated: 2025-11-17 (Added Agno UI dashboard and centralized prompt templates to v1.0-minimal scope)
 - Status: Approved for v1.0-minimal implementation
 - Next Review: Post-demo retrospective

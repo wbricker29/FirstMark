@@ -4,6 +4,8 @@
 
 This guide consolidates ~2,000 Agno framework files into a focused learning path for the Talent Signal Agent case study.
 
+**Note:** As of Stage 4.5, the project is migrating from Flask to **AgentOS** (FastAPI-based runtime with enhanced observability). See `docs/agent_os_integration_spec.md` for AgentOS-specific patterns and deployment guidance.
+
 ### Your Organized Reference System
 
 All Agno documentation is organized across 4 navigation layers:

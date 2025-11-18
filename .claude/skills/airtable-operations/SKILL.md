@@ -1,15 +1,42 @@
 ---
 name: airtable-operations
-description: Complete Airtable operations toolkit for FirstMark Talent Signal Agent. SCHEMA EXPLORATION - Discover bases, list tables, examine field types/constraints (single-select options, linked records), validate data requirements, and understand table relationships using MCP tools. DATA LOADING-Automate Module 1 (Candidate Sourcing) by loading executive candidates from ANY CSV file into Airtable People table with intelligent schema detection, automatic column mapping, executive bio .txt file loading, data cleaning, duplicate detection, and progress reporting. Production-ready for case presentation.
+description: Complete Airtable operations toolkit for FirstMark Talent Signal Agent. SCHEMA EXPLORATION - Discover bases, list tables, examine field types/constraints using MCP tools. DATA LOADING - Automate Module 1 by loading executive candidates from ANY CSV file with intelligent schema detection, column mapping, bio file loading, duplicate detection, and progress reporting. TESTING & VALIDATION - Pre-flight schema validation, post-import data quality checks, duplicate detection, format validation (emails, LinkedIn URLs), completeness scoring, and CSV comparison. Production-ready for case presentation.
 ---
 
 # Airtable Operations
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start (3 Commands)](#quick-start-3-commands)
+- [Schema Exploration (Pre-Flight Check)](#schema-exploration-pre-flight-check)
+- [Testing & Validation](#testing--validation)
+- [Usage Examples](#usage-examples)
+- [What It Does (Step-by-Step)](#what-it-does-step-by-step)
+  - [Step 1: Detect CSV Schema](#step-1-detect-csv-schema)
+  - [Step 2: Read & Parse CSV](#step-2-read--parse-csv)
+  - [Step 3: Load Executive Bios](#step-3-load-executive-bios)
+  - [Step 4: Normalize Data](#step-4-normalize-data)
+  - [Step 5: Check Duplicates](#step-5-check-duplicates)
+  - [Step 6: Create Records](#step-6-create-records)
+  - [Step 7: Summary Report](#step-7-summary-report)
+- [Demo Day Usage](#demo-day-usage)
+- [Schema Limitations (Demo Scope)](#schema-limitations-demo-scope)
+- [Expected Results](#expected-results)
+- [Troubleshooting](#troubleshooting)
+- [Technical Documentation](#technical-documentation)
+- [Configuration](#configuration)
+- [Integration with v1 Minimal Spec](#integration-with-v1-minimal-spec)
+- [Success Criteria](#success-criteria)
+- [Next Steps After Import](#next-steps-after-import)
+- [See Also](#see-also)
 
 ## Overview
 
 This skill provides complete Airtable operations for the FirstMark Talent Signal Agent project:
 - **Schema Exploration:** Validate table schemas, field constraints, and relationships using MCP tools
 - **Data Loading:** Automate Module 1 (Candidate Sourcing) by loading executive candidates from **any CSV format** into the Airtable People table
+- **Testing & Validation:** Pre-flight schema checks and post-import data quality validation
 
 Designed for flexibility during the case presentation when data formats may vary.
 
@@ -20,12 +47,16 @@ Designed for flexibility during the case presentation when data formats may vary
 - ✅ **Duplicate Detection:** Skips existing candidates automatically
 - 🔍 **Dry-Run Mode:** Preview changes before committing to Airtable
 - 📊 **Progress Reporting:** Detailed status updates during import
+- 🧪 **Schema Validation:** Pre-flight checks for table structure and field configuration
+- ✨ **Data Quality Checks:** Post-import validation for duplicates, formats, and completeness
 
 **Use this skill when:**
 - You need to load candidates from ANY CSV file into Airtable
 - You're given surprise data during the case presentation
 - You have executive bio .txt files to import alongside CSV data
 - You want to automate Module 1 instead of manual data entry
+- You need to validate Airtable schema before demo day
+- You want to verify data quality after import
 
 **Supported CSV Formats:**
 - `guildmember_scrape.csv` (64 executives from Guild pages)
@@ -132,6 +163,171 @@ For comprehensive schema exploration including field types, validation patterns,
 
 ---
 
+## Testing & Validation
+
+Before loading data or after import, use validation tools to ensure data integrity and catch issues early.
+
+### Schema Validation (Pre-Flight Check)
+
+**Purpose:** Validate Airtable schema matches expected structure before importing data.
+
+**What it checks:**
+- ✅ All 6 tables exist (People, Portco, Portco_Roles, Role_Specs, Searches, Assessments)
+- ✅ Required fields present
+- ✅ Single-select options configured (CFO/CTO, Sources)
+- ✅ Linked record fields point to correct tables
+
+**Quick validation:**
+```bash
+cd .claude/skills/airtable-operations
+python scripts/validate_schema.py
+```
+
+**With fix suggestions:**
+```bash
+python scripts/validate_schema.py --fix-suggestions
+```
+
+**Output example:**
+```
+🔍 Airtable Schema Validator
+============================================================
+✅ People table: All fields present
+⚠️  Normalized Function: Missing options [CPO, CRO, COO]
+⚠️  Source: Missing options [FMCFO, FMCTOSummit]
+
+📋 RECOMMENDED FIXES:
+People → Normalized Function:
+  1. Open Airtable and navigate to People table
+  2. Click on 'Normalized Function' column header
+  3. Click 'Edit field' → 'Edit options'
+  4. Add missing options: CFO, CTO, CPO, CRO, COO, CMO, CEO, Other
+============================================================
+✅ Schema validation passed!
+   2 warnings (non-critical)
+```
+
+---
+
+### Data Quality Validation (Post-Import Check)
+
+**Purpose:** Validate data quality in People table after import to catch issues early.
+
+**What it checks:**
+
+**Critical issues (will fail validation):**
+- ❌ Duplicate names
+- ❌ Missing required fields (Name, Added Date)
+- ❌ Invalid email formats
+- ❌ Invalid LinkedIn URL formats
+- ❌ Invalid Normalized Function values
+- ❌ Invalid Source values
+
+**Warnings (non-critical):**
+- ⚠️  Missing important fields (Title, Company, LinkedIn URL)
+- ⚠️  Orphaned records (no linked roles)
+
+**Quick validation:**
+```bash
+cd .claude/skills/airtable-operations
+python scripts/validate_data.py
+```
+
+**With CSV comparison:**
+```bash
+python scripts/validate_data.py --csv ../../../reference/guildmember_scrape.csv
+```
+
+**Save detailed report:**
+```bash
+python scripts/validate_data.py --csv ../../../reference/guildmember_scrape.csv --report quality_report.txt --verbose
+```
+
+**Output example:**
+```
+🔍 Airtable Data Quality Validator
+============================================================
+
+📊 Data Quality Report - People Table
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total Records: 66
+✅ Complete: 58 (88%)
+⚠️  Incomplete: 8 (12%)
+
+⚠️  WARNINGS (Non-Critical):
+────────────────────────────────────────────────────────────
+• Missing LinkedIn URL (3 records)
+• Missing Normalized Function (5 records)
+
+📋 CSV Comparison:
+────────────────────────────────────────────────────────────
+Expected (from CSV): 64 records
+Found in Airtable: 66 records
+✅ All CSV records found in Airtable
+
+============================================================
+✅ Data quality validation passed!
+   8 records have optional fields missing
+```
+
+---
+
+### Recommended Testing Workflow
+
+**Before demo day (complete workflow):**
+
+```bash
+# Step 1: Validate schema (1 minute)
+python scripts/validate_schema.py --fix-suggestions
+
+# Step 2: Preview import (30 seconds)
+python scripts/load_candidates.py ../../../reference/guildmember_scrape.csv --dry-run
+
+# Step 3: Load data (5 minutes)
+python scripts/load_candidates.py ../../../reference/guildmember_scrape.csv --verbose
+
+# Step 4: Validate data quality (1 minute)
+python scripts/validate_data.py --csv ../../../reference/guildmember_scrape.csv --verbose
+
+# Step 5: Save quality report for reference
+python scripts/validate_data.py --csv ../../../reference/guildmember_scrape.csv --report quality_report.txt
+```
+
+**Total time: ~7-8 minutes**
+
+---
+
+### Testing Checklist
+
+Use this checklist before demo:
+
+**Schema:**
+- [ ] All 6 tables exist
+- [ ] Normalized Function has all options
+- [ ] Source has all options
+- [ ] No schema validation errors
+
+**Data Quality:**
+- [ ] No duplicate names
+- [ ] All records have Name + Added Date
+- [ ] LinkedIn URLs in valid format
+- [ ] No critical data quality issues
+- [ ] CSV comparison shows all records loaded
+
+**Manual Spot Check:**
+- [ ] Filter People table by Added Date = today
+- [ ] Review 5-10 random records
+- [ ] Verify data looks correct
+
+---
+
+### Detailed Testing Guide
+
+For comprehensive testing workflows, troubleshooting, and validation patterns:
+- See [references/testing_guide.md](references/testing_guide.md) - Complete testing & validation guide
+
+---
+
 ## Usage Examples
 
 ### Basic Import
@@ -177,111 +373,17 @@ python scripts/load_candidates.py path/to/candidates.csv --verbose
 
 ## What It Does (Step-by-Step)
 
-### Step 1: Detect CSV Schema
+The loader executes a 7-step workflow to import candidates:
 
-Automatically identifies which columns map to Airtable fields:
+1. **Detect CSV Schema** - Automatically maps CSV columns to Airtable fields (supports 20+ column name variations)
+2. **Read & Parse CSV** - Loads data with UTF-8 encoding, filters invalid rows
+3. **Load Executive Bios** - Matches .txt files to candidates using fuzzy matching (80% similarity)
+4. **Normalize Data** - Infers functions (CFO/CTO/etc.) from titles, fixes typos, sets dates
+5. **Check Duplicates** - Compares against existing Airtable records (exact name match)
+6. **Create Records** - Inserts into People table with progress tracking
+7. **Summary Report** - Shows created/skipped/error counts
 
-```
-📋 Step 1: Detecting CSV schema...
-   Schema mapping:
-     name ← full_name
-     title ← title_raw
-     company ← company
-     linkedin_headline ← misc_liheadline
-     source ← source
-```
-
-**Supported column name variations:**
-- **Name:** full_name, name, executive_name, candidate_name, exec_name
-- **Title:** title_raw, current_title, title, role_title, position, role
-- **Company:** company, current_company, organization, employer
-- **LinkedIn Headline:** misc_liheadline, linkedin_headline, headline
-- **Function:** function, role_type, exec_function, normalized_function
-- **Source:** source, data_source, origin
-
-See [implementation_guide.md](references/implementation_guide.md#column-mapping) for full mapping details.
-
-### Step 2: Read & Parse CSV
-
-```
-📖 Step 2: Reading CSV...
-   Read 64 candidates
-```
-
-Handles UTF-8 encoding with BOM, filters out rows without names.
-
-### Step 3: Load Executive Bios
-
-```
-📄 Step 3: Loading bio files...
-   Found 3 .txt files
-   ✅ Matched: Jonathan Carr.txt → Jonathan Carr
-   ✅ Fuzzy matched: alex_rivera.txt → Alex Rivera
-   ⏭️ No match: random_notes.txt
-   Loaded 2 bios
-```
-
-**Bio file naming:**
-- `Jonathan Carr.txt` → exact match
-- `bio_alex_rivera.txt` → fuzzy match (prefix stripped)
-- `Nia Patel CFO.txt` → fuzzy match (suffix ignored)
-
-Place .txt files in same directory as CSV. Uses 80% similarity threshold for fuzzy matching.
-
-### Step 4: Normalize Data
-
-```
-🔄 Step 4: Normalizing data...
-   ✅ Normalized all candidates
-```
-
-**Normalization rules:**
-- **Infer Function:** CFO, CTO, CPO, CRO, COO, CMO, CEO from title keywords
-- **Fix Typos:** "FMGUildPage" → "FMGuildPage"
-- **Set Added Date:** Today's date (ISO format)
-
-See [implementation_guide.md](references/implementation_guide.md#data-normalization) for function inference logic.
-
-### Step 5: Check Duplicates
-
-```
-🔍 Step 5: Checking for duplicates...
-   🆕 62 new candidates
-   ⏭️ 2 duplicates
-```
-
-Matches on exact name (case-insensitive) against existing Airtable records. Duplicates safely skipped.
-
-### Step 6: Create Records
-
-```
-💾 Step 6: Creating records...
-  ✅ 1/62: Jonathan Carr
-  ✅ 2/62: Alex Rivera
-  ⚠️ Skipping Normalized Function 'CPO' for Nia Patel (not in schema)
-  ✅ 3/62: Nia Patel
-  ...
-  ✅ 62/62: Sarah Chen
-```
-
-**Field mapping:**
-- **Required:** Name, Added Date
-- **Optional:** Current Title, Current Company, LinkedIn Headline, LinkedIn URL, Location, Bio
-- **Conditional:** Normalized Function (only CFO/CTO in demo schema), Source (only FMGuildPage/FMLinkedIN)
-
-### Step 7: Summary Report
-
-```
-============================================================
-📊 SUMMARY
-============================================================
-✅ Created: 62 records
-⏭️ Skipped (duplicates): 2
-❌ Errors: 0
-============================================================
-
-✅ Import complete! Check Airtable People table.
-```
+**Detailed walkthrough with examples:** See [implementation_guide.md](references/implementation_guide.md) for complete step-by-step execution details, column mapping rules, normalization logic, and field configurations.
 
 ---
 
@@ -426,7 +528,7 @@ See [references/troubleshooting.md](references/troubleshooting.md) for:
   - Record creation process
   - Performance considerations
 
-**Main script:**
+**Data loading script:**
 - [scripts/load_candidates.py](scripts/load_candidates.py) - Executable Python script (451 lines)
   - CLI argument parsing
   - Flexible CSV reading
@@ -434,6 +536,22 @@ See [references/troubleshooting.md](references/troubleshooting.md) for:
   - Bio file loading with fuzzy matching
   - Airtable integration via MCP
   - Error handling and progress reporting
+
+**Validation scripts:**
+- [scripts/validate_schema.py](scripts/validate_schema.py) - Schema validation tool
+  - Checks all 6 tables exist
+  - Validates required fields
+  - Checks single-select options
+  - Verifies linked record relationships
+  - Provides actionable fix suggestions
+
+- [scripts/validate_data.py](scripts/validate_data.py) - Data quality validation tool
+  - Duplicate detection
+  - Required field checking
+  - Email/LinkedIn URL format validation
+  - Single-select value validation
+  - CSV comparison
+  - Completeness scoring
 
 **Shell wrapper:**
 - [scripts/quick_load.sh](scripts/quick_load.sh) - Convenience wrapper for bash users
@@ -515,6 +633,11 @@ VALID_SOURCES = {'FMGuildPage', 'FMLinkedIN'}
 **Schema Exploration:**
 - [references/schema_reference.md](references/schema_reference.md) - Complete schema exploration guide
 - [references/field_types.md](references/field_types.md) - Field type catalog with validation rules
+
+**Testing & Validation:**
+- [references/testing_guide.md](references/testing_guide.md) - Complete testing & validation guide
+- [scripts/validate_schema.py](scripts/validate_schema.py) - Schema validation script
+- [scripts/validate_data.py](scripts/validate_data.py) - Data quality validation script
 
 **Data Loading:**
 - [references/implementation_guide.md](references/implementation_guide.md) - Technical deep-dive

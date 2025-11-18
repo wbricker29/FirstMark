@@ -24,11 +24,11 @@ def mock_api():
 def mock_tables(mock_api):
     """Mock pyairtable Table objects for each table in the schema."""
     tables = {
-        "Screens": MagicMock(),
+        "Platform-Screens": MagicMock(),
         "People": MagicMock(),
-        "Role_Specs": MagicMock(),
-        "Assessments": MagicMock(),
-        "Searches": MagicMock(),
+        "Platform-Role_Specs": MagicMock(),
+        "Platform-Assessments": MagicMock(),
+        "Platform-Searches": MagicMock(),
     }
 
     def table_factory(base_id: str, table_name: str):
@@ -46,11 +46,11 @@ def client(mock_api, mock_tables):
             api_key="pat_test_key", base_id="appTestBase123"
         )
         # Wire up the mock tables to the client instance
-        client_instance.screens = mock_tables["Screens"]
+        client_instance.screens = mock_tables["Platform-Screens"]
         client_instance.people = mock_tables["People"]
-        client_instance.role_specs = mock_tables["Role_Specs"]
-        client_instance.assessments = mock_tables["Assessments"]
-        client_instance.searches = mock_tables["Searches"]
+        client_instance.role_specs = mock_tables["Platform-Role_Specs"]
+        client_instance.assessments = mock_tables["Platform-Assessments"]
+        client_instance.searches = mock_tables["Platform-Searches"]
         return client_instance
 
 
@@ -122,7 +122,7 @@ def test_init_with_whitespace_only_base_id():
 def test_get_screen_with_valid_screen_id(client, mock_tables):
     """Test successful screen fetch with linked search and candidates."""
     # Mock screen record
-    mock_tables["Screens"].get.return_value = {
+    mock_tables["Platform-Screens"].get.return_value = {
         "id": "recScreen123",
         "fields": {
             "status": "Ready to Screen",
@@ -132,7 +132,7 @@ def test_get_screen_with_valid_screen_id(client, mock_tables):
     }
 
     # Mock search record with role spec link
-    mock_tables["Searches"].get.return_value = {
+    mock_tables["Platform-Searches"].get.return_value = {
         "id": "recSearch456",
         "fields": {"Role Spec": ["recRoleSpec789"], "search_name": "CFO Search"},
     }
@@ -155,7 +155,7 @@ def test_get_screen_with_valid_screen_id(client, mock_tables):
 
 def test_get_screen_with_no_linked_search(client, mock_tables):
     """Test get_screen when screen has no linked search."""
-    mock_tables["Screens"].get.return_value = {
+    mock_tables["Platform-Screens"].get.return_value = {
         "id": "recScreen123",
         "fields": {"status": "Ready to Screen", "Candidates": []},
     }
@@ -170,7 +170,7 @@ def test_get_screen_with_no_linked_search(client, mock_tables):
 
 def test_get_screen_with_empty_candidates(client, mock_tables):
     """Test get_screen when screen has no linked candidates."""
-    mock_tables["Screens"].get.return_value = {
+    mock_tables["Platform-Screens"].get.return_value = {
         "id": "recScreen123",
         "fields": {"status": "Ready to Screen"},
     }
@@ -194,7 +194,9 @@ def test_get_screen_with_whitespace_only_screen_id(client):
 
 def test_get_screen_with_api_error(client, mock_tables):
     """Test get_screen when Airtable API call fails."""
-    mock_tables["Screens"].get.side_effect = RuntimeError("API connection timeout")
+    mock_tables["Platform-Screens"].get.side_effect = RuntimeError(
+        "API connection timeout"
+    )
 
     with pytest.raises(RuntimeError, match="Failed to fetch screen"):
         client.get_screen("recScreen123")
@@ -202,11 +204,11 @@ def test_get_screen_with_api_error(client, mock_tables):
 
 def test_get_screen_with_search_fetch_error(client, mock_tables):
     """Test get_screen when linked search fetch fails."""
-    mock_tables["Screens"].get.return_value = {
+    mock_tables["Platform-Screens"].get.return_value = {
         "id": "recScreen123",
         "fields": {"Search": ["recSearch456"]},
     }
-    mock_tables["Searches"].get.side_effect = RuntimeError("Search not found")
+    mock_tables["Platform-Searches"].get.side_effect = RuntimeError("Search not found")
 
     with pytest.raises(RuntimeError, match="Failed to fetch search"):
         client.get_screen("recScreen123")
@@ -214,7 +216,7 @@ def test_get_screen_with_search_fetch_error(client, mock_tables):
 
 def test_get_screen_with_candidate_fetch_error(client, mock_tables):
     """Test get_screen when candidate fetch fails."""
-    mock_tables["Screens"].get.return_value = {
+    mock_tables["Platform-Screens"].get.return_value = {
         "id": "recScreen123",
         "fields": {"Candidates": ["recCandidate1"]},
     }
@@ -231,7 +233,7 @@ def test_get_screen_with_candidate_fetch_error(client, mock_tables):
 
 def test_get_role_spec_with_valid_spec_id(client, mock_tables):
     """Test successful role spec fetch with structured_spec_markdown."""
-    mock_tables["Role_Specs"].get.return_value = {
+    mock_tables["Platform-Role_Specs"].get.return_value = {
         "id": "recRoleSpec789",
         "fields": {
             "role_title": "CFO",
@@ -248,7 +250,7 @@ def test_get_role_spec_with_valid_spec_id(client, mock_tables):
 
 def test_get_role_spec_with_spec_content_fallback(client, mock_tables):
     """Test role spec fetch with Spec Content field fallback."""
-    mock_tables["Role_Specs"].get.return_value = {
+    mock_tables["Platform-Role_Specs"].get.return_value = {
         "id": "recRoleSpec789",
         "fields": {"Spec Content": "# Role Spec Content\n\nDetails..."},
     }
@@ -260,7 +262,7 @@ def test_get_role_spec_with_spec_content_fallback(client, mock_tables):
 
 def test_get_role_spec_with_spec_markdown_fallback(client, mock_tables):
     """Test role spec fetch with spec_markdown field fallback."""
-    mock_tables["Role_Specs"].get.return_value = {
+    mock_tables["Platform-Role_Specs"].get.return_value = {
         "id": "recRoleSpec789",
         "fields": {"spec_markdown": "# Spec Markdown\n\nDetails..."},
     }
@@ -272,7 +274,7 @@ def test_get_role_spec_with_spec_markdown_fallback(client, mock_tables):
 
 def test_get_role_spec_with_missing_markdown_field(client, mock_tables):
     """Test that missing markdown content raises RuntimeError."""
-    mock_tables["Role_Specs"].get.return_value = {
+    mock_tables["Platform-Role_Specs"].get.return_value = {
         "id": "recRoleSpec789",
         "fields": {"role_title": "CFO"},
     }
@@ -295,7 +297,9 @@ def test_get_role_spec_with_whitespace_only_spec_id(client):
 
 def test_get_role_spec_with_api_error(client, mock_tables):
     """Test get_role_spec when Airtable API call fails."""
-    mock_tables["Role_Specs"].get.side_effect = RuntimeError("API connection timeout")
+    mock_tables["Platform-Role_Specs"].get.side_effect = RuntimeError(
+        "API connection timeout"
+    )
 
     with pytest.raises(RuntimeError, match="Failed to fetch role spec"):
         client.get_role_spec("recRoleSpec789")
@@ -340,7 +344,7 @@ def test_write_assessment_with_research_and_assessment(client, mock_tables):
     )
 
     # Mock Airtable response
-    mock_tables["Assessments"].create.return_value = {
+    mock_tables["Platform-Assessments"].create.return_value = {
         "id": "recAssessment123",
         "fields": {},
     }
@@ -355,19 +359,19 @@ def test_write_assessment_with_research_and_assessment(client, mock_tables):
     assert result == "recAssessment123"
 
     # Verify create was called with correct fields
-    call_args = mock_tables["Assessments"].create.call_args
+    call_args = mock_tables["Platform-Assessments"].create.call_args
     fields = call_args[0][0]
 
-    assert fields["screen"] == ["recScreen123"]
-    assert fields["candidate"] == ["recCandidate456"]
-    assert fields["status"] == "Complete"
-    assert fields["overall_score"] == 85.0
-    assert fields["overall_confidence"] == "High"
-    assert fields["topline_summary"] == "Excellent match for CFO role"
-    assert fields["assessment_model"] == "gpt-5-mini"
-    assert fields["role_spec_markdown"] == "# CFO Role Spec"
-    assert "research_structured_json" in fields
-    assert fields["research_model"] == "o4-mini-deep-research"
+    assert fields["Screen"] == ["recScreen123"]
+    assert fields["Candidate"] == ["recCandidate456"]
+    assert fields["Status"] == "Complete"
+    assert fields["Overall Score"] == 85.0
+    assert fields["Overall Confidence"] == "High"
+    assert fields["Topline Summary"] == "Excellent match for CFO role"
+    assert fields["Assessment Model"] == "gpt-5-mini"
+    # Note: role_spec_used is stored in Assessment JSON, not as a direct field
+    assert "Research Structured JSON" in fields
+    assert fields["Research Model"] == "o4-mini-deep-research"
 
 
 def test_write_assessment_without_research(client, mock_tables):
@@ -381,7 +385,7 @@ def test_write_assessment_without_research(client, mock_tables):
         assessment_model="gpt-5-mini",
     )
 
-    mock_tables["Assessments"].create.return_value = {
+    mock_tables["Platform-Assessments"].create.return_value = {
         "id": "recAssessment789",
         "fields": {},
     }
@@ -396,7 +400,7 @@ def test_write_assessment_without_research(client, mock_tables):
     assert result == "recAssessment789"
 
     # Verify research fields are not included
-    call_args = mock_tables["Assessments"].create.call_args
+    call_args = mock_tables["Platform-Assessments"].create.call_args
     fields = call_args[0][0]
 
     assert "research_structured_json" not in fields
@@ -415,7 +419,7 @@ def test_write_assessment_without_role_spec(client, mock_tables):
         role_spec_used=None,
     )
 
-    mock_tables["Assessments"].create.return_value = {
+    mock_tables["Platform-Assessments"].create.return_value = {
         "id": "recAssessment999",
         "fields": {},
     }
@@ -427,7 +431,7 @@ def test_write_assessment_without_role_spec(client, mock_tables):
     )
 
     # Verify role_spec_markdown is not included
-    call_args = mock_tables["Assessments"].create.call_args
+    call_args = mock_tables["Platform-Assessments"].create.call_args
     fields = call_args[0][0]
 
     assert "role_spec_markdown" not in fields
@@ -472,7 +476,7 @@ def test_write_assessment_with_api_error(client, mock_tables):
         summary="Test",
     )
 
-    mock_tables["Assessments"].create.side_effect = RuntimeError(
+    mock_tables["Platform-Assessments"].create.side_effect = RuntimeError(
         "API connection timeout"
     )
 
@@ -493,7 +497,9 @@ def test_write_assessment_with_missing_record_id(client, mock_tables):
         summary="Test",
     )
 
-    mock_tables["Assessments"].create.return_value = {"fields": {}}  # No "id" field
+    mock_tables["Platform-Assessments"].create.return_value = {
+        "fields": {}
+    }  # No "id" field
 
     with pytest.raises(RuntimeError, match="did not return record ID"):
         client.write_assessment(
@@ -510,45 +516,48 @@ def test_write_assessment_with_missing_record_id(client, mock_tables):
 
 def test_update_screen_status_with_status_only(client, mock_tables):
     """Test successful status update without error_message."""
-    mock_tables["Screens"].update.return_value = {
+    mock_tables["Platform-Screens"].update.return_value = {
         "id": "recScreen123",
-        "fields": {"status": "Processing"},
+        "fields": {"Status": "Processing"},
     }
 
     client.update_screen_status(screen_id="recScreen123", status="Processing")
 
-    mock_tables["Screens"].update.assert_called_once_with(
-        "recScreen123", {"status": "Processing"}
+    mock_tables["Platform-Screens"].update.assert_called_once_with(
+        "recScreen123", {"Status": "Processing"}
     )
 
 
 def test_update_screen_status_with_error_message(client, mock_tables):
-    """Test status update with error_message included."""
-    mock_tables["Screens"].update.return_value = {
+    """Test status update with error_message parameter (backward compatibility)."""
+    mock_tables["Platform-Screens"].update.return_value = {
         "id": "recScreen123",
-        "fields": {"status": "Failed", "error_message": "API timeout"},
+        "fields": {"Status": "Failed"},
     }
 
+    # error_message parameter is accepted for backward compatibility but not written
+    # (Error Message is a read-only lookup field from Operations-Automation_Log)
     client.update_screen_status(
         screen_id="recScreen123", status="Failed", error_message="API timeout"
     )
 
-    mock_tables["Screens"].update.assert_called_once_with(
-        "recScreen123", {"status": "Failed", "error_message": "API timeout"}
+    # Only Status field is written, error_message is not included in payload
+    mock_tables["Platform-Screens"].update.assert_called_once_with(
+        "recScreen123", {"Status": "Failed"}
     )
 
 
 def test_update_screen_status_with_whitespace_trimming(client, mock_tables):
     """Test that screen_id and status are trimmed of whitespace."""
-    mock_tables["Screens"].update.return_value = {
+    mock_tables["Platform-Screens"].update.return_value = {
         "id": "recScreen123",
-        "fields": {"status": "Complete"},
+        "fields": {"Status": "Complete"},
     }
 
     client.update_screen_status(screen_id="  recScreen123  ", status="  Complete  ")
 
-    mock_tables["Screens"].update.assert_called_once_with(
-        "recScreen123", {"status": "Complete"}
+    mock_tables["Platform-Screens"].update.assert_called_once_with(
+        "recScreen123", {"Status": "Complete"}
     )
 
 
@@ -578,7 +587,9 @@ def test_update_screen_status_with_whitespace_only_status(client):
 
 def test_update_screen_status_with_api_error(client, mock_tables):
     """Test update_screen_status when Airtable API call fails."""
-    mock_tables["Screens"].update.side_effect = RuntimeError("API connection timeout")
+    mock_tables["Platform-Screens"].update.side_effect = RuntimeError(
+        "API connection timeout"
+    )
 
     with pytest.raises(RuntimeError, match="Failed to update screen"):
         client.update_screen_status(screen_id="recScreen123", status="Processing")

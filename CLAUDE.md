@@ -1,28 +1,5 @@
 # CLAUDE.md
 
----
-
-## ⚠️ V1 CRITICAL SCOPE - READ FIRST
-
-**Architecture:** Linear workflow ONLY (Deep Research → Quality Check → Optional Single Incremental Search → Assessment)
-**Tables:** 6 tables (People, Portco, Portco_Roles, Role_Specs, Searches, Assessments)
-**Storage:** Research data in **Assessments** table (research_structured_json, research_markdown_raw, assessment_json, assessment_markdown_report)
-**Database:** SqliteDb at `tmp/agno_sessions.db` (NO InMemoryDb, NO custom WorkflowEvent tables)
-**Pipeline:** Direct structured outputs via `output_schema` (NO parser agent)
-
-**Phase 2+ (DO NOT IMPLEMENT):** Fast mode | Loops/conditions | Parser agents | Workflows table | Research_Results table | Multi-iteration search
-
-**Authority:** `spec/v1_minimal_spec*.md` > `spec/prd.md` > `spec/dev_reference/implementation_guide.md`
-
-**Before ANY architectural work:**
-
-1. Read spec/v1_minimal_spec.md + addendum
-2. Build explicit design model
-3. Scope filter (what to DELETE) before detail check
-4. If unsure → ASK, cite conflict + sources
-
----
-
 ## Project Overview
 
 **Mission:** Talent Signal Agent - AI-powered executive matching for FirstMark Capital portfolio companies
@@ -69,6 +46,21 @@
 - 4 scenarios: Pigment CFO, Mockingbird CFO, Synthesia CTO, Estuary CTO
 - 3 pre-runs + 1 live demo
 
+## Claude Code Skills Usage
+
+**Airtable Operations:**
+- Use `airtable-operations` skill for all project-specific Airtable tasks (schema exploration, data loading, candidate sourcing automation)
+- Use `airtable-master` skill for general Airtable database management via MCP integration
+
+**Web Scraping:**
+- Use `crawl4ai` skill for website scraping, structured data extraction, JavaScript-heavy pages, multi-URL crawls, and automated data pipelines
+
+**Multi-Agent Coordination:**
+- Use `multi-agent-orchestration` skill when coordinating 3+ sub-agents for complex tasks, managing parallel/sequential workflows, or synthesizing distributed outputs
+
+**AIdev Workflow:**
+- Use `aidev-workflow` skill for structured project management with spec/ directory, task execution, constitutional governance, and quality gates
+
 ## Documentation Hierarchy
 
 **Authority (in order):**
@@ -83,7 +75,8 @@
 
 **V1 Exclusions (Phase 2+ Only):**
 
-- Parser agent pipeline | Workflows/Research_Results tables | Fast mode | Multi-iteration loops | Async processing
+- Workflows/Research_Results tables | Fast mode | Multi-iteration loops | Async processing
+- Note: Research parser agent IS included in V1 (converts Deep Research markdown to structured ExecutiveResearchResult)
 
 ## Key Design Decisions
 
@@ -98,7 +91,14 @@
 - Airtable (6 tables) via Flask webhook + ngrok
 - Deep Research API (o4-mini-deep-research) + Web Search builtin
 - No third-party search APIs (LinkedIn/web via Deep Research only)
-- Direct structured outputs via Pydantic (no parser agent)
+- Direct structured outputs via Pydantic with parser agent
+
+**Agent Context Management:**
+
+- Centralized prompt catalog: `demo/prompts/catalog.yaml` (4 agents: deep_research, research_parser, incremental_search, assessment)
+- Dynamic loading: `demo/prompts/library.py` provides `get_prompt()` for code-free prompt editing
+- Temporal awareness: `add_datetime_to_context=True` on research/assessment agents
+- Agno context engineering: Follows best practices from `reference/docs_and_examples/agno/agno_contextmanagement.md`
 
 **Assessment:**
 

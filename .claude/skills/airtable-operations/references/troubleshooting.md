@@ -1,5 +1,27 @@
 # Troubleshooting Guide: Airtable Candidate Loader
 
+## Table of Contents
+
+- [Common Issues & Solutions](#common-issues--solutions)
+  - [1. CSV File Not Found](#1-csv-file-not-found)
+  - [2. Missing Required CSV Columns](#2-missing-required-csv-columns)
+  - [3. Airtable MCP Not Available](#3-airtable-mcp-not-available)
+  - [4. Single-Select Option Not in Schema](#4-single-select-option-not-in-schema)
+  - [5. Duplicate Candidates Skipped](#5-duplicate-candidates-skipped)
+  - [6. Bio Files Not Matching](#6-bio-files-not-matching)
+  - [7. Import Partially Succeeds](#7-import-partially-succeeds)
+  - [8. Rate Limit Exceeded](#8-rate-limit-exceeded)
+  - [9. Schema Detection Incorrect](#9-schema-detection-incorrect)
+  - [10. Dry Run Shows Wrong Data](#10-dry-run-shows-wrong-data)
+  - [11. Schema Exploration Issues](#11-schema-exploration-issues)
+- [Emergency Procedures](#emergency-procedures)
+  - [Demo Day Issue: Can't Load Candidates](#demo-day-issue-cant-load-candidates)
+- [Getting Help](#getting-help)
+  - [Debug Checklist](#debug-checklist)
+  - [Verbose Output](#verbose-output)
+  - [Logs to Share](#logs-to-share)
+- [See Also](#see-also)
+
 ## Common Issues & Solutions
 
 ### 1. CSV File Not Found

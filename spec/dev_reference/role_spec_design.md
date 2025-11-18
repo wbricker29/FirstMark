@@ -266,7 +266,7 @@ Actions:
 
 ### 4.3 Python Integration
 
-#### Spec Parser Module
+#### Spec Parser Module & Prompt Payload
 
 ```python
 # spec_parser.py
@@ -295,102 +295,72 @@ def parse_role_spec(markdown_text: str) -> dict:
     # Use regex to extract sections
     # Parse dimension headers for weights
     # Extract scale definitions
-    # Return structured dict
-    pass
+    # Return structured dict that downstream agents can consume
+    ...
 
-def build_assessment_prompt(spec: dict, research_data: str) -> str:
-    """
-    Build LLM prompt for candidate assessment using spec.
+def build_assessment_payload(spec: dict, research_data: str) -> str:
+    """Package role spec + research into the user content sent to Agno agents."""
 
-    Returns formatted prompt with:
-    - Role context
-    - Each dimension with definition, evidence level, and scale
-    - Instructions for scoring, including how to handle unknown/insufficient evidence
-    """
-    prompt = f"""
-You are evaluating a candidate for the following role:
+    payload = [
+        "ROLE SPECIFICATION:",
+        spec["role_context"],
+        "",
+        "DIMENSIONS:",
+    ]
 
-{spec['role_context']}
+    for dim in spec["dimensions"]:
+        payload.extend(
+            [
+                f"- {dim['name']} (Weight: {dim['weight']}%)",
+                f"  Definition: {dim['definition']}",
+                f"  Evidence Level: {dim['evidence_level']}",
+                "",
+                "  Scale:",
+                format_scale(dim["scale"]),
+                "",
+            ]
+        )
 
-Assess the candidate on each dimension below using the provided research.
+    payload.extend(
+        [
+            "",
+            "CANDIDATE RESEARCH:",
+            research_data.strip(),
+        ]
+    )
 
-"""
-    for dim in spec['dimensions']:
-        prompt += f"""
-### {dim['name']} (Weight: {dim['weight']}%)
-Definition: {dim['definition']}
-Evidence Level: {dim['evidence_level']} (how reliably this can be assessed from public/web data)
-
-Scale:
-{format_scale(dim['scale'])}
-
-Score (1-5; if there is insufficient public evidence to score this dimension, leave the score unset (null/None) and explicitly explain that it is unscorable from public data):
-Confidence (High/Medium/Low):
-Reasoning:
-Evidence quotes:
-
-"""
-    return prompt
+    return "\n".join(payload)
 ```
 
-#### Assessment Module
+#### Assessment Module + Centralized Prompt Templates
 
 ```python
 # assessment.py
+from demo.agents import create_assessment_agent
 
 def assess_candidate(
     candidate_research: str,
     role_spec_markdown: str,
     custom_instructions: str = ""
 ) -> dict:
-    """
-    Run AI assessment of candidate against role spec.
+    """Run the Agno-driven assessment against the canonical prompt catalog."""
 
-    Returns:
-        {
-            'overall_score': float,  # Weighted average
-            'overall_confidence': str,  # High/Med/Low
-            'dimension_scores': [
-                {
-                    'dimension': str,
-                    'score': int,
-                    'confidence': str,
-                    'reasoning': str,
-                    'evidence': list[str]
-                }
-            ],
-            'must_haves_check': {requirement: bool},
-            'red_flags_detected': list[str],
-            'summary': str
-        }
-    """
     spec = parse_role_spec(role_spec_markdown)
-    prompt = build_assessment_prompt(spec, candidate_research)
+    payload = build_assessment_payload(spec, candidate_research)
 
     if custom_instructions:
-        prompt += f"\n\nAdditional Instructions:\n{custom_instructions}"
+        payload += f"\n\nCUSTOM INSTRUCTIONS:\n{custom_instructions}"
 
-    # Call GPT-5 with structured output
-    response = openai.chat.completions.create(
-        model="gpt-5",
-        messages=[
-            {"role": "system", "content": "You are an expert executive recruiter..."},
-            {"role": "user", "content": prompt}
-        ],
-        response_format={"type": "json_schema", "schema": ASSESSMENT_SCHEMA}
-    )
+    assessment_agent = create_assessment_agent()
 
-    # Parse and validate response
-    assessment = response.choices[0].message.content
-
-    # Calculate weighted score
-    assessment['overall_score'] = calculate_overall_score(
-        assessment['dimension_scores'],
-        spec['dimensions']
-    )
+    # Agno handles ReasoningTools + structured output (AssessmentResult)
+    result = assessment_agent.run(payload)
+    assessment = result.content
 
     return assessment
 ```
+
+> **Note:** The scoring instructions (1–5 scale, evidence-aware handling, ReasoningTools hints) live in `demo/prompts/catalog.yaml` under the `assessment` entry. Update that YAML when rubric language changes; agent factories automatically pick up the new template.
 
 ### 4.4 Webhook Integration
 

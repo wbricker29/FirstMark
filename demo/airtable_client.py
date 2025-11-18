@@ -18,11 +18,11 @@ __all__: list[str] = ["AirtableClient"]
 class AirtableClient:
     """Typed wrapper around pyairtable for the demo's Airtable schema."""
 
-    SCREENS_TABLE: Final[str] = "Screens"
+    SCREENS_TABLE: Final[str] = "Platform-Screens"
     PEOPLE_TABLE: Final[str] = "People"
-    ROLE_SPECS_TABLE: Final[str] = "Role_Specs"
-    ASSESSMENTS_TABLE: Final[str] = "Assessments"
-    SEARCHES_TABLE: Final[str] = "Searches"
+    ROLE_SPECS_TABLE: Final[str] = "Platform-Role_Specs"
+    ASSESSMENTS_TABLE: Final[str] = "Platform-Assessments"
+    SEARCHES_TABLE: Final[str] = "Platform-Searches"
 
     def __init__(self, api_key: str, base_id: str) -> None:
         """Instantiate the Airtable client and table handles.
@@ -183,23 +183,24 @@ class AirtableClient:
             raise ValueError("screen_id and candidate_id are required")
 
         fields: dict[str, Any] = {
-            "screen": [screen_id],
-            "candidate": [candidate_id],
-            "status": "Complete",
-            "assessment_json": assessment.model_dump_json(),
-            "overall_score": assessment.overall_score,
-            "overall_confidence": assessment.overall_confidence,
-            "topline_summary": assessment.summary,
-            "assessment_model": assessment.assessment_model,
-            "assessment_timestamp": assessment.assessment_timestamp.isoformat(),
+            "Screen": [screen_id],
+            "Candidate": [candidate_id],
+            "Status": "Complete",
+            "Assessment JSON": assessment.model_dump_json(),
+            "Overall Score": assessment.overall_score,
+            "Overall Confidence": assessment.overall_confidence,
+            "Topline Summary": assessment.summary,
+            "Assessment Model": assessment.assessment_model,
+            "Assessment Timestamp": assessment.assessment_timestamp.date().isoformat(),
         }
 
-        if assessment.role_spec_used:
-            fields["role_spec_markdown"] = assessment.role_spec_used
+        # Note: Role Spec is a linked record field in Airtable, not a markdown storage field
+        # The role_spec_used data is stored in the assessment JSON itself
+        # Omitting direct field assignment as it would require a record link, not markdown text
 
         if research is not None:
-            fields["research_structured_json"] = research.model_dump_json()
-            fields["research_model"] = research.research_model
+            fields["Research Structured JSON"] = research.model_dump_json()
+            fields["Research Model"] = research.research_model
 
         try:
             record = self.assessments.create(fields)
@@ -230,9 +231,14 @@ class AirtableClient:
         if not status:
             raise ValueError("status is required")
 
-        payload: dict[str, Any] = {"status": status}
+        payload: dict[str, Any] = {"Status": status}
+        # Note: error_message field doesn't exist as writable field in Platform-Screens
+        # The "Error Message (from Operations-Automation_Log)" is a lookup field (read-only)
+        # Errors should be logged to Operations-Automation_Log table instead
+        # Keeping parameter for backward compatibility but not writing to Airtable
         if error_message is not None:
-            payload["error_message"] = error_message
+            # TODO: Write to Operations-Automation_Log table instead
+            pass
 
         try:
             self.screens.update(screen_id, payload)

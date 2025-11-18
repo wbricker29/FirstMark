@@ -12,9 +12,12 @@ dependencies = [
     "agno>=2.2.0", # Agent framework
     "pydantic>=2.5.0", # Data validation
     "flask>=3.0.0", # Webhook server
+    "fastapi[standard]>=0.115.0", # AgentOS FastAPI runtime
     "pyairtable>=2.0.0", # Airtable API client
     "python-dotenv>=1.0.0", # Environment variables
     "mypy>=1.18.2",
+    "PyYAML>=6.0", # Prompt catalog loader
+    "uvicorn>=0.30.0", # FastAPI dev server
 ]
 
 [tool.setuptools.packages.find]
@@ -46,6 +49,10 @@ exclude = [
 [tool.pytest.ini_options]
 testpaths = ["src", "tests"]
 norecursedirs = ["reference", ".venv"]
+addopts = "-m 'not legacy'"
+markers = [
+    "legacy: Legacy Flask integration tests (run manually with -m legacy)",
+]
 
 [tool.coverage.run]
 omit = [

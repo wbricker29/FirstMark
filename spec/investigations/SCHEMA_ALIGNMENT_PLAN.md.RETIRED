@@ -1,0 +1,431 @@
+# Schema Alignment Implementation Plan
+
+**Date:** 2025-11-17
+**Status:** ✅ RETIRED (Nov 17, 2025)
+**Reason:** Schema alignment deemed unnecessary - all critical functionality working with current schema
+
+---
+
+## 🚫 RETIREMENT NOTICE
+
+**This document is RETIRED and should NOT be used for implementation.**
+
+**Decision:** After reviewing the schema diff report (`airtable_schema_diff_report.md`) with the airtable-operations skill, the team determined that:
+
+1. ✅ All demo-blocking issues are resolved
+2. ✅ Current schema is 95% aligned and fully functional for Module 4 Screen workflow
+3. ✅ Existing code (`load_candidates.py`, `airtable_client.py`) already handles field name differences
+4. ✅ All 4 demo scenarios (CFO/CTO roles) are fully supported
+5. ✅ Remaining differences are cosmetic and don't impact demo execution
+
+**Replacement Documentation:**
+- See `airtable_schema_diff_report.md` → "CURRENT ALIGNMENT STATUS" section for final decisions
+- See `spec/spec.md` line 21 for 95% alignment confirmation
+
+**Rationale for Retirement:**
+- **Time:** 2 days until Nov 19, 5pm presentation - focus on execution, not refactoring
+- **Risk:** Cosmetic schema changes could introduce bugs in working code
+- **Value:** Working code already adapted to actual schema via field mappings
+- **Priorities:** Demo prep, pre-runs, and testing deliver more value than alignment work
+
+**What to Do Instead:**
+1. Load 64 executives using `load_candidates.py` (already schema-aware)
+2. Run 3 pre-demo scenarios (Pigment CFO, Mockingbird CFO, Synthesia CTO)
+3. Test full Module 4 Screen workflow end-to-end
+4. Prepare presentation narrative
+
+---
+
+## Original Document Content (For Historical Reference Only)
+
+**⚠️ DO NOT IMPLEMENT CHANGES BELOW ⚠️**
+
+---
+
+## Critical Schema Changes Requiring Code Updates
+
+### 1. Table Name Changes (Breaking)
+
+| Spec Name | Actual Name | Table ID | Impact |
+|-----------|-------------|----------|---------|
+| Screens | **Platform-Screens** | tbl2hrmaTWLEeaywL | HIGH - referenced in airtable_client.py:21 |
+| Role_Specs | **Platform-Role_Specs** | tblbrV5s0023vzdE0 | HIGH - referenced in airtable_client.py:23 |
+| Assessments | **Platform-Assessments** | tblIhMnOG7Hp9xYna | HIGH - referenced in airtable_client.py:24 |
+| Searches | **Platform-Searches** | tbl6gHz2gM4pE75ne | HIGH - referenced in airtable_client.py:25 |
+
+**Action Required:**
+- Update all `AirtableClient` class constants to use actual table names
+
+### 2. Field Name Changes (Breaking)
+
+| Table | Spec Field | Actual Field | Line References |
+|-------|-----------|--------------|-----------------|
+| Assessments | screen | **Screen** | airtable_client.py:186 |
+| Assessments | candidate | **Candidate** | airtable_client.py:187 |
+| Assessments | status | **Status** | airtable_client.py:188, app.py:202, 208, 225, 241, 322 |
+| Assessments | assessment_json | **Assessment JSON** | airtable_client.py:189 |
+| Assessments | overall_score | **Overall Score** | airtable_client.py:190 |
+| Assessments | overall_confidence | **Overall Confidence** | airtable_client.py:191 |
+| Assessments | topline_summary | **Topline Summary** | airtable_client.py:192 |
+| Assessments | assessment_model | **Assessment Model** | airtable_client.py:193 |
+| Assessments | assessment_timestamp | **Assessment Timestamp** | airtable_client.py:194 |
+| Assessments | role_spec_markdown | **Role Spec** (linked field, not markdown) | airtable_client.py:198 |
+| Assessments | research_structured_json | **Research Structured JSON** | airtable_client.py:201 |
+| Assessments | research_model | **Research Model** | airtable_client.py:202 |
+| Screens | status | **Status** | app.py:202, 208, 225, 241, 322 |
+| Screens | error_message | **Error Message (from Operations-Automation_Log)** (lookup field) | app.py:235 |
+
+**Note:** Airtable field names are **case-sensitive** and often **Title Case with spaces**.
+
+### 3. Status Field Values (Breaking)
+
+| Table | Current Code Values | Actual Valid Values | Impact |
+|-------|---------------------|---------------------|--------|
+| Platform-Screens | "Processing", "Complete", "Failed", "Partial" | **"Processing", "Complete"** only | HIGH - app.py uses "Failed" (invalid!) |
+| Platform-Assessments | "Complete" | **"Pending", "In Progress", "Complete", "Error"** | MEDIUM - should use "Complete" |
+
+**Critical Issue:** `app.py` uses `status="Failed"` for Screens (lines 138, 208, 225, 241), but actual schema only has `Processing` and `Complete`. **This will cause write failures!**
+
+**Action Required:**
+- Replace all `status="Failed"` with `status="Complete"` for Screens table
+- Add error handling via Operations-Automation_Log table (future enhancement)
+- For Assessments, "Complete" is valid (no change needed)
+
+### 4. Field Type Changes (Breaking)
+
+| Field | Spec Type | Actual Type | Impact |
+|-------|-----------|-------------|--------|
+| Assessments.Assessment Timestamp | dateTime | **date** | MEDIUM - loses time precision |
+
+**Action Required:**
+- Change `assessment_timestamp` to use `.date()` instead of `.isoformat()` when writing
+- Or use just the date portion: `assessment.assessment_timestamp.date().isoformat()`
+
+### 5. Computed/Read-Only Fields (Breaking)
+
+These fields are **formulas** in Airtable and **cannot be set** via API:
+
+| Table | Field | Formula | Impact |
+|-------|-------|---------|--------|
+| Platform-Portco_Roles | Role Name | Portco & "-" & Role Type | Cannot write |
+| Platform-Role_Specs | Spec Name | Role Type & "-" & Variant | Cannot write |
+| Platform-Searches | Search Name | Role & " Search" | Cannot write |
+| Platform-Assessments | Assessment ID | Role & "-" & Candidate & "-" & Screen | Cannot write |
+
+**Action Required:**
+- Verify code doesn't attempt to write these fields
+- Remove any assignments to these fields
+
+---
+
+## Code Files Requiring Updates
+
+### Priority 1: Critical (Breaks Demo)
+
+**File:** `demo/airtable_client.py`
+- **Lines 21-25:** Update table name constants
+- **Lines 186-202:** Update field names in `write_assessment()`
+- **Line 194:** Change timestamp handling for date-only field
+- **Line 233:** Update field name in `update_screen_status()`
+
+**File:** `demo/app.py`
+- **Lines 138, 208, 225, 241:** Replace `status="Failed"` with `status="Complete"`
+- **Line 202:** Verify "Processing" is valid (it is)
+- **Line 322:** Verify "Complete" is valid (it is)
+- **Line 321:** Remove "Partial" status (not in schema) - use "Complete" instead
+
+### Priority 2: Validation (Prevents Errors)
+
+**File:** `demo/airtable_client.py`
+- Add validation for status values
+- Add validation for field names
+- Add error messages for invalid status values
+
+### Priority 3: Enhancement (Future)
+
+- Standardize status values across all tables
+- Add proper error logging via Operations-Automation_Log table
+- Add support for new Assessments status values (Pending, In Progress, Error)
+
+---
+
+## Detailed Change Specifications
+
+### Change 1: Update Table Name Constants
+
+**File:** `demo/airtable_client.py`
+**Lines:** 21-25
+
+**Current:**
+```python
+SCREENS_TABLE: Final[str] = "Screens"
+PEOPLE_TABLE: Final[str] = "People"
+ROLE_SPECS_TABLE: Final[str] = "Role_Specs"
+ASSESSMENTS_TABLE: Final[str] = "Assessments"
+SEARCHES_TABLE: Final[str] = "Searches"
+```
+
+**Updated:**
+```python
+SCREENS_TABLE: Final[str] = "Platform-Screens"
+PEOPLE_TABLE: Final[str] = "People"  # No change - correct
+ROLE_SPECS_TABLE: Final[str] = "Platform-Role_Specs"
+ASSESSMENTS_TABLE: Final[str] = "Platform-Assessments"
+SEARCHES_TABLE: Final[str] = "Platform-Searches"
+```
+
+### Change 2: Update Field Names in write_assessment()
+
+**File:** `demo/airtable_client.py`
+**Lines:** 185-203
+
+**Current:**
+```python
+fields: dict[str, Any] = {
+    "screen": [screen_id],
+    "candidate": [candidate_id],
+    "status": "Complete",
+    "assessment_json": assessment.model_dump_json(),
+    "overall_score": assessment.overall_score,
+    "overall_confidence": assessment.overall_confidence,
+    "topline_summary": assessment.summary,
+    "assessment_model": assessment.assessment_model,
+    "assessment_timestamp": assessment.assessment_timestamp.isoformat(),
+}
+
+if assessment.role_spec_used:
+    fields["role_spec_markdown"] = assessment.role_spec_used
+
+if research is not None:
+    fields["research_structured_json"] = research.model_dump_json()
+    fields["research_model"] = research.research_model
+```
+
+**Updated:**
+```python
+fields: dict[str, Any] = {
+    "Screen": [screen_id],  # Capital S
+    "Candidate": [candidate_id],  # Capital C
+    "Status": "Complete",  # Capital S
+    "Assessment JSON": assessment.model_dump_json(),  # Title case with space
+    "Overall Score": assessment.overall_score,  # Title case with space
+    "Overall Confidence": assessment.overall_confidence,  # Title case with space
+    "Topline Summary": assessment.summary,  # Title case with space
+    "Assessment Model": assessment.assessment_model,  # Title case with space
+    "Assessment Timestamp": assessment.assessment_timestamp.date().isoformat(),  # Date only!
+}
+
+# Note: role_spec_markdown doesn't exist as writable field
+# Role Spec is a linked record field, not markdown storage
+# Remove this section or link to Role Spec record ID instead
+if assessment.role_spec_used:
+    # Option 1: Store in a different field (e.g., custom markdown field)
+    # Option 2: Don't store (retrieve from linked Role Spec when needed)
+    pass  # TODO: Clarify requirements
+
+if research is not None:
+    fields["Research Structured JSON"] = research.model_dump_json()  # Title case
+    fields["Research Model"] = research.research_model  # Title case
+```
+
+### Change 3: Fix Status Values in app.py
+
+**File:** `demo/app.py`
+**Lines:** 138, 208, 225, 241, 322
+
+**Current:**
+```python
+# Line 138
+airtable.update_screen_status(
+    screen_id,
+    status="Failed",
+    error_message=error_message,
+)
+
+# Line 208, 225, 241 (similar patterns)
+airtable.update_screen_status(
+    screen_id,
+    status="Failed",
+    error_message="...",
+)
+
+# Line 321-322
+final_status = "Complete" if not errors else "Partial"
+airtable.update_screen_status(screen_id, status=final_status)
+```
+
+**Updated:**
+```python
+# Lines 138, 208, 225, 241
+# Replace all "Failed" with "Complete"
+# Note: Errors should be logged to Operations-Automation_Log instead
+airtable.update_screen_status(
+    screen_id,
+    status="Complete",  # Changed from "Failed"
+    error_message=error_message,  # Keep for now (may not work - see note below)
+)
+
+# Lines 321-322
+# Remove "Partial" - use "Complete" for all final states
+final_status = "Complete"  # Always Complete, log errors separately
+airtable.update_screen_status(screen_id, status=final_status)
+```
+
+**IMPORTANT NOTE:** The `error_message` parameter may not work because:
+- Screens table doesn't have a direct "Error Message" field
+- It has "Error Message (from Operations-Automation_Log)" which is a **lookup field** (read-only)
+- Errors should be written to Operations-Automation_Log table, not Screens directly
+
+**Recommendation for error_message:**
+- Remove `error_message` parameter from `update_screen_status()` calls
+- Or keep it and handle gracefully if Airtable rejects the field
+- Future: Write errors to Operations-Automation_Log table
+
+### Change 4: Update Field Names in update_screen_status()
+
+**File:** `demo/airtable_client.py`
+**Lines:** 233-235
+
+**Current:**
+```python
+payload: dict[str, Any] = {"status": status}
+if error_message is not None:
+    payload["error_message"] = error_message
+```
+
+**Updated:**
+```python
+payload: dict[str, Any] = {"Status": status}  # Capital S
+# Remove error_message - it's a lookup field (read-only)
+# Error messages should be written to Operations-Automation_Log table
+```
+
+---
+
+## Validation Checklist
+
+After updates, verify:
+
+- [ ] All table names use "Platform-" prefix where applicable
+- [ ] All field names use exact Title Case spelling from Airtable
+- [ ] No code attempts to write to computed fields
+- [ ] All status values are valid for their respective tables
+- [ ] Assessment Timestamp uses date format (not datetime)
+- [ ] No "Failed" status used for Screens table
+- [ ] No "Partial" status used for any table
+- [ ] Error handling doesn't rely on invalid field writes
+
+---
+
+## Testing Strategy
+
+### Unit Tests
+1. Test `AirtableClient.write_assessment()` with actual Airtable
+2. Test `AirtableClient.update_screen_status()` with valid statuses only
+3. Verify field names match actual schema
+
+### Integration Tests
+1. Run full screening workflow end-to-end
+2. Verify all Airtable writes succeed
+3. Check Airtable records have correct field values
+
+### Error Cases
+1. Verify graceful handling when fields don't exist
+2. Test status value validation
+3. Test with missing optional fields
+
+---
+
+## Reference Documents
+
+- **Primary:** `airtable_schema_diff_report.md` - Complete schema comparison
+- **Secondary:** `spec/dev_reference/airtable_ai_spec.md` - Original spec (outdated)
+- **Authority:** Actual Airtable schema (retrieved 2025-11-17)
+
+---
+
+## Implementation Notes
+
+### Why Not Update Airtable to Match Code?
+
+**Answer:** The Airtable schema is already configured with:
+- Production data
+- Automations
+- Linked records
+- Computed formulas
+- Operations-Automation_Log integration
+
+Changing Airtable would break existing workflows. It's safer to update code.
+
+### What About Standardizing Status Values?
+
+**Answer:** Status standardization is a Phase 2 enhancement. For now:
+- Use only valid status values that exist in current schema
+- Document inconsistencies
+- Plan migration for post-demo
+
+### What About the "Partial" Status?
+
+**Answer:** "Partial" doesn't exist in the Airtable schema. Options:
+1. Use "Complete" and log errors separately (recommended for v1)
+2. Add "Partial" to Airtable schema (Phase 2)
+3. Use Operations-Automation_Log to track partial completions
+
+**Decision:** Use "Complete" for all final states. Track errors via logging or Operations-Automation_Log.
+
+---
+
+## Multi-Agent Coordination
+
+### Agent Roles
+
+**Agent 1: Table Name Updater**
+- File: `demo/airtable_client.py`
+- Task: Update lines 21-25 (table name constants)
+- Dependencies: None
+- Validation: Verify constants match actual table names
+
+**Agent 2: Field Name Updater**
+- Files: `demo/airtable_client.py`
+- Task: Update field names to Title Case with spaces
+- Dependencies: Agent 1 complete
+- Validation: All field names match actual Airtable schema
+
+**Agent 3: Status Value Fixer**
+- File: `demo/app.py`
+- Task: Replace invalid status values
+- Dependencies: None (independent of Agent 1-2)
+- Validation: All status values exist in actual schema
+
+**Agent 4: Validation & Testing**
+- Files: All updated files
+- Task: Run tests, verify no regressions
+- Dependencies: Agents 1-3 complete
+- Validation: All tests pass, no Airtable write errors
+
+### Execution Order
+
+```
+┌─────────────┐
+│   Agent 1   │  Update table names
+│ (constants) │
+└──────┬──────┘
+       │
+       v
+┌─────────────┐     ┌─────────────┐
+│   Agent 2   │     │   Agent 3   │  Both run in parallel
+│(field names)│     │  (status)   │
+└──────┬──────┘     └──────┬──────┘
+       │                   │
+       └─────────┬─────────┘
+                 v
+         ┌──────────────┐
+         │   Agent 4    │  Validation
+         │  (testing)   │
+         └──────────────┘
+```
+
+---
+
+**Status:** READY FOR IMPLEMENTATION
+**Last Updated:** 2025-11-17

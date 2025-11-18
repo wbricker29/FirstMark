@@ -56,13 +56,18 @@ The foundational setup has been completed. All dependencies are installed and Py
 ### Project Structure
 
 ```
-demo/                      # 5-file v1.0 implementation
+demo/                      # Core implementation
 ├── __init__.py           # Package initialization
-├── app.py                # Flask webhook server
-├── agents.py             # Agno agent definitions
+├── app.py                # Legacy Flask webhook server (backwards compatibility)
+├── agentos_app.py        # AgentOS FastAPI runtime (canonical)
+├── agents.py             # Agno agent definitions (✅ implemented)
 ├── models.py             # Pydantic data models (✅ implemented)
 ├── airtable_client.py    # Airtable API wrapper
-└── settings.py           # Configuration/env loading
+├── settings.py           # Configuration/env loading
+└── prompts/              # ✅ Centralized prompt system
+    ├── __init__.py       # Prompt package init
+    ├── catalog.yaml      # Agent prompt definitions (4 agents)
+    └── library.py        # Prompt loader (get_prompt function)
 
 tmp/                       # Agno session database location
 tests/                     # Test suite
@@ -75,7 +80,11 @@ spec/                      # Technical specifications
 ├── constitution.md       # Project governance
 ├── prd.md                # Product requirements
 ├── spec.md               # Technical spec
-└── units/001-phase-1/    # Phase 1 design & plan
+├── dev_reference/        # Implementation guides
+│   ├── implementation_guide.md  # Master implementation doc
+│   ├── AGNO_REFERENCE.md        # Framework patterns
+│   └── airtable_ai_spec.md      # Database schema
+└── units/                # Feature design docs
 ```
 
 ### What's Complete
@@ -91,6 +100,14 @@ spec/                      # Technical specifications
   - DimensionScore
   - MustHaveCheck
   - AssessmentResult
+- ✅ Centralized prompt system (demo/prompts/)
+  - catalog.yaml: YAML-based prompt definitions for 4 agents
+  - library.py: Dynamic prompt loader with get_prompt()
+  - Enables code-free prompt editing
+- ✅ Context management features
+  - add_datetime_to_context=True on research/assessment agents
+  - Temporal awareness for "recent" and "current" roles
+  - Follows Agno best practices
 
 ## Workflow Orchestration
 
@@ -229,13 +246,13 @@ for score in assessment.dimension_scores:
 
 **No Custom Event Tables:** Uses Agno-managed session tables only. Custom WorkflowEvent model and event persistence deferred to Phase 2+ production features.
 
-## Flask Webhook Server Setup
+## AgentOS Runtime Setup
 
-The Flask webhook server integrates with Airtable automations to trigger candidate screening workflows.
+The AgentOS FastAPI runtime (`demo/agentos_app.py`) is the canonical `/screen` endpoint for Airtable automations and demo runs. It shares the same workflow logic as the legacy Flask app but adds the AgentOS control plane for live monitoring and configuration.
 
 ### Local Development with ngrok
 
-For webhook testing during development, you'll need to expose your local Flask server to the internet using ngrok.
+For webhook testing during development, expose your local AgentOS server to the internet using ngrok.
 
 #### Install ngrok
 
@@ -261,7 +278,7 @@ ngrok version
    ngrok config add-authtoken YOUR_AUTH_TOKEN
    ```
 
-### Running the Flask Server
+### Running the AgentOS Server
 
 #### 1. Configure Environment Variables
 
@@ -273,23 +290,35 @@ OPENAI_API_KEY=sk-YOUR_KEY_HERE
 FLASK_HOST=0.0.0.0
 FLASK_PORT=5000
 FLASK_DEBUG=true
+# Optional: enforce bearer auth on AgentOS /screen
+# AGENTOS_SECURITY_KEY=super-secret-token
 ```
 
-#### 2. Start the Flask Server
+#### 2. Start the AgentOS Server
 
 Activate your virtual environment and run the server:
 ```bash
 source .venv/bin/activate
-python demo/app.py
+uv run python demo/agentos_app.py
 ```
 
 You should see:
 ```
-🔍 Starting Flask development server on 0.0.0.0:5000
- * Running on http://0.0.0.0:5000
+🔍 Connecting AgentOS runtime to Airtable base appeY64iIwU5CEna7
+INFO:     Started server process [12345]
+INFO:     Application startup complete.
 ```
 
-#### 3. Start ngrok Tunnel
+AgentOS automatically exposes OpenAPI docs at `http://localhost:5000/docs`, runtime metadata at `/config`, and the `/screen` webhook endpoint.
+
+#### 3. Connect to the AgentOS Control Plane
+
+1. Open [https://os.agno.com](https://os.agno.com) and click **Connect OS**
+2. Enter your local URL (`http://localhost:5000` or the ngrok URL)
+3. Provide the security key if `AGENTOS_SECURITY_KEY` is set (leave blank otherwise)
+4. Verify that sessions/runs appear in the dashboard once `/screen` is triggered
+
+#### 4. Start ngrok Tunnel
 
 In a **separate terminal window**, start ngrok:
 ```bash
@@ -331,9 +360,9 @@ Navigate to your Talent Signal base (the one with `AIRTABLE_BASE_ID` from your `
 3. Configure webhook:
    - **Method:** POST
    - **URL:** `https://YOUR_NGROK_URL.ngrok.io/screen` (replace with your ngrok URL)
-   - **Headers:** Add header
-     - Key: `Content-Type`
-     - Value: `application/json`
+   - **Headers:**
+     - `Content-Type: application/json`
+     - `Authorization: Bearer YOUR_AGENTOS_SECURITY_KEY` *(only if configured)*
    - **Body:** JSON
      ```json
      {
@@ -357,23 +386,24 @@ Navigate to your Talent Signal base (the one with `AIRTABLE_BASE_ID` from your `
 
 Before triggering the webhook, verify:
 
-1. ✅ Flask server is running (check terminal for startup logs)
-2. ✅ ngrok tunnel is active (check ngrok terminal for "online" status)
-3. ✅ Airtable automation is enabled
-4. ✅ Test Screen record has:
+1. ✅ AgentOS server is running (`uv run python demo/agentos_app.py`)
+2. ✅ `/docs` responds locally and shows the `/screen` operation
+3. ✅ ngrok tunnel is active (check ngrok terminal for "online" status)
+4. ✅ Airtable automation is enabled
+5. ✅ Test Screen record has:
    - Valid `screen_id` (starts with "rec")
    - At least one linked candidate
    - Linked search with valid role spec
    - Role spec has `structured_spec_markdown` content
-5. ✅ Environment variables are set (`.env` loaded)
-6. ✅ All dependencies installed (`uv pip list` shows flask, pyairtable, agno)
+6. ✅ Environment variables are set (`.env` loaded)
+7. ✅ All dependencies installed (`uv pip list` shows agno, fastapi, pyairtable)
 
 #### Execute Test
 
-1. **Start Flask server:**
+1. **Start AgentOS server (if not already running):**
    ```bash
    source .venv/bin/activate
-   python demo/app.py
+   uv run python demo/agentos_app.py
    ```
 
 2. **Start ngrok (separate terminal):**
@@ -387,10 +417,10 @@ Before triggering the webhook, verify:
    - Open Screens table in Airtable
    - Update test record `status` → "Ready to Screen"
 
-5. **Monitor Flask logs:**
+5. **Monitor AgentOS logs / control plane:**
    Watch for these log indicators:
    ```
-   🔍 Received screen webhook for recXXXX
+   🔍 Received AgentOS screen webhook for recXXXX
    🔍 Starting deep research for [Candidate Name]
    ✅ Deep research completed for [Candidate Name] with N citations
    ✅ Assessment complete for [Candidate Name] (overall_score=XX)
@@ -415,6 +445,11 @@ curl -X POST http://localhost:5000/screen \
   -d '{"screen_id": "recYOUR_TEST_SCREEN_ID"}'
 ```
 
+Add the Authorization header if you enabled a security key:
+```bash
+-H "Authorization: Bearer $AGENTOS_SECURITY_KEY"
+```
+
 Expected response:
 ```json
 {
@@ -436,9 +471,13 @@ Expected response:
 }
 ```
 
+### Legacy Flask Server (Optional)
+
+`demo/app.py` remains available for backwards compatibility. Run `python demo/app.py` if you need to reproduce legacy behavior; otherwise prefer `demo/agentos_app.py` for all demos and automation traffic.
+
 ### Troubleshooting
 
-#### Flask Server Won't Start
+#### AgentOS Server Won't Start
 
 **Error:** `Missing required environment variables: AIRTABLE_API_KEY`
 - **Fix:** Verify `.env` file exists and contains all required keys
@@ -463,7 +502,7 @@ Expected response:
 
 #### Webhook Not Triggering
 
-1. **Check Airtable automation logs:**
+1. **Check Airtable Automation_Logs:**
    - Open automation
    - Click "Runs" tab
    - Look for errors or failed requests
@@ -473,7 +512,7 @@ Expected response:
    - Include `/screen` path: `https://abc123.ngrok.io/screen`
 
 3. **Test with curl first:**
-   - Use the curl command above to verify Flask endpoint works
+   - Use the curl command above to verify the AgentOS endpoint works
    - If curl works but Airtable doesn't, issue is with automation config
 
 #### Workflow Execution Errors
@@ -493,7 +532,7 @@ Use this checklist to validate the full webhook integration before your demo:
 
 #### Environment Setup
 - [ ] Virtual environment activated (`.venv`)
-- [ ] All dependencies installed (`uv pip list` confirms flask, pyairtable, agno, openai)
+- [ ] All dependencies installed (`uv pip list` confirms fastapi, agno, pyairtable, openai)
 - [ ] `.env` file contains all required keys (AIRTABLE_API_KEY, AIRTABLE_BASE_ID, OPENAI_API_KEY)
 - [ ] Port 5000 is available (not in use)
 
@@ -505,8 +544,8 @@ Use this checklist to validate the full webhook integration before your demo:
 - [ ] Role_Spec has populated `structured_spec_markdown` field
 
 #### Server & Tunnel
-- [ ] Flask server starts without errors (`python demo/app.py`)
-- [ ] Startup logs show: "✅ Flask app initialized"
+- [ ] AgentOS server starts without errors (`uv run python demo/agentos_app.py`)
+- [ ] `/docs` responds locally and shows `/screen`
 - [ ] ngrok tunnel active (`ngrok http 5000`)
 - [ ] ngrok shows "Session Status: online"
 - [ ] Copied ngrok HTTPS URL (e.g., `https://abc123.ngrok.io`)
@@ -520,9 +559,9 @@ Use this checklist to validate the full webhook integration before your demo:
 
 #### Execution Test
 - [ ] Changed Screen status → "Ready to Screen" in Airtable
-- [ ] Flask logs show: "🔍 Received screen webhook for recXXXX"
+- [ ] AgentOS logs show: "🔍 Received AgentOS screen webhook for recXXXX"
 - [ ] Workflow executes without ❌ errors
-- [ ] Flask logs show: "✅ Screen recXXXX completed"
+- [ ] AgentOS logs show: "✅ Screen recXXXX completed"
 - [ ] Screen status updated to "Complete" in Airtable
 - [ ] New Assessment record(s) created in Assessments table
 - [ ] Assessment contains:
@@ -540,6 +579,7 @@ Use this checklist to validate the full webhook integration before your demo:
 #### Demo Readiness
 - [ ] 3+ pre-run Screens completed successfully (Pigment CFO, Mockingbird CFO, Synthesia CTO)
 - [ ] 1 live demo Screen prepared (Estuary CTO) with status = "Pending" (not triggered yet)
+- [ ] AgentOS control plane connected (optional)
 - [ ] ngrok tunnel URL documented for live demo
 - [ ] Backup plan if ngrok fails (curl command ready)
 

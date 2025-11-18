@@ -191,6 +191,21 @@ Stable intent and acceptance criteria for core AI agent implementation
 - Quality check uses simple sufficiency criteria: ≥3 citations + non-empty summary
 - See spec/dev_reference/implementation_guide.md for complete data model definitions and reference/deep_research_test_results.md for parser agent pattern
 
+**Centralized Prompt System:**
+
+- All agent prompts defined in `demo/prompts/catalog.yaml` (4 agents: deep_research, research_parser, incremental_search, assessment)
+- Dynamic loading via `demo/prompts/library.py` using `get_prompt(name)` function
+- Prompts injected using `**prompt.as_agent_kwargs()` pattern (provides description, instructions, markdown settings)
+- Enables code-free prompt editing and consistent structure across agents
+- Follows Agno context engineering best practices from `reference/docs_and_examples/agno/agno_contextmanagement.md`
+
+**Context Management Features:**
+
+- `add_datetime_to_context=True` enabled on Deep Research, Incremental Search, and Assessment agents (NOT parser agent)
+- Provides temporal awareness for understanding "recent", "current", "latest" in executive research
+- System messages include current timestamp for recency signals
+- ReasoningTools uses `add_instructions=True` to inject tool usage guidance into system prompt
+
 **Key Design Patterns:**
 
 - Evidence-aware scoring: Use None/null for unknown dimensions (never 0 or NaN)

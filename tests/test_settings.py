@@ -37,7 +37,8 @@ def test_airtable_clean_base_id():
 def test_flask_config_loaded():
     """Verify Flask server configuration is loaded correctly."""
     assert settings.flask.host is not None
-    assert settings.flask.port == 5000
+    # Port 5001 used to avoid macOS AirPlay Receiver conflict on port 5000
+    assert settings.flask.port == 5001
     assert isinstance(settings.flask.debug, bool)
 
 

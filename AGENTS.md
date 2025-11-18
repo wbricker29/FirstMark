@@ -1,97 +1,91 @@
-# Repository Guidelines (FirstMark Talent Signal Agent Demo)
+# Repository Guidelines (Talent Signal Agent)
 
-This repo is optimized around a live Talent Signal Agent demo for the FirstMark interview, centered on the Airtable + Flask + AGNO workflow defined in `case/technical_spec_V2.md` and narrated in the case brief.
+This repo now reflects the Python-first Talent Signal Agent build powering Stage 4+ of the FirstMark demo. All implementation, process, and prioritization decisions must align with the living product + technical specs under `spec/`.
 
-## QUick tips
-Use UV Only
+## Quick Tips
 
-## What To Prioritize
+- **Use UV only** for Python environments (`uv pip install -e .`, `uv run pytest`, etc.).
+- Keep `spec/prd.md` (product view) and `spec/spec.md` (technical contract) open—everything else is supporting context.
+- Assume the `demo/` package and `tests/` folder are the center of gravity; keep diffs small and execution-ready.
+- Do not commit `tmp/agno_sessions.db`, `.env`, or any generated Airtable exports.
+- Treat automation scripts (`scripts/`) and research data as helpers, not the product.
 
-- Treat the case brief as the north star narrative (currently `reference/case_brief.md`) and `case/technical_spec_V2.md` as the source of truth for the implementation plan.
-- Any new code, notes, or experiments should support the Talent Signal Agent demo (screening workflow, role specs, research/assessment) rather than generic infra.
-- Capture case-specific reasoning, architectures, and drafts in `case/` (e.g., `case/WB-case_notes.md`, `case/*_appendix.md`), not in `reference/`.
-- Use `brainstorming/` for early sketches or rough plans that may later be distilled into the case deliverables.
+## Canonical References
 
-## Project Structure & Module Organization
+- `spec/prd.md` – **only product truth** (stakeholders, scenarios, acceptance criteria).
+- `spec/spec.md` – **only technical truth** (architecture, workflows, API surfaces, current stage status).
+- Supporting context lives in `spec/dev_reference/*`, `docs/`, and `non_code/`, but those documents must never override the canonical pair above.
+- `case/`, `reference/`, and legacy briefs are historical; use them for additional color only when they do not contradict `spec/prd.md` or `spec/spec.md`.
 
-- `case/`
-  - Contains the official prompt, technical spec (`technical_spec_V2.md`), and solution notes.
-  - Treat `technical_spec_V2.md` as the canonical description of the demo architecture (Airtable tables, Flask endpoints, AGNO agents, data schemas).
-- `spec/`
-  - Older or auxiliary specs; refer to `case/technical_spec_V2.md` first for current decisions.
-- `scripts/`
-  - Holds all Node-based automation (`scrape_companies.js`, `process_portfolio.js`, `create_summary.js`) plus their README.
-  - Keep any new automation or data-processing tools here so data paths (defaulting to `../research`) remain consistent.
-  - Treat scripts as supporting tools (e.g., portfolio/exec datasets), not the main product.
-- `research/`
-  - Canonical home for generated datasets used by scripts and deeper firm/talent research.
-  - Includes portfolio exports, candidate/network mocks (e.g., `Mock_Guilds.csv`, `Exec_Network.csv`), and deeper notes (`member_research/`, `interview_research/`).
-- `reference/`
-  - Aggregates cleaned portfolio summaries and exports for sharing plus curated reading and decks.
-  - Do not treat this as the primary workspace for new case drafts or implementation docs.
-- `brainstorming/` and root-level briefs (`Interview_info.md`, `role_overview.md`, `Firm_DeepResearch.md`)
-  - Track qualitative prep and context you may reference from the case.
+## Priority Stack (January 2025)
 
-## Demo Implementation Focus
+1. **Stage 4 – Flask webhook + Airtable client polish.** Synchronous `/screen` endpoint, ngrok-ready logging, and thin `pyairtable` wrapper per `spec/spec.md`.
+2. **Stage 5 – End-to-end workflow validation.** Screen multiple candidates via Airtable automation, capture logs, and keep Sqlite session state healthy.
+3. **Stage 6 – Demo data completeness.** Load remaining executives and scenarios via `talent-signal-candidate-loader`; reconcile status with the spec roadmap.
+4. Maintain Stage 1-3 assets (Airtable schema, agents, workflow orchestrator, 58+ tests) without churn unless required by the canonical specs.
 
-- Core demo path follows `case/technical_spec_V2.md`:
-  - Airtable as DB + UI (People, Screen, Workflows, Role Eval, Role Spec).
-  - Flask + ngrok webhook server with minimal endpoints (e.g., `/upload`, `/screen`).
-  - AGNO-based agents for research (`o4-mini-deep-research`) and assessment (`gpt-5-mini`) using Pydantic schemas.
-- For the current demo:
-  - Use **spec-guided evaluation only**; model-generated rubrics are explicitly future work.
-  - Keep Flask endpoints **synchronous and simple**; async/concurrency is optional Phase 2.
-  - Modules 2 and 3 (New Role, New Search) are primarily **Airtable-only flows**; they should not require new Python endpoints unless explicitly needed.
+## Project Structure & Ownership
 
-## Build, Test, and Development Commands
+- `demo/` – Core Python package (AgentOS FastAPI runtime, legacy Flask app, agents, models, Airtable client, settings). Keep modules lean and interview-friendly.
+- `tests/` – Pytest suite covering models, agents, workflow orchestration, Airtable client, and settings. Target ≥50% coverage (constitution requirement).
+- `spec/` – Documentation home. Only `spec/prd.md` and `spec/spec.md` are canonical; use `spec/dev_reference/*` (implementation guide, AGNO reference, Airtable schema) for supporting details.
+- `scripts/` – Node + Python utilities for scraping, Deep Research experiments, and integration smoke tests. Default inputs live in `../research`.
+- `data/` – Synthetic CSVs for quick experimentation (keep mock-only).
+- `reference/` & `non_code/` – Presentation-ready briefs, qualitative research, and contextual notes. Do not place implementation plans here.
+- `case/`, `archive/`, `docs/` – Legacy planning artifacts; edit only if you explicitly call out the variance from canonical specs.
+- `tmp/` – Runtime artifacts (e.g., `tmp/agno_sessions.db`). Gitignored; ensure tests clean up temporary files.
 
-- Node-based data prep (supporting, not primary):
-  - `cd scripts && node scrape_companies.js` scrapes FirstMark portfolio pages; start Chrome on `:9222` beforehand via `.claude/skills/web-browser/tools/start.js`.
-  - `cd scripts && node process_portfolio.js` transforms `research/portfolio_raw.json` into the Markdown table.
-  - `cd scripts && node create_summary.js` produces CSV and narrative summaries from the processed data.
-  - Run scripts with Node 18+ in an ES module–friendly setup; prefer project-local dependencies.
-- Python demo stack (primary):
-  - Follow `case/technical_spec_V2.md` for environment assumptions (Python version, AGNO/OpenAI dependencies, Flask/ngrok usage).
-  - Keep the Python surface area tight: one small Flask app, AGNO agents, and Airtable integration.
+## Implementation Focus
 
-## Coding Style & Naming Conventions
+- **Airtable Integration:** Seven-table base (People, Portco, Portco_Roles, Searches, Screens, Assessments, Role_Specs) plus helper/audit tables. All Airtable calls flow through `demo/airtable_client.py` using `pyairtable`.
+- **Workflow:** Linear pipeline (Deep Research → Quality Gate → optional Incremental Search → Assessment) defined in `demo/agents.py`. Session state persisted via `SqliteDb` at `tmp/agno_sessions.db`. Keep the orchestration synchronous for v1.
+- **Agents:** `o4-mini-deep-research` for research (no `output_schema`), `gpt-5-mini` for assessment, optional incremental search via `gpt-5` with strict `max_tool_calls`. Encode constraints explicitly in prompts.
+- **Models:** `demo/models.py` houses the Pydantic schemas (`ExecutiveResearchResult`, `AssessmentResult`, `DimensionScore`, etc.). All structured outputs must validate against these classes.
+- **Settings:** `.env` parsing handled by `demo/settings.py`. Required vars: `OPENAI_API_KEY`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, AgentOS host/port (shared with legacy Flask), optional `NGROK_FORWARDING_URL`.
 
-- JavaScript:
-  - ES modules, 2-space indentation, camelCase variables, and small helper functions (`scrapeCompanyPage`) for clarity.
-  - Console logging should explain progress (`Found N unique companies`) and surface recoverable errors without exiting the process.
-- Python (demo code):
-  - Prefer clear, interview-friendly naming that reflects the Talent Signal Agent (e.g., `run_screening`, `create_research_agent`, `AssessmentResult`).
-  - Keep modules small and aligned with the spec: one Flask entrypoint, small AGNO/LLM helpers, and thin Airtable client functions.
-  - Favor explicit, typed Pydantic models for structured inputs/outputs, as in `case/technical_spec_V2.md`.
-- Data / files:
-  - Name derived data files with explicit scopes (`portfolio_detailed.json`, `member_research/AlexDR_ANT.md`, `Mock_Guilds.csv`) so downstream notes stay discoverable via `rg`.
+## Build & Test Commands
 
-## Testing & Validation Guidelines
+- Install deps: `uv pip install -e .`
+- Lint + format: `uv run ruff format . && uv run ruff check .`
+- Type check: `uv run mypy demo tests`
+- Test suite: `uv run pytest` (or targeted `uv run pytest tests/test_workflow.py`)
+- Manual server: `uv run python demo/agentos_app.py` (pair with `ngrok http 5000`)
+- Scripts: `cd scripts && node create_summary.js`, `node scripts/scrape_companies.js`, or `uv run python scripts/test_deep_research.py`
 
-- No dedicated test suite exists.
-- Treat each script or demo run as an integration test:
-  - For Node scripts: verify deltas with `git status` and inspect generated artifacts in `research/` (and any mirrored copies under `reference/portfolio/`).
-  - For the Flask/AGNO demo: run through the Module 4 “Screen” flow with a small candidate set and verify Airtable status changes + outputs match the expectations in `case/technical_spec_V2.md`.
-- Before using generated data in the case narrative, perform spot checks and sanity-check that examples match the case brief (`reference/case_brief.md`).
+## Coding Style & Naming
 
-## Communication & Versioning for the Case
+- **Python:** PEP 8 names, explicit type hints, Google-style docstrings, minimal abstraction layers. Keep comments for reasoning or constraints, not restating code. Workflows and agents should be easily narrated live.
+- **Prompts:** Store longer prompts as triple-quoted strings inside the relevant agent factory; annotate Deep Research limitations inline.
+- **JavaScript:** ES modules, 2-space indentation, camelCase, descriptive logging (`console.info("Found %d companies", count)`).
+- **Data files:** Use scoped names (`research/member_research/...`, `reference/portfolio/<scenario>.md`). Document provenance for any new CSV/JSON artifact.
 
-- Keep the main narrative concise and interview-ready in the case brief (currently `reference/case_brief.md`); move longer explorations into adjacent notes (e.g., `case/WB-case_notes.md` or `case/*_appendix.md`).
-- If multiple variants of the solution exist (e.g., different agent architectures), use explicit filenames (`case/agent_v1_spec_guided.md`, `case/agent_v2_async_reranker.md`) and cross-link from the case brief so it is clear which is the “final” interview version.
-- Avoid large, breaking restructures right before interviews; prefer small, incremental updates that preserve a stable, presentable case narrative.
+## Testing & Validation
 
-## Commit & Pull Request Guidelines
+- Maintain ≥50% coverage. Use `pytest --cov=demo --cov=tests` when validating larger changes.
+- Workflow: `tests/test_workflow.py` + `tests/test_workflow_smoke.py` cover orchestration; extend fixtures rather than building new harnesses.
+- Research Quality: `tests/test_quality_check.py` governs gap heuristics; keep fixtures aligned with new thresholds.
+- Agents: `tests/test_research_agent.py`, `tests/test_scoring.py`, and `tests/test_agentos_app.py` verify prompt, schema, and `/screen` contracts. Run `pytest -m legacy tests/test_app.py` only when reproducing the deprecated Flask server.
+- Airtable client + settings: keep `tests/test_airtable_client.py` and `tests/test_settings.py` in sync with env or schema changes.
+- Scripts: manual inspection of generated artifacts (CSV/Markdown). Summarize output diffs in commits/PRs.
 
-- Use concise, imperative messages with scope prefixes (`case: refine technical_spec`, `demo: add screen endpoint`, `scripts: update portfolio transform`).
-- Each PR (or logical commit group) should include:
-  - Short context summary.
-  - Affected directories.
-  - Sample output snippets or file sizes (for research/data changes).
-  - Any manual steps (Chrome port, ngrok URL, Airtable config assumptions).
-- Link to relevant briefs (`reference/case_brief.md`, `case/technical_spec_V2.md`, `research/Firm_DeepResearch.md`) so reviewers can trace decisions.
+## Communication & Versioning
 
-## Data & Security Tips
+- Commit prefix examples: `demo: add incremental search helper`, `spec: document stage 4 webhook`, `scripts: update guild scrape`.
+- Update `spec/prd.md` or `spec/spec.md` *before* shipping code that changes requirements; the repo should never outrun the canonical docs.
+- Mention which spec section you satisfied or updated in PR/commit bodies to keep reviewers aligned.
+- Presentation-ready summaries or narratives belong in `reference/` or `non_code/`; implementation notes or reasoning go into `spec/dev_reference/` or inline comments.
 
-- Many `research/` and `reference/portfolio/` files contain scraped or interview-derived information; avoid sharing raw exports outside this repository and scrub PII before publishing or presenting.
-- Store API keys or browser credentials in your local environment, never inside tracked files; redact sensitive URLs from commit descriptions when referencing partner portals.
-- When creating mock datasets for the demo (e.g., `Mock_Guilds.csv`, `Exec_Network.csv`, bios, JDs), prefer synthetic or anonymized examples that still resemble realistic VC/talent workflows.
+## Data & Security
+
+- Keep Airtable/OpenAI secrets in `.env` (not tracked). Use `.env.example` for onboarding hints only.
+- Treat `reference/` and `non_code/research/` outputs as sensitive; redact before sharing externally.
+- Mock datasets in `data/` remain synthetic. If you regenerate, document methodology at the top of the file.
+- Remove ngrok URLs, Airtable record IDs, and candidate PII from commit descriptions and docs unless explicitly required.
+
+## Demo Runbook Reminders
+
+- Airtable automation: trigger on `Screens.status == "Ready to Screen"`; POST `{ "screen_id": "{RECORD_ID}" }` to `/screen`. Update `spec/spec.md` if the payload or trigger changes.
+- End-to-end smoke: run AgentOS, start ngrok, trigger Airtable automation, monitor emoji logs (`🔍/✅/🔄/❌`), and verify Airtable tables update. Capture log snippets for `README.md`.
+- Data loading: use the `talent-signal-candidate-loader` Claude skill for bulk imports; track outstanding records in `SCHEMA_ALIGNMENT_PLAN.md` or `case/tracking.md` but reconcile final status against `spec/spec.md`.
+
+Following these guidelines keeps the repo demo-ready and ensures the engineering narrative always matches the canonical specs the FirstMark panel will review.
