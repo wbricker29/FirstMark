@@ -455,22 +455,27 @@
 
 #### **Part 2: The Case Study Journey (30 min)**
 
-**2.1 Where You Are Today (6 min)**
+**2.1 Where You Are Today (5 min)**
 
 **What I Understand About FMC:**
 - Airtable is your operational hub
 - Data conversations happen carefully
 - Tools exist that aren't being adopted (Ryan's work)
 - Need to prove value before changing workflows
-- Portfolio companies need executive talent
-- Guild network is valuable but underutilized
+- Can't build the beautiful thing without credibility—it won't get used
 
 **What I Know About The Opportunity:**
-- People evaluation happens repeatedly
-- Manual screening is time-intensive
-- Research quality varies
-- Hard to audit decision trails
-- Similar candidates are hard to differentiate
+- **Differentiation:** Guild network is a differentiator—use it
+- **Rationalization:** People evaluation done many times, many ways → rationalize + augment = value
+- **Fundamentals:** People evaluation is fundamental to VC, especially early stage
+- **Extension potential:** Other people enrichment use cases (founders, LPs, hires)
+
+**The Requirements:**
+- **Recall over precision** → Rather not miss a great match vs see some duds
+- **Filter, not decide** → Goal is to filter candidates for review, not make the final decision
+- **Inform individual review** → Surface key info, enable quick action, enable investigation
+- **Augment, not replace** → Target is augmentation of the talent team
+- **Show your work** → Validate quality of research methods AND evaluation traces
 
 **The Quick Win Hypothesis:**
 - Can demonstrate AI-augmented screening in Airtable
@@ -478,7 +483,50 @@
 - Can create template for other use cases
 - Can inform broader platform strategy
 
-**2.2 The Horizon 1 Quick Win (12 min)**
+**2.1b The Three-Tier Decision Framework (5 min)**
+
+**Before I show you what I built, let me show you how I thought about what to build.**
+
+**Tier 1: The Ideal Solution (12-18 months)**
+
+*What this would look like in an ideal state:*
+- **Centralized data platform** → Universal people/company/role storage, Affinity integration
+- **Modular architecture** → Lift-and-shift capabilities to new use cases
+- **Model agnostic** → Swap LLM providers, research methods without rewiring
+- **Standard operations** → Reusable enrichment (Apollo, Harmonic), normalization, deduplication
+
+*This is the strategic destination—but you can't build it without learning what you're building on.*
+
+**Tier 2: The MVP Solution (1-month sprint)**
+
+*What I'd build if asked to develop first cut for production use:*
+- Actual ROI discussion and roadmapping
+- Market research on providers (Apollo, People Data Labs, AI candidate eval tools)
+- Standard framework leveraging central tools (if you have firm-standard LLM framework)
+- Research via external providers OR custom agents (timeboxed decision)
+- Store content from all cited sources
+- Better investigation capability (drill-down into raw data)
+- Consensus mechanisms for quality control
+
+*This is what you build after Tier 3 proves the value hypothesis.*
+
+**Tier 3: The 2-Day Demo (What I'm Showing Today)**
+
+*What's illustrative and functional in 48 hours:*
+- **Meet you in Airtable** → Start where you are, not where I want you to be
+- **OpenAI Deep Research** → Good enough for demo; demonstrates integration capability
+- **Module 1 + Module 4** → Production-quality ingestion + screening workflow
+- **Synchronous processing** → Simpler implementation, faster to value
+- **Mock enrichment** → Don't need Apollo API for demo validation
+
+*This is what earns credibility to have the Tier 2 conversation.*
+
+**Why This Order Matters:**
+- Can't skip to Tier 1 without learning from Tier 3
+- Each tier builds credibility and understanding for the next
+- Tier 3 validates the approach; Tier 2 validates the ROI; Tier 1 delivers strategic leverage
+
+**2.2 The Horizon 1 Quick Win: Building Tier 3 (13 min)**
 
 **What We're Building:**
 - **Module 1:** Production-quality People CSV ingestion (smart deduplication, validation, audit trail)
@@ -514,29 +562,60 @@
 - We're showing **how** to apply structured AI workflows to VC operations
 - Not claiming feature parity—claiming **directional validity**
 
-**The Technical Approach:**
+**The Key Complexity Decisions:**
 
-*Simplified Scope:*
-- Two modules, not full platform (Module 1 + Module 4)
-- Linear workflow, not complex orchestration
-- Synchronous processing, not async
-- No enrichment APIs (deferred to Phase 2+)
-- Standard Airtable views, not custom UI
+**Decision 1: Where Do We Need LLMs vs Rules?**
+- **LLMs for:** Research synthesis (Deep Research), Assessment (spec-guided evaluation)
+- **Rules for:** Data ingestion, deduplication (deterministic logic)
+- **Why:** Use the right tool for the job—LLMs for unstructured reasoning, code for structured operations
 
-*Smart Bets:*
-- OpenAI Deep Research for candidate research (2-6 min per candidate, comprehensive)
-- GPT-4 for assessment and synthesis
-- Pydantic for structured outputs (type safety, validation)
-- Flask + ngrok for quick integration
-- Agno framework for agent orchestration + native UI monitoring
+**Decision 2: How Do We Guardrail LLMs?**
+- **Structured outputs** → Pydantic schemas force valid JSON (no hallucinated fields)
+- **Evidence requirements** → Citation thresholds, evidence-aware scoring
+- **Confidence scoring** → LLM self-assessment of research quality
+- **Counterfactuals** → "Why candidate might NOT be ideal" prevents overconfidence
 
-*What's Different:*
-- **Data Quality:** Smart CSV ingestion with deduplication and validation
-- **Spec-Guided Assessment:** Role requirements drive evaluation dimensions
-- **Evidence-Aware Scoring:** 1-5 scale with None for "Insufficient Evidence" (no forced guessing)
-- **Counterfactual Reasoning:** "Why candidate might NOT be ideal" + key assumptions
-- **Confidence Scoring:** LLM self-assessment of research quality
-- **Audit Trail:** From CSV upload → research → assessment → final score
+**Decision 3: How Do We Optimize Human Engagement?**
+- **Filter, don't decide** → Recall over precision (don't miss great matches)
+- **Surface key info** → Role spec drives what to research and assess
+- **Enable investigation** → Drill-down into evidence, citations, reasoning trails
+- **Show your work** → Every score has evidence quotes and reasoning
+
+**Decision 4: Build vs Buy?**
+- **Build:** Workflow orchestration, assessment logic, deduplication
+- **Buy:** LLM APIs (OpenAI), Database (Airtable), Framework (Agno)
+- **Mock:** Apollo enrichment (not needed to validate approach)
+- **Defer:** Async processing, candidate profiles, incremental search (Phase 2+)
+
+**The Technical Stack:**
+- **Framework:** Agno (agent orchestration + native UI monitoring)
+- **LLMs:** OpenAI Deep Research (research), GPT-4 (assessment)
+- **Database/UI:** Airtable (meet you where you are)
+- **Integration:** Flask + ngrok (webhook for Airtable automation)
+- **Structure:** Pydantic (type-safe structured outputs)
+
+**What Makes This Different:**
+- **End-to-end audit trail:** CSV upload → research → assessment → final score
+- **Evidence-aware scoring:** 1-5 scale with None for "Insufficient Evidence" (no forced guessing)
+- **Spec-guided assessment:** Role requirements drive evaluation dimensions
+- **Production thinking:** Smart deduplication, validation, error handling (not just demo code)
+
+**Known Messy Corners (And How We Handle Them):**
+- **Non-normalized titles:** CFO vs Chief Financial Officer vs VP Finance → Design for variability
+- **Disambiguation needs:** Same name, different people → Company + LinkedIn URL matching
+- **This happens too often to centralize:** Make it easy to handle at point of use
+
+**Strategic Boundaries Questions (What I Still Need To Learn):**
+
+*What's Central and Universal?*
+- Person intake and normalization → Should this be centralized?
+- All people enrichment → Standard operation or use-case specific?
+
+*What Do We Keep vs Redo vs Toss?*
+- Should we define a refresh process for stale data?
+- When do we re-research vs use cached profiles?
+
+*These are Tier 2 questions—can't answer them without Tier 3 learnings.*
 
 **[LIVE DEMO - 10 min]**
 
@@ -650,35 +729,53 @@
 
 ### **Key Talking Points**
 
-**On Quick Wins:**
-- "Quick wins aren't shortcuts—they're strategic learning investments"
-- "The goal isn't to build perfectly, it's to learn precisely"
-- "Every quick win should answer a strategic question"
-- "Module 1 demonstrates production thinking; Module 4 demonstrates AI capability—together they show end-to-end competence"
+**On the Three-Tier Framework:**
+- "Tier 1 is the strategic destination—but you can't build it without learning what you're building on"
+- "Tier 3 validates the approach; Tier 2 validates the ROI; Tier 1 delivers strategic leverage"
+- "Each tier builds credibility and understanding for the next"
 
-**On Foundation Building:**
-- "You can't build the foundation until you know what you're building on it"
-- "The quick win teaches us what the foundation should look like"
-- "Each horizon builds on the credibility and learning of the last"
+**On Key Decisions:**
+- "Every technical decision is really a business decision about where to create value"
+- "Where do we need LLMs vs rules? Use the right tool for the job"
+- "Build vs buy isn't about cost—it's about where you create differentiated value"
+- "Known messy corners: Titles will be non-normalized, there will be disambiguation—design for it"
+
+**On Requirements and Constraints:**
+- "Recall over precision—I'd rather not miss a great match vs see some duds"
+- "Filter, not decide—the goal is to filter candidates for review, not make the final decision"
+- "Augment, not replace—the target is augmentation of the talent team, not replacement"
+- "Show your work—validate quality of research methods AND evaluation traces"
 
 **On Credibility:**
 - "Meet them where they are" is about earning the right to lead them somewhere new
 - "Ryan's tools aren't used because they skipped the credibility-building step"
-- "You can't transformation-manage your way past a trust deficit"
+- "Can't build the beautiful thing without credibility—it won't get used"
+- "Quick wins buy credibility for harder work"
 
-**On Strategy:**
+**On Strategic Thinking:**
 - "The best strategies emerge from delivered value, not planning exercises"
 - "I'm optimizing for compounding learning, not comprehensive coverage"
-- "Horizon 3 looks completely different after you've shipped Horizon 1"
+- "Strategic boundaries questions can't be answered until you ship something and learn"
+
+**On What I Don't Know:**
+- "The biggest determining factors are things I don't know yet—and that's expected"
+- "What's your data landscape? How are you using Affinity? What are the organizational dynamics?"
+- "These unknowns inform Tier 2—they don't block Tier 3"
 
 **On Partnership:**
 - "I'm not selling you this demo—I'm showing you how I approach building with you"
 - "The value isn't in the prototype, it's in the thinking that produced it"
+- "Module 1 demonstrates production thinking; Module 4 demonstrates AI capability—together they show end-to-end competence"
 
 **On the EvolutionIQ Comparison:**
 - "EvolutionIQ proved structured AI workflows work for high-stakes decisions in insurance—we're applying that model to VC talent operations"
 - "This isn't claiming feature parity with a mature product—it's demonstrating directional validity of the approach"
 - "The parallel: AI-powered structured workflows with explainable outputs for domain-specific decision-making"
+
+**On Deferred Decisions:**
+- "Candidate profiles? Probably takes refinement on what a profile is—deferred to Tier 2"
+- "Async processing, incremental search—these are optimizations, not validations"
+- "Every 'no' today enables a clearer 'yes' tomorrow"
 
 ---
 

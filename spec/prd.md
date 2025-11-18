@@ -171,7 +171,7 @@ An AI-powered system that:
 - **Assessments**: Individual candidate evaluations (research + assessment results)
 
 **Helper Tables (1):**
-- **Role_Specs**: Reusable evaluation templates (CFO_Standard_v1, CTO_Standard_v1)
+- **Role_Specs**: Template storage table (not workflow data) - Reusable evaluation templates (CFO_Standard_v1, CTO_Standard_v1) for role specifications
 
 **Phase 2+ Tables (Deferred):**
 - Workflows: Audit trail for multi-step workflows
@@ -465,6 +465,8 @@ An AI-powered system that:
 
 ## Technical Constraints
 
+**Note:** For high-level technical stack overview, see "Technical Stack" section in Scope (line 196). This section provides detailed constraints and requirements.
+
 ### Python Version
 
 - **Minimum:** Python 3.11+
@@ -476,12 +478,12 @@ An AI-powered system that:
 
 ### Dependencies
 
-**Core:**
+**Core (see Technical Stack section for high-level overview):**
 
-- `agno-ai` - Agent framework with workflow orchestration
-- `pydantic` - Data validation and structured outputs
-- `flask` - Webhook server for Airtable integration
-- `pyairtable` - Airtable API client
+- `agno-ai` - Agent framework with workflow orchestration (Agno UI dashboard, prompt templates)
+- `pydantic` - Data validation and structured outputs (ExecutiveResearchResult, AssessmentResult)
+- `flask` - Webhook server for Airtable integration (production entrypoint)
+- `pyairtable` - Airtable API client (database operations)
 - `python-dotenv` - Environment variable management
 
 **Dev/Test:**

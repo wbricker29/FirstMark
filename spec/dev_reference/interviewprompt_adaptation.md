@@ -2,6 +2,17 @@
 
 This note captures how to reuse the successful `interviewprompt.md` pattern to strengthen the Talent Signal executive research and assessment prompts.
 
+## Conceptual Evolution: Interview Prompt → Talent Signal
+
+The evolution from the original interviewer-prep prompt to Talent Signal looks like:
+
+- **Evidence discipline:** The FACT / OBSERVATION / HYPOTHESIS taxonomy for interview prep becomes the backbone of executive research (Deep Research markdown), parsing rules, and assessment scoring behavior.
+- **Research process & sparse-data mode:** The original emphasis on source strategy and explicit thin-evidence handling is reused to guide Deep Research search behavior, gap reporting, and conservative scoring (`None` instead of guesses).
+- **Interviewer lens → investor/board lens:** The notion of “how this person evaluates you” becomes “how an investor or board will evaluate this candidate for a specific role,” expressed in the assessment headline and summary.
+- **Question themes → counterfactuals:** Interview “Likely Question Themes” turn into concrete counterfactuals: specific follow-up questions and scenarios that would move key dimension scores.
+- **Pitfalls & preparation checklist → flags & must-haves:** Interview pitfalls and checklists map directly to `red_flags_detected`, `green_flags`, and `must_haves_check` as investor-ready bullets.
+- **Limits & alternative readings:** The original “Limits” section becomes explicit constraints and alternative interpretations in assessments, ensuring outputs stay honest about uncertainty and missing data.
+
 ## Proposed `catalog.yaml` Prompt Revisions
 
 Apply these updates to `demo/prompts/catalog.yaml` (merging with existing entries as needed).
@@ -222,3 +233,32 @@ The enhanced assessment prompt is designed to make demo outputs easier to narrat
 - **Airtable and API integration:**
   - `AirtableClient.write_assessment()` continues to serialize `AssessmentResult` into Airtable long-text fields; more structured and legible `summary`, flags, and counterfactuals yield more compelling records in the demo UI with no integration changes.
   - Both Flask (`demo/app.py`) and AgentOS (`demo/agentos_app.py`) entrypoints continue to treat `AssessmentResult` as an opaque structured payload; only the human-facing content improves.
+
+## Implementation Checklist (Prompts Only)
+
+To implement this adaptation without touching schemas or integrations:
+
+- **Update Deep Research prompt (`catalog.yaml`):**
+  - Replace the `deep_research` entry with the version above (evidence taxonomy, research process, structured sections, gaps).
+  - Ensure instructions explicitly mention `[FACT]`, `[OBSERVATION]`, `[HYPOTHESIS]` and the “Gaps in Public Evidence” section.
+
+- **Update parser prompt (`catalog.yaml`):**
+  - Replace `research_parser` with the version above so it:
+    - Treats `[FACT]` as primary structured inputs.
+    - Uses `[OBSERVATION]` and `[HYPOTHESIS]` only for narrative and gaps, never as hard facts.
+
+- **Update incremental search prompt (`catalog.yaml`):**
+  - Replace `incremental_search` with the focused version that:
+    - Targets explicitly listed gaps and low-confidence areas.
+    - Limits itself to two searches and documents remaining unknowns.
+
+- **Update assessment prompt (`catalog.yaml`):**
+  - Replace `assessment` with the enhanced version that:
+    - Encodes the 1–5 scale semantics.
+    - Requires a headline verdict and investor/board lens in `summary`.
+    - Standardizes `must_haves_check`, `red_flags_detected`, `green_flags`, and `counterfactuals` as described.
+    - Preserves the phrase “Score on a 1-5 scale” for test compatibility.
+
+- **Do not change code or schemas:**
+  - Leave `demo/models.py`, `demo/agents.py`, `demo/airtable_client.py`, and Airtable schemas unchanged.
+  - After prompt updates, re-run the test suite (especially `tests/test_prompts.py` and `tests/test_research_agent.py`) to confirm behavior.

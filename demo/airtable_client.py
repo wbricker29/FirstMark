@@ -23,6 +23,8 @@ class AirtableClient:
     ROLE_SPECS_TABLE: Final[str] = "Platform-Role_Specs"
     ASSESSMENTS_TABLE: Final[str] = "Platform-Assessments"
     SEARCHES_TABLE: Final[str] = "Platform-Searches"
+    PORTCOS_TABLE: Final[str] = "Portcos"
+    PORTCO_ROLES_TABLE: Final[str] = "Platform-Portco_Roles"
 
     def __init__(self, api_key: str, base_id: str) -> None:
         """Instantiate the Airtable client and table handles.
@@ -58,6 +60,8 @@ class AirtableClient:
         self.role_specs: Table = self.api.table(self.base_id, self.ROLE_SPECS_TABLE)
         self.assessments: Table = self.api.table(self.base_id, self.ASSESSMENTS_TABLE)
         self.searches: Table = self.api.table(self.base_id, self.SEARCHES_TABLE)
+        self.portcos: Table = self.api.table(self.base_id, self.PORTCOS_TABLE)
+        self.portco_roles: Table = self.api.table(self.base_id, self.PORTCO_ROLES_TABLE)
 
     def get_screen(self, screen_id: str) -> dict[str, Any]:
         """Return a Screen record plus linked search + candidate details.

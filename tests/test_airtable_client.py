@@ -29,6 +29,8 @@ def mock_tables(mock_api):
         "Platform-Role_Specs": MagicMock(),
         "Platform-Assessments": MagicMock(),
         "Platform-Searches": MagicMock(),
+        "Portcos": MagicMock(),
+        "Platform-Portco_Roles": MagicMock(),
     }
 
     def table_factory(base_id: str, table_name: str):
@@ -51,6 +53,8 @@ def client(mock_api, mock_tables):
         client_instance.role_specs = mock_tables["Platform-Role_Specs"]
         client_instance.assessments = mock_tables["Platform-Assessments"]
         client_instance.searches = mock_tables["Platform-Searches"]
+        client_instance.portcos = mock_tables["Portcos"]
+        client_instance.portco_roles = mock_tables["Platform-Portco_Roles"]
         return client_instance
 
 
@@ -67,7 +71,7 @@ def test_init_with_valid_credentials(mock_api):
     assert client.api_key == "pat_valid_key"
     assert client.base_id == "appValidBase"
     assert client.api == mock_api
-    assert mock_api.table.call_count == 5  # 5 tables initialized
+    assert mock_api.table.call_count == 7  # 7 tables initialized
 
 
 def test_init_with_base_id_containing_table_suffix(mock_api):

@@ -215,7 +215,7 @@ tests/
 ├── test_scoring.py         # calculate_overall_score tests
 ├── test_quality_check.py   # quality check heuristics
 ├── test_prompts.py         # prompt catalog loader tests
-└── test_workflow_smoke.py  # happy-path /screen flow with mocks (optional)
+└── test_workflow.py  # workflow orchestration tests (9 test cases)
 
 spec/                   # Documentation
 ├── constitution.md     # Project governance
@@ -268,8 +268,27 @@ README.md               # Implementation guide
 **Critical Design Decisions:**
 - Simple average scoring (no weighted algorithm in v1)
 - Direct structured outputs via `output_schema` (no parser needed)
-- All user-facing data in Airtable (4 JSON fields in Assessments table)
+- All user-facing data in Airtable (7 primary JSON fields in Assessments table: research_structured_json, assessment_json, dimension_scores_json, must_haves_check_json, red_flags_json, green_flags_json, counterfactuals_json - see Airtable Schema Reference section for details)
 - SqliteDb required for v1 (InMemoryDb is Phase 2+ fallback only)
+
+### Demo Scope Limitations
+
+**Reduced Single-Select Options:**
+
+To simplify the demo, several single-select fields have reduced option sets compared to the full specification:
+
+- **People.Normalized Function:** CFO, CTO only (full spec defines 8 options: CEO, CPO, CRO, COO, CMO, CFO, CTO, Other)
+- **People.Source:** FMGuildPage, FMLinkedIN only (full spec defines 6 sources)
+- **Portcos.Stage:** Series B, Series C only (full spec defines 6 stages: Seed, Series A, Series B, Series C, Growth, Public)
+- **Portcos.Sector:** B2B SaaS, Infrastructure only (full spec defines 7 sectors)
+- **Portco Roles.Role Type:** CFO, CTO only (full spec defines 5 types)
+- **Portco Roles.Status:** Open only (full spec defines: Open, On Hold, Filled, Cancelled)
+- **Portco Roles.Priority:** Critical, High only (full spec defines: Critical, High, Medium, Low)
+- **Searches.Status:** Active, Planning only (full spec defines: Planning, Active, Paused, Completed)
+- **Screens.Status:** Demo uses Processing, Complete, Failed (full spec defines: Draft, Processing, Complete, Failed)
+- **Assessments.Status:** Demo uses Pending, Complete, Failed (full spec defines: Pending, Processing, Complete, Failed)
+
+**Phase 2+ Enhancement:** Expand single-select options to full specification when supporting broader use cases beyond CFO/CTO demo scenarios.
 
 ---
 
@@ -688,7 +707,7 @@ class WorkflowEvent(BaseModel):
 - **Test Files:**
   - `test_scoring.py` - calculate_overall_score, etc.
   - `test_quality_check.py` - quality check heuristics
-  - `test_workflow_smoke.py` - happy-path /screen flow with mocks (optional)
+  - `test_workflow.py` - workflow orchestration tests (9 test cases covering all 5 acceptance criteria)
 - **Coverage:** No strict percentage requirement; focus on correctness
 - **Type Checking:** Type hints on public functions (mypy as goal, not gate)
 - **Formatting:** ruff format (black-compatible)
@@ -1374,21 +1393,7 @@ The Assessments table currently contains both `singleLineText` "(text)" versions
 
 **Recommendation:** Use multilineText versions for implementation, remove singleLineText "(text)" duplicates in cleanup phase.
 
-**Demo-Scoped Single Select Options:**
-
-To simplify the demo, several single-select fields have reduced option sets:
-- **People.Normalized Function:** CFO, CTO only (spec defines 8 options including CEO, CPO, CRO, COO, CMO)
-- **People.Source:** FMGuildPage, FMLinkedIN only (spec defines 6 sources)
-- **Portcos.Stage:** Series B, Series C only (spec defines 6 stages from Seed to Public)
-- **Portcos.Sector:** B2B SaaS, Infrastructure only (spec defines 7 sectors)
-- **Portco Roles.Role Type:** CFO, CTO only (spec defines 5 types)
-- **Portco Roles.Status:** Open only (spec defines: Open, On Hold, Filled, Cancelled)
-- **Portco Roles.Priority:** Critical, High only (spec defines: Critical, High, Medium, Low)
-- **Searches.Status:** Active, Planning only (spec defines: Planning, Active, Paused, Completed)
-- **Screens.Status:** Draft, Processing, Complete, Failed (demo uses: Processing, Complete, Failed)
-- **Assessments.Status:** Pending, Processing, Complete, Failed (demo uses: Pending, Complete, Failed)
-
-**Phase 2+ Enhancement:** Expand single-select options to full spec when supporting broader use cases beyond CFO/CTO demo scenarios.
+**Note:** For demo-scoped single-select option limitations, see "Demo Scope Limitations" section (line 274).
 
 **For complete field definitions, types, options, and setup instructions, see `spec/dev_reference/airtable_ai_spec.md`.**
 
@@ -1640,7 +1645,7 @@ To simplify the demo, several single-select fields have reduced option sets:
 **Developer A (Test Execution):**
 - [ ] Run **test_scoring.py** suite
 - [ ] Run **test_quality_check.py** suite
-- [ ] Run **test_workflow_smoke.py** (if created)
+- [ ] Run **test_workflow.py** suite
 - [ ] Fix any failing tests
 - [ ] Verify type hints (mypy check - optional)
 
