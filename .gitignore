@@ -1,0 +1,112 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+AGENTS.md
+GEMINI.md
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Virtual Environments
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.uv/
+
+# Environment & Secrets
+*.key
+*.pem
+secrets/
+credentials/
+
+# ngrok
+.ngrok/
+ngrok.yml
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Logs
+*.log
+logs/
+
+# Type Checking
+.mypy_cache/
+.pytype/
+.pyre/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Microsoft Office temporary files
+~$*
+
+# Temporary & Generated Files
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives
+archive/
+archives/
+
+# aidev
+.claude/logs/
+
+# MkDocs
+site/
+site.zip
+
+# Non code
+non_code/

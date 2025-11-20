@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "talent-signal-agent"
+version = "1.0.0"
+description = "AI-powered executive matching for FirstMark Capital portfolio companies"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "agno>=2.2.0", # Agent framework
+    "pydantic>=2.5.0", # Data validation
+    "fastapi[standard]>=0.115.0", # AgentOS FastAPI runtime
+    "pyairtable>=2.0.0", # Airtable API client
+    "python-dotenv>=1.0.0", # Environment variables
+    "mypy>=1.18.2",
+    "PyYAML>=6.0", # Prompt catalog loader
+    "uvicorn>=0.30.0",
+    "markitdown>=0.1.3",
+]
+
+[tool.setuptools.packages.find]
+include = ["demo*"]
+exclude = ["tests*", "spec*", "case*", "reference*", "tmp*", "archive*", "non_code*", "node_modules*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",            # Testing framework
+    "pytest-cov>=4.1.0",        # Coverage reporting
+    "ruff>=0.1.0",              # Formatting + linting
+    "mypy>=1.7.0",              # Type checking
+    "types-PyYAML>=6.0.12",     # YAML typing stubs for mypy
+]
+
+[tool.ruff]
+exclude = [
+    "reference/",
+    ".venv/",
+    "__pycache__/",
+    "*.egg-info/",
+]
+
+[tool.mypy]
+exclude = [
+    "^reference/",
+    "^\\.venv/",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+norecursedirs = ["reference", ".venv", "archive"]
+addopts = ""
+markers = []
+
+[tool.coverage.run]
+omit = [
+    "reference/*",
+    ".venv/*",
+    "*/tests/*",
+]
